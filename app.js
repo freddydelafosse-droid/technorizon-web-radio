@@ -230,3 +230,32 @@ setInterval(nextNews, 30000);
     await updateNowPlaying();
     setInterval(updateNowPlaying, 10000);
 })();
+/* ===== AZURACAST - EN CE MOMENT ===== */
+(async function loadNowPlaying() {
+    const titleEl = document.getElementById("now-playing-title");
+    if (!titleEl) return;
+
+    const apiUrl = "https://radio.technorizon.fr/api/nowplaying/technorizon";
+
+    async function updateNowPlaying() {
+        try {
+            const response = await fetch(apiUrl, { cache: "no-store" });
+
+            if (!response.ok) {
+                throw new Error("API AzuraCast inaccessible");
+            }
+
+            const data = await response.json();
+            const title = data?.now_playing?.song?.text;
+
+            if (title && title.trim()) {
+                titleEl.textContent = title.trim();
+            }
+        } catch (error) {
+            console.error("EN CE MOMENT :", error);
+        }
+    }
+
+    await updateNowPlaying();
+    setInterval(updateNowPlaying, 10000);
+})();
