@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/nowplaying/:path*",
+      "destination": "https://radio.technorizon.fr/api/nowplaying/:path*"
+    }
+  ]
+}
