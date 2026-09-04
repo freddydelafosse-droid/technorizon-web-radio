@@ -239,7 +239,7 @@ setInterval(nextNews, 30000);
 
     async function updateNowPlaying() {
         try {
-            const response = const response = await fetch(
+            const response = await fetch(
     "https://api.allorigins.win/raw?url=" + encodeURIComponent(apiUrl),
     { cache: "no-store" }
 );
