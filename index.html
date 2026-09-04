@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technorizon Web-Radio</title>
+<link rel="icon" type="image/png" href="https://technorizon-web-radio-v5-6ecw7hno2-freddydelafosse-7797.vercel.app/technorizon-logo.png">
+<link rel="apple-touch-icon" href="https://technorizon-web-radio-v5-6ecw7hno2-freddydelafosse-7797.vercel.app/technorizon-logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <button class="menu">☰</button>
+  <div class="social"><a href="https://www.facebook.com/Technorizon" target="_blank" rel="noopener noreferrer" aria-label="Facebook Technorizon">f</a> ◉ ▶ ♪</div>
+  <div class="logo">TECHNO<span>RIZON</span><small>LA WEB-RADIO</small></div>
+  <div id="clock">--:--:--</div>
+
+  <button id="listen" type="button">
+    ▶　<strong>ÉCOUTEZ</strong><small>TECHNORIZON EN DIRECT</small>
+  </button>
+
+  <p>Technorizon, votre Web-Radio musicale.<br>
+  De la musique, de l’information et les rendez-vous qui vous accompagnent au quotidien.</p>
+</header>
+
+<section class="live-area" id="liveArea">
+  <div class="caster-player" id="casterPlayer">
+    <audio id="radioPlayer" controls preload="none">
+      <source src="https://radio.technorizon.fr/listen/technorizon/radio.mp3" type="audio/mpeg">
+      Votre navigateur ne prend pas en charge la lecture audio.
+    </audio>
+  </div>
+</section>
+
+<section class="now-playing">
+  <div class="now-playing-label">🎵 EN CE MOMENT</div>
+  <div class="now-playing-content">
+    <div class="now-playing-disc">♫</div>
+    <div>
+      <div id="now-playing-title">Chargement de Technorizon…</div>
+      <div class="now-playing-status">TECHNORIZON • EN DIRECT</div>
+    </div>
+  </div>
+</section>
+
+<div class="studio-habillage"><img src="https://technorizon-web-radio-v5-6ecw7hno2-freddydelafosse-7797.vercel.app/technorizon-bg.png" alt="Studio Technorizon"></div>
+<main>
+  <div class="card flash" id="newsCard">
+  <h2>⚡ INFO <small>À LA UNE</small></h2>
+
+  <div class="news-status" id="newsStatus">
+    Recherche des dernières actualités...
+  </div>
+
+  <article class="news-item">
+    <div class="news-time" id="newsTime">--:--</div>
+    <h1 id="newsTitle">Chargement des actualités...</h1>
+    <p id="newsDescription">Les dernières informations arrivent...</p>
+    <a id="newsLink" href="#" target="_blank" rel="noopener">
+      LIRE LA SUITE →
+    </a>
+  </article>
+</div>
+
+  <div class="card weather" id="weatherCard">
+    <h2>☁️ MÉTÉO 📍 <span id="weatherCity">LE HAVRE</span></h2>
+
+    <div class="weather-search">
+        <input id="cityInput" type="text" placeholder="Rechercher une ville..." autocomplete="off">
+        <button id="cityButton">OK</button>
+    </div>
+
+    <p id="weatherDate">Chargement...</p>
+    <div class="temperature" id="weatherTemp">--°C ☀️</div>
+    <p id="weatherDetails">↑ --°　↓ --°　💧 --%　≈ -- km/h</p>
+    <p id="weatherStatus">Recherche de la météo...</p>
+</div>
+</main>
+
+<section class="contact" id="contact"><h2>✉️ NOUS CONTACTER</h2><p>Une question, une suggestion ou simplement envie de nous écrire ?</p><div class="contact-box"><p><strong>Technorizon Web-Radio</strong></p><p>Nous vous répondrons avec plaisir.</p><a class="contact-button" href="mailto:freddy.delafosse@gmail.com?subject=Contact%20depuis%20Technorizon%20Web-Radio">✉️ ENVOYER UN E-MAIL</a></div></section><footer>🎧 LA MUSIQUE　 L'INFO　 LES RENDEZ-VOUS　　✉️ <a href="#contact">CONTACTEZ-NOUS</a>　　TECHNO<span>RIZON</span></footer>
+
+<script src="app.js"></script>
+</body>
+</html>
