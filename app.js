@@ -239,10 +239,7 @@ setInterval(nextNews, 30000);
 
     async function updateNowPlaying() {
         try {
-            const response = await fetch(
-    "https://api.allorigins.win/raw?url=" + encodeURIComponent(apiUrl),
-    { cache: "no-store" }
-);
+            const response = await fetch("/api/nowplaying/technorizon", { cache: "no-store" });
 
             if (!response.ok) {
                 throw new Error("API AzuraCast inaccessible");
