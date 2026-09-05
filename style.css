@@ -171,3 +171,12 @@ main,
   .studio-habillage{display:block;width:100%;max-width:820px;margin:10px auto 30px;padding:0 18px;box-sizing:border-box;text-align:center}
   .studio-habillage img{display:block;width:100%;height:auto;border-radius:22px;border:1px solid #ff20ae;box-shadow:0 0 28px #ff20ae55}
 }
+
+.domain-fr{
+  font-size:28px;
+  letter-spacing:0;
+  margin-left:5px;
+  color:#18eaff !important;
+  font-style:normal;
+  text-shadow:0 0 10px #18eaff,0 0 20px #ff20ae;
+}
