@@ -96,7 +96,13 @@ footer span{color:#ff20ae}
   margin:50px auto 35px;
   padding:0 18px;
 }
-
+.live-area,
+.now-playing,
+.dedicaces,
+main,
+.contact{
+  margin-bottom:35px;
+}
 .dedicaces-card{
   min-height:0;
   padding:20px 22px;
