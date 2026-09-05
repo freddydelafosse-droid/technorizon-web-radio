@@ -48,10 +48,22 @@ footer span{color:#ff20ae}
 
 .listen-title{
   text-align:center;
-  margin-bottom:10px;
-  font-size:20px;
+  margin:4px 0 16px;
+  padding:14px 20px;
+  font-size:30px;
   font-weight:900;
+  letter-spacing:2px;
   color:#fff;
+  text-shadow:
+    0 0 8px #fff,
+    0 0 18px #ff20ae,
+    0 0 32px #ff20ae;
+  border:1px solid #ff20ae;
+  border-radius:14px;
+  background:linear-gradient(90deg,#09030d,#18051c,#09030d);
+  box-shadow:
+    0 0 12px #ff20ae88,
+    inset 0 0 18px #ff20ae22;
 }
 
 .listen-title strong{
