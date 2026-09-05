@@ -6,11 +6,19 @@ function tick() {
 tick();
 setInterval(tick, 1000);
 
-document.getElementById('listen').addEventListener('click', () => {
+document.getElementById('listen').addEventListener('click', async () => {
+  const player = document.getElementById('radioPlayer');
+
   document.getElementById('liveArea').scrollIntoView({
     behavior: 'smooth',
     block: 'center'
   });
+
+  try {
+    await player.play();
+  } catch (error) {
+    console.error('Lecture audio impossible :', error);
+  }
 });
 
 /* ===== METEO INTERACTIVE ===== */
