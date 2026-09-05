@@ -53,10 +53,10 @@
     <h2>💌 DÉDICACES <small>EN DIRECT</small></h2>
     <p>Un message à faire passer ? Envoyez votre dédicace sur Technorizon !</p>
 
-    <form id="dedicaceForm">
-      <input type="text" id="dedicaceName" placeholder="Votre prénom" maxlength="30" required>
-      <input type="text" id="dedicaceCity" placeholder="Votre ville" maxlength="40">
-      <textarea id="dedicaceMessage" placeholder="Votre dédicace..." maxlength="250" required></textarea>
+    <form id="dedicaceForm" action="https://formspree.io/f/xvkoqeyp" method="POST">
+      <input type="text" id="dedicaceName" name="Prénom" placeholder="Votre prénom" maxlength="30" required>
+      <input type="text" id="dedicaceCity" name="Ville" placeholder="Votre ville" maxlength="40">
+      <textarea id="dedicaceMessage" name="Dédicace" placeholder="Votre dédicace..." maxlength="250" required></textarea>
       <button type="submit">💌 ENVOYER MA DÉDICACE</button>
     </form>
   </div>
