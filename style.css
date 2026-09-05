@@ -253,3 +253,44 @@ main,
   transform:skewX(-10deg);
   text-shadow:0 0 10px #18eaff,0 0 20px #ff20ae;
 }
+
+.listen-title{
+  position:relative;
+  text-align:center;
+  margin:4px 0 18px;
+  padding:22px 25px;
+  border:2px solid #ff20ae;
+  border-radius:22px;
+  background:linear-gradient(90deg,#09000f 0%,#3b0638 35%,#071c2d 65%,#09000f 100%);
+  box-shadow:
+    0 0 15px #ff20ae,
+    0 0 35px #ff20ae88,
+    0 0 55px #18eaff55,
+    inset 0 0 30px #ff20ae33;
+  overflow:hidden;
+  animation:listenPulse 1.5s ease-in-out infinite alternate;
+}
+
+.listen-title strong{
+  display:block;
+  color:#ffffff;
+  font-size:46px;
+  font-weight:900;
+  letter-spacing:4px;
+  text-shadow:
+    0 0 8px #ffffff,
+    0 0 18px #ff20ae,
+    0 0 32px #ff20ae;
+}
+
+.listen-title small{
+  display:block;
+  margin-top:8px;
+  color:#18eaff;
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:5px;
+  text-shadow:
+    0 0 8px #18eaff,
+    0 0 18px #18eaff;
+}
