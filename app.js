@@ -267,3 +267,45 @@ setInterval(nextNews, 30000);
     await updateNowPlaying();
     setInterval(updateNowPlaying, 10000);
 })();
+
+/* ===== DÉDICACES - ENVOI SANS COUPER LA RADIO ===== */
+const dedicaceForm = document.getElementById("dedicaceForm");
+
+if (dedicaceForm) {
+    dedicaceForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const button = dedicaceForm.querySelector('button[type="submit"]');
+        const originalText = button.textContent;
+
+        button.disabled = true;
+        button.textContent = "💌 ENVOI EN COURS...";
+
+        try {
+            const response = await fetch(dedicaceForm.action, {
+                method: "POST",
+                body: new FormData(dedicaceForm),
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Erreur lors de l'envoi");
+            }
+
+            dedicaceForm.reset();
+            button.textContent = "✅ DÉDICACE ENVOYÉE !";
+
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 3000);
+
+        } catch (error) {
+            console.error("Dédicace :", error);
+            button.textContent = "❌ ERREUR - RÉESSAYER";
+            button.disabled = false;
+        }
+    });
+}
