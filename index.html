@@ -21,9 +21,7 @@
   <div class="logo">TECHNO<span>RIZON</span><span class="domain-fr">.fr</span><small>LA WEB-RADIO</small></div>
   <div id="clock">--:--:--</div>
 
-  <button id="listen" type="button">
-    ▶　<strong>ÉCOUTEZ</strong><small>TECHNORIZON EN DIRECT</small>
-  </button>
+  
 
   <p>Technorizon, votre Web-Radio musicale.<br>
   De la musique, de l’information et les rendez-vous qui vous accompagnent au quotidien.</p>
@@ -31,12 +29,18 @@
 
 <section class="live-area" id="liveArea">
   <div class="caster-player" id="casterPlayer">
+    <div class="listen-title">
+      ▶ <strong>ÉCOUTEZ</strong>
+      <small>TECHNORIZON EN DIRECT</small>
+    </div>
+
     <audio id="radioPlayer" controls preload="none">
       <source src="https://radio.technorizon.fr/listen/technorizon/radio.mp3" type="audio/mpeg">
       Votre navigateur ne prend pas en charge la lecture audio.
     </audio>
   </div>
 </section>
+  
 <section class="now-playing">
   <div class="now-playing-label">🎵 EN CE MOMENT</div>
   <div class="now-playing-content">
