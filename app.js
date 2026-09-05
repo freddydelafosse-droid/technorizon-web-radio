@@ -6,7 +6,8 @@ function tick() {
 tick();
 setInterval(tick, 1000);
 
-document.getElementById('listen').addEventListener('click', async () => {
+const listenButton = document.getElementById('listen');
+listenButton?.addEventListener('click', async () => {
   const player = document.getElementById('radioPlayer');
 
   document.getElementById('liveArea').scrollIntoView({
