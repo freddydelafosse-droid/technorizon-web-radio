@@ -91,6 +91,68 @@ footer span{color:#ff20ae}
 .contact-button:hover {color:#fff;background:rgba(255,0,170,.18);border-color:#ff00aa;box-shadow:0 0 8px #ff00aa,0 0 20px #ff00aa,0 0 35px rgba(0,217,255,.5);transform:translateY(-2px)}
 
 .studio-habillage{display:none}
+.dedicaces{
+  max-width:760px;
+  margin:50px auto 80px;
+  padding:0 18px;
+}
+
+.dedicaces-card{
+  min-height:0;
+  padding:20px 22px;
+  text-align:center;
+  background:linear-gradient(135deg,rgba(255,32,174,.12),rgba(24,234,255,.08));
+  border:1px solid #ff20ae;
+  border-radius:18px;
+  box-shadow:0 0 18px rgba(255,32,174,.28),0 0 26px rgba(24,234,255,.12);
+}
+
+.dedicaces-card h2{
+  margin:0 0 8px;
+  color:#18eaff;
+  font-size:24px;
+  text-shadow:0 0 10px rgba(24,234,255,.75);
+}
+
+.dedicaces-card h2 small{
+  color:#ff20ae;
+}
+
+.dedicaces-card p{
+  margin:0 0 14px;
+  font-size:15px;
+}
+
+#dedicaceForm{
+  display:grid;
+  gap:10px;
+}
+
+#dedicaceForm input,
+#dedicaceForm textarea{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid rgba(24,234,255,.55);
+  border-radius:10px;
+  background:rgba(5,8,18,.8);
+  color:#fff;
+  font-size:14px;
+}
+
+#dedicaceForm textarea{
+  min-height:75px;
+  resize:vertical;
+}
+
+#dedicaceForm button{
+  padding:11px 18px;
+  border:1px solid #ff20ae;
+  border-radius:12px;
+  background:linear-gradient(90deg,#ff20ae,#7435ff,#18eaff);
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
 @media(max-width:800px){
   .now-playing{margin-bottom:25px;padding:16px}
   #now-playing-title{font-size:18px}
