@@ -48,22 +48,57 @@ footer span{color:#ff20ae}
 
 .listen-title{
   text-align:center;
-  margin:4px 0 16px;
-  padding:14px 20px;
-  font-size:30px;
+  margin:6px 0 16px;
+  padding:18px 22px;
+  font-size:36px;
   font-weight:900;
-  letter-spacing:2px;
+  letter-spacing:3px;
   color:#fff;
-  text-shadow:
-    0 0 8px #fff,
-    0 0 18px #ff20ae,
-    0 0 32px #ff20ae;
-  border:1px solid #ff20ae;
-  border-radius:14px;
-  background:linear-gradient(90deg,#09030d,#18051c,#09030d);
+  border:2px solid #ff20ae;
+  border-radius:18px;
+  background:linear-gradient(90deg,#0b0310,#25052e,#071827,#25052e,#0b0310);
   box-shadow:
-    0 0 12px #ff20ae88,
-    inset 0 0 18px #ff20ae22;
+    0 0 12px #ff20ae,
+    0 0 28px #ff20ae99,
+    0 0 48px #18eaff55,
+    inset 0 0 25px #ff20ae33;
+  text-shadow:
+    0 0 6px #fff,
+    0 0 15px #ff20ae,
+    0 0 30px #18eaff;
+  animation:listenPulse 1.8s ease-in-out infinite alternate;
+}
+
+.listen-title strong{
+  color:#ff20ae;
+  font-size:42px;
+}
+
+.listen-title small{
+  display:block;
+  margin-top:6px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:4px;
+  color:#18eaff;
+  text-shadow:0 0 12px #18eaff;
+}
+
+@keyframes listenPulse{
+  from{
+    box-shadow:
+      0 0 10px #ff20ae,
+      0 0 22px #ff20ae77,
+      0 0 30px #18eaff33,
+      inset 0 0 20px #ff20ae22;
+  }
+  to{
+    box-shadow:
+      0 0 20px #ff20ae,
+      0 0 40px #ff20aebb,
+      0 0 60px #18eaff66,
+      inset 0 0 30px #18eaff22;
+  }
 }
 
 .listen-title strong{
