@@ -42,7 +42,12 @@ footer span{color:#ff20ae}
   border: 1px solid #ff20ae;
   border-radius: 20px;
   background: #05040b;
-  box-shadow: 0 0 28px #ff20ae22;
+  box-shadow:
+  0 0 12px #ff20ae,
+  0 0 28px #ff20ae99,
+  0 0 48px #18eaff55,
+  inset 0 0 25px #ff20ae33;
+  animation:listenPulse 1.8s ease-in-out infinite alternate;
   overflow: hidden;
 }
 
@@ -66,7 +71,6 @@ footer span{color:#ff20ae}
     0 0 6px #fff,
     0 0 15px #ff20ae,
     0 0 30px #18eaff;
-  animation:listenPulse 1.8s ease-in-out infinite alternate;
 }
 
 .listen-title strong{
@@ -86,11 +90,7 @@ footer span{color:#ff20ae}
 
 @keyframes listenPulse{
   from{
-    box-shadow:
-      0 0 10px #ff20ae,
-      0 0 22px #ff20ae77,
-      0 0 30px #18eaff33,
-      inset 0 0 20px #ff20ae22;
+    
   }
   to{
     box-shadow:
