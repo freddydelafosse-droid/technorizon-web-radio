@@ -37,9 +37,9 @@ footer span{color:#ff20ae}
 @media(max-width:800px){
   body {
     background-image: url("/technorizon-bg.png");
-    background-size: cover;
+    background-size: 100% auto;
     background-position: center top;
-    background-repeat: no-repeat;
+    background-repeat: repeat-y;
     background-attachment: scroll;
   }
 }
