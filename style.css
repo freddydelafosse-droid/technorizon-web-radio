@@ -442,3 +442,71 @@ main,
   line-height: 1.6;
   border: 1px solid #18eaff33;
 }
+
+/* --- TECHNOROSCOPE : SIGNES ASTROLOGIQUES --- */
+
+.zodiac-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  max-width: 760px;
+  margin: 22px auto 0;
+}
+
+.zodiac-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 92px;
+  padding: 12px;
+  border: 1px solid #ff20ae;
+  border-radius: 14px;
+  background: rgba(8, 11, 24, 0.92);
+  color: #ffffff;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow:
+    0 0 10px #ff20ae33,
+    inset 0 0 12px #18eaff11;
+  transition: 0.2s ease;
+}
+
+.zodiac-btn span {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.zodiac-btn:hover {
+  transform: translateY(-2px);
+  border-color: #18eaff;
+  box-shadow:
+    0 0 14px #18eaff66,
+    0 0 22px #ff20ae33;
+}
+
+.zodiac-btn.active {
+  border-color: #18eaff;
+  color: #18eaff;
+  box-shadow:
+    0 0 16px #18eaff88,
+    0 0 24px #ff20ae44;
+}
+
+@media(max-width:800px) {
+  .zodiac-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .zodiac-btn {
+    min-height: 82px;
+    font-size: 1.7rem;
+    padding: 10px 6px;
+  }
+
+  .zodiac-btn span {
+    font-size: 0.82rem;
+  }
+}
