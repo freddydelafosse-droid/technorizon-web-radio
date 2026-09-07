@@ -310,3 +310,108 @@ if (dedicaceForm) {
         }
     });
 }
+
+/* --- TECHNOROSCOPE --- */
+
+const zodiacSelect = document.getElementById("zodiacSign");
+const horoscopeResult = document.getElementById("horoscopeResult");
+
+const technoroscopeMessages = {
+  belier: [
+    "⚡ Aujourd’hui, ton énergie monte dans le rouge. Profite-en pour avancer sur ce qui te tient à cœur, mais évite de partir au quart de tour.",
+    "🔥 Une journée dynamique t’attend. Une bonne surprise pourrait arriver là où tu ne l’attends pas.",
+    "🎧 Le rythme est avec toi aujourd’hui. Fais confiance à ton instinct et garde le tempo."
+  ],
+
+  taureau: [
+    "🌟 Aujourd’hui, la stabilité sera ta meilleure alliée. Prends ton temps et laisse les bonnes choses venir à toi.",
+    "🎶 Une journée agréable se profile. Côté cœur comme côté projets, privilégie la simplicité.",
+    "💫 Ton calme fera la différence aujourd’hui. Une décision réfléchie pourrait porter ses fruits."
+  ],
+
+  gemeaux: [
+    "✨ Les échanges sont favorisés aujourd’hui. Une discussion pourrait t’ouvrir une nouvelle porte.",
+    "📻 Ton esprit est en mode grand mix ! Beaucoup d’idées arrivent : garde les meilleures et passe à l’action.",
+    "⚡ Une rencontre ou un message pourrait mettre un peu de piment dans ta journée."
+  ],
+
+  cancer: [
+    "🌙 Écoute ton intuition aujourd’hui : elle pourrait te guider mieux que prévu.",
+    "💙 Une journée propice aux rapprochements et aux moments simples avec les personnes que tu apprécies.",
+    "🎧 Ne laisse pas les petites contrariétés casser ton rythme. La soirée pourrait être bien meilleure que la journée."
+  ],
+
+  lion: [
+    "🔥 Les projecteurs sont sur toi ! Profite de cette énergie pour faire entendre tes idées.",
+    "👑 Confiance et charisme seront au rendez-vous aujourd’hui. Attention simplement à ne pas en faire trop.",
+    "⚡ Une opportunité pourrait se présenter. À toi de monter le son au bon moment."
+  ],
+
+  vierge: [
+    "✨ Ton sens du détail sera particulièrement utile aujourd’hui. Une situation pourrait enfin se débloquer.",
+    "🎶 Pas besoin d’aller trop vite : un bon réglage vaut mieux qu’un mauvais remix.",
+    "🌟 Une journée constructive se profile, particulièrement pour tes projets personnels."
+  ],
+
+  balance: [
+    "💜 Aujourd’hui, cherche l’équilibre entre obligations et plaisir. Tu pourrais avoir une agréable surprise.",
+    "🎧 Les relations sont à l’honneur. Une conversation sincère pourrait remettre les choses au clair.",
+    "✨ Une belle énergie t’accompagne : laisse-toi porter sans vouloir tout contrôler."
+  ],
+
+  scorpion: [
+    "🔥 Ton intuition sera redoutable aujourd’hui. Fais-lui confiance, mais garde quelques cartes dans ta manche.",
+    "⚡ Une journée intense s’annonce. Transforme cette énergie en quelque chose de positif.",
+    "🎶 Quelque chose pourrait changer de tempo aujourd’hui… et finalement te convenir parfaitement."
+  ],
+
+  sagittaire: [
+    "🚀 Besoin de mouvement ! La journée pourrait t’offrir une occasion de sortir de la routine.",
+    "✨ Optimisme et curiosité seront tes meilleurs alliés aujourd’hui.",
+    "🎧 Une nouvelle idée pourrait rapidement devenir un vrai projet. Note-la avant qu’elle ne disparaisse !"
+  ],
+
+  capricorne: [
+    "🌟 Tes efforts commencent à payer. Continue sans te laisser distraire par les petites difficultés.",
+    "🎶 Aujourd’hui, avance morceau par morceau : inutile de vouloir mixer toute la playlist en une fois.",
+    "💫 Une décision raisonnable pourrait t’apporter davantage que prévu."
+  ],
+
+  verseau: [
+    "⚡ Ton originalité fera mouche aujourd’hui. N’hésite pas à proposer quelque chose de différent.",
+    "🚀 Une idée inattendue pourrait changer ton programme. Laisse un peu de place à l’imprévu.",
+    "🎧 Aujourd’hui, tu es clairement sur une autre fréquence… et c’est peut-être exactement ce qu’il fallait."
+  ],
+
+  poissons: [
+    "🌊 Ton intuition et ta créativité seront particulièrement fortes aujourd’hui.",
+    "💜 Prends le temps d’écouter ce que tu ressens. Une petite pause pourrait te faire beaucoup de bien.",
+    "🎶 Laisse-toi porter par le rythme aujourd’hui : une belle surprise pourrait arriver sans prévenir."
+  ]
+};
+
+if (zodiacSelect && horoscopeResult) {
+  zodiacSelect.addEventListener("change", function () {
+    const sign = this.value;
+
+    if (!sign) {
+      horoscopeResult.textContent =
+        "Sélectionnez votre signe pour découvrir votre Technoroscope.";
+      return;
+    }
+
+    const today = new Date();
+    const dayNumber = Math.floor(
+      new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() /
+      86400000
+    );
+
+    const messages = technoroscopeMessages[sign];
+    const messageIndex = dayNumber % messages.length;
+
+    horoscopeResult.innerHTML =
+      "<strong>🔮 Ton Technoroscope du jour :</strong><br><br>" +
+      messages[messageIndex] +
+      "<br><br><small>✨ À prendre avec le sourire — Technorizon.fr</small>";
+  });
+}
