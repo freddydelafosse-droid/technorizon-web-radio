@@ -3,7 +3,9 @@ export default function handler(req, res) {
     return res.status(405).json({ error: "Méthode non autorisée" });
   }
 
-  const dedicaces = [];
+  const dedicaces = [
+  "💌 TEST — Gaby : Bienvenue sur Technorizon.fr !"
+];
 
   res.setHeader("Cache-Control", "no-store");
 
