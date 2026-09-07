@@ -314,7 +314,7 @@ if (dedicaceForm) {
 /* --- TECHNOROSCOPE --- */
 
 const horoscopeResult = document.getElementById("horoscopeResult");
-const zodiacButtons = document.querySelectorAll(".zodiac-btn");
+const zodiacButtons = document.querySelectorAll(".zodiac-card");
 
 const technoroscopeMessages = {
   belier: [
