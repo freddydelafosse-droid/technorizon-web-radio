@@ -510,3 +510,97 @@ main,
     font-size: 0.82rem;
   }
 }
+
+/* --- TECHNOROSCOPE : CARTES ASTRO --- */
+
+.zodiac-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.zodiac-card {
+  min-height: 118px;
+  padding: 14px 10px;
+  border: 1px solid #18eaff66;
+  border-radius: 14px;
+  background: rgba(5, 8, 20, 0.92);
+  color: #ffffff;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  box-shadow:
+    0 0 12px #18eaff22,
+    inset 0 0 14px #ff20ae11;
+
+  transition: 0.2s ease;
+}
+
+.zodiac-symbol {
+  font-size: 2.6rem;
+  line-height: 1;
+  color: #18eaff;
+  text-shadow:
+    0 0 8px #18eaff,
+    0 0 16px #18eaff88;
+}
+
+.zodiac-name {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.zodiac-date {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.zodiac-card:hover {
+  transform: translateY(-3px);
+  border-color: #ff20ae;
+  box-shadow:
+    0 0 16px #ff20ae66,
+    0 0 28px #18eaff33;
+}
+
+.zodiac-card.active {
+  border-color: #ff20ae;
+  box-shadow:
+    0 0 16px #ff20ae,
+    0 0 30px #ff20ae88,
+    inset 0 0 20px #ff20ae22;
+}
+
+.zodiac-card.active .zodiac-symbol {
+  color: #ff20ae;
+  text-shadow:
+    0 0 10px #ff20ae,
+    0 0 22px #ff20ae;
+}
+
+@media(max-width:900px) {
+  .zodiac-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media(max-width:520px) {
+  .zodiac-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .zodiac-card {
+    min-height: 105px;
+  }
+
+  .zodiac-symbol {
+    font-size: 2.2rem;
+  }
+}
