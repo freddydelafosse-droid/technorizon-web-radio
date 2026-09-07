@@ -674,3 +674,7 @@ main {
 }
   }
 }
+
+#horoscopeDay {
+  white-space: pre-line;
+}
