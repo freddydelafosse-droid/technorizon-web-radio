@@ -798,3 +798,16 @@ main {
     margin: 0 4px !important;
   }
 }
+
+@media (max-width: 800px) {
+  .caster-player {
+    min-height: 0 !important;
+    margin: 8px auto 20px !important;
+    padding: 8px 10px 10px !important;
+  }
+
+  .listen-title {
+    min-height: 0 !important;
+    margin: 0 0 8px !important;
+  }
+}
