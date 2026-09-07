@@ -467,3 +467,45 @@ document.getElementById("dancefloorIndex").textContent =
     });
   });
 }
+
+const shareHoroscopeButton = document.getElementById("shareHoroscopeButton");
+
+if (shareHoroscopeButton) {
+  shareHoroscopeButton.addEventListener("click", async () => {
+    const sign = document.getElementById("horoscopeSign")?.textContent?.trim();
+    const text = document.getElementById("horoscopeDay")?.textContent?.trim();
+
+    if (!sign || sign === "VOTRE SIGNE" || !text) {
+      alert("Sélectionnez d'abord votre signe astrologique.");
+      return;
+    }
+
+    const shareText =
+      `🔮 Mon Technoroscope ${sign} du jour sur Technorizon.fr\n\n` +
+      `${text}\n\n` +
+      `🎧 Découvre le tien sur Technorizon.fr`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Technoroscope ${sign} - Technorizon.fr`,
+          text: shareText,
+          url: "https://technorizon.fr/"
+        });
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error("Partage Technoroscope :", error);
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(
+          shareText + "\nhttps://technorizon.fr/"
+        );
+        alert("✅ Technoroscope copié ! Vous pouvez maintenant le partager.");
+      } catch (error) {
+        console.error("Copie Technoroscope :", error);
+      }
+    }
+  });
+}
