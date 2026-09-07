@@ -647,3 +647,28 @@ main {
     grid-column: 1;
   }
 }
+
+/* --- AJUSTEMENT TECHNOROSCOPE --- */
+
+.technoroscope-card {
+  padding: 24px 24px 20px;
+}
+
+.zodiac-grid {
+  max-width: 980px;
+  margin: 22px auto;
+  justify-content: center;
+}
+
+.horoscope-result {
+  max-width: 820px;
+  margin: 26px auto 0;
+}
+
+.technoroscope {
+  margin-bottom: 16px;
+}
+
+.zodiac-grid {
+  width: 100%;
+}
