@@ -315,6 +315,7 @@ if (dedicaceForm) {
 
 const horoscopeResult = document.getElementById("horoscopeResult");
 const zodiacButtons = document.querySelectorAll(".zodiac-card");
+console.log("Nombre de signes détectés :", zodiacButtons.length);
 
 const technoroscopeMessages = {
   belier: [
@@ -393,6 +394,7 @@ const technoroscopeMessages = {
 if (horoscopeResult && zodiacButtons.length) {
   zodiacButtons.forEach((button) => {
     button.addEventListener("click", () => {
+      alert("Clic détecté sur " + button.dataset.sign);
       const sign = button.dataset.sign;
 
       zodiacButtons.forEach((btn) => btn.classList.remove("active"));
