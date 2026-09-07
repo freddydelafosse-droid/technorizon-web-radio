@@ -336,3 +336,50 @@ main,
 .credits strong {
   color: #ff20ae;
 }
+
+/* --- DÉDICACES : MENU DÉROULANT --- */
+
+.dedicaces-card summary {
+  cursor: pointer;
+  list-style: none;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  padding: 18px 20px;
+  border-radius: 16px;
+  text-shadow:
+    0 0 8px #ff20ae,
+    0 0 16px #ff20ae;
+  transition: 0.25s ease;
+}
+
+.dedicaces-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.dedicaces-card summary::after {
+  content: " ▼";
+  color: #18eaff;
+  font-size: 0.8em;
+}
+
+.dedicaces-card[open] summary::after {
+  content: " ▲";
+}
+
+.dedicaces-card summary:hover {
+  color: #18eaff;
+  text-shadow:
+    0 0 8px #18eaff,
+    0 0 18px #ff20ae;
+}
+
+.dedicaces-content {
+  padding: 5px 20px 20px;
+  text-align: center;
+}
+
+.dedicaces-card:not([open]) {
+  padding-bottom: 0;
+}
