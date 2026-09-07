@@ -715,3 +715,17 @@ main {
   display: inline-block;
   margin: 0 8px;
 }
+
+.instagram-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff2bbd;
+  vertical-align: middle;
+}
+
+.instagram-icon {
+  width: 25px;
+  height: 25px;
+  filter: drop-shadow(0 0 5px #ff2bbd);
+}
