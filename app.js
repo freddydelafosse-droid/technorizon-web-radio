@@ -538,3 +538,28 @@ if (shareHoroscopeButton) {
     }
   });
 }
+
+async function loadDedicaces() {
+  const ticker = document.getElementById("dedicaceTickerTrack");
+
+  if (!ticker) return;
+
+  try {
+    const response = await fetch("/api/dedicaces", {
+      cache: "no-store"
+    });
+
+    if (!response.ok) return;
+
+    const data = await response.json();
+
+    if (Array.isArray(data.dedicaces) && data.dedicaces.length > 0) {
+      ticker.textContent = data.dedicaces.join("   💗   ");
+    }
+  } catch (error) {
+    console.error("Dédicaces Technorizon :", error);
+  }
+}
+
+loadDedicaces();
+setInterval(loadDedicaces, 60000);
