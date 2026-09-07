@@ -383,3 +383,62 @@ main,
 .dedicaces-card:not([open]) {
   padding-bottom: 0;
 }
+
+/* --- TECHNOROSCOPE --- */
+
+.technoroscope {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.technoroscope-card {
+  text-align: center;
+  padding: 26px 22px;
+  border: 1px solid #18eaff66;
+  box-shadow:
+    0 0 16px #18eaff33,
+    0 0 30px #ff20ae22;
+}
+
+.technoroscope-card h2 {
+  margin-top: 0;
+  color: #18eaff;
+  text-shadow:
+    0 0 8px #18eaff,
+    0 0 18px #ff20ae;
+}
+
+.technoroscope-intro {
+  color: #ffffff;
+  margin-bottom: 18px;
+}
+
+#zodiacSign {
+  width: 100%;
+  max-width: 420px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ff20ae;
+  background: #080b18;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 0 12px #ff20ae44;
+}
+
+#zodiacSign:focus {
+  border-color: #18eaff;
+  box-shadow: 0 0 16px #18eaff66;
+}
+
+.horoscope-result {
+  max-width: 700px;
+  margin: 20px auto 0;
+  padding: 18px;
+  border-radius: 12px;
+  background: rgba(5, 8, 20, 0.75);
+  color: #ffffff;
+  line-height: 1.6;
+  border: 1px solid #18eaff33;
+}
