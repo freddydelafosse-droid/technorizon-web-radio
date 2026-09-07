@@ -777,3 +777,24 @@ main {
     transform: translateX(-100%);
   }
 }
+
+@media (max-width: 800px) {
+  .listen-title {
+    padding: 18px 12px !important;
+  }
+
+  .listen-title strong {
+    font-size: 30px !important;
+    line-height: 1.05 !important;
+  }
+
+  .listen-title small {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+
+  .listen-arrow {
+    font-size: 18px !important;
+    margin: 0 4px !important;
+  }
+}
