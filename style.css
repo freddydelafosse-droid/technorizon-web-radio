@@ -729,3 +729,51 @@ main {
   height: 38px;
   filter: drop-shadow(0 0 5px #ff2bbd);
 }
+
+.dedicace-ticker {
+  max-width: 1230px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 18px;
+}
+
+.dedicace-ticker-label {
+  flex: 0 0 auto;
+  padding: 12px 16px;
+  border: 1px solid #ff20ae;
+  border-right: 0;
+  border-radius: 14px 0 0 14px;
+  background: #09050d;
+  color: #ff4fc3;
+  font-weight: 900;
+  letter-spacing: 1px;
+  box-shadow: 0 0 14px #ff20ae55;
+}
+
+.dedicace-ticker-window {
+  flex: 1;
+  overflow: hidden;
+  border: 1px solid #18eaff;
+  border-radius: 0 14px 14px 0;
+  background: #050711;
+  box-shadow: 0 0 14px #18eaff44;
+}
+
+.dedicace-ticker-track {
+  white-space: nowrap;
+  padding: 12px 0;
+  display: inline-block;
+  min-width: 100%;
+  animation: dedicaceScroll 18s linear infinite;
+}
+
+@keyframes dedicaceScroll {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
