@@ -393,6 +393,7 @@ const technoroscopeMessages = {
 if (horoscopeResult && zodiacButtons.length) {
   zodiacButtons.forEach((button) => {
     button.addEventListener("click", () => {
+      const sign = button.dataset.sign;
 
       zodiacButtons.forEach((btn) => btn.classList.remove("active"));
       button.classList.add("active");
