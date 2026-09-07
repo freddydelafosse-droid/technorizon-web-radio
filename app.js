@@ -431,6 +431,37 @@ document.getElementById("horoscopeDate").textContent =
 
 document.getElementById("horoscopeDay").textContent =
   messages[messageIndex];
+
+      const seed = dayNumber + Object.keys(signNames).indexOf(sign) * 17;
+
+const stars = (n) =>
+  "★".repeat(n) + "☆".repeat(5 - n);
+
+const moods = [
+  "Techno mélodique",
+  "Eurodance 90's",
+  "House solaire",
+  "Trance euphorique",
+  "Dancefloor rétro",
+  "Deep House"
+];
+
+const love = 1 + (seed % 5);
+const work = 1 + ((seed + 2) % 5);
+const money = 1 + ((seed + 4) % 5);
+const energy = 1 + ((seed + 1) % 5);
+const dance = 60 + (seed % 41);
+
+document.getElementById("loveRating").textContent = stars(love);
+document.getElementById("workRating").textContent = stars(work);
+document.getElementById("moneyRating").textContent = stars(money);
+document.getElementById("energyRating").textContent = stars(energy);
+
+document.getElementById("musicMood").textContent =
+  moods[seed % moods.length];
+
+document.getElementById("dancefloorIndex").textContent =
+  dance + "%";
       
     });
   });
