@@ -393,7 +393,7 @@ const technoroscopeMessages = {
 
 if (horoscopeResult && zodiacButtons.length) {
   zodiacButtons.forEach((button) => {
-    button.addEventListener("click", () => {
+   button.addEventListener("click", async () => {
       const sign = button.dataset.sign;
 
       zodiacButtons.forEach((btn) => btn.classList.remove("active"));
@@ -410,6 +410,35 @@ if (horoscopeResult && zodiacButtons.length) {
 
       const messages = technoroscopeMessages[sign];
       const messageIndex = dayNumber % messages.length;
+     const sigastraSigns = {
+  belier: "aries",
+  taureau: "taurus",
+  gemeaux: "gemini",
+  cancer: "cancer",
+  lion: "leo",
+  vierge: "virgo",
+  balance: "libra",
+  scorpion: "scorpio",
+  sagittaire: "sagittarius",
+  capricorne: "capricorn",
+  verseau: "aquarius",
+  poissons: "pisces"
+};
+     const sigastraSign = sigastraSigns[sign];
+     let dailyHoroscope = messages[messageIndex];
+
+try {
+  const response = await fetch(
+    `https://sigastra.com/api/v1/daily?lang=fr&sign=${sigastraSign}`
+  );
+
+  if (response.ok) {
+    const data = await response.json();
+    dailyHoroscope = data.excerpt || dailyHoroscope;
+  }
+} catch (error) {
+  console.error("Technoroscope Sigastra :", error);
+}
 
       const signNames = {
   belier: "BÉLIER",
@@ -431,7 +460,7 @@ document.getElementById("horoscopeDate").textContent =
   button.querySelector(".zodiac-date").textContent;
 
 document.getElementById("horoscopeDay").textContent =
-  messages[messageIndex];
+  dailyHoroscope
 
       const seed = dayNumber + Object.keys(signNames).indexOf(sign) * 17;
 
