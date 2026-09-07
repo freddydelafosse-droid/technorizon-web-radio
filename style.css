@@ -304,3 +304,35 @@ main,
     0 0 8px #18eaff,
     0 0 18px #18eaff;
 }
+
+.credits {
+  max-width: 900px;
+  margin: 30px auto 20px;
+  padding: 24px 20px;
+  text-align: center;
+  background: rgba(5, 8, 20, 0.82);
+  border: 1px solid #18eaff66;
+  border-radius: 18px;
+  box-shadow:
+    0 0 16px #18eaff33,
+    0 0 28px #ff20ae22;
+  backdrop-filter: blur(6px);
+}
+
+.credits h2 {
+  margin: 0 0 18px;
+  color: #18eaff;
+  text-shadow:
+    0 0 8px #18eaff,
+    0 0 18px #ff20ae;
+}
+
+.credits p {
+  margin: 8px 0;
+  color: #ffffff;
+  line-height: 1.5;
+}
+
+.credits strong {
+  color: #ff20ae;
+}
