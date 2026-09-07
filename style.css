@@ -708,3 +708,10 @@ main {
 #shareHoroscopeButton:active {
   transform: scale(0.97);
 }
+
+.listen-arrow {
+  font-size: 24px;
+  vertical-align: middle;
+  display: inline-block;
+  margin: 0 8px;
+}
