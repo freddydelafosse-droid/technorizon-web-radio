@@ -616,10 +616,16 @@ main {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+  align-items: start;
 }
 
 #technoroscope {
-  grid-column: 1 / 3;
+  grid-column: 1 / -1;
+}
+
+#technoroscope .technoroscope-card {
+  width: 100%;
+  max-width: none;
 }
 
 #newsCard {
