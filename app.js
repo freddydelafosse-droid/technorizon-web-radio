@@ -295,6 +295,28 @@ if (dedicaceForm) {
                 throw new Error("Erreur lors de l'envoi");
             }
 
+          const prenom = document.getElementById("dedicaceName")?.value?.trim() || "";
+const ville = document.getElementById("dedicaceCity")?.value?.trim() || "";
+const message = document.getElementById("dedicaceMessage")?.value?.trim() || "";
+
+const saveResponse = await fetch("/api/dedicaces", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    prenom,
+    ville,
+    message
+  })
+});
+
+if (!saveResponse.ok) {
+  throw new Error("Erreur lors de l'enregistrement de la dédicace");
+}
+
+await loadDedicaces();
+          
             dedicaceForm.reset();
             button.textContent = "✅ DÉDICACE ENVOYÉE !";
 
