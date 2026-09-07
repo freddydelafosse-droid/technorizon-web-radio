@@ -434,7 +434,7 @@ try {
 
   if (response.ok) {
     const data = await response.json();
-    dailyHoroscope = data.excerpt || dailyHoroscope;
+    dailyHoroscope = data.items?.[0]?.text || dailyHoroscope;
   }
 } catch (error) {
   console.error("Technoroscope Sigastra :", error);
