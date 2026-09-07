@@ -313,8 +313,8 @@ if (dedicaceForm) {
 
 /* --- TECHNOROSCOPE --- */
 
-const zodiacSelect = document.getElementById("zodiacSign");
 const horoscopeResult = document.getElementById("horoscopeResult");
+const zodiacButtons = document.querySelectorAll(".zodiac-btn");
 
 const technoroscopeMessages = {
   belier: [
@@ -390,28 +390,30 @@ const technoroscopeMessages = {
   ]
 };
 
-if (zodiacSelect && horoscopeResult) {
-  zodiacSelect.addEventListener("change", function () {
-    const sign = this.value;
+if (horoscopeResult && zodiacButtons.length) {
+  zodiacButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const sign = button.dataset.sign;
 
-    if (!sign) {
-      horoscopeResult.textContent =
-        "Sélectionnez votre signe pour découvrir votre Technoroscope.";
-      return;
-    }
+      zodiacButtons.forEach((btn) => btn.classList.remove("active"));
+      button.classList.add("active");
 
-    const today = new Date();
-    const dayNumber = Math.floor(
-      new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() /
-      86400000
-    );
+      const today = new Date();
+      const dayNumber = Math.floor(
+        new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate()
+        ).getTime() / 86400000
+      );
 
-    const messages = technoroscopeMessages[sign];
-    const messageIndex = dayNumber % messages.length;
+      const messages = technoroscopeMessages[sign];
+      const messageIndex = dayNumber % messages.length;
 
-    horoscopeResult.innerHTML =
-      "<strong>🔮 Ton Technoroscope du jour :</strong><br><br>" +
-      messages[messageIndex] +
-      "<br><br><small>✨ À prendre avec le sourire — Technorizon.fr</small>";
+      horoscopeResult.innerHTML =
+        "<strong>🔮 Ton Technoroscope du jour :</strong><br><br>" +
+        messages[messageIndex] +
+        "<br><br><small>✨ À prendre avec le sourire — Technorizon.fr</small>";
+    });
   });
 }
