@@ -672,14 +672,5 @@ main {
 .zodiac-grid {
   width: 100%;
 }
-
-/* --- INFO ET MÉTÉO : MÊME HAUTEUR --- */
-@media (min-width: 801px) {
-  #newsCard,
-  #weatherCard {
-    height: 320px;
-    min-height: 320px;
-    max-height: 320px;
-    box-sizing: border-box;
   }
 }
