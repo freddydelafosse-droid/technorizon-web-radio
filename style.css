@@ -766,7 +766,7 @@ main {
   padding: 12px 0;
   display: inline-block;
   min-width: 100%;
-  animation: dedicaceScroll 28s linear infinite;
+  animation: dedicaceScroll 36s linear infinite;
 }
 
 @keyframes dedicaceScroll {
