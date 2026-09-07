@@ -315,7 +315,6 @@ if (dedicaceForm) {
 
 const horoscopeResult = document.getElementById("horoscopeResult");
 const zodiacButtons = document.querySelectorAll(".zodiac-card");
-console.log("Nombre de signes détectés :", zodiacButtons.length);
 
 const technoroscopeMessages = {
   belier: [
@@ -394,8 +393,6 @@ const technoroscopeMessages = {
 if (horoscopeResult && zodiacButtons.length) {
   zodiacButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      alert("Clic détecté sur " + button.dataset.sign);
-      const sign = button.dataset.sign;
 
       zodiacButtons.forEach((btn) => btn.classList.remove("active"));
       button.classList.add("active");
@@ -412,10 +409,28 @@ if (horoscopeResult && zodiacButtons.length) {
       const messages = technoroscopeMessages[sign];
       const messageIndex = dayNumber % messages.length;
 
-      horoscopeResult.innerHTML =
-        "<strong>🔮 Ton Technoroscope du jour :</strong><br><br>" +
-        messages[messageIndex] +
-        "<br><br><small>✨ À prendre avec le sourire — Technorizon.fr</small>";
+      const signNames = {
+  belier: "BÉLIER",
+  taureau: "TAUREAU",
+  gemeaux: "GÉMEAUX",
+  cancer: "CANCER",
+  lion: "LION",
+  vierge: "VIERGE",
+  balance: "BALANCE",
+  scorpion: "SCORPION",
+  sagittaire: "SAGITTAIRE",
+  capricorne: "CAPRICORNE",
+  verseau: "VERSEAU",
+  poissons: "POISSONS"
+};
+
+document.getElementById("horoscopeSign").textContent = signNames[sign];
+document.getElementById("horoscopeDate").textContent =
+  button.querySelector(".zodiac-date").textContent;
+
+document.getElementById("horoscopeDay").textContent =
+  messages[messageIndex];
+      
     });
   });
 }
