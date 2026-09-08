@@ -771,10 +771,19 @@ main {
 
 @keyframes dedicaceScroll {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@-webkit-keyframes dedicaceScroll {
+  from {
+    -webkit-transform: translate3d(0, 0, 0);
+  }
+  to {
+    -webkit-transform: translate3d(-50%, 0, 0);
   }
 }
 
@@ -815,5 +824,6 @@ main {
 @media (max-width: 800px) {
   .dedicace-ticker-track {
     animation-duration: 46s;
+   -webkit-animation: dedicaceScroll 46s linear infinite;
   }
 }
