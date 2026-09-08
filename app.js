@@ -576,7 +576,8 @@ async function loadDedicaces() {
     const data = await response.json();
 
     if (Array.isArray(data.dedicaces) && data.dedicaces.length > 0) {
-      ticker.textContent = data.dedicaces.join("          💗          ");
+     const messages = data.dedicaces.join("\u00A0\u00A0\u00A0\u00A0\u00A0💗\u00A0\u00A0\u00A0\u00A0\u00A0");
+ticker.textContent = messages + "\u00A0\u00A0\u00A0\u00A0\u00A0💗\u00A0\u00A0\u00A0\u00A0\u00A0" + messages;
     }
   } catch (error) {
     console.error("Dédicaces Technorizon :", error);
