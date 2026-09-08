@@ -811,3 +811,9 @@ main {
     margin: 0 0 8px !important;
   }
 }
+
+@media (max-width: 800px) {
+  .dedicace-ticker-track {
+    animation-duration: 46s;
+  }
+}
