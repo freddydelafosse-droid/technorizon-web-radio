@@ -563,6 +563,8 @@ if (shareHoroscopeButton) {
 
 async function loadDedicaces() {
   const ticker = document.getElementById("dedicaceTickerTrack");
+if (ticker) ticker.style.animation = "none";
+
 
   if (!ticker) return;
 
@@ -578,6 +580,8 @@ async function loadDedicaces() {
     if (Array.isArray(data.dedicaces) && data.dedicaces.length > 0) {
      const messages = data.dedicaces.join("\u00A0\u00A0\u00A0\u00A0\u00A0💗\u00A0\u00A0\u00A0\u00A0\u00A0");
 ticker.textContent = messages + "\u00A0\u00A0\u00A0\u00A0\u00A0💗\u00A0\u00A0\u00A0\u00A0\u00A0" + messages;
+      void ticker.offsetWidth;
+ticker.style.animation = "";
     }
   } catch (error) {
     console.error("Dédicaces Technorizon :", error);
