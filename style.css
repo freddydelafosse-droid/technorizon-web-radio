@@ -827,3 +827,29 @@ main {
    -webkit-animation: dedicaceScroll 46s linear infinite;
   }
 }
+
+@media (display-mode: standalone) and (max-width: 800px) {
+  .dedicace-ticker-track {
+    animation: dedicaceScrollStandalone 46s linear infinite !important;
+    -webkit-animation: dedicaceScrollStandalone 46s linear infinite !important;
+    will-change: transform;
+  }
+
+  @keyframes dedicaceScrollStandalone {
+    from {
+      transform: translate3d(100vw, 0, 0);
+    }
+    to {
+      transform: translate3d(-100%, 0, 0);
+    }
+  }
+
+  @-webkit-keyframes dedicaceScrollStandalone {
+    from {
+      -webkit-transform: translate3d(100vw, 0, 0);
+    }
+    to {
+      -webkit-transform: translate3d(-100%, 0, 0);
+    }
+  }
+}
