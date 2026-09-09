@@ -1318,3 +1318,28 @@ font-size:.35em;
   backdrop-filter:blur(5px);
   -webkit-backdrop-filter:blur(5px);
 }
+
+/* ===== ALIGNEMENT RESEAUX PC ===== */
+
+@media (min-width:801px){
+
+  .social{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+
+  .social a{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:42px;
+    line-height:1;
+  }
+
+  .instagram-icon,
+  .youtube-icon{
+    display:block;
+  }
+}
