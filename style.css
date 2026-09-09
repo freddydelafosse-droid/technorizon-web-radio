@@ -1178,3 +1178,26 @@ main {
     min-width:220px;
   }
 }
+
+/* ===== EQUIPE TECHNORIZON ===== */
+
+.credits h2{
+  color:#18eaff;
+  text-shadow:
+    0 0 6px rgba(24,234,255,.75),
+    0 0 14px rgba(24,234,255,.40);
+}
+
+.credits strong{
+  color:#18eaff;
+  text-shadow:
+    0 0 6px rgba(24,234,255,.35);
+}
+
+.credits p{
+  color:#ffffff;
+}
+
+.credits .copyright{
+  color:rgba(255,255,255,.75);
+}
