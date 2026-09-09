@@ -36,27 +36,32 @@
 </header>
 
 <section class="live-area" id="liveArea">
-  <div class="caster-player" id="casterPlayer">
-    <div class="listen-title">
-  🎧 <strong>TECHNORIZON EN DIRECT</strong>
- <small><span class="listen-arrow">▼</span> CLIQUEZ SUR ▶ CI-DESSOUS POUR ÉCOUTER <span class="listen-arrow">▼</span></small>
-</div>
+  <div class="caster-player new-radio-player" id="casterPlayer">
 
-    <audio id="radioPlayer" controls preload="none">
+    <div class="radio-player-header">
+      <span class="on-air-badge">● ON AIR</span>
+
+      <div class="radio-player-title">
+        <strong>TECHNORIZON EN DIRECT</strong>
+        <small>24H/24 • 7J/7</small>
+      </div>
+    </div>
+
+    <div class="radio-wave"></div>
+
+    <button id="radioPlayButton" class="radio-play-button" type="button" aria-label="Écouter Technorizon">
+      <span id="radioPlayIcon">▶</span>
+    </button>
+
+    <div id="radioPlayerMessage" class="radio-player-message">
+      CLIQUEZ POUR ÉCOUTER
+    </div>
+
+    <audio id="radioPlayer" preload="none">
       <source src="https://radio.technorizon.fr/listen/technorizon/radio.mp3" type="audio/mpeg">
       Votre navigateur ne prend pas en charge la lecture audio.
     </audio>
-  </div>
-</section>
-  
-<section class="now-playing">
-  <div class="now-playing-label">🎵 EN CE MOMENT</div>
-  <div class="now-playing-content">
-    <div class="now-playing-disc">♫</div>
-    <div>
-      <div id="now-playing-title">TECHNORIZON • EN DIRECT</div>
-      <div class="now-playing-status">TECHNORIZON • EN DIRECT</div>
-    </div>
+
   </div>
 </section>
 
