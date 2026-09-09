@@ -1244,13 +1244,13 @@ main {
   .social{
     display:flex !important;
     align-items:center;
-    gap:10px;
+    gap:9px;
 
     position:absolute;
-    top:16px;
-    right:14px;
+    top:8px;
+    right:8px;
 
-    transform:scale(.72);
+    transform:scale(.62);
     transform-origin:top right;
   }
 }
