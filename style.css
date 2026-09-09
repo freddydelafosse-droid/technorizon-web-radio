@@ -181,6 +181,7 @@ footer span{color:#ff20ae}
   margin:50px auto 35px;
   padding:0 18px;
 }
+
 .live-area,
 .now-playing,
 .dedicaces,
@@ -188,14 +189,17 @@ main,
 .contact{
   margin-bottom:35px;
 }
+
 .dedicaces-card{
   min-height:0;
-  padding:20px 22px;
+  padding:16px 22px;
   text-align:center;
-  background:linear-gradient(135deg,rgba(255,32,174,.12),rgba(24,234,255,.08));
-  border:1px solid #ff20ae;
+  background:linear-gradient(135deg,rgba(5,12,28,.96),rgba(7,22,38,.92));
+  border:1px solid rgba(24,234,255,.75);
   border-radius:18px;
-  box-shadow:0 0 18px rgba(255,32,174,.28),0 0 26px rgba(24,234,255,.12);
+  box-shadow:
+    0 0 10px rgba(24,234,255,.30),
+    inset 0 0 18px rgba(24,234,255,.06);
 }
 
 .dedicaces-card h2{
