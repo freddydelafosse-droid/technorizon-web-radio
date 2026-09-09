@@ -1237,3 +1237,12 @@ main {
     drop-shadow(0 0 10px #E1306C)
     drop-shadow(0 0 18px rgba(193,53,132,.85));
 }
+
+/* ===== RESEAUX SOCIAUX SUR MOBILE ===== */
+
+@media (max-width:800px){
+  .social{
+    display:flex !important;
+    align-items:center;
+  }
+}
