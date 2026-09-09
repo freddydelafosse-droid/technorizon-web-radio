@@ -1254,3 +1254,21 @@ main {
     transform-origin:top right;
   }
 }
+
+/* ===== COPYRIGHT LOGO TECHNORIZON ===== */
+
+.logo .copyright-logo{
+  display:inline-block;
+  color:#18eaff;
+  font-size:.42em;
+  font-style:normal;
+  font-weight:700;
+  letter-spacing:0;
+  margin-right:5px;
+  vertical-align:top;
+  transform:translateY(5px);
+
+  text-shadow:
+    0 0 5px rgba(24,234,255,.8),
+    0 0 10px rgba(24,234,255,.45);
+}
