@@ -12,7 +12,15 @@ body {
   min-height: 100vh;
 }
 header{text-align:center;padding:38px 24px 30px;position:relative}
-.menu{position:absolute;left:42px;top:45px;background:none;border:0;color:#ff20ae;font-size:32px}
+.menu{
+  position:static;
+  background:none;
+  border:0;
+  color:#ff20ae;
+  font-size:32px;
+  cursor:pointer;
+  padding:0;
+}
 .social{position:absolute;right:28px;top:45px;color:#fff;font-size:20px}
 .logo{font-size:70px;font-weight:900;font-style:italic;letter-spacing:-4px;text-shadow:0 0 18px #21cfff}
 .logo span{color:#ff20ae}
@@ -1078,8 +1086,8 @@ main {
 
 .menu-wrapper{
   position:absolute;
-  top:24px;
-  left:24px;
+  top:18px;
+  left:18px;
   z-index:999;
 }
 
@@ -1149,14 +1157,12 @@ main {
 }
 
 @media (max-width:700px){
-
   .menu-wrapper{
-    top:18px;
-    left:16px;
+    top:12px;
+    left:12px;
   }
 
   .technorizon-menu{
     min-width:220px;
   }
-
 }
