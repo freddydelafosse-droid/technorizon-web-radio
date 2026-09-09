@@ -341,5 +341,68 @@ technorizonPlayer.addEventListener("pause", () => {
   technorizonPlayButton.classList.remove("playing");
 });
 </script>
+  <script>
+const menuButton = document.getElementById("menuButton");
+const technorizonMenu = document.getElementById("technorizonMenu");
+const shareTechnorizon = document.getElementById("shareTechnorizon");
+
+menuButton.addEventListener("click", (event) => {
+  event.stopPropagation();
+
+  const isOpen = technorizonMenu.classList.toggle("open");
+  menuButton.setAttribute("aria-expanded", isOpen);
+});
+
+shareTechnorizon.addEventListener("click", async () => {
+
+  const shareData = {
+    title: "Technorizon.fr — La Web-Radio",
+    text: "Techno • Eurodance • House — des années 90's à aujourd'hui 🔊",
+    url: "https://technorizon.fr/"
+  };
+
+  if (navigator.share) {
+
+    try {
+      await navigator.share(shareData);
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Erreur de partage :", error);
+      }
+    }
+
+  } else {
+
+    try {
+      await navigator.clipboard.writeText(shareData.url);
+
+      const text = shareTechnorizon.querySelector("span:last-child");
+      const originalText = text.textContent;
+
+      text.textContent = "✓ LIEN COPIÉ !";
+
+      setTimeout(() => {
+        text.textContent = originalText;
+      }, 1800);
+
+    } catch (error) {
+      window.prompt("Copiez ce lien :", shareData.url);
+    }
+  }
+
+});
+
+document.addEventListener("click", (event) => {
+
+  if (
+    !technorizonMenu.contains(event.target) &&
+    !menuButton.contains(event.target)
+  ) {
+    technorizonMenu.classList.remove("open");
+    menuButton.setAttribute("aria-expanded", "false");
+  }
+
+});
+</script>
 </body>
 </html>
