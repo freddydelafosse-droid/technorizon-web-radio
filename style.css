@@ -736,7 +736,7 @@ main {
 
 .dedicace-ticker {
   max-width: 1230px;
-  margin: 0 auto 18px;
+  margin: 0 auto 6px;
   display: flex;
   align-items: center;
   gap: 0;
@@ -746,14 +746,14 @@ main {
 .dedicace-ticker-label {
   flex: 0 0 auto;
   padding: 12px 16px;
-  border: 1px solid #ff20ae;
+  border: 1px solid #18eaff;
   border-right: 0;
   border-radius: 14px 0 0 14px;
-  background: #09050d;
-  color: #ff4fc3;
+  background: #07101a;
+  color: #18eaff;
   font-weight: 900;
   letter-spacing: 1px;
-  box-shadow: 0 0 14px #ff20ae55;
+  box-shadow: 0 0 10px #18eaff44;
 }
 
 .dedicace-ticker-window {
