@@ -869,3 +869,207 @@ main {
     }
   }
 }
+
+/* ===== NOUVEAU LECTEUR TECHNORIZON ===== */
+
+.new-radio-player{
+  position:relative;
+  max-width:920px;
+  margin:0 auto;
+  padding:26px 28px 24px;
+  text-align:center;
+  overflow:hidden;
+
+  background:linear-gradient(
+    180deg,
+    rgba(4,10,24,.96),
+    rgba(3,7,18,.98)
+  );
+
+  border:1px solid #18eaff;
+  border-radius:20px;
+
+  box-shadow:
+    0 0 12px rgba(24,234,255,.35),
+    0 0 28px rgba(24,234,255,.16),
+    inset 0 0 22px rgba(24,234,255,.05);
+}
+
+.radio-player-header{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:64px;
+}
+
+.on-air-badge{
+  position:absolute;
+  left:0;
+  top:4px;
+
+  padding:9px 14px;
+
+  border:1px solid #ff20ae;
+  border-radius:8px;
+
+  color:#ff4fc3;
+  background:rgba(255,32,174,.06);
+
+  font-weight:800;
+  font-size:.9rem;
+  letter-spacing:.7px;
+
+  box-shadow:0 0 10px rgba(255,32,174,.30);
+}
+
+.radio-player-title{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+
+.radio-player-title strong{
+  color:#fff;
+  font-size:clamp(1.5rem,3vw,2rem);
+  letter-spacing:1px;
+
+  text-shadow:0 0 10px rgba(255,255,255,.25);
+}
+
+.radio-player-title small{
+  color:#18eaff;
+  font-size:.9rem;
+  font-weight:700;
+  letter-spacing:2px;
+}
+
+.radio-wave{
+  width:100%;
+  height:70px;
+  margin:8px 0 -42px;
+
+  opacity:.8;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 5px,
+      #18eaff 5px 7px,
+      transparent 7px 11px,
+      #ff20ae 11px 13px,
+      transparent 13px 18px
+    );
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 4%,
+      black 36%,
+      black 64%,
+      transparent 96%
+    );
+
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 4%,
+      black 36%,
+      black 64%,
+      transparent 96%
+    );
+}
+
+.radio-play-button{
+  position:relative;
+  z-index:2;
+
+  width:112px;
+  height:112px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  margin:0 auto;
+
+  border:2px solid #18eaff;
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(24,234,255,.14),
+      rgba(4,10,24,.96) 65%
+    );
+
+  color:#fff;
+
+  font-size:42px;
+  cursor:pointer;
+
+  box-shadow:
+    0 0 14px rgba(24,234,255,.55),
+    0 0 30px rgba(24,234,255,.25),
+    inset 0 0 18px rgba(24,234,255,.12);
+
+  transition:.25s ease;
+}
+
+.radio-play-button:hover{
+  transform:scale(1.04);
+
+  box-shadow:
+    0 0 18px rgba(24,234,255,.8),
+    0 0 40px rgba(24,234,255,.35),
+    inset 0 0 22px rgba(24,234,255,.18);
+}
+
+.radio-play-button.playing{
+  border-color:#ff20ae;
+
+  box-shadow:
+    0 0 16px rgba(255,32,174,.65),
+    0 0 34px rgba(24,234,255,.25);
+}
+
+.radio-player-message{
+  margin-top:16px;
+
+  color:#dffcff;
+  font-size:.82rem;
+  font-weight:700;
+  letter-spacing:3px;
+}
+
+#radioPlayer{
+  display:none;
+}
+
+@media (max-width:700px){
+
+  .new-radio-player{
+    padding:20px 14px;
+  }
+
+  .radio-player-header{
+    padding-top:42px;
+  }
+
+  .on-air-badge{
+    left:50%;
+    transform:translateX(-50%);
+    top:0;
+  }
+
+  .radio-play-button{
+    width:92px;
+    height:92px;
+    font-size:34px;
+  }
+
+  .radio-player-title strong{
+    font-size:1.35rem;
+  }
+}
