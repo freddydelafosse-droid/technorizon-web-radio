@@ -32,7 +32,7 @@ main{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1230px;margin
 .flash h3{color:#ff20ae}.card h1{font-size:27px}.card p{font-size:17px;line-height:1.5}.card a{color:#ff20ae;font-weight:bold}.weather span{color:#18eaff}.temperature{font-size:56px;font-weight:bold;margin:35px 0}
 footer{margin-top:28px;padding:35px;text-align:center;border-top:1px solid #25143c;color:#fff}
 footer span{color:#ff20ae}
-@media(max-width:800px){.logo{font-size:46px}.logo small{font-size:13px}.social{display:none}main{grid-template-columns:1fr}.menu{left:20px}.card{min-height:auto}}
+@media(max-width:800px){.logo{font-size:46px}.logo small{font-size:13px}.social{display:none}main{grid-template-columns:1fr}.menu{left:auto}.card{min-height:auto}}
 
 @media(max-width:800px){
   body {
