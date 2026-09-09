@@ -280,5 +280,49 @@
 <footer>🎧 LA MUSIQUE　 L'INFO　 LES RENDEZ-VOUS　　✉️ <a href="#contact">CONTACTEZ-NOUS</a>　　TECHNO<span>RIZON</span></footer>
   
  <script src="app.js?v=12"></script>
+  <script>
+const technorizonPlayer = document.getElementById("radioPlayer");
+const technorizonPlayButton = document.getElementById("radioPlayButton");
+const technorizonPlayIcon = document.getElementById("radioPlayIcon");
+const technorizonPlayerMessage = document.getElementById("radioPlayerMessage");
+
+technorizonPlayButton.addEventListener("click", async () => {
+
+  if (technorizonPlayer.paused) {
+
+    try {
+      await technorizonPlayer.play();
+
+      technorizonPlayIcon.textContent = "❚❚";
+      technorizonPlayButton.classList.add("playing");
+      technorizonPlayerMessage.textContent = "TECHNORIZON • EN DIRECT";
+
+    } catch (error) {
+      technorizonPlayerMessage.textContent = "IMPOSSIBLE DE LANCER LA RADIO";
+    }
+
+  } else {
+
+    technorizonPlayer.pause();
+
+    technorizonPlayIcon.textContent = "▶";
+    technorizonPlayButton.classList.remove("playing");
+    technorizonPlayerMessage.textContent = "CLIQUEZ POUR ÉCOUTER";
+
+  }
+
+});
+
+technorizonPlayer.addEventListener("playing", () => {
+  technorizonPlayIcon.textContent = "❚❚";
+  technorizonPlayButton.classList.add("playing");
+  technorizonPlayerMessage.textContent = "TECHNORIZON • EN DIRECT";
+});
+
+technorizonPlayer.addEventListener("pause", () => {
+  technorizonPlayIcon.textContent = "▶";
+  technorizonPlayButton.classList.remove("playing");
+});
+</script>
 </body>
 </html>
