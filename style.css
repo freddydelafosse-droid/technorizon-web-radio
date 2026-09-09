@@ -1244,5 +1244,13 @@ main {
   .social{
     display:flex !important;
     align-items:center;
+    gap:10px;
+
+    position:absolute;
+    top:16px;
+    right:14px;
+
+    transform:scale(.72);
+    transform-origin:top right;
   }
 }
