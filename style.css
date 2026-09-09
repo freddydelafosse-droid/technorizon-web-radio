@@ -353,12 +353,16 @@ main,
   text-align: center;
   font-size: 1.25rem;
   font-weight: 800;
+  letter-spacing: .5px;
   color: #ffffff;
-  padding: 18px 20px;
-  border-radius: 16px;
-  text-shadow:
-    0 0 8px #ff20ae,
-    0 0 16px #ff20ae;
+  padding: 14px 20px;
+  border: 1px solid rgba(24,234,255,.45);
+  border-radius: 12px;
+  background: rgba(4,15,28,.72);
+  box-shadow:
+    0 0 8px rgba(24,234,255,.20),
+    inset 0 0 12px rgba(24,234,255,.05);
+  text-shadow: 0 0 8px rgba(24,234,255,.55);
   transition: 0.25s ease;
 }
 
@@ -378,9 +382,13 @@ main,
 
 .dedicaces-card summary:hover {
   color: #18eaff;
-  text-shadow:
-    0 0 8px #18eaff,
-    0 0 18px #ff20ae;
+  border-color: #18eaff;
+  background: rgba(7,25,42,.88);
+  box-shadow:
+    0 0 12px rgba(24,234,255,.45),
+    inset 0 0 16px rgba(24,234,255,.08);
+  text-shadow: 0 0 10px rgba(24,234,255,.75);
+  transform: translateY(-1px);
 }
 
 .dedicaces-content {
