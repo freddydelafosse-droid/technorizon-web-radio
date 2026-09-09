@@ -1205,3 +1205,35 @@ main {
 .credits .copyright{
   color:rgba(255,255,255,.75);
 }
+
+/* ===== HOVER INSTAGRAM FORCÉ ===== */
+
+.instagram-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:transform .25s ease;
+}
+
+.instagram-link:hover{
+  transform:scale(1.15);
+}
+
+.instagram-link:hover .instagram-icon{
+  filter:
+    drop-shadow(0 0 5px #ffffff)
+    drop-shadow(0 0 10px #E1306C)
+    drop-shadow(0 0 18px rgba(193,53,132,.85))
+    drop-shadow(0 0 28px rgba(131,58,180,.65));
+}
+
+  .instagram-link:active{
+  transform:scale(1.15);
+}
+
+.instagram-link:active .instagram-icon{
+  filter:
+    drop-shadow(0 0 5px #ffffff)
+    drop-shadow(0 0 10px #E1306C)
+    drop-shadow(0 0 18px rgba(193,53,132,.85));
+}
