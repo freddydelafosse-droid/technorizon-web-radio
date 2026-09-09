@@ -273,10 +273,11 @@ main,
   border-radius:22px;
   background:linear-gradient(90deg,#09000f 0%,#3b0638 35%,#071c2d 65%,#09000f 100%);
   box-shadow:
-    0 0 15px #ff20ae,
-    0 0 35px #ff20ae88,
-    0 0 55px #18eaff55,
-    inset 0 0 30px #ff20ae33;
+   box-shadow:
+    0 0 12px #18eaff,
+    0 0 25px #18eaff88,
+    0 0 40px #18eaff55,
+    inset 0 0 20px #18eaff22;
   overflow:hidden;
   animation:listenPulse 1.5s ease-in-out infinite alternate;
 }
