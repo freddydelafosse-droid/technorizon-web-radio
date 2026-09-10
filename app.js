@@ -630,3 +630,21 @@ setInterval(loadDedicaces, 60000);
   await updateNowPlaying();
   setInterval(updateNowPlaying, 10000);
 })();
+
+/* ===== TECHNOBOT - OUVERTURE / FERMETURE ===== */
+
+const technobotButton = document.getElementById("technobotButton");
+const technobotWindow = document.getElementById("technobotWindow");
+const technobotClose = document.getElementById("technobotClose");
+
+if (technobotButton && technobotWindow) {
+  technobotButton.addEventListener("click", () => {
+    technobotWindow.classList.toggle("open");
+  });
+}
+
+if (technobotClose && technobotWindow) {
+  technobotClose.addEventListener("click", () => {
+    technobotWindow.classList.remove("open");
+  });
+}
