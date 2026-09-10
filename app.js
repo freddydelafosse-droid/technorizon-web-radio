@@ -667,6 +667,61 @@ async function getTechnoBotReply(question) {
   const q = question.toLowerCase().trim();
 
   if (
+  q === "bonjour" ||
+  q === "salut" ||
+  q === "hello" ||
+  q.includes("coucou")
+) {
+  return "👋 Salut ! Ravi de te retrouver sur Technorizon.fr. Que puis-je faire pour toi ?";
+}
+
+if (
+  q.includes("merci") ||
+  q.includes("super") ||
+  q.includes("génial") ||
+  q.includes("genial")
+) {
+  return "🤖 Avec plaisir ! Je suis là pour t’aider sur Technorizon.fr.";
+}
+
+if (
+  q.includes("qui es tu") ||
+  q.includes("qui es-tu") ||
+  q.includes("ton nom") ||
+  q.includes("comment tu t'appelles")
+) {
+  return "🤖 Je suis TechnoBot, l’assistant de Technorizon.fr. Je peux t’aider à trouver le titre en cours, les émissions, les dédicaces et les infos du site.";
+}
+
+if (
+  q.includes("technorizon club") ||
+  q.includes("club")
+) {
+  return "🔥 Technorizon Club, c’est le rendez-vous club de Technorizon.fr : techno récente, sons puissants et ambiance nocturne.";
+}
+
+if (
+  q.includes("jade connexion") ||
+  q.includes("jade")
+) {
+  return "✨ Jade Connexion est l’émission de Jade, ambassadrice de Technorizon.fr, avec une sélection Dance Pop, Electro Pop, Vocal House et Nu-Disco.";
+}
+
+if (
+  q.includes("dédicace") ||
+  q.includes("dedicace")
+) {
+  return "💌 Tu peux envoyer ta dédicace directement depuis le bloc « Faire une dédicace » sur Technorizon.fr.";
+}
+
+if (
+  q.includes("technoroscope") ||
+  q.includes("horoscope")
+) {
+  return "🔮 Le Technoroscope, c’est l’horoscope version Technorizon. Choisis ton signe sur le site pour découvrir ta tendance du jour.";
+}
+
+  if (
     q.includes("titre") ||
     q.includes("musique") ||
     q.includes("morceau") ||
