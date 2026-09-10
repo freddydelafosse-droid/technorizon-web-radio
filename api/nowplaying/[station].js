@@ -3,7 +3,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `http://82.66.219.41/api/nowplaying/${station}`,
+      `https://radio.technorizon.fr/api/nowplaying/${station}`,
       { cache: "no-store" }
     );
 
