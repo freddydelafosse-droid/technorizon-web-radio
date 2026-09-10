@@ -507,10 +507,6 @@ try {
   poissons: "POISSONS"
 };
 
-document.getElementById("horoscopeSign").textContent = signNames[sign];
-document.getElementById("horoscopeDate").textContent =
-  button.querySelector(".zodiac-date").textContent;
-
 document.getElementById("horoscopeDay").textContent =
   dailyHoroscope
 
@@ -553,7 +549,7 @@ const shareHoroscopeButton = document.getElementById("shareHoroscopeButton");
 
 if (shareHoroscopeButton) {
   shareHoroscopeButton.addEventListener("click", async () => {
-    const sign = document.getElementById("horoscopeSign")?.textContent?.trim();
+   const sign = document.querySelector(".zodiac-card.active .zodiac-name")?.textContent?.trim();
     const text = document.getElementById("horoscopeDay")?.textContent?.trim();
 
     if (!sign || sign === "VOTRE SIGNE" || !text) {
