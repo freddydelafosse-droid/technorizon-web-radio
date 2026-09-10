@@ -239,36 +239,6 @@ loadNews();
 setInterval(loadNews, 120000);
 setInterval(nextNews, 30000);
 
-/* ===== EN CE MOMENT — AZURACAST ===== */
-
-(async function loadNowPlaying() {
-    const titleEl = document.getElementById("nowPlaying");
-    if (!titleEl) return;
-
-    const apiUrl = "https://radio.technorizon.fr/api/nowplaying/technorizon";
-
-    async function updateNowPlaying() {
-        try {
-            const response = await fetch(apiUrl, { cache: "no-store" });
-            if (!response.ok) throw new Error("API AzuraCast inaccessible");
-
-            const data = await response.json();
-            const artist = data?.now_playing?.song?.artist || "";
-            const title = data?.now_playing?.song?.title || "";
-
-            if (artist && title) {
-                titleEl.textContent = artist + " - " + title;
-            } else if (title) {
-                titleEl.textContent = title;
-            }
-        } catch (error) {
-            console.error("EN CE MOMENT :", error);
-        }
-    }
-
-    await updateNowPlaying();
-    setInterval(updateNowPlaying, 10000);
-})();
 /* ===== AZURACAST - EN CE MOMENT ===== */
 (async function loadNowPlaying() {
     const titleEl = document.getElementById("nowPlaying");
@@ -285,7 +255,9 @@ setInterval(nextNews, 30000);
             }
 
             const data = await response.json();
-            const title = data?.now_playing?.song?.text;
+            const artist = data?.now_playing?.song?.artist || "";
+const songTitle = data?.now_playing?.song?.title || "";
+const title = artist && songTitle ? `${artist} - ${songTitle}` : (songTitle || artist);
 
             if (title && title.trim()) {
                 titleEl.textContent = title.trim();
