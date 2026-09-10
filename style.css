@@ -88,8 +88,10 @@ header{text-align:center;padding:38px 24px 30px;position:relative}
 
 .world-map-icon{
   width:62px;
-  height:29px;
+  height:31px;
   display:block;
+  color:#18eaff;
+  filter:drop-shadow(0 0 5px rgba(24,234,255,.55));
 }
 
 .timezone-arrow{
