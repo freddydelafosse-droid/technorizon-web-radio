@@ -50,6 +50,12 @@ header{text-align:center;padding:38px 24px 30px;position:relative}
   line-height:1;
 }
 
+.timezone-wrapper{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+}
+
 #timezoneButton{
   width:28px;
   height:28px;
@@ -61,6 +67,44 @@ header{text-align:center;padding:38px 24px 30px;position:relative}
   cursor:pointer;
   text-align:center;
   filter:drop-shadow(0 0 5px rgba(24,234,255,.55));
+}
+
+.timezone-menu{
+  display:none;
+  position:absolute;
+  top:34px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:1000;
+  min-width:145px;
+  padding:6px;
+  background:rgba(3,10,24,.96);
+  border:1px solid #18eaff;
+  border-radius:10px;
+  box-shadow:0 0 15px rgba(24,234,255,.35);
+}
+
+.timezone-menu.open{
+  display:block;
+}
+
+.timezone-menu button{
+  display:block;
+  width:100%;
+  padding:8px 12px;
+  border:0;
+  border-radius:6px;
+  background:transparent;
+  color:#fff;
+  font-size:14px;
+  text-align:left;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.timezone-menu button:hover{
+  background:rgba(24,234,255,.12);
+  color:#18eaff;
 }
 
 #timezoneSelect{
