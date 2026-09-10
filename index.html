@@ -442,6 +442,29 @@ document.addEventListener("click", (event) => {
 });
 </script>
  <!-- ===== TECHNOBOT ===== -->
+ <div id="technobotWindow" class="technobot-window">
+  <div class="technobot-header">
+    <span>🤖 TechnoBot</span>
+    <button id="technobotClose" type="button">✕</button>
+  </div>
+
+  <div class="technobot-messages" id="technobotMessages">
+    <div class="technobot-message bot">
+      Salut 👋 Je suis TechnoBot, l’assistant de Technorizon.fr.
+      Pose-moi une question sur la radio, les émissions ou les dédicaces.
+    </div>
+  </div>
+
+  <form id="technobotForm" class="technobot-form">
+    <input
+      id="technobotInput"
+      type="text"
+      placeholder="Écris ton message..."
+      autocomplete="off"
+    >
+    <button type="submit">➤</button>
+  </form>
+</div>
 <button id="technobotButton" class="technobot-button" type="button">
   <img src="technobot.png" alt="TechnoBot">
   <span>TechnoBot</span>
