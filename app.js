@@ -650,6 +650,24 @@ if (technobotClose && technobotWindow) {
 }
 /* ===== TECHNOBOT - PREMIER CERVEAU ===== */
 
+/* ===== TECHNOBOT - MEMOIRE DE SESSION ===== */
+
+let technoBotMemory = JSON.parse(
+  sessionStorage.getItem("technoBotMemory")
+) || {
+  currentShow: null,
+  lastTopic: null,
+  lastCity: null,
+  lastSign: null
+};
+
+function saveTechnoBotMemory() {
+  sessionStorage.setItem(
+    "technoBotMemory",
+    JSON.stringify(technoBotMemory)
+  );
+}
+
 const technobotForm = document.getElementById("technobotForm");
 const technobotInput = document.getElementById("technobotInput");
 const technobotMessages = document.getElementById("technobotMessages");
@@ -759,6 +777,12 @@ if (
   q.includes("programme en cours")
 ) {
   const currentShow = getCurrentTechnoShow();
+
+  if (currentShow) {
+  technoBotMemory.currentShow = currentShow;
+  technoBotMemory.lastTopic = "show";
+  saveTechnoBotMemory();
+}
 
   if (currentShow) {
     return `📻 En ce moment sur Technorizon.fr : ${currentShow.name}.`;
@@ -913,7 +937,8 @@ if (
   q.includes("c est quel jour") ||
   q.includes("quels sont les jours")
 ) {
-  const currentShow = getCurrentTechnoShow();
+  const currentShow =
+  technoBotMemory.currentShow || getCurrentTechnoShow();
 
   if (currentShow) {
     const dayNames = {
@@ -942,7 +967,8 @@ if (
   q.includes("quand a lieu cette émission") ||
   q.includes("quand a lieu cette emission")
 ) {
-  const currentShow = getCurrentTechnoShow();
+  const currentShow =
+  technoBotMemory.currentShow || getCurrentTechnoShow();
 
   if (currentShow) {
     const startHour = String(currentShow.start).padStart(2, "0");
@@ -961,7 +987,8 @@ if (
   q.includes("quand se termine") ||
   q.includes("quand finit")
 ) {
-  const currentShow = getCurrentTechnoShow();
+  const currentShow =
+  technoBotMemory.currentShow || getCurrentTechnoShow();
 
   if (currentShow) {
     const endHour = String(currentShow.end).padStart(2, "0");
@@ -978,8 +1005,8 @@ if (
   q.includes("heure de début") ||
   q.includes("heure de debut")
 ) {
-  const currentShow = getCurrentTechnoShow();
-
+  const currentShow =
+  technoBotMemory.currentShow || getCurrentTechnoShow();
   if (currentShow) {
     const startHour = String(currentShow.start).padStart(2, "0");
     return `📻 ${currentShow.name} a commencé à ${startHour}h00.`;
