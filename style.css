@@ -673,12 +673,12 @@ padding: 10px 14px;
 .zodiac-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
-  margin: 22px 0;
+  gap: 8px;
+  margin: 12px 0;
 }
 
 .zodiac-card {
-  min-height: 118px;
+  min-height: 92px;
   padding: 14px 10px;
   border: 1px solid #18eaff66;
   border-radius: 14px;
