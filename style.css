@@ -1481,3 +1481,10 @@ font-size:.35em;
     display:block;
   }
 }
+
+@media (max-width:800px){
+  #clock{
+    font-size:38px;
+    letter-spacing:3px;
+  }
+}
