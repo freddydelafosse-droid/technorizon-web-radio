@@ -675,6 +675,52 @@ const technoSchedule = [
 ];
 
 function getCurrentTechnoShow() {
+  function getNextTechnoShow() {
+  const now = new Date();
+
+  const currentDay = now.getDay();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  const dayNames = [
+    "dimanche",
+    "lundi",
+    "mardi",
+    "mercredi",
+    "jeudi",
+    "vendredi",
+    "samedi"
+  ];
+
+  let nextShow = null;
+  let smallestDelay = Infinity;
+
+  for (const show of technoSchedule) {
+    for (const day of show.days) {
+      let dayDelay = (day - currentDay + 7) % 7;
+      let startMinutes = show.start * 60;
+
+      if (dayDelay === 0 && startMinutes <= currentMinutes) {
+        dayDelay = 7;
+      }
+
+      const totalDelay =
+        dayDelay * 24 * 60 +
+        startMinutes -
+        currentMinutes;
+
+      if (totalDelay < smallestDelay) {
+        smallestDelay = totalDelay;
+
+        nextShow = {
+          ...show,
+          dayName: dayNames[(currentDay + dayDelay) % 7]
+        };
+      }
+    }
+  }
+
+  return nextShow;
+}
   const now = new Date();
 
   const day = now.getDay();
@@ -831,6 +877,29 @@ if (
   q.includes("comment tu t'appelles")
 ) {
   return "🤖 Je suis TechnoBot, l’assistant de Technorizon.fr. Je peux t’aider à trouver le titre en cours, les émissions, les dédicaces et les infos du site.";
+}
+
+  /* ===== TECHNOBOT - PROCHAINE EMISSION ===== */
+
+if (
+  q.includes("prochaine émission") ||
+  q.includes("prochaine emission") ||
+  q.includes("quelle est la prochaine émission") ||
+  q.includes("quelle est la prochaine emission") ||
+  q.includes("quand est la prochaine émission") ||
+  q.includes("quand est la prochaine emission") ||
+  q.includes("quand est cette prochaine émission") ||
+  q.includes("quand est cette prochaine emission")
+) {
+  const nextShow = getNextTechnoShow();
+
+  if (nextShow) {
+    const startHour = String(nextShow.start).padStart(2, "0");
+
+    return `📅 La prochaine émission est ${nextShow.name}, ${nextShow.dayName} à ${startHour}h00.`;
+  }
+
+  return "📅 Je n’ai pas trouvé de prochaine émission dans la grille.";
 }
 
   /* ===== TECHNOBOT - HORAIRES DES EMISSIONS ===== */
