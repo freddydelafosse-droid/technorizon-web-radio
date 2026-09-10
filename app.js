@@ -905,6 +905,23 @@ if (
   /* ===== TECHNOBOT - HORAIRES DES EMISSIONS ===== */
 
 if (
+  q.includes("quand est cette émission") ||
+  q.includes("quand est cette emission") ||
+  q.includes("quand a lieu cette émission") ||
+  q.includes("quand a lieu cette emission")
+) {
+  const currentShow = getCurrentTechnoShow();
+
+  if (currentShow) {
+    const startHour = String(currentShow.start).padStart(2, "0");
+    const endHour = String(currentShow.end).padStart(2, "0");
+
+    return `📻 ${currentShow.name} est diffusée de ${startHour}h00 à ${endHour}h00.`;
+  }
+
+  return "📻 Il n’y a pas d’émission spéciale en cours pour le moment.";
+}  
+if (
   q.includes("à quelle heure termine") ||
   q.includes("a quelle heure termine") ||
   q.includes("à quelle heure finit") ||
