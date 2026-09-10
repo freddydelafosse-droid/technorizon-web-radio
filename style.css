@@ -846,6 +846,15 @@ main {
   opacity: 0.6;
 }
 
+.horoscope-ratings {
+  margin: 6px auto;
+  line-height: 1.25;
+}
+
+.rating-box {
+  margin: 2px 0;
+}
+
 #shareHoroscopeButton {
   margin-top: 22px;
   padding: 12px 24px;
