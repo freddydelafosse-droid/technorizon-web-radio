@@ -588,3 +588,45 @@ ticker.style.animation = "";
 
 loadDedicaces();
 setInterval(loadDedicaces, 60000);
+
+/* ===== AZURACAST - EN CE MOMENT ===== */
+
+(async function loadNowPlaying() {
+  const titleEl = document.getElementById("nowPlaying");
+  if (!titleEl) return;
+
+  async function updateNowPlaying() {
+    try {
+      const response = await fetch("/api/nowplaying/technorizon", {
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error("API AzuraCast inaccessible");
+      }
+
+      const data = await response.json();
+
+      const artist = data?.now_playing?.song?.artist || "";
+      const songTitle = data?.now_playing?.song?.title || "";
+
+      const title =
+        artist && songTitle
+          ? `${artist} - ${songTitle}`
+          : (songTitle || artist);
+
+      if (title) {
+        titleEl.textContent = title;
+      } else {
+        titleEl.textContent = "Titre non disponible";
+      }
+
+    } catch (error) {
+      console.error("EN CE MOMENT :", error);
+      titleEl.textContent = "Titre momentanément indisponible";
+    }
+  }
+
+  await updateNowPlaying();
+  setInterval(updateNowPlaying, 10000);
+})();
