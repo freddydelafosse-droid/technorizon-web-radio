@@ -50,20 +50,21 @@ header{text-align:center;padding:38px 24px 30px;position:relative}
   line-height:1;
 }
 
-#timezoneSelect{
+#timezoneButton{
   width:28px;
   height:28px;
   padding:0;
-  border:none;
+  border:0;
   background:transparent;
-  color:#18eaff;
-  font-size:16px;
+  font-size:17px;
+  line-height:28px;
   cursor:pointer;
-  outline:none;
-  appearance:none;
-  -webkit-appearance:none;
   text-align:center;
-  text-shadow:0 0 8px rgba(24,234,255,.65);
+  filter:drop-shadow(0 0 5px rgba(24,234,255,.55));
+}
+
+#timezoneSelect{
+  display:none;
 }
 
 #listen{display:inline-flex;align-items:center;gap:8px;justify-content:center;width:500px;max-width:90%;padding:18px 25px;border:2px solid #ff20ae;border-radius:45px;background:#07040d;color:white;box-shadow:0 0 25px #ff20ae55;cursor:pointer;font-size:18px}
