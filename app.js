@@ -663,8 +663,63 @@ function addTechnoBotMessage(text, sender = "bot") {
   technobotMessages.scrollTop = technobotMessages.scrollHeight;
 }
 
+/* ===== TECHNOBOT - GRILLE DES EMISSIONS ===== */
+
+const technoSchedule = [
+  {
+    name: "Technorizon Club",
+    days: [4, 5, 6],
+    start: 20,
+    end: 2
+  }
+];
+
+function getCurrentTechnoShow() {
+  const now = new Date();
+
+  const day = now.getDay();
+  const hour = now.getHours();
+
+  for (const show of technoSchedule) {
+    const startsToday =
+      show.days.includes(day) &&
+      hour >= show.start;
+
+    const startedYesterday =
+      show.end < show.start &&
+      show.days.includes((day + 6) % 7) &&
+      hour < show.end;
+
+    if (startsToday || startedYesterday) {
+      return show;
+    }
+  }
+
+  return null;
+}
+
 async function getTechnoBotReply(question) {
   const q = question.toLowerCase().trim();
+
+  /* ===== TECHNOBOT - EMISSION EN COURS ===== */
+
+if (
+  q.includes("émission en cours") ||
+  q.includes("emission en cours") ||
+  q.includes("quelle émission") ||
+  q.includes("quelle emission") ||
+  q.includes("qu'est-ce qui passe") ||
+  q.includes("qu est ce qui passe") ||
+  q.includes("programme en cours")
+) {
+  const currentShow = getCurrentTechnoShow();
+
+  if (currentShow) {
+    return `📻 En ce moment sur Technorizon.fr : ${currentShow.name}.`;
+  }
+
+  return "📻 Il n’y a pas d’émission spéciale en cours pour le moment : tu écoutes la programmation musicale de Technorizon.fr.";
+}
 
   /* ===== TECHNOBOT - METEO ===== */
 
