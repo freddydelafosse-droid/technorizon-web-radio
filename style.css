@@ -1488,3 +1488,35 @@ font-size:.35em;
     letter-spacing:3px;
   }
 }
+
+.now-playing-area{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  margin:12px 0;
+}
+
+.now-playing-card{
+  width:min(920px, calc(100% - 32px));
+  box-sizing:border-box;
+  padding:16px 20px;
+  border-radius:18px;
+  background:rgba(3,10,22,.92);
+  border:1px solid rgba(24,234,255,.75);
+  box-shadow:0 0 18px rgba(24,234,255,.18);
+  text-align:center;
+  color:#fff;
+}
+
+.now-playing-title{
+  font-weight:800;
+  letter-spacing:2px;
+  color:#18eaff;
+  margin-bottom:8px;
+}
+
+.now-playing-track{
+  font-size:18px;
+  font-weight:600;
+  color:#fff;
+}
