@@ -778,6 +778,54 @@ if (
   return "🤖 Je suis TechnoBot, l’assistant de Technorizon.fr. Je peux t’aider à trouver le titre en cours, les émissions, les dédicaces et les infos du site.";
 }
 
+  /* ===== TECHNOBOT - HEURE MONDIALE ===== */
+
+if (
+  q.includes("quelle heure") ||
+  q.includes("quel heure") ||
+  q.includes("heure est-il") ||
+  q.includes("heure est il") ||
+  q.startsWith("heure ")
+) {
+  const timeZones = {
+    "paris": "Europe/Paris",
+    "france": "Europe/Paris",
+    "londres": "Europe/London",
+    "london": "Europe/London",
+    "new york": "America/New_York",
+    "los angeles": "America/Los_Angeles",
+    "tokyo": "Asia/Tokyo",
+    "sydney": "Australia/Sydney",
+    "dieppe": "Europe/Paris"
+  };
+
+  let selectedCity = "Paris";
+  let selectedZone = "Europe/Paris";
+
+  for (const city in timeZones) {
+    if (q.includes(city)) {
+      selectedCity = city
+        .split(" ")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+
+      selectedZone = timeZones[city];
+      break;
+    }
+  }
+
+  const now = new Date();
+
+  const time = new Intl.DateTimeFormat("fr-FR", {
+    timeZone: selectedZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  }).format(now);
+
+  return `🕒 Il est ${time} à ${selectedCity}.`;
+}
+
   /* ===== TECHNOBOT - EQUIPE TECHNORIZON ===== */
 
 if (
