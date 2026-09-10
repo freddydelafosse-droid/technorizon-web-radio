@@ -833,6 +833,43 @@ if (
   return "🤖 Je suis TechnoBot, l’assistant de Technorizon.fr. Je peux t’aider à trouver le titre en cours, les émissions, les dédicaces et les infos du site.";
 }
 
+  /* ===== TECHNOBOT - HORAIRES DES EMISSIONS ===== */
+
+if (
+  q.includes("à quelle heure termine") ||
+  q.includes("a quelle heure termine") ||
+  q.includes("à quelle heure finit") ||
+  q.includes("a quelle heure finit") ||
+  q.includes("quand se termine") ||
+  q.includes("quand finit")
+) {
+  const currentShow = getCurrentTechnoShow();
+
+  if (currentShow) {
+    const endHour = String(currentShow.end).padStart(2, "0");
+    return `📻 ${currentShow.name} se termine à ${endHour}h00.`;
+  }
+
+  return "📻 Il n’y a pas d’émission spéciale en cours pour le moment.";
+}
+
+  if (
+  q.includes("à quelle heure commence") ||
+  q.includes("a quelle heure commence") ||
+  q.includes("quand commence") ||
+  q.includes("heure de début") ||
+  q.includes("heure de debut")
+) {
+  const currentShow = getCurrentTechnoShow();
+
+  if (currentShow) {
+    const startHour = String(currentShow.start).padStart(2, "0");
+    return `📻 ${currentShow.name} a commencé à ${startHour}h00.`;
+  }
+
+  return "📻 Il n’y a pas d’émission spéciale en cours pour le moment.";
+}
+
   /* ===== TECHNOBOT - HEURE MONDIALE ===== */
 
 if (
