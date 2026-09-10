@@ -858,7 +858,7 @@ if (
   q.includes("présente willy") ||
   q.includes("presente willy")
 ) {
-  return "🎧 Willy fait partie de l’équipe Technorizon. DJ de l’émission, il participe également à la création musicale ainsi qu’aux liners et à l’habillage sonore de Technorizon.";
+  return "🎧 Willy fait partie de l’équipe Technorizon. DJ résident de l’émission, il participe également à la création musicale ainsi qu’aux liners et à l’habillage sonore de Technorizon.";
 }
 
 if (
