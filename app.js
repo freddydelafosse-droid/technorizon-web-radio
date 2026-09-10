@@ -778,6 +778,55 @@ if (
   return "🤖 Je suis TechnoBot, l’assistant de Technorizon.fr. Je peux t’aider à trouver le titre en cours, les émissions, les dédicaces et les infos du site.";
 }
 
+  /* ===== TECHNOBOT - EQUIPE TECHNORIZON ===== */
+
+if (
+  q.includes("qui est gaby") ||
+  q.includes("qui c'est gaby") ||
+  q.includes("présente gaby") ||
+  q.includes("presente gaby")
+) {
+  return "🎙️ Gaby est l’animateur et le créateur de Technorizon. Il est l’un des piliers du projet Technorizon.fr. Il participe à la création musicale, à la programmation et au développement de la Web-Radio.";
+}
+
+if (
+  q.includes("qui est willy") ||
+  q.includes("qui c'est willy") ||
+  q.includes("présente willy") ||
+  q.includes("presente willy")
+) {
+  return "🎧 Willy fait partie de l’équipe Technorizon. DJ de l’émission, il participe également à la création musicale ainsi qu’aux liners et à l’habillage sonore de Technorizon.";
+}
+
+if (
+  q.includes("qui est j-p") ||
+  q.includes("qui est jp") ||
+  q.includes("qui c'est j-p") ||
+  q.includes("qui c'est jp") ||
+  q.includes("présente j-p") ||
+  q.includes("presente j-p")
+) {
+  return "🎚️ J-P fait partie de l’équipe Technorizon. Il participe à l’animation, à la création musicale et à la programmation, et assure également une partie de la technique de Technorizon.";
+}
+
+if (
+  q.includes("qui est jade") ||
+  q.includes("qui c'est jade") ||
+  q.includes("présente jade") ||
+  q.includes("presente jade")
+) {
+  return "✨ Jade est l’ambassadrice officielle de Technorizon.fr et la voix de Jade Connexion, son émission aux couleurs Dance Pop, Electro Pop, Vocal House et Nu-Disco.";
+}
+
+if (
+  q.includes("équipe technorizon") ||
+  q.includes("equipe technorizon") ||
+  q.includes("qui compose technorizon") ||
+  q.includes("qui fait partie de technorizon")
+) {
+  return "👥 L’équipe Technorizon réunit Gaby, J-P, Willy et Jade. Gaby est animateur et participe au développement de la radio, J-P intervient à l’animation et à la technique, Willy est DJ et travaille sur l’habillage sonore, et Jade est l’ambassadrice officielle de Technorizon.fr.";
+}
+
 if (
   q.includes("technorizon club") ||
   q.includes("club")
