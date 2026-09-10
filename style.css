@@ -28,11 +28,24 @@ header{text-align:center;padding:38px 24px 30px;position:relative}
 }
 .logo small{display:block;font-size:18px;letter-spacing:9px;color:#18eaff;font-style:normal;margin-top:4px}
 .clock-zone{
-  margin:22px auto 15px;
+  margin:38px auto 0;
+  width:100%;
   display:flex;
   align-items:center;
+  
   justify-content:center;
   gap:10px;
+  position:relative;
+}
+
+.music-style{
+  margin:6px auto 8px;
+  text-align:center;
+  font-size:14px;
+  font-weight:400;
+  letter-spacing:.3px;
+  color:#fff;
+  opacity:.9;
 }
 
 #clock{
