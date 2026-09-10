@@ -1,41 +1,37 @@
 const clock = document.getElementById('clock');
-const timezoneSelect = document.getElementById('timezoneSelect');
 const timezoneButton = document.getElementById('timezoneButton');
+const timezoneMenu = document.getElementById('timezoneMenu');
 
-timezoneButton?.addEventListener('click', () => {
-  const villes = [
-    ['Europe/Paris', 'Paris'],
-    ['Europe/London', 'Londres'],
-    ['America/New_York', 'New York'],
-    ['America/Los_Angeles', 'Los Angeles'],
-    ['Asia/Tokyo', 'Tokyo'],
-    ['Australia/Sydney', 'Sydney']
-  ];
-
-  const choix = prompt(
-    'Choisissez votre fuseau horaire :\n\n' +
-    villes.map((ville, i) => `${i + 1} — ${ville[1]}`).join('\n'),
-    '1'
-  );
-
-  const index = Number(choix) - 1;
-
-  if (villes[index] && timezoneSelect) {
-    timezoneSelect.value = villes[index][0];
-    tick();
-  }
-});
+let selectedTimezone = 'Europe/Paris';
 
 function tick() {
-  const timezone = timezoneSelect ? timezoneSelect.value : 'Europe/Paris';
-
   clock.textContent = new Date().toLocaleTimeString('fr-FR', {
     hour12: false,
-    timeZone: timezone
+    timeZone: selectedTimezone
   });
 }
 
-timezoneSelect?.addEventListener('change', tick);
+timezoneButton?.addEventListener('click', (event) => {
+  event.stopPropagation();
+  timezoneMenu?.classList.toggle('open');
+});
+
+timezoneMenu?.querySelectorAll('button').forEach(button => {
+  button.addEventListener('click', () => {
+    const timezone = button.dataset.timezone;
+
+    if (timezone) {
+      selectedTimezone = timezone;
+      tick();
+    }
+
+    timezoneMenu?.classList.remove('open');
+  });
+});
+
+document.addEventListener('click', () => {
+  timezoneMenu?.classList.remove('open');
+});
 
 tick();
 setInterval(tick, 1000);
