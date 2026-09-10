@@ -1,8 +1,17 @@
 const clock = document.getElementById('clock');
+const timezoneSelect = document.getElementById('timezoneSelect');
 
 function tick() {
-  clock.textContent = new Date().toLocaleTimeString('fr-FR', {hour12:false});
+  const timezone = timezoneSelect ? timezoneSelect.value : 'Europe/Paris';
+
+  clock.textContent = new Date().toLocaleTimeString('fr-FR', {
+    hour12: false,
+    timeZone: timezone
+  });
 }
+
+timezoneSelect?.addEventListener('change', tick);
+
 tick();
 setInterval(tick, 1000);
 
