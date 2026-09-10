@@ -904,6 +904,38 @@ if (
 
   /* ===== TECHNOBOT - HORAIRES DES EMISSIONS ===== */
 
+  if (
+  q === "quel jour" ||
+  q === "quel jour ?" ||
+  q === "quels jours" ||
+  q === "quels jours ?" ||
+  q.includes("c'est quel jour") ||
+  q.includes("c est quel jour") ||
+  q.includes("quels sont les jours")
+) {
+  const currentShow = getCurrentTechnoShow();
+
+  if (currentShow) {
+    const dayNames = {
+      0: "dimanche",
+      1: "lundi",
+      2: "mardi",
+      3: "mercredi",
+      4: "jeudi",
+      5: "vendredi",
+      6: "samedi"
+    };
+
+    const days = currentShow.days
+      .map(day => dayNames[day])
+      .join(", ");
+
+    return `📅 ${currentShow.name} est diffusée les ${days}.`;
+  }
+
+  return "📅 Il n’y a pas d’émission spéciale en cours pour le moment.";
+}
+  
 if (
   q.includes("quand est cette émission") ||
   q.includes("quand est cette emission") ||
