@@ -53,14 +53,15 @@ header{text-align:center;padding:38px 24px 30px;position:relative}
   width:auto;
   padding:0;
   border:none;
-  border-radius:0;
   background:transparent;
   color:#fff;
   font-family:"Courier New",monospace;
-  font-size:32px;
-  font-weight:400;
-  letter-spacing:3px;
+  font-size:48px;
+  font-weight:300;
+  letter-spacing:4px;
   line-height:1;
+  text-align:center;
+  text-shadow:0 0 8px rgba(255,255,255,.18);
 }
 
 .timezone-wrapper{
@@ -70,16 +71,34 @@ header{text-align:center;padding:38px 24px 30px;position:relative}
 }
 
 #timezoneButton{
-  width:28px;
-  height:28px;
-  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  width:auto;
+  height:34px;
+  padding:0 3px;
   border:0;
   background:transparent;
-  font-size:17px;
-  line-height:28px;
+  color:#18eaff;
   cursor:pointer;
-  text-align:center;
-  filter:drop-shadow(0 0 5px rgba(24,234,255,.55));
+  outline:none;
+  filter:drop-shadow(0 0 5px rgba(24,234,255,.45));
+}
+
+.world-map-icon{
+  width:62px;
+  height:29px;
+  display:block;
+}
+
+.timezone-arrow{
+  position:relative;
+  top:-1px;
+  font-size:17px;
+  line-height:1;
+  color:#18eaff;
+  opacity:.9;
 }
 
 .timezone-menu{
@@ -127,8 +146,12 @@ header{text-align:center;padding:38px 24px 30px;position:relative}
 #listen{display:inline-flex;align-items:center;gap:8px;justify-content:center;width:500px;max-width:90%;padding:18px 25px;border:2px solid #ff20ae;border-radius:45px;background:#07040d;color:white;box-shadow:0 0 25px #ff20ae55;cursor:pointer;font-size:18px}
 #listen strong{font-size:32px}
 #listen small{font-size:12px}
-header>p{font-size:18px;line-height:1.45;margin-top:22px}
-.live-area{max-width:760px;margin:-35px auto 35px;padding:0 18px;scroll-margin-top:20px}
+header>p.music-style{
+  font-size:14px;
+  line-height:1.2;
+  margin:7px auto 0;
+}
+.live-area{max-width:760px;margin:-10px auto 35px;padding:0 18px;scroll-margin-top:20px}
 .caster-player{min-height:90px;padding:12px;border:1px solid #ff20ae66;border-radius:16px;background:#05040b;box-shadow:0 0 28px #ff20ae22}
 #radioPlayer{display:block;width:100%;height:54px;accent-color:#ff20ae}
 main{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1230px;margin:auto;padding:0 18px}
