@@ -60,16 +60,20 @@
   <div class="clock-zone">
   <div id="clock">--:--:--</div>
 
- <button id="timezoneButton" type="button" aria-label="Changer de fuseau horaire">🌍</button>
+<div class="timezone-wrapper">
+  <button id="timezoneButton" type="button" aria-label="Changer de fuseau horaire">
+    🌍
+  </button>
 
-<select id="timezoneSelect" aria-label="Choisir le fuseau horaire">
-  <option value="Europe/Paris">Paris</option>
-  <option value="Europe/London">Londres</option>
-  <option value="America/New_York">New York</option>
-  <option value="America/Los_Angeles">Los Angeles</option>
-  <option value="Asia/Tokyo">Tokyo</option>
-  <option value="Australia/Sydney">Sydney</option>
-</select>
+  <div id="timezoneMenu" class="timezone-menu">
+    <button type="button" data-timezone="Europe/Paris">Paris</button>
+    <button type="button" data-timezone="Europe/London">Londres</button>
+    <button type="button" data-timezone="America/New_York">New York</button>
+    <button type="button" data-timezone="America/Los_Angeles">Los Angeles</button>
+    <button type="button" data-timezone="Asia/Tokyo">Tokyo</button>
+    <button type="button" data-timezone="Australia/Sydney">Sydney</button>
+  </div>
+</div>
 
   <p>Technorizon, votre Web-Radio<br>
   Techno, Eurodance & House-music des années 90's à aujourd'hui</p>
