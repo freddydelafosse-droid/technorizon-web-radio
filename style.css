@@ -1491,6 +1491,14 @@ main {
   color:#fff;
 }
 
+.technobot-message.user{
+  margin-left:auto;
+  background:rgba(255,32,174,.14);
+  border:1px solid rgba(255,32,174,.35);
+  color:#fff;
+  text-align:left;
+}
+
 .technobot-form{
   display:flex;
   gap:8px;
