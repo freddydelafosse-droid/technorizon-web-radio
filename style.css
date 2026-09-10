@@ -1416,6 +1416,118 @@ main {
   color:#18eaff;
 }
 
+.technobot-window{
+  position:fixed;
+  right:22px;
+  bottom:82px;
+  z-index:9998;
+
+  width:340px;
+  max-width:calc(100vw - 24px);
+  height:430px;
+
+  display:none;
+  flex-direction:column;
+
+  background:rgba(3,10,22,.98);
+  border:1px solid rgba(24,234,255,.75);
+  border-radius:18px;
+
+  box-shadow:
+    0 0 22px rgba(24,234,255,.25),
+    0 0 30px rgba(255,32,174,.12);
+
+  overflow:hidden;
+}
+
+.technobot-window.open{
+  display:flex;
+}
+
+.technobot-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:12px 14px;
+
+  background:linear-gradient(
+    90deg,
+    rgba(24,234,255,.14),
+    rgba(255,32,174,.12)
+  );
+
+  border-bottom:1px solid rgba(24,234,255,.25);
+  color:#18eaff;
+  font-weight:800;
+}
+
+.technobot-header button{
+  border:none;
+  background:transparent;
+  color:#fff;
+  font-size:18px;
+  cursor:pointer;
+}
+
+.technobot-messages{
+  flex:1;
+  overflow-y:auto;
+  padding:14px;
+}
+
+.technobot-message{
+  max-width:85%;
+  margin-bottom:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  line-height:1.4;
+  font-size:14px;
+}
+
+.technobot-message.bot{
+  background:rgba(24,234,255,.10);
+  border:1px solid rgba(24,234,255,.20);
+  color:#fff;
+}
+
+.technobot-form{
+  display:flex;
+  gap:8px;
+  padding:10px;
+
+  border-top:1px solid rgba(24,234,255,.20);
+  background:rgba(2,8,18,.96);
+}
+
+.technobot-form input{
+  flex:1;
+  min-width:0;
+
+  padding:10px 12px;
+  border-radius:20px;
+
+  border:1px solid rgba(24,234,255,.35);
+  background:rgba(255,255,255,.06);
+
+  color:#fff;
+  outline:none;
+}
+
+.technobot-form button{
+  width:42px;
+  height:42px;
+
+  border:none;
+  border-radius:50%;
+
+  background:#18eaff;
+  color:#03101c;
+
+  font-size:18px;
+  cursor:pointer;
+}
+
 /* ===== RESEAUX SOCIAUX SUR MOBILE ===== */
 
 @media (max-width:800px){
