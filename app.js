@@ -648,3 +648,58 @@ if (technobotClose && technobotWindow) {
     technobotWindow.classList.remove("open");
   });
 }
+/* ===== TECHNOBOT - PREMIER CERVEAU ===== */
+
+const technobotForm = document.getElementById("technobotForm");
+const technobotInput = document.getElementById("technobotInput");
+const technobotMessages = document.getElementById("technobotMessages");
+
+function addTechnoBotMessage(text, sender = "bot") {
+  const message = document.createElement("div");
+  message.className = `technobot-message ${sender}`;
+  message.textContent = text;
+
+  technobotMessages.appendChild(message);
+  technobotMessages.scrollTop = technobotMessages.scrollHeight;
+}
+
+async function getTechnoBotReply(question) {
+  const q = question.toLowerCase().trim();
+
+  if (
+    q.includes("titre") ||
+    q.includes("musique") ||
+    q.includes("morceau") ||
+    q.includes("passe actuellement") ||
+    q.includes("en ce moment")
+  ) {
+    const nowPlaying = document.getElementById("nowPlaying")?.textContent?.trim();
+
+    if (nowPlaying) {
+      return `🎵 En ce moment sur Technorizon : ${nowPlaying}`;
+    }
+
+    return "Je n’arrive pas à récupérer le titre diffusé pour le moment.";
+  }
+
+  return "🤖 Je ne connais pas encore la réponse, mais je suis en train d’apprendre.";
+}
+
+if (technobotForm && technobotInput && technobotMessages) {
+  technobotForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const question = technobotInput.value.trim();
+
+    if (!question) return;
+
+    addTechnoBotMessage(question, "user");
+    technobotInput.value = "";
+
+    const reply = await getTechnoBotReply(question);
+
+    setTimeout(() => {
+      addTechnoBotMessage(reply, "bot");
+    }, 400);
+  });
+}
