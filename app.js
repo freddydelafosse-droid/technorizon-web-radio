@@ -1,5 +1,30 @@
 const clock = document.getElementById('clock');
 const timezoneSelect = document.getElementById('timezoneSelect');
+const timezoneButton = document.getElementById('timezoneButton');
+
+timezoneButton?.addEventListener('click', () => {
+  const villes = [
+    ['Europe/Paris', 'Paris'],
+    ['Europe/London', 'Londres'],
+    ['America/New_York', 'New York'],
+    ['America/Los_Angeles', 'Los Angeles'],
+    ['Asia/Tokyo', 'Tokyo'],
+    ['Australia/Sydney', 'Sydney']
+  ];
+
+  const choix = prompt(
+    'Choisissez votre fuseau horaire :\n\n' +
+    villes.map((ville, i) => `${i + 1} — ${ville[1]}`).join('\n'),
+    '1'
+  );
+
+  const index = Number(choix) - 1;
+
+  if (villes[index] && timezoneSelect) {
+    timezoneSelect.value = villes[index][0];
+    tick();
+  }
+});
 
 function tick() {
   const timezone = timezoneSelect ? timezoneSelect.value : 'Europe/Paris';
