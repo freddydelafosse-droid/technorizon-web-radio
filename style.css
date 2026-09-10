@@ -1376,6 +1376,46 @@ main {
     drop-shadow(0 0 18px rgba(193,53,132,.85));
 }
 
+/* ===== TECHNOBOT ===== */
+
+.technobot-button{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:9999;
+
+  display:flex;
+  align-items:center;
+  gap:9px;
+
+  padding:7px 14px 7px 7px;
+  border:1px solid rgba(24,234,255,.75);
+  border-radius:30px;
+
+  background:rgba(3,10,22,.95);
+  color:#fff;
+
+  font-size:15px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 0 14px rgba(24,234,255,.35),
+    0 0 20px rgba(255,32,174,.15);
+}
+
+.technobot-button img{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.technobot-button span{
+  color:#18eaff;
+}
+
 /* ===== RESEAUX SOCIAUX SUR MOBILE ===== */
 
 @media (max-width:800px){
