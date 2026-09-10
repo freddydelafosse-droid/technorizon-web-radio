@@ -826,6 +826,21 @@ if (
   return `🕒 Il est ${time} à ${selectedCity}.`;
 }
 
+  /* ===== TECHNOBOT - CONTACT ===== */
+
+if (
+  q.includes("contacter technorizon") ||
+  q.includes("contact technorizon") ||
+  q.includes("adresse mail") ||
+  q.includes("adresse email") ||
+  q.includes("e-mail") ||
+  q.includes("email") ||
+  q.includes("vous écrire") ||
+  q.includes("vous ecrire")
+) {
+  return "📧 Tu peux contacter l’équipe Technorizon.fr à l’adresse : contact@technorizon.fr";
+}
+
   /* ===== TECHNOBOT - EQUIPE TECHNORIZON ===== */
 
 if (
