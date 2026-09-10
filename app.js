@@ -242,7 +242,7 @@ setInterval(nextNews, 30000);
 /* ===== EN CE MOMENT — AZURACAST ===== */
 
 (async function loadNowPlaying() {
-    const titleEl = document.getElementById("now-playing-title");
+    const titleEl = document.getElementById("nowPlaying");
     if (!titleEl) return;
 
     const apiUrl = "https://radio.technorizon.fr/api/nowplaying/technorizon";
@@ -271,7 +271,7 @@ setInterval(nextNews, 30000);
 })();
 /* ===== AZURACAST - EN CE MOMENT ===== */
 (async function loadNowPlaying() {
-    const titleEl = document.getElementById("now-playing-title");
+    const titleEl = document.getElementById("nowPlaying");
     if (!titleEl) return;
 
     const apiUrl = "https://radio.technorizon.fr/api/nowplaying/technorizon";
