@@ -666,6 +666,91 @@ function addTechnoBotMessage(text, sender = "bot") {
 async function getTechnoBotReply(question) {
   const q = question.toLowerCase().trim();
 
+  /* ===== TECHNOBOT - METEO ===== */
+
+if (
+  q.includes("météo") ||
+  q.includes("meteo") ||
+  q.includes("quel temps") ||
+  q.includes("temps fait")
+) {
+  let city = question
+    .replace(/quel temps fait[- ]?il/gi, "")
+    .replace(/quelle météo/gi, "")
+    .replace(/quelle meteo/gi, "")
+    .replace(/météo/gi, "")
+    .replace(/meteo/gi, "")
+    .replace(/\?/g, "")
+    .trim();
+
+  city = city.replace(/^(à|a|sur|pour)\s+/i, "").trim();
+
+  if (!city) {
+    city = "Dieppe";
+  }
+
+  try {
+    const geoResponse = await fetch(
+      "https://geocoding-api.open-meteo.com/v1/search?name=" +
+      encodeURIComponent(city) +
+      "&count=1&language=fr&format=json"
+    );
+
+    const geoData = await geoResponse.json();
+
+    if (!geoData.results || !geoData.results.length) {
+      return `🌦️ Je ne trouve pas la ville « ${city} ».`;
+    }
+
+    const place = geoData.results[0];
+
+    const weatherResponse = await fetch(
+      "https://api.open-meteo.com/v1/forecast?latitude=" +
+      place.latitude +
+      "&longitude=" +
+      place.longitude +
+      "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m" +
+      "&timezone=auto"
+    );
+
+    const weather = await weatherResponse.json();
+    const current = weather.current;
+
+    const conditions = {
+      0: "☀️ ciel dégagé",
+      1: "🌤️ peu nuageux",
+      2: "⛅ partiellement nuageux",
+      3: "☁️ couvert",
+      45: "🌫️ brouillard",
+      48: "🌫️ brouillard givrant",
+      51: "🌦️ bruine légère",
+      53: "🌦️ bruine",
+      55: "🌧️ forte bruine",
+      61: "🌧️ pluie légère",
+      63: "🌧️ pluie",
+      65: "🌧️ forte pluie",
+      71: "🌨️ neige légère",
+      73: "🌨️ neige",
+      75: "❄️ forte neige",
+      80: "🌦️ averses",
+      81: "🌦️ averses modérées",
+      82: "🌧️ fortes averses",
+      95: "⛈️ orage",
+      96: "⛈️ orage avec grêle",
+      99: "⛈️ fort orage avec grêle"
+    };
+
+    const condition =
+      conditions[current.weather_code] || "🌡️ conditions variables";
+
+    return `🌍 À ${place.name} : ${Math.round(current.temperature_2m)}°C, ${condition}. 💧 Humidité ${current.relative_humidity_2m}% • 💨 Vent ${Math.round(current.wind_speed_10m)} km/h.`;
+
+  } catch (error) {
+    console.error("TechnoBot météo :", error);
+    return "🌦️ Désolé, je n’arrive pas à récupérer la météo pour le moment.";
+  }
+}
+
   if (
   q === "bonjour" ||
   q === "salut" ||
@@ -718,7 +803,68 @@ if (
   q.includes("technoroscope") ||
   q.includes("horoscope")
 ) {
-  return "🔮 Le Technoroscope, c’est l’horoscope version Technorizon. Choisis ton signe sur le site pour découvrir ta tendance du jour.";
+  const technoSigns = {
+    "bélier": "aries",
+    "belier": "aries",
+    "taureau": "taurus",
+    "gémeaux": "gemini",
+    "gemeaux": "gemini",
+    "cancer": "cancer",
+    "lion": "leo",
+    "vierge": "virgo",
+    "balance": "libra",
+    "scorpion": "scorpio",
+    "sagittaire": "sagittarius",
+    "capricorne": "capricorn",
+    "verseau": "aquarius",
+    "poissons": "pisces"
+  };
+
+  const frenchSigns = {
+    aries: "Bélier",
+    taurus: "Taureau",
+    gemini: "Gémeaux",
+    cancer: "Cancer",
+    leo: "Lion",
+    virgo: "Vierge",
+    libra: "Balance",
+    scorpio: "Scorpion",
+    sagittarius: "Sagittaire",
+    capricorn: "Capricorne",
+    aquarius: "Verseau",
+    pisces: "Poissons"
+  };
+
+  const signKey = Object.keys(technoSigns).find(sign => q.includes(sign));
+
+  if (!signKey) {
+    return "🔮 Quel est ton signe astrologique ? Exemple : « Horoscope Verseau ».";
+  }
+
+  const sigastraSign = technoSigns[signKey];
+
+  try {
+    const response = await fetch(
+      `https://sigastra.com/api/v1/daily?lang=fr&sign=${sigastraSign}`
+    );
+
+    if (!response.ok) {
+      throw new Error("Erreur Technoroscope");
+    }
+
+    const data = await response.json();
+    const horoscope = data.items?.[0]?.text;
+
+    if (horoscope) {
+      return `🔮 ${frenchSigns[sigastraSign]} — ${horoscope}`;
+    }
+
+    return "🔮 Je n’arrive pas à récupérer ton Technoroscope pour le moment.";
+
+  } catch (error) {
+    console.error("TechnoBot Technoroscope :", error);
+    return "🔮 Le Technoroscope est momentanément indisponible. Réessaie dans quelques instants.";
+  }
 }
 
   if (
