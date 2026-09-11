@@ -118,7 +118,22 @@ const knowledge = await knowledgeResponse.json();
     }
   }
 
-  if (bestMatch && bestScore >= 2) {
+  const exactTopicMatch =
+  words.length === 1 &&
+  bestMatch &&
+  [
+    bestMatch.category,
+    bestMatch.title,
+    bestMatch.content
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .includes(words[0]);
+
+if (bestMatch && (bestScore >= 2 || exactTopicMatch)) {
     return res.status(200).json({
       success: true,
       assistant: "Jaya",
