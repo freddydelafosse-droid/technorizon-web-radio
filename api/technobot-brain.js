@@ -611,12 +611,28 @@ console.log("Artist search body:", artistText.slice(0, 500));
           : [];
 
         const titles = [
-          ...new Set(
-            recordings
-              .map((item) => String(item.title || "").trim())
-              .filter(Boolean)
-          )
-        ].slice(0, 6);
+  ...new Set(
+    recordings
+      .filter((item) => {
+        const title = String(item.title || "").trim();
+
+        // Écarter les résultats peu utiles pour l'auditeur
+        return (
+          title &&
+          !/live|remix|version|edit|instrumental|karaoke|reprise/i.test(title)
+        );
+      })
+      .sort((a, b) => {
+        // Privilégier les enregistrements disposant
+        // d'une date de première sortie
+        const aDate = a["first-release-date"] ? 1 : 0;
+        const bDate = b["first-release-date"] ? 1 : 0;
+
+        return bDate - aDate;
+      })
+      .map((item) => String(item.title || "").trim())
+  )
+].slice(0, 6);
 
         if (titles.length) {
           const artistName =
