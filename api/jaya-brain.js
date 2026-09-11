@@ -83,7 +83,7 @@ const knowledge = await knowledgeResponse.json();
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[?!.,;:]/g, " ");
+    .replace(/[’'?!.,;:-]/g, " ");
 
   const words = cleanQuestion
     .split(/\s+/)
