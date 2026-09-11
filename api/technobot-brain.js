@@ -524,7 +524,12 @@ const externalMusicQuery = question
   .replace(/\s+/g, " ")
   .trim();
 
-    const asksArtistTracks =
+   const asksArtistTracks =
+  cleanQuestion.includes("qu'est-ce qu'a chante") ||
+  cleanQuestion.includes("qu’est-ce qu’a chante") ||
+  cleanQuestion.includes("qu a chante") ||
+  cleanQuestion.includes("qu'a chante") ||
+  cleanQuestion.includes("qu’a chante") ||
   cleanQuestion.includes("qu'est-ce qu'a chanté") ||
   cleanQuestion.includes("qu’est-ce qu’a chanté") ||
   cleanQuestion.includes("qu a chanté") ||
