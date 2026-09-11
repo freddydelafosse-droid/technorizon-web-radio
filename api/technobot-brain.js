@@ -524,6 +524,10 @@ const externalMusicQuery = question
   .replace(/\s+/g, " ")
   .trim();
 
+    console.log("QUESTION BRUTE:", question);
+console.log("QUESTION CLEAN:", cleanQuestion);
+console.log("EXTERNAL QUERY:", externalMusicQuery);
+    
    const asksArtistTracks =
   cleanQuestion.includes("qu'est-ce qu'a chante") ||
   cleanQuestion.includes("qu’est-ce qu’a chante") ||
