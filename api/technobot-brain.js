@@ -592,6 +592,14 @@ if (externalMusicQuery.length >= 2) {
         headers: musicbrainzHeaders
       });
 
+      if (!mbResponse.ok) {
+  console.error(
+    "MusicBrainz HTTP :",
+    mbResponse.status,
+    mbResponse.statusText
+  );
+}
+
       if (mbResponse.ok) {
         const mbData = await mbResponse.json();
         const recordings = Array.isArray(mbData.recordings)
