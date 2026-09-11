@@ -42,6 +42,26 @@ export default async function handler(req, res) {
       .toLowerCase()
       .replace(/[?!.,;:]/g, "");
 
+    const artistTracksIntentText = String(question || "")
+  .toLowerCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/[’']/g, " ")
+  .replace(/[-]/g, " ")
+  .replace(/[?!.,;:]/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+
+const asksArtistTracks =
+  artistTracksIntentText.includes("qu est ce qu a chante") ||
+  artistTracksIntentText.includes("qu a chante") ||
+  artistTracksIntentText.includes("quels titres") ||
+  artistTracksIntentText.includes("quels morceaux") ||
+  artistTracksIntentText.includes("chansons de") ||
+  artistTracksIntentText.includes("titres de") ||
+  artistTracksIntentText.includes("morceaux de") ||
+  artistTracksIntentText.includes("donne moi des titres de");
+    
     // 1. Chercher d'abord dans la FAQ
     const faqResponse = await fetch(
       `${supabaseUrl}/rest/v1/faq?select=question,answer,alternative_questions,category&status=eq.active&visibility=eq.public`,
@@ -220,7 +240,7 @@ const artistMatch = artists.find((item) => {
   return false;
 });
 
-if (artistMatch) {
+if (artistMatch && !asksArtistTracks) {
   const parts = [];
 
   if (artistMatch.biography) {
@@ -512,8 +532,10 @@ const externalMusicQuery = question
   .replace(/\bpasse sur technorizon\b/gi, " ")
   .replace(/\bqui est\b/gi, " ")
   .replace(/\bc'est qui\b/gi, " ")
-  .replace(/\bqu['’]est-ce qu['’]a chanté\b/gi, " ")
-.replace(/\bqu['’]a chanté\b/gi, " ")
+  .replace(/qu['’]est-ce qu['’]a chant[eé]/gi, " ")
+.replace(/qu['’]a chant[eé]/gi, " ")
+  .replace(/qu est ce qu a chante/gi, " ")
+.replace(/qu a chante/gi, " ")
 .replace(/\bquels titres de\b/gi, " ")
 .replace(/\bquels morceaux de\b/gi, " ")
 .replace(/\bchansons de\b/gi, " ")
@@ -527,26 +549,6 @@ const externalMusicQuery = question
     console.log("QUESTION BRUTE:", question);
 console.log("QUESTION CLEAN:", cleanQuestion);
 console.log("EXTERNAL QUERY:", externalMusicQuery);
-    
-  const artistTracksIntentText = String(question || "")
-  .toLowerCase()
-  .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .replace(/[’']/g, " ")
-  .replace(/[-]/g, " ")
-  .replace(/[?!.,;:]/g, " ")
-  .replace(/\s+/g, " ")
-  .trim();
-
-const asksArtistTracks =
-  artistTracksIntentText.includes("qu est ce qu a chante") ||
-  artistTracksIntentText.includes("qu a chante") ||
-  artistTracksIntentText.includes("quels titres") ||
-  artistTracksIntentText.includes("quels morceaux") ||
-  artistTracksIntentText.includes("chansons de") ||
-  artistTracksIntentText.includes("titres de") ||
-  artistTracksIntentText.includes("morceaux de") ||
-  artistTracksIntentText.includes("donne moi des titres de");
 
 const asksExternalArtist =
   cleanQuestion.startsWith("qui est ") ||
