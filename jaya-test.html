@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Jaya Brain</title>
+</head>
+
+<body>
+  <h1>Test Jaya 🧠</h1>
+
+  <input
+    id="question"
+    type="text"
+    placeholder="Pose une question à Jaya"
+    style="width: 400px; padding: 10px;"
+  >
+
+  <button id="send" style="padding: 10px;">
+    Envoyer
+  </button>
+
+  <p><strong>Réponse de Jaya :</strong></p>
+  <div id="answer">En attente...</div>
+
+  <script>
+    document.getElementById("send").addEventListener("click", async () => {
+      const question = document.getElementById("question").value.trim();
+      const answer = document.getElementById("answer");
+
+      if (!question) {
+        answer.textContent = "Écris une question.";
+        return;
+      }
+
+      answer.textContent = "Jaya réfléchit...";
+
+      try {
+        const response = await fetch("/api/jaya-brain", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ question })
+        });
+
+        const data = await response.json();
+
+        if (data.answer) {
+          answer.textContent = data.answer;
+        } else {
+          answer.textContent = JSON.stringify(data);
+        }
+      } catch (error) {
+        answer.textContent = "Erreur de connexion avec Jaya.";
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
