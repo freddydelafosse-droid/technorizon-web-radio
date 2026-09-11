@@ -78,6 +78,29 @@ if (!knowledgeResponse.ok) {
 
 const knowledge = await knowledgeResponse.json();
 
+    const entitiesResponse = await fetch(
+  `${supabaseUrl}/rest/v1/entities?select=name,type,aliases,description,visibility,status&status=eq.active&visibility=eq.public`,
+  {
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+      "Content-Type": "application/json"
+    }
+  }
+);
+
+if (!entitiesResponse.ok) {
+  const errorText = await entitiesResponse.text();
+
+  console.error("Jaya entities error:", errorText);
+
+  return res.status(500).json({
+    error: "Impossible de charger les entités Technorizon"
+  });
+}
+
+const entities = await entitiesResponse.json();
+
     if (req.method === "POST") {
   const cleanQuestion = question
     .toLowerCase()
@@ -155,8 +178,9 @@ return res.status(200).json({
   success: true,
   assistant: "Jaya",
   rules_count: rules.length,
-  knowledge_count: knowledge.length,
-  status: "Jaya Brain connecté au cerveau Technorizon"
+knowledge_count: knowledge.length,
+entities_count: entities.length,
+status: "Jaya Brain connecté au cerveau Technorizon"
 });
   
   } catch (error) {
