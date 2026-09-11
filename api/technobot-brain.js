@@ -280,6 +280,137 @@ const trackMatch = tracks.find((item) => {
 });
 
 if (trackMatch) {
+  const q = cleanQuestion;
+
+  const asksYear =
+    q.includes("quelle année") ||
+    q.includes("quel année") ||
+    q.includes("en quelle année") ||
+    q.includes("date de") ||
+    q.includes("date") ||
+    q.includes("sorti quand") ||
+    q.includes("sortie quand") ||
+    q.includes("quand est sorti") ||
+    q.includes("quand est sortie");
+
+  const asksArtist =
+    q.includes("qui chante") ||
+    q.includes("qui est l'artiste") ||
+    q.includes("quel artiste") ||
+    q.includes("quelle artiste") ||
+    q.includes("de qui est") ||
+    q.includes("interprète") ||
+    q.includes("interprete");
+
+  const asksGenre =
+    q.includes("quel style") ||
+    q.includes("quelle style") ||
+    q.includes("quel genre") ||
+    q.includes("quelle genre") ||
+    q.includes("style musical") ||
+    q.includes("genre musical");
+
+  const asksAlbum =
+    q.includes("quel album") ||
+    q.includes("quelle album") ||
+    q.includes("sur quel album") ||
+    q.includes("album");
+
+  const asksTechnorizon =
+    q.includes("technorizon") ||
+    q.includes("passe sur la radio") ||
+    q.includes("passe à la radio") ||
+    q.includes("passe sur technorizon") ||
+    q.includes("diffusé") ||
+    q.includes("diffuse") ||
+    q.includes("rotation") ||
+    q.includes("bibliothèque");
+
+  // Réponse ciblée : année de sortie
+  if (asksYear && trackMatch.release_year) {
+    return res.status(200).json({
+      found: true,
+      source: "tracks",
+      answer: `${trackMatch.title} de ${trackMatch.primary_artist} est sorti en ${trackMatch.release_year}.`
+    });
+  }
+
+  // Réponse ciblée : artiste / interprète
+  if (asksArtist) {
+    let answer = `${trackMatch.title} est interprété par ${trackMatch.primary_artist}.`;
+
+    if (
+      Array.isArray(trackMatch.featured_artists) &&
+      trackMatch.featured_artists.length
+    ) {
+      answer += ` Avec ${trackMatch.featured_artists.join(", ")}.`;
+    }
+
+    return res.status(200).json({
+      found: true,
+      source: "tracks",
+      answer
+    });
+  }
+
+  // Réponse ciblée : style musical
+  if (
+    asksGenre &&
+    Array.isArray(trackMatch.genres) &&
+    trackMatch.genres.length
+  ) {
+    return res.status(200).json({
+      found: true,
+      source: "tracks",
+      answer: `${trackMatch.title} de ${trackMatch.primary_artist} est classé dans les styles ${trackMatch.genres.join(", ")}.`
+    });
+  }
+
+  // Réponse ciblée : album
+  if (asksAlbum) {
+    if (trackMatch.album) {
+      return res.status(200).json({
+        found: true,
+        source: "tracks",
+        answer: `${trackMatch.title} de ${trackMatch.primary_artist} figure sur l’album ${trackMatch.album}.`
+      });
+    }
+
+    return res.status(200).json({
+      found: true,
+      source: "tracks",
+      answer: `Je connais ${trackMatch.title} de ${trackMatch.primary_artist}, mais l’album n’est pas encore renseigné dans ma base.`
+    });
+  }
+
+  // Réponse ciblée : présence sur Technorizon
+  if (asksTechnorizon) {
+    if (trackMatch.in_technorizon_library) {
+      let answer = `${trackMatch.title} de ${trackMatch.primary_artist} est bien référencé dans la bibliothèque Technorizon.`;
+
+      if (trackMatch.in_rotation) {
+        answer += " Il fait actuellement partie de la rotation.";
+      }
+
+      if (trackMatch.rotation_group) {
+        answer += ` Rotation : ${trackMatch.rotation_group}.`;
+      }
+
+      return res.status(200).json({
+        found: true,
+        source: "tracks",
+        answer
+      });
+    }
+
+    return res.status(200).json({
+      found: true,
+      source: "tracks",
+      answer: `${trackMatch.title} de ${trackMatch.primary_artist} est connu de TechnoBot, mais il n’est pas actuellement référencé comme présent dans la bibliothèque Technorizon.`
+    });
+  }
+
+  // Réponse générale détaillée
   const parts = [];
 
   parts.push(
@@ -290,9 +421,7 @@ if (trackMatch) {
     Array.isArray(trackMatch.featured_artists) &&
     trackMatch.featured_artists.length
   ) {
-    parts.push(
-      `Avec ${trackMatch.featured_artists.join(", ")}.`
-    );
+    parts.push(`Avec ${trackMatch.featured_artists.join(", ")}.`);
   }
 
   if (trackMatch.release_year) {
