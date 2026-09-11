@@ -594,7 +594,75 @@ if (externalMusicQuery.length >= 2) {
 
       if (mbResponse.ok) {
         const mbData = await mbResponse.json();
-        const recording = mbData.recordings?.[0];
+        const recordings = Array.isArray(mbData.recordings)
+  ? mbData.recordings
+  : [];
+
+// On privilégie d'abord les titres exactement identiques
+const normalizedSearchTitle = externalMusicQuery
+  .toLowerCase()
+  .trim();
+
+const exactMatches = recordings.filter((item) =>
+  String(item.title || "")
+    .toLowerCase()
+    .trim() === normalizedSearchTitle
+);
+
+// Si aucune correspondance exacte, on garde les résultats MusicBrainz
+const candidates = (exactMatches.length ? exactMatches : recordings)
+  .sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
+
+// Construire les principaux candidats pour détecter les homonymes
+const candidateInfos = candidates.slice(0, 5).map((item) => {
+  const artists = Array.isArray(item["artist-credit"])
+    ? item["artist-credit"]
+        .map((credit) => credit?.name)
+        .filter(Boolean)
+    : [];
+
+  return {
+    recording: item,
+    artist: artists.join(", ") || "artiste inconnu",
+    year: item["first-release-date"]
+      ? String(item["first-release-date"]).slice(0, 4)
+      : null,
+    score: Number(item.score || 0)
+  };
+});
+
+// Éviter de donner une mauvaise réponse si plusieurs morceaux
+// portent exactement le même titre mais sont de différents artistes.
+const uniqueArtists = [
+  ...new Set(
+    candidateInfos
+      .map((item) => item.artist)
+      .filter(Boolean)
+  )
+];
+
+if (
+  exactMatches.length > 1 &&
+  uniqueArtists.length > 1
+) {
+  const choices = candidateInfos
+    .slice(0, 3)
+    .map((item) =>
+      `${item.artist}${item.year ? ` (${item.year})` : ""}`
+    )
+    .join(", ");
+
+  return res.status(200).json({
+    found: true,
+    source: "musicbrainz_ambiguous",
+    answer:
+      `Plusieurs morceaux portent le titre ${externalMusicQuery}. ` +
+      `J’ai notamment trouvé : ${choices}. ` +
+      `Peux-tu me préciser l’artiste pour que je te donne la bonne réponse ?`
+  });
+}
+
+const recording = candidates[0];
 
         if (recording && Number(recording.score || 0) >= 80) {
           const artistNames =
