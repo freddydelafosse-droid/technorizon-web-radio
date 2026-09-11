@@ -133,7 +133,44 @@ export default async function handler(req, res) {
       });
     }
 
-    // 3. Aucune réponse fiable trouvée
+    // 3. Chercher dans les entités Technorizon
+const entitiesResponse = await fetch(
+  `${supabaseUrl}/rest/v1/entities?select=entity_type,name,description,aliases,visibility,status&status=eq.active&visibility=eq.public`,
+  { headers }
+);
+
+if (!entitiesResponse.ok) {
+  throw new Error("Impossible de consulter les entités");
+}
+
+const entities = await entitiesResponse.json();
+
+const entityMatch = entities.find((item) => {
+  const name = String(item.name || "").toLowerCase();
+
+  if (name && cleanQuestion.includes(name)) {
+    return true;
+  }
+
+  if (Array.isArray(item.aliases)) {
+    return item.aliases.some((alias) => {
+      const normalizedAlias = String(alias || "").toLowerCase();
+      return normalizedAlias && cleanQuestion.includes(normalizedAlias);
+    });
+  }
+
+  return false;
+});
+
+if (entityMatch?.description) {
+  return res.status(200).json({
+    found: true,
+    source: "entities",
+    answer: entityMatch.description
+  });
+}
+
+    // 4. Aucune réponse fiable trouvée
     return res.status(200).json({
       found: false,
       source: null,
