@@ -101,6 +101,29 @@ if (!entitiesResponse.ok) {
 
 const entities = await entitiesResponse.json();
 
+    const artistsResponse = await fetch(
+  `${supabaseUrl}/rest/v1/artists?select=name,aliases,country,genres,active_years,biography,known_for,technorizon_notes,in_technorizon_rotation,visibility,status&status=eq.active&visibility=eq.public`,
+  {
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+      "Content-Type": "application/json"
+    }
+  }
+);
+
+if (!artistsResponse.ok) {
+  const errorText = await artistsResponse.text();
+
+  console.error("Jaya artists error:", errorText);
+
+  return res.status(500).json({
+    error: "Impossible de charger les artistes Technorizon"
+  });
+}
+
+const artists = await artistsResponse.json();
+
     if (req.method === "POST") {
   const cleanQuestion = question
     .toLowerCase()
@@ -207,6 +230,7 @@ return res.status(200).json({
   rules_count: rules.length,
 knowledge_count: knowledge.length,
 entities_count: entities.length,
+  artists_count: artists.length,
 status: "Jaya Brain connecté au cerveau Technorizon"
 });
   
