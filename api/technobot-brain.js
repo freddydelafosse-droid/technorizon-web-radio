@@ -564,6 +564,11 @@ if (externalMusicQuery.length >= 2) {
     headers: musicbrainzHeaders
   });
 
+      console.log("Artist search HTTP:", artistResponse.status);
+
+const artistText = await artistResponse.clone().text();
+console.log("Artist search body:", artistText.slice(0, 500));
+
   if (artistResponse.ok) {
     const artistData = await artistResponse.json();
 
