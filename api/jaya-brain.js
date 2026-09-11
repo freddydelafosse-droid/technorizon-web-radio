@@ -79,7 +79,7 @@ if (!knowledgeResponse.ok) {
 const knowledge = await knowledgeResponse.json();
 
     const entitiesResponse = await fetch(
-  `${supabaseUrl}/rest/v1/entities?select=name,type,aliases,description,visibility,status&status=eq.active&visibility=eq.public`,
+  `${supabaseUrl}/rest/v1/entities?select=name,entity_type,aliases,description,visibility,status&status=eq.active&visibility=eq.public`,
   {
     headers: {
       apikey: supabaseKey,
