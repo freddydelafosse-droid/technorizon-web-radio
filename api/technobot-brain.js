@@ -172,7 +172,169 @@ if (entityMatch?.description) {
   });
 }
 
-    // 4. Aucune réponse fiable trouvée
+    // 4. Chercher dans les artistes
+const artistsResponse = await fetch(
+  `${supabaseUrl}/rest/v1/artists?select=name,aliases,country,genres,active_years,biography,known_for,technorizon_notes,in_technorizon_rotation,visibility,status&status=eq.active&visibility=eq.public`,
+  { headers }
+);
+
+if (!artistsResponse.ok) {
+  throw new Error("Impossible de consulter les artistes");
+}
+
+const artists = await artistsResponse.json();
+
+const artistMatch = artists.find((item) => {
+  const artistName = String(item.name || "").toLowerCase();
+
+  if (artistName && cleanQuestion.includes(artistName)) {
+    return true;
+  }
+
+  if (Array.isArray(item.aliases)) {
+    return item.aliases.some((alias) => {
+      const normalizedAlias = String(alias || "").toLowerCase();
+      return normalizedAlias && cleanQuestion.includes(normalizedAlias);
+    });
+  }
+
+  return false;
+});
+
+if (artistMatch) {
+  const parts = [];
+
+  if (artistMatch.biography) {
+    parts.push(artistMatch.biography);
+  }
+
+  if (artistMatch.country) {
+    parts.push(`Origine : ${artistMatch.country}.`);
+  }
+
+  if (Array.isArray(artistMatch.genres) && artistMatch.genres.length) {
+    parts.push(`Styles : ${artistMatch.genres.join(", ")}.`);
+  }
+
+  if (artistMatch.active_years) {
+    parts.push(`Période d'activité : ${artistMatch.active_years}.`);
+  }
+
+  if (artistMatch.known_for) {
+    parts.push(`Connu notamment pour : ${artistMatch.known_for}.`);
+  }
+
+  if (artistMatch.in_technorizon_rotation) {
+    parts.push("Cet artiste fait partie de l'univers musical de Technorizon.");
+  }
+
+  if (artistMatch.technorizon_notes) {
+    parts.push(artistMatch.technorizon_notes);
+  }
+
+  return res.status(200).json({
+    found: true,
+    source: "artists",
+    answer: parts.join(" ")
+  });
+}
+
+
+// 5. Chercher dans les titres
+const tracksResponse = await fetch(
+  `${supabaseUrl}/rest/v1/tracks?select=title,aliases,primary_artist,featured_artists,album,release_year,genres,description,facts,in_technorizon_library,in_rotation,rotation_group,technorizon_notes,visibility,status&status=eq.active&visibility=eq.public`,
+  { headers }
+);
+
+if (!tracksResponse.ok) {
+  throw new Error("Impossible de consulter les titres");
+}
+
+const tracks = await tracksResponse.json();
+
+const trackMatch = tracks.find((item) => {
+  const title = String(item.title || "").toLowerCase();
+  const artist = String(item.primary_artist || "").toLowerCase();
+
+  const directTitleMatch =
+    title && cleanQuestion.includes(title);
+
+  const artistAndTitleMatch =
+    title &&
+    artist &&
+    cleanQuestion.includes(title) &&
+    cleanQuestion.includes(artist);
+
+  if (artistAndTitleMatch || directTitleMatch) {
+    return true;
+  }
+
+  if (Array.isArray(item.aliases)) {
+    return item.aliases.some((alias) => {
+      const normalizedAlias = String(alias || "").toLowerCase();
+      return normalizedAlias && cleanQuestion.includes(normalizedAlias);
+    });
+  }
+
+  return false;
+});
+
+if (trackMatch) {
+  const parts = [];
+
+  parts.push(
+    `${trackMatch.title} est un titre de ${trackMatch.primary_artist}.`
+  );
+
+  if (
+    Array.isArray(trackMatch.featured_artists) &&
+    trackMatch.featured_artists.length
+  ) {
+    parts.push(
+      `Avec ${trackMatch.featured_artists.join(", ")}.`
+    );
+  }
+
+  if (trackMatch.release_year) {
+    parts.push(`Sorti en ${trackMatch.release_year}.`);
+  }
+
+  if (trackMatch.album) {
+    parts.push(`Album : ${trackMatch.album}.`);
+  }
+
+  if (Array.isArray(trackMatch.genres) && trackMatch.genres.length) {
+    parts.push(`Styles : ${trackMatch.genres.join(", ")}.`);
+  }
+
+  if (trackMatch.description) {
+    parts.push(trackMatch.description);
+  }
+
+  if (trackMatch.in_technorizon_library) {
+    parts.push("Ce titre est référencé dans la bibliothèque Technorizon.");
+  }
+
+  if (trackMatch.in_rotation) {
+    parts.push("Il peut actuellement être diffusé dans la rotation Technorizon.");
+  }
+
+  if (trackMatch.rotation_group) {
+    parts.push(`Rotation : ${trackMatch.rotation_group}.`);
+  }
+
+  if (trackMatch.technorizon_notes) {
+    parts.push(trackMatch.technorizon_notes);
+  }
+
+  return res.status(200).json({
+    found: true,
+    source: "tracks",
+    answer: parts.join(" ")
+  });
+}
+
+    // 6. Aucune réponse fiable trouvée
     return res.status(200).json({
       found: false,
       source: null,
