@@ -5,6 +5,17 @@ export default async function handler(req, res) {
   });
 }
 
+  const question =
+  req.method === "POST" && typeof req.body?.question === "string"
+    ? req.body.question.trim()
+    : "";
+
+if (req.method === "POST" && !question) {
+  return res.status(400).json({
+    error: "Question manquante"
+  });
+}
+
   try {
     const supabaseUrl =
       process.env.SUPABASE_URL ||
@@ -66,6 +77,64 @@ if (!knowledgeResponse.ok) {
 }
 
 const knowledge = await knowledgeResponse.json();
+
+    if (req.method === "POST") {
+  const cleanQuestion = question
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[?!.,;:]/g, " ");
+
+  const words = cleanQuestion
+    .split(/\s+/)
+    .filter((word) => word.length >= 4);
+
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const item of knowledge) {
+    const searchable = [
+      item.category,
+      item.title,
+      item.content
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+    let score = 0;
+
+    for (const word of words) {
+      if (searchable.includes(word)) {
+        score++;
+      }
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = item;
+    }
+  }
+
+  if (bestMatch && bestScore >= 2) {
+    return res.status(200).json({
+      success: true,
+      assistant: "Jaya",
+      found: true,
+      source: "knowledge",
+      answer: bestMatch.content
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    assistant: "Jaya",
+    found: false,
+    answer: null
+  });
+}
     
 return res.status(200).json({
   success: true,
