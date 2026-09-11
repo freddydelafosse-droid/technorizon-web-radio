@@ -145,6 +145,8 @@ if (!entitiesResponse.ok) {
 
 const entities = await entitiesResponse.json();
 
+    console.log("TECHNORIZON ENTITIES DEBUG:", entities);
+
 const entityMatch = entities.find((item) => {
   const name = String(item.name || "").toLowerCase();
 
