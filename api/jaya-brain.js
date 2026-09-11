@@ -46,6 +46,8 @@ console.log("JAYA SUPABASE URL:", supabaseUrl);
 
     const rules = await response.json();
 
+    console.log("JAYA RULES RECEIVED:", rules);
+
    return res.status(200).json({
   success: true,
   assistant: "Jaya",
