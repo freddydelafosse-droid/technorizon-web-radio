@@ -482,7 +482,164 @@ if (trackMatch) {
   });
 }
 
-    // 6. Aucune réponse fiable trouvée
+    // 6. Recherche musicale externe MusicBrainz
+// Utilisée uniquement si Supabase n'a rien trouvé.
+
+const musicbrainzHeaders = {
+  "Accept": "application/json",
+  "User-Agent": "Technorizon-TechnoBot/1.0 (https://technorizon.fr)"
+};
+
+// Nettoyer la question pour isoler autant que possible
+// le nom de l'artiste ou le titre recherché.
+const externalMusicQuery = question
+  .replace(/[?!.,;:]/g, " ")
+  .replace(/\bqui chante\b/gi, " ")
+  .replace(/\bqui interprète\b/gi, " ")
+  .replace(/\bqui interprete\b/gi, " ")
+  .replace(/\bde quelle année date\b/gi, " ")
+  .replace(/\ben quelle année est sorti\b/gi, " ")
+  .replace(/\ben quelle année est sortie\b/gi, " ")
+  .replace(/\bquand est sorti\b/gi, " ")
+  .replace(/\bquand est sortie\b/gi, " ")
+  .replace(/\bquel style est\b/gi, " ")
+  .replace(/\bquel genre est\b/gi, " ")
+  .replace(/\bdonne-moi des infos sur\b/gi, " ")
+  .replace(/\bdonne moi des infos sur\b/gi, " ")
+  .replace(/\btu connais\b/gi, " ")
+  .replace(/\bconnais-tu\b/gi, " ")
+  .replace(/\best-ce que\b/gi, " ")
+  .replace(/\bpasse sur technorizon\b/gi, " ")
+  .replace(/\bqui est\b/gi, " ")
+  .replace(/\bc'est qui\b/gi, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+
+const asksExternalArtist =
+  cleanQuestion.startsWith("qui est ") ||
+  cleanQuestion.startsWith("c'est qui ") ||
+  cleanQuestion.includes("artiste ") ||
+  cleanQuestion.includes("chanteur ") ||
+  cleanQuestion.includes("chanteuse ") ||
+  cleanQuestion.includes("groupe ");
+
+// Un seul appel MusicBrainz maximum par question
+if (externalMusicQuery.length >= 2) {
+  try {
+
+    // --------------------------------------------------------
+    // RECHERCHE ARTISTE
+    // --------------------------------------------------------
+    if (asksExternalArtist) {
+      const mbArtistUrl =
+        `https://musicbrainz.org/ws/2/artist/?query=` +
+        encodeURIComponent(`artist:"${externalMusicQuery}"`) +
+        `&limit=3&fmt=json`;
+
+      const mbResponse = await fetch(mbArtistUrl, {
+        headers: musicbrainzHeaders
+      });
+
+      if (mbResponse.ok) {
+        const mbData = await mbResponse.json();
+        const artist = mbData.artists?.[0];
+
+        if (artist && Number(artist.score || 0) >= 80) {
+          const parts = [];
+
+          parts.push(`${artist.name} est un artiste référencé par MusicBrainz.`);
+
+          if (artist.type) {
+            const typeLabels = {
+              Person: "Artiste solo",
+              Group: "Groupe",
+              Orchestra: "Orchestre",
+              Choir: "Chœur",
+              Character: "Personnage artistique",
+              Other: "Projet musical"
+            };
+
+            parts.push(typeLabels[artist.type] || `Type : ${artist.type}.`);
+          }
+
+          if (artist.country) {
+            parts.push(`Pays : ${artist.country}.`);
+          }
+
+          if (artist.disambiguation) {
+            parts.push(artist.disambiguation + ".");
+          }
+
+          return res.status(200).json({
+            found: true,
+            source: "musicbrainz_artist",
+            answer: parts.join(" ")
+          });
+        }
+      }
+    }
+
+    // --------------------------------------------------------
+    // RECHERCHE TITRE
+    // --------------------------------------------------------
+    else {
+      const mbRecordingUrl =
+        `https://musicbrainz.org/ws/2/recording/?query=` +
+        encodeURIComponent(`recording:"${externalMusicQuery}"`) +
+        `&limit=3&fmt=json`;
+
+      const mbResponse = await fetch(mbRecordingUrl, {
+        headers: musicbrainzHeaders
+      });
+
+      if (mbResponse.ok) {
+        const mbData = await mbResponse.json();
+        const recording = mbData.recordings?.[0];
+
+        if (recording && Number(recording.score || 0) >= 80) {
+          const artistNames =
+            Array.isArray(recording["artist-credit"])
+              ? recording["artist-credit"]
+                  .map((credit) => credit?.name)
+                  .filter(Boolean)
+              : [];
+
+          let answer = `${recording.title}`;
+
+          if (artistNames.length) {
+            answer += ` est interprété par ${artistNames.join(", ")}`;
+          }
+
+          answer += ".";
+
+          if (recording["first-release-date"]) {
+            const year = String(recording["first-release-date"])
+              .slice(0, 4);
+
+            if (year) {
+              answer += ` Première sortie référencée : ${year}.`;
+            }
+          }
+
+          answer +=
+            " Ce titre est connu de TechnoBot via sa culture musicale externe. " +
+            "Cela ne signifie pas automatiquement qu'il est présent dans la bibliothèque Technorizon.";
+
+          return res.status(200).json({
+            found: true,
+            source: "musicbrainz_recording",
+            answer
+          });
+        }
+      }
+    }
+
+  } catch (musicbrainzError) {
+    console.error("MusicBrainz :", musicbrainzError);
+  }
+}
+
+    // 7. Aucune réponse fiable trouvée
     return res.status(200).json({
       found: false,
       source: null,
