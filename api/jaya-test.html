@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Jaya</title>
+</head>
+
+<body>
+  <h1>Test Jaya</h1>
+
+  <input
+    id="question"
+    type="text"
+    value="Qu’est-ce que Technorizon ?"
+    style="width: 320px; padding: 8px;"
+  >
+
+  <button onclick="askJaya()" style="padding: 8px 14px;">
+    Envoyer
+  </button>
+
+  <pre id="result" style="margin-top: 20px; white-space: pre-wrap;"></pre>
+
+  <script>
+    async function askJaya() {
+      const question = document.getElementById('question').value;
+      const result = document.getElementById('result');
+
+      result.textContent = 'Jaya réfléchit...';
+
+      try {
+        const response = await fetch('/api/jaya-brain', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ question })
+        });
+
+        const data = await response.json();
+
+        result.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        result.textContent = 'Erreur : ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
