@@ -680,9 +680,40 @@ const recording = candidates[0];
 
           answer += ".";
 
-          if (recording["first-release-date"]) {
-            const year = String(recording["first-release-date"])
-              .slice(0, 4);
+          const selectedArtistNames = Array.isArray(recording["artist-credit"])
+  ? recording["artist-credit"]
+      .map((credit) => credit?.name)
+      .filter(Boolean)
+      .map((name) => name.toLowerCase())
+  : [];
+
+const matchingYears = recordings
+  .filter((item) => {
+    const sameTitle =
+      String(item.title || "").toLowerCase().trim() ===
+      String(recording.title || "").toLowerCase().trim();
+
+    const itemArtists = Array.isArray(item["artist-credit"])
+      ? item["artist-credit"]
+          .map((credit) => credit?.name)
+          .filter(Boolean)
+          .map((name) => name.toLowerCase())
+      : [];
+
+    const sameArtist = selectedArtistNames.some((name) =>
+      itemArtists.includes(name)
+    );
+
+    return sameTitle && sameArtist && item["first-release-date"];
+  })
+  .map((item) =>
+    parseInt(String(item["first-release-date"]).slice(0, 4), 10)
+  )
+  .filter((year) => Number.isInteger(year) && year > 1900);
+
+const releaseYear = matchingYears.length
+  ? Math.min(...matchingYears)
+  : null;
 
             if (year) {
               answer += ` Première sortie référencée : ${year}.`;
