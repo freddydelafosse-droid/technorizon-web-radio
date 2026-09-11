@@ -44,12 +44,37 @@ export default async function handler(req, res) {
 
     const rules = await response.json();
 
-   return res.status(200).json({
+    const knowledgeResponse = await fetch(
+  `${supabaseUrl}/rest/v1/knowledge?select=*&status=eq.active&visibility=eq.public`,
+  {
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+      "Content-Type": "application/json"
+    }
+  }
+);
+
+if (!knowledgeResponse.ok) {
+  const errorText = await knowledgeResponse.text();
+
+  console.error("Jaya knowledge error:", errorText);
+
+  return res.status(500).json({
+    error: "Impossible de charger le cerveau commun Technorizon"
+  });
+}
+
+const knowledge = await knowledgeResponse.json();
+    
+return res.status(200).json({
   success: true,
   assistant: "Jaya",
   rules_count: rules.length,
-  status: "Jaya Brain connecté à Supabase"
+  knowledge_count: knowledge.length,
+  status: "Jaya Brain connecté au cerveau Technorizon"
 });
+  
   } catch (error) {
     console.error("Jaya Brain :", error);
 
