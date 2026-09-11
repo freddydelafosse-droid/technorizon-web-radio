@@ -21,8 +21,6 @@ export default async function handler(req, res) {
       });
     }
     
-console.log("JAYA SUPABASE URL:", supabaseUrl);
-    
     const response = await fetch(
       `${supabaseUrl}/rest/v1/ai_rules?select=assistant_name,rule_type,title,instruction,priority,status&assistant_name=eq.Jaya&status=eq.active&order=priority.asc`,
       {
@@ -45,8 +43,6 @@ console.log("JAYA SUPABASE URL:", supabaseUrl);
     }
 
     const rules = await response.json();
-
-    console.log("JAYA RULES RECEIVED:", rules);
 
    return res.status(200).json({
   success: true,
