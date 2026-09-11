@@ -1232,8 +1232,30 @@ if (
     return "Je n’arrive pas à récupérer le titre diffusé pour le moment.";
   }
 
-  return "🤖 Je ne connais pas encore la réponse, mais je suis en train d’apprendre.";
+  try {
+  const brainResponse = await fetch("/api/technobot-brain", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      question
+    })
+  });
+
+  if (brainResponse.ok) {
+    const brainData = await brainResponse.json();
+
+    if (brainData.found && brainData.answer) {
+      return brainData.answer;
+    }
+  }
+} catch (error) {
+  console.error("Technorizon Brain :", error);
 }
+
+return "🤖 Je ne connais pas encore la réponse, mais je suis en train d’apprendre.";
+  }
 
 if (technobotForm && technobotInput && technobotMessages) {
   technobotForm.addEventListener("submit", async (event) => {
