@@ -158,6 +158,47 @@ const tracks = await tracksResponse.json();
     .split(/\s+/)
     .filter((word) => word.length >= 4);
 
+const trackMatch = tracks.find((track) => {
+  const titles = [
+    track.title,
+    ...(Array.isArray(track.aliases) ? track.aliases : [])
+  ]
+    .filter(Boolean)
+    .map((value) =>
+      String(value)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+    );
+
+  return titles.some((title) => cleanQuestion.includes(title));
+});
+
+if (trackMatch) {
+  const asksArtist =
+    cleanQuestion.includes("qui chante") ||
+    cleanQuestion.includes("qui interprete") ||
+    cleanQuestion.includes("quel artiste");
+
+  if (asksArtist) {
+    return res.status(200).json({
+      success: true,
+      assistant: "Jaya",
+      found: true,
+      source: "tracks",
+      answer: `${trackMatch.title} est interprété par ${trackMatch.primary_artist}.`
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    assistant: "Jaya",
+    found: true,
+    source: "tracks",
+    answer: trackMatch.description || `${trackMatch.title} est un titre de ${trackMatch.primary_artist}.`
+  });
+}
+
       const entityMatch = entities.find((entity) => {
   const names = [
     entity.name,
