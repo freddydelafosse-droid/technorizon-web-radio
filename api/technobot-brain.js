@@ -90,6 +90,25 @@ export default async function handler(req, res) {
       });
     }
 
+    const musicIntent =
+  cleanQuestion.includes("qui chante") ||
+  cleanQuestion.includes("titre") ||
+  cleanQuestion.includes("morceau") ||
+  cleanQuestion.includes("chanson") ||
+  cleanQuestion.includes("album") ||
+  cleanQuestion.includes("artiste") ||
+  cleanQuestion.includes("interprète") ||
+  cleanQuestion.includes("interprete") ||
+  cleanQuestion.includes("quelle année") ||
+  cleanQuestion.includes("en quelle année") ||
+  cleanQuestion.includes("date de") ||
+  cleanQuestion.includes("sorti") ||
+  cleanQuestion.includes("sortie") ||
+  cleanQuestion.includes("passe sur technorizon") ||
+  cleanQuestion.includes("passe à la radio") ||
+  cleanQuestion.includes("diffusé sur technorizon") ||
+  cleanQuestion.includes("diffuse sur technorizon");
+
     // 2. Chercher ensuite dans la base de connaissances
     const knowledgeResponse = await fetch(
       `${supabaseUrl}/rest/v1/knowledge?select=category,title,content,priority,visibility,status&status=eq.active&visibility=eq.public&order=priority.asc`,
@@ -125,7 +144,7 @@ export default async function handler(req, res) {
       }
     }
 
-    if (bestMatch && bestScore >= 2) {
+    if (bestMatch && bestScore >= 2 && !musicIntent) {
       return res.status(200).json({
         found: true,
         source: "knowledge",
@@ -164,7 +183,7 @@ const entityMatch = entities.find((item) => {
   return false;
 });
 
-if (entityMatch?.description) {
+if (entityMatch?.description && !musicIntent) {
   return res.status(200).json({
     found: true,
     source: "entities",
