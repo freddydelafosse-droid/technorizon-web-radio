@@ -175,6 +175,32 @@ const trackMatch = tracks.find((track) => {
 });
 
 if (trackMatch) {
+
+const asksYear =
+  cleanQuestion.includes("quelle annee") ||
+  cleanQuestion.includes("en quelle annee") ||
+  cleanQuestion.includes("de quelle annee") ||
+  cleanQuestion.includes("date de sortie") ||
+  cleanQuestion.includes("quand est sorti") ||
+  cleanQuestion.includes("quand est sortie");
+
+const asksGenre =
+  cleanQuestion.includes("quel style") ||
+  cleanQuestion.includes("quelle style") ||
+  cleanQuestion.includes("quel genre") ||
+  cleanQuestion.includes("quelle genre");
+
+const asksAlbum =
+  cleanQuestion.includes("quel album") ||
+  cleanQuestion.includes("dans quel album");
+
+const asksTechnorizon =
+  cleanQuestion.includes("passe sur technorizon") ||
+  cleanQuestion.includes("diffuse sur technorizon") ||
+  cleanQuestion.includes("diffusee sur technorizon") ||
+  cleanQuestion.includes("bibliotheque technorizon") ||
+  cleanQuestion.includes("rotation");
+  
   const asksArtist =
     cleanQuestion.includes("qui chante") ||
     cleanQuestion.includes("qui interprete") ||
@@ -189,6 +215,64 @@ if (trackMatch) {
       answer: `${trackMatch.title} est interprété par ${trackMatch.primary_artist}.`
     });
   }
+
+  if (asksYear && trackMatch.release_year) {
+  return res.status(200).json({
+    success: true,
+    assistant: "Jaya",
+    found: true,
+    source: "tracks",
+    answer: `${trackMatch.title} de ${trackMatch.primary_artist} est sorti en ${trackMatch.release_year}.`
+  });
+}
+
+if (asksGenre && Array.isArray(trackMatch.genres) && trackMatch.genres.length) {
+  return res.status(200).json({
+    success: true,
+    assistant: "Jaya",
+    found: true,
+    source: "tracks",
+    answer: `${trackMatch.title} est classé dans les styles ${trackMatch.genres.join(", ")}.`
+  });
+}
+
+if (asksAlbum && trackMatch.album) {
+  return res.status(200).json({
+    success: true,
+    assistant: "Jaya",
+    found: true,
+    source: "tracks",
+    answer: `${trackMatch.title} figure sur l’album ${trackMatch.album}.`
+  });
+}
+
+if (asksTechnorizon) {
+  let answer;
+
+  if (trackMatch.in_technorizon_library) {
+    answer = `${trackMatch.title} de ${trackMatch.primary_artist} est bien référencé dans la bibliothèque Technorizon.`;
+
+    if (trackMatch.in_rotation) {
+      answer += " Il fait actuellement partie de la rotation.";
+
+      if (trackMatch.rotation_group) {
+        answer += ` Rotation : ${trackMatch.rotation_group}.`;
+      }
+    } else {
+      answer += " Il n’est pas actuellement indiqué comme étant en rotation.";
+    }
+  } else {
+    answer = `${trackMatch.title} de ${trackMatch.primary_artist} est connu de Jaya, mais il n’est pas actuellement référencé comme présent dans la bibliothèque Technorizon.`;
+  }
+
+  return res.status(200).json({
+    success: true,
+    assistant: "Jaya",
+    found: true,
+    source: "tracks",
+    answer
+  });
+}
 
   return res.status(200).json({
     success: true,
