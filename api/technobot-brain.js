@@ -125,7 +125,7 @@ export default async function handler(req, res) {
       }
     }
 
-    if (bestMatch && bestScore > 0) {
+    if (bestMatch && bestScore >= 2) {
       return res.status(200).json({
         found: true,
         source: "knowledge",
