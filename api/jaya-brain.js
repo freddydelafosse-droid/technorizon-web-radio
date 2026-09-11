@@ -124,6 +124,29 @@ if (!artistsResponse.ok) {
 
 const artists = await artistsResponse.json();
 
+    const tracksResponse = await fetch(
+  `${supabaseUrl}/rest/v1/tracks?select=title,aliases,primary_artist,featured_artists,album,release_year,genres,description,facts,in_technorizon_library,in_rotation,rotation_group,technorizon_notes,visibility,status&status=eq.active&visibility=eq.public`,
+  {
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+      "Content-Type": "application/json"
+    }
+  }
+);
+
+if (!tracksResponse.ok) {
+  const errorText = await tracksResponse.text();
+
+  console.error("Jaya tracks error:", errorText);
+
+  return res.status(500).json({
+    error: "Impossible de charger les titres Technorizon"
+  });
+}
+
+const tracks = await tracksResponse.json();
+
     if (req.method === "POST") {
   const cleanQuestion = question
     .toLowerCase()
@@ -231,6 +254,7 @@ return res.status(200).json({
 knowledge_count: knowledge.length,
 entities_count: entities.length,
   artists_count: artists.length,
+  tracks_count: tracks.length,
 status: "Jaya Brain connecté au cerveau Technorizon"
 });
   
