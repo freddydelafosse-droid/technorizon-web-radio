@@ -1,9 +1,9 @@
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Méthode non autorisée"
-    });
-  }
+  if (req.method !== "POST" && req.method !== "GET") {
+  return res.status(405).json({
+    error: "Méthode non autorisée"
+  });
+}
 
   try {
     const supabaseUrl =
@@ -44,12 +44,12 @@ export default async function handler(req, res) {
 
     const rules = await response.json();
 
-    return res.status(200).json({
-      success: true,
-      assistant: "Jaya",
-      rules_count: rules.length,
-      rules
-    });
+   return res.status(200).json({
+  success: true,
+  assistant: "Jaya",
+  rules_count: rules.length,
+  status: "Jaya Brain connecté à Supabase"
+});
   } catch (error) {
     console.error("Jaya Brain :", error);
 
