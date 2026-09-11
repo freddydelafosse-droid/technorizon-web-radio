@@ -512,8 +512,31 @@ const externalMusicQuery = question
   .replace(/\bpasse sur technorizon\b/gi, " ")
   .replace(/\bqui est\b/gi, " ")
   .replace(/\bc'est qui\b/gi, " ")
+  .replace(/\bqu['’]est-ce qu['’]a chanté\b/gi, " ")
+.replace(/\bqu['’]a chanté\b/gi, " ")
+.replace(/\bquels titres de\b/gi, " ")
+.replace(/\bquels morceaux de\b/gi, " ")
+.replace(/\bchansons de\b/gi, " ")
+.replace(/\btitres de\b/gi, " ")
+.replace(/\bmorceaux de\b/gi, " ")
+.replace(/\bdonne-moi des titres de\b/gi, " ")
+.replace(/\bdonne moi des titres de\b/gi, " ")
   .replace(/\s+/g, " ")
   .trim();
+
+    const asksArtistTracks =
+  cleanQuestion.includes("qu'est-ce qu'a chanté") ||
+  cleanQuestion.includes("qu’est-ce qu’a chanté") ||
+  cleanQuestion.includes("qu a chanté") ||
+  cleanQuestion.includes("qu'a chanté") ||
+  cleanQuestion.includes("qu’a chanté") ||
+  cleanQuestion.includes("quels titres") ||
+  cleanQuestion.includes("quels morceaux") ||
+  cleanQuestion.includes("chansons de") ||
+  cleanQuestion.includes("titres de") ||
+  cleanQuestion.includes("morceaux de") ||
+  cleanQuestion.includes("donne-moi des titres de") ||
+  cleanQuestion.includes("donne moi des titres de");
 
 const asksExternalArtist =
   cleanQuestion.startsWith("qui est ") ||
@@ -530,7 +553,45 @@ if (externalMusicQuery.length >= 2) {
     // --------------------------------------------------------
     // RECHERCHE ARTISTE
     // --------------------------------------------------------
-    if (asksExternalArtist) {
+    if (asksArtistTracks) {
+  const mbTracksUrl =
+    `https://musicbrainz.org/ws/2/recording/?query=` +
+    encodeURIComponent(`artist:"${externalMusicQuery}"`) +
+    `&limit=10&fmt=json`;
+
+  const mbResponse = await fetch(mbTracksUrl, {
+    headers: musicbrainzHeaders
+  });
+
+  if (mbResponse.ok) {
+    const mbData = await mbResponse.json();
+
+    const recordings = Array.isArray(mbData.recordings)
+      ? mbData.recordings
+      : [];
+
+    const titles = [
+      ...new Set(
+        recordings
+          .filter((item) => Number(item.score || 0) >= 80)
+          .map((item) => item.title)
+          .filter(Boolean)
+      )
+    ].slice(0, 6);
+
+    if (titles.length) {
+      return res.status(200).json({
+        found: true,
+        source: "musicbrainz_artist_tracks",
+        answer:
+          `${externalMusicQuery} a notamment interprété : ` +
+          `${titles.join(", ")}. ` +
+          `Ces titres proviennent de la culture musicale externe de TechnoBot ` +
+          `et ne signifient pas automatiquement qu'ils sont présents dans la bibliothèque Technorizon.`
+      });
+    }
+  }
+} else if (asksExternalArtist) {
       const mbArtistUrl =
         `https://musicbrainz.org/ws/2/artist/?query=` +
         encodeURIComponent(`artist:"${externalMusicQuery}"`) +
