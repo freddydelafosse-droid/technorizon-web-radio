@@ -610,13 +610,13 @@ console.log("Artist search body:", artistText.slice(0, 500));
           ? recordingsData.recordings
           : [];
 
-       const titles = [
-  ...new Set(
-    recordings
-      .map((item) => String(item.title || "").trim())
-      .filter(Boolean)
-  )
-].slice(0, 6);
+        const titles = [
+          ...new Set(
+            recordings
+              .map((item) => String(item.title || "").trim())
+              .filter(Boolean)
+          )
+        ].slice(0, 6);
 
         if (titles.length) {
           const artistName =
