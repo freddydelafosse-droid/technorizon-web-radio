@@ -554,41 +554,68 @@ if (externalMusicQuery.length >= 2) {
     // RECHERCHE ARTISTE
     // --------------------------------------------------------
     if (asksArtistTracks) {
-  const mbTracksUrl =
-    `https://musicbrainz.org/ws/2/recording/?query=` +
-    encodeURIComponent(`artist:"${externalMusicQuery}"`) +
-    `&limit=10&fmt=json`;
 
-  const mbResponse = await fetch(mbTracksUrl, {
+  const mbArtistSearchUrl =
+    `https://musicbrainz.org/ws/2/artist/?query=` +
+    encodeURIComponent(`artist:"${externalMusicQuery}"`) +
+    `&limit=5&fmt=json`;
+
+  const artistResponse = await fetch(mbArtistSearchUrl, {
     headers: musicbrainzHeaders
   });
 
-  if (mbResponse.ok) {
-    const mbData = await mbResponse.json();
+  if (artistResponse.ok) {
+    const artistData = await artistResponse.json();
 
-    const recordings = Array.isArray(mbData.recordings)
-      ? mbData.recordings
+    const artists = Array.isArray(artistData.artists)
+      ? artistData.artists
       : [];
 
-    const titles = [
-      ...new Set(
-        recordings
-          .filter((item) => Number(item.score || 0) >= 80)
-          .map((item) => item.title)
-          .filter(Boolean)
-      )
-    ].slice(0, 6);
+    const selectedArtist =
+      artists.find((item) => Number(item.score || 0) >= 80) ||
+      artists[0];
 
-    if (titles.length) {
-      return res.status(200).json({
-        found: true,
-        source: "musicbrainz_artist_tracks",
-        answer:
-          `${externalMusicQuery} a notamment interprété : ` +
-          `${titles.join(", ")}. ` +
-          `Ces titres proviennent de la culture musicale externe de TechnoBot ` +
-          `et ne signifient pas automatiquement qu'ils sont présents dans la bibliothèque Technorizon.`
+    if (selectedArtist?.id) {
+
+      const mbRecordingsUrl =
+        `https://musicbrainz.org/ws/2/recording?artist=` +
+        encodeURIComponent(selectedArtist.id) +
+        `&limit=100&fmt=json`;
+
+      const recordingsResponse = await fetch(mbRecordingsUrl, {
+        headers: musicbrainzHeaders
       });
+
+      if (recordingsResponse.ok) {
+        const recordingsData = await recordingsResponse.json();
+
+        const recordings = Array.isArray(recordingsData.recordings)
+          ? recordingsData.recordings
+          : [];
+
+        const titles = [
+          ...new Set(
+            recordings
+              .map((item) => String(item.title || "").trim())
+              .filter(Boolean)
+          )
+        ].slice(0, 6);
+
+        if (titles.length) {
+          const artistName =
+            selectedArtist.name || externalMusicQuery;
+
+          return res.status(200).json({
+            found: true,
+            source: "musicbrainz_artist_tracks",
+            answer:
+              `${artistName} a notamment interprété : ` +
+              `${titles.join(", ")}. ` +
+              `Ces titres proviennent de la culture musicale externe de TechnoBot. ` +
+              `Cela ne signifie pas automatiquement qu'ils sont présents dans la bibliothèque Technorizon.`
+          });
+        }
+      }
     }
   }
 } else if (asksExternalArtist) {
