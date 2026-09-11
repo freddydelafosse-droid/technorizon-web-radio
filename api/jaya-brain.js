@@ -20,7 +20,9 @@ export default async function handler(req, res) {
         error: "Configuration Supabase manquante"
       });
     }
-
+    
+console.log("JAYA SUPABASE URL:", supabaseUrl);
+    
     const response = await fetch(
       `${supabaseUrl}/rest/v1/ai_rules?select=assistant_name,rule_type,title,instruction,priority,status&assistant_name=eq.Jaya&status=eq.active&order=priority.asc`,
       {
