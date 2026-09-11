@@ -528,24 +528,25 @@ const externalMusicQuery = question
 console.log("QUESTION CLEAN:", cleanQuestion);
 console.log("EXTERNAL QUERY:", externalMusicQuery);
     
-   const asksArtistTracks =
-  cleanQuestion.includes("qu'est-ce qu'a chante") ||
-  cleanQuestion.includes("qu’est-ce qu’a chante") ||
-  cleanQuestion.includes("qu a chante") ||
-  cleanQuestion.includes("qu'a chante") ||
-  cleanQuestion.includes("qu’a chante") ||
-  cleanQuestion.includes("qu'est-ce qu'a chanté") ||
-  cleanQuestion.includes("qu’est-ce qu’a chanté") ||
-  cleanQuestion.includes("qu a chanté") ||
-  cleanQuestion.includes("qu'a chanté") ||
-  cleanQuestion.includes("qu’a chanté") ||
-  cleanQuestion.includes("quels titres") ||
-  cleanQuestion.includes("quels morceaux") ||
-  cleanQuestion.includes("chansons de") ||
-  cleanQuestion.includes("titres de") ||
-  cleanQuestion.includes("morceaux de") ||
-  cleanQuestion.includes("donne-moi des titres de") ||
-  cleanQuestion.includes("donne moi des titres de");
+  const artistTracksIntentText = String(question || "")
+  .toLowerCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/[’']/g, " ")
+  .replace(/[-]/g, " ")
+  .replace(/[?!.,;:]/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+
+const asksArtistTracks =
+  artistTracksIntentText.includes("qu est ce qu a chante") ||
+  artistTracksIntentText.includes("qu a chante") ||
+  artistTracksIntentText.includes("quels titres") ||
+  artistTracksIntentText.includes("quels morceaux") ||
+  artistTracksIntentText.includes("chansons de") ||
+  artistTracksIntentText.includes("titres de") ||
+  artistTracksIntentText.includes("morceaux de") ||
+  artistTracksIntentText.includes("donne moi des titres de");
 
 const asksExternalArtist =
   cleanQuestion.startsWith("qui est ") ||
