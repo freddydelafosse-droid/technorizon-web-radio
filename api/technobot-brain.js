@@ -715,10 +715,9 @@ const releaseYear = matchingYears.length
   ? Math.min(...matchingYears)
   : null;
 
-            if (year) {
-              answer += ` Première sortie référencée : ${year}.`;
-            }
-          }
+            if (releaseYear) {
+  answer += ` Première sortie référencée : ${releaseYear}.`;
+}
 
           answer +=
             " Ce titre est connu de TechnoBot via sa culture musicale externe. " +
