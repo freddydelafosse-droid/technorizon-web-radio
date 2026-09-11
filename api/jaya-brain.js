@@ -112,6 +112,33 @@ const entities = await entitiesResponse.json();
     .split(/\s+/)
     .filter((word) => word.length >= 4);
 
+      const entityMatch = entities.find((entity) => {
+  const names = [
+    entity.name,
+    ...(Array.isArray(entity.aliases) ? entity.aliases : [])
+  ]
+    .filter(Boolean)
+    .map((value) =>
+      String(value)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+    );
+
+  return names.some((name) => cleanQuestion.includes(name));
+});
+
+if (entityMatch) {
+  return res.status(200).json({
+    success: true,
+    assistant: "Jaya",
+    found: true,
+    source: "entities",
+    entity_type: entityMatch.entity_type,
+    answer: entityMatch.description
+  });
+}
+
   let bestMatch = null;
   let bestScore = 0;
 
