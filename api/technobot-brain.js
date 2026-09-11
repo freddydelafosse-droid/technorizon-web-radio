@@ -44,7 +44,7 @@ export default async function handler(req, res) {
 
     // 1. Chercher d'abord dans la FAQ
     const faqResponse = await fetch(
-      `${supabaseUrl}/rest/v1/faq?select=question,answer,alternative_questions,category`,
+      `${supabaseUrl}/rest/v1/faq?select=question,answer,alternative_questions,category&status=eq.active&visibility=eq.public`,
       { headers }
     );
 
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
 
     // 2. Chercher ensuite dans la base de connaissances
     const knowledgeResponse = await fetch(
-      `${supabaseUrl}/rest/v1/knowledge?select=category,title,content,priority,visibility,status&status=eq.active&order=priority.asc`,
+      `${supabaseUrl}/rest/v1/knowledge?select=category,title,content,priority,visibility,status&status=eq.active&visibility=eq.public&order=priority.asc`,
       { headers }
     );
 
