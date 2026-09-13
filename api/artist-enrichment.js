@@ -151,9 +151,9 @@ export default async function handler(req, res) {
         };
 
         const updateUrl =
-          `${supabaseUrl}/rest/v1/artist_enrichment_queue` +
-          `?artist_name=eq.${encodeURIComponent(artistName)}` +
-          `&status=eq.pending`;
+  `${supabaseUrl}/rest/v1/artist_enrichment_queue` +
+  `?artist_name=ilike.${encodeURIComponent(artistName)}` +
+  `&status=eq.pending`;
 
         const updateResponse = await fetch(updateUrl, {
           method: "PATCH",
