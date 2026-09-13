@@ -24,6 +24,6 @@ jobs:
         run: |
           response=$(curl --location --fail-with-body --silent --show-error --max-time 180 \
             -H "x-enrichment-secret: ${ARTIST_ENRICHMENT_SECRET}" \
-            "https://technorizon.fr/api/artist-enrichment")
+            "https://www.technorizon.fr/api/artist-enrichment")
 
           echo "$response"
