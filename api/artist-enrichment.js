@@ -45,6 +45,14 @@ async function musicBrainzSearch(artistName, maxRetries = 3) {
 }
 
 export default async function handler(req, res) {
+    const enrichmentSecret = process.env.ARTIST_ENRICHMENT_SECRET;
+  const providedSecret = req.headers["x-enrichment-secret"];
+
+  if (!enrichmentSecret || providedSecret !== enrichmentSecret) {
+    return res.status(401).json({
+      error: "Accès non autorisé"
+    });
+  }
   if (req.method !== "GET") {
     return res.status(405).json({
       error: "Méthode non autorisée"
