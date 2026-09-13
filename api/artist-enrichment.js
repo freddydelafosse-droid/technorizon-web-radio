@@ -1,4 +1,4 @@
-const BATCH_SIZE = 10;
+const BATCH_SIZE = 20;
 
 const sleep = (ms) =>
   new Promise((resolve) => setTimeout(resolve, ms));
