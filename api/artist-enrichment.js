@@ -6,7 +6,19 @@ const TEST_ARTISTS = [
   "Amelie Lens"
 ];
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+function buildActiveYears(lifeSpan) {
+  if (!lifeSpan || !lifeSpan.begin) return null;
+
+  const begin = String(lifeSpan.begin).slice(0, 4);
+  const end = lifeSpan.end
+    ? String(lifeSpan.end).slice(0, 4)
+    : "aujourd’hui";
+
+  return `${begin} - ${end}`;
+}
 
 async function musicBrainzSearch(artistName, maxRetries = 3) {
   const query = encodeURIComponent(`artist:"${artistName}"`);
@@ -16,8 +28,9 @@ async function musicBrainzSearch(artistName, maxRetries = 3) {
       `https://musicbrainz.org/ws/2/artist/?query=${query}&fmt=json&limit=5`,
       {
         headers: {
-          "User-Agent": "Technorizon/1.0 (https://technorizon.fr)",
-          "Accept": "application/json"
+          "User-Agent":
+            "Technorizon/1.0 (https://technorizon.fr)",
+          Accept: "application/json"
         }
       }
     );
@@ -26,7 +39,6 @@ async function musicBrainzSearch(artistName, maxRetries = 3) {
       return await response.json();
     }
 
-    // MusicBrainz temporairement indisponible ou limitation.
     if ([429, 500, 502, 503, 504].includes(response.status)) {
       if (attempt < maxRetries) {
         await sleep(2500 * attempt);
@@ -40,8 +52,32 @@ async function musicBrainzSearch(artistName, maxRetries = 3) {
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
-    return res.status(405).json({ error: "Méthode non autorisée" });
+    return res.status(405).json({
+      error: "Méthode non autorisée"
+    });
   }
+
+  const supabaseUrl =
+    process.env.SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  const supabaseKey =
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    return res.status(500).json({
+      error: "Configuration Supabase manquante"
+    });
+  }
+
+  const dbHeaders = {
+    apikey: supabaseKey,
+    Authorization: `Bearer ${supabaseKey}`,
+    "Content-Type": "application/json",
+    Prefer: "return=representation"
+  };
 
   try {
     const results = [];
@@ -50,57 +86,129 @@ export default async function handler(req, res) {
       try {
         const data = await musicBrainzSearch(artistName);
 
-        const candidates = (data.artists || [])
-          .slice(0, 3)
-          .map(artist => ({
-            id: artist.id,
-            name: artist.name,
-            sort_name: artist["sort-name"] || null,
-            type: artist.type || null,
-            country: artist.country || null,
-            area: artist.area?.name || null,
-            begin_area: artist["begin-area"]?.name || null,
-            life_span: artist["life-span"] || null,
-            score: artist.score ?? null,
-            disambiguation: artist.disambiguation || null,
-            tags: Array.isArray(artist.tags)
-              ? [...artist.tags]
-                  .sort((a, b) => (b.count || 0) - (a.count || 0))
-                  .slice(0, 8)
-                  .map(tag => tag.name)
-              : []
-          }));
+        const candidates = (data.artists || []).slice(0, 3);
+
+        if (!candidates.length) {
+          results.push({
+            artist: artistName,
+            status: "NOT_FOUND"
+          });
+
+          await sleep(1300);
+          continue;
+        }
+
+        // Pour ce premier test, on conserve le meilleur candidat
+        // mais uniquement dans la file de validation.
+        const best = candidates[0];
+
+        const genres = Array.isArray(best.tags)
+          ? [...best.tags]
+              .sort(
+                (a, b) =>
+                  (b.count || 0) - (a.count || 0)
+              )
+              .slice(0, 8)
+              .map((tag) => tag.name)
+          : [];
+
+        const confidence =
+          typeof best.score === "number"
+            ? best.score
+            : null;
+
+        const sourceDetails = {
+          provider: "MusicBrainz",
+          mode: "FIRST_BATCH_REVIEW",
+          musicbrainz_score: best.score ?? null,
+          type: best.type || null,
+          area: best.area?.name || null,
+          begin_area: best["begin-area"]?.name || null,
+          disambiguation: best.disambiguation || null,
+          candidates: candidates.map((candidate) => ({
+            id: candidate.id,
+            name: candidate.name,
+            score: candidate.score ?? null,
+            country: candidate.country || null,
+            area: candidate.area?.name || null,
+            disambiguation:
+              candidate.disambiguation || null
+          }))
+        };
+
+        const patchBody = {
+          status: "review",
+          musicbrainz_id: best.id,
+          matched_name: best.name,
+          confidence,
+          proposed_country: best.country || null,
+          proposed_genres: genres,
+          proposed_active_years:
+            buildActiveYears(best["life-span"]),
+          source_details: sourceDetails,
+          error_message: null,
+          updated_at: new Date().toISOString()
+        };
+
+        const updateUrl =
+          `${supabaseUrl}/rest/v1/artist_enrichment_queue` +
+          `?artist_name=eq.${encodeURIComponent(artistName)}` +
+          `&status=eq.pending`;
+
+        const updateResponse = await fetch(updateUrl, {
+          method: "PATCH",
+          headers: dbHeaders,
+          body: JSON.stringify(patchBody)
+        });
+
+        if (!updateResponse.ok) {
+          const errorText =
+            await updateResponse.text();
+
+          throw new Error(
+            `Supabase HTTP ${updateResponse.status} : ${errorText}`
+          );
+        }
+
+        const updatedRows =
+          await updateResponse.json();
 
         results.push({
           artist: artistName,
-          status: candidates.length ? "FOUND" : "NOT_FOUND",
-          candidates
+          status: "WRITTEN_TO_REVIEW_QUEUE",
+          matched_name: best.name,
+          confidence,
+          musicbrainz_id: best.id,
+          country: best.country || null,
+          genres,
+          updated_rows: updatedRows.length
         });
 
       } catch (error) {
         results.push({
           artist: artistName,
-          status: "RETRY_FAILED",
+          status: "ERROR",
           error: error.message
         });
       }
 
-      // Cadence prudente entre deux artistes.
+      // Cadence prudente pour MusicBrainz
       await sleep(1300);
     }
 
     return res.status(200).json({
-      mode: "TEST_RETRY_READ_ONLY",
-      database_modified: false,
+      mode: "FIRST_BATCH_WRITE_TO_QUEUE",
+      artists_table_modified: false,
+      queue_modified: true,
       tested: results.length,
       results
     });
 
   } catch (error) {
-    console.error("Artist enrichment test:", error);
+    console.error("Artist enrichment:", error);
 
     return res.status(500).json({
-      error: "Erreur pendant le test",
+      error: "Erreur enrichissement artistes",
       details: error.message
     });
   }
