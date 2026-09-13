@@ -1694,3 +1694,12 @@ font-size:.35em;
     text-overflow:ellipsis;
   }
 }
+
+@media (max-width:800px){
+  html,
+  body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+  }
+}
