@@ -106,15 +106,41 @@ const TEST_ARTISTS = pendingArtists.map(
 
         const candidates = (data.artists || []).slice(0, 3);
 
-        if (!candidates.length) {
-          results.push({
-            artist: artistName,
-            status: "NOT_FOUND"
-          });
+       if (!candidates.length) {
+  const notFoundUrl =
+    `${supabaseUrl}/rest/v1/artist_enrichment_queue` +
+    `?artist_name=ilike.${encodeURIComponent(artistName)}` +
+    `&status=eq.pending`;
 
-          await sleep(1300);
-          continue;
-        }
+  const notFoundResponse = await fetch(notFoundUrl, {
+    method: "PATCH",
+    headers: dbHeaders,
+    body: JSON.stringify({
+      status: "not_found",
+      error_message: "Aucun artiste correspondant trouvé dans MusicBrainz.",
+      updated_at: new Date().toISOString()
+    })
+  });
+
+  if (!notFoundResponse.ok) {
+    const errorText = await notFoundResponse.text();
+
+    throw new Error(
+      `Impossible de marquer ${artistName} en not_found : ${errorText}`
+    );
+  }
+
+  const updatedRows = await notFoundResponse.json();
+
+  results.push({
+    artist: artistName,
+    status: "NOT_FOUND",
+    updated_rows: updatedRows.length
+  });
+
+  await sleep(1300);
+  continue;
+}
 
         // Pour ce premier test, on conserve le meilleur candidat
         // mais uniquement dans la file de validation.
