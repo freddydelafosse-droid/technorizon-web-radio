@@ -1,0 +1,29 @@
+name: Technorizon Artist Enrichment
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: technorizon-artist-enrichment
+  cancel-in-progress: false
+
+jobs:
+  enrich-artists:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Call protected enrichment API
+        env:
+          ARTIST_ENRICHMENT_SECRET: ${{ secrets.ARTIST_ENRICHMENT_SECRET }}
+        run: |
+          response=$(curl --fail-with-body --silent --show-error --max-time 180 \
+            -H "x-enrichment-secret: ${ARTIST_ENRICHMENT_SECRET}" \
+            "https://technorizon.fr/api/artist-enrichment")
+
+          echo "$response"
