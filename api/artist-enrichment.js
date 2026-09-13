@@ -1,9 +1,5 @@
 const TEST_ARTISTS = [
-  "Basshunter",
-  "David Guetta",
-  "2 Unlimited",
-  "Alok",
-  "Amelie Lens"
+  "Basshunter"
 ];
 
 const sleep = (ms) =>
