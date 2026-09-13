@@ -22,7 +22,7 @@ jobs:
         env:
           ARTIST_ENRICHMENT_SECRET: ${{ secrets.ARTIST_ENRICHMENT_SECRET }}
         run: |
-          response=$(curl --fail-with-body --silent --show-error --max-time 180 \
+          response=$(curl --location --fail-with-body --silent --show-error --max-time 180 \
             -H "x-enrichment-secret: ${ARTIST_ENRICHMENT_SECRET}" \
             "https://technorizon.fr/api/artist-enrichment")
 
