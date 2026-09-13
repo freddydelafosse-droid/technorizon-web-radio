@@ -1,6 +1,4 @@
-const TEST_ARTISTS = [
-  "Basshunter"
-];
+const BATCH_SIZE = 10;
 
 const sleep = (ms) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -74,6 +72,30 @@ export default async function handler(req, res) {
     "Content-Type": "application/json",
     Prefer: "return=representation"
   };
+
+  const pendingResponse = await fetch(
+  `${supabaseUrl}/rest/v1/artist_enrichment_queue` +
+  `?select=artist_name` +
+  `&status=eq.pending` +
+  `&order=artist_name.asc` +
+  `&limit=${BATCH_SIZE}`,
+  { headers: dbHeaders }
+);
+
+if (!pendingResponse.ok) {
+  const errorText = await pendingResponse.text();
+
+  return res.status(500).json({
+    error: "Impossible de récupérer les artistes en attente",
+    details: errorText
+  });
+}
+
+const pendingArtists = await pendingResponse.json();
+
+const TEST_ARTISTS = pendingArtists.map(
+  (row) => row.artist_name
+);
 
   try {
     const results = [];
