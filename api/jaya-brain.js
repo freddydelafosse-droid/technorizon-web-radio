@@ -547,7 +547,7 @@ Si tu ne connais pas la réponse avec suffisamment de certitude, réponds unique
 JE_NE_SAIS_PAS
           `.trim(),
           input: question,
-          max_output_tokens: 250
+          max_output_tokens: 800
         })
       }
     );
