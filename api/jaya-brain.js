@@ -55,6 +55,29 @@ if (req.method === "POST" && !question) {
 
     const rules = await response.json();
 
+    const faqResponse = await fetch(
+  `${supabaseUrl}/rest/v1/faq?select=question,answer,alternative_questions,category&status=eq.active&visibility=eq.public`,
+  {
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+      "Content-Type": "application/json"
+    }
+  }
+);
+
+if (!faqResponse.ok) {
+  const errorText = await faqResponse.text();
+
+  console.error("Jaya faq error:", errorText);
+
+  return res.status(500).json({
+    error: "Impossible de charger la FAQ Technorizon"
+  });
+}
+
+const faq = await faqResponse.json();
+
     const knowledgeResponse = await fetch(
   `${supabaseUrl}/rest/v1/knowledge?select=*&status=eq.active&visibility=eq.public`,
   {
@@ -157,6 +180,58 @@ const tracks = await tracksResponse.json();
   const words = cleanQuestion
     .split(/\s+/)
     .filter((word) => word.length >= 4);
+
+const faqMatch = faq.find((item) => {
+  const mainQuestion = String(item.question || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[’'?!.,;:-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (
+    mainQuestion &&
+    (
+      cleanQuestion.includes(mainQuestion) ||
+      mainQuestion.includes(cleanQuestion)
+    )
+  ) {
+    return true;
+  }
+
+  if (Array.isArray(item.alternative_questions)) {
+    return item.alternative_questions.some((alternative) => {
+      const normalizedAlternative = String(alternative || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[’'?!.,;:-]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      return (
+        normalizedAlternative &&
+        (
+          cleanQuestion.includes(normalizedAlternative) ||
+          normalizedAlternative.includes(cleanQuestion)
+        )
+      );
+    });
+  }
+
+  return false;
+});
+
+if (faqMatch?.answer) {
+  return res.status(200).json({
+    success: true,
+    assistant: "Jaya",
+    found: true,
+    source: "faq",
+    answer: faqMatch.answer
+  });
+}
 
 const trackMatch = tracks.find((track) => {
   const titles = [
