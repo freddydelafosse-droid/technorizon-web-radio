@@ -292,16 +292,6 @@ const artistMatch = artists.find((item) => {
   }
 
   return false;
-});
-  if (Array.isArray(item.aliases)) {
-    return item.aliases.some((alias) => {
-      const normalizedAlias = String(alias || "").toLowerCase();
-      return normalizedAlias && cleanQuestion.includes(normalizedAlias);
-    });
-  }
-
-  return false;
-});
 
 if (artistMatch && !asksArtistTracks) {
   const parts = [];
