@@ -455,17 +455,15 @@ main,
 }
 
 .credits {
-  max-width: 900px;
-  margin: 30px auto 20px;
-  padding: 24px 20px;
-  text-align: center;
-  background: rgba(5, 8, 20, 0.82);
-  border: 1px solid #18eaff66;
-  border-radius: 18px;
-  box-shadow:
-    0 0 16px #18eaff33,
-    0 0 28px #ff20ae22;
-  backdrop-filter: blur(6px);
+    max-width: 900px;
+    margin: 30px auto 20px;
+    padding: 20px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
 }
 
 .credits h2 {
