@@ -231,7 +231,18 @@ const entityMatch = entities.find((item) => {
   return false;
 });
 
-if (entityMatch?.description && !musicIntent) {
+if (
+  entityMatch?.description &&
+  !musicIntent &&
+  (
+    String(entityMatch.name || "").toLowerCase() !== "technorizon" ||
+    words.length === 0 ||
+    cleanQuestion.includes("qu'est-ce que technorizon") ||
+    cleanQuestion.includes("c'est quoi technorizon") ||
+    cleanQuestion.includes("présente technorizon") ||
+    cleanQuestion.includes("presente technorizon")
+  )
+) {
   return res.status(200).json({
     found: true,
     source: "entities",
