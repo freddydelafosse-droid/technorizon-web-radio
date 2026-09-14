@@ -141,9 +141,32 @@ const asksArtistTracks =
 
     const knowledge = await knowledgeResponse.json();
 
-    const words = cleanQuestion
-      .split(/\s+/)
-      .filter((word) => word.length >= 4);
+    const ignoredWords = new Set([
+  "technorizon",
+  "radio",
+  "web",
+  "web-radio",
+  "quel",
+  "quelle",
+  "quels",
+  "quelles",
+  "comment",
+  "pourquoi",
+  "avec",
+  "dans",
+  "pour",
+  "est",
+  "sont",
+  "nom"
+]);
+
+const words = cleanQuestion
+  .split(/\s+/)
+  .filter(
+    (word) =>
+      word.length >= 4 &&
+      !ignoredWords.has(word)
+  );
 
     let bestMatch = null;
     let bestScore = 0;
@@ -164,7 +187,12 @@ const asksArtistTracks =
       }
     }
 
-    if (bestMatch && bestScore >= 2 && !musicIntent) {
+   if (
+  bestMatch &&
+  words.length >= 2 &&
+  bestScore >= Math.max(2, Math.ceil(words.length * 0.6)) &&
+  !musicIntent
+) {
       return res.status(200).json({
         found: true,
         source: "knowledge",
