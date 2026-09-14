@@ -409,6 +409,7 @@ return res.status(200).json({
   found: false,
   answer: null
 });
+}
     
 return res.status(200).json({
   success: true,
