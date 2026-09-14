@@ -45,14 +45,23 @@ async function musicBrainzSearch(artistName, maxRetries = 3) {
 }
 
 export default async function handler(req, res) {
-    const enrichmentSecret = process.env.ARTIST_ENRICHMENT_SECRET;
+  const enrichmentSecret = process.env.ARTIST_ENRICHMENT_SECRET;
   const providedSecret = req.headers["x-enrichment-secret"];
 
   if (!enrichmentSecret || providedSecret !== enrichmentSecret) {
     return res.status(401).json({
-      error: "Accès non autorisé"
+      error: "Accès non autorisé",
+      diagnostic: {
+        vercel_secret_present: Boolean(enrichmentSecret),
+        github_header_present: Boolean(providedSecret),
+        secrets_match:
+          Boolean(enrichmentSecret) &&
+          Boolean(providedSecret) &&
+          providedSecret === enrichmentSecret
+      }
     });
   }
+
   if (req.method !== "GET") {
     return res.status(405).json({
       error: "Méthode non autorisée"
