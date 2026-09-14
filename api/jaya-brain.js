@@ -283,6 +283,73 @@ if (asksTechnorizon) {
   });
 }
 
+      const artistMatch = artists.find((artist) => {
+  const normalizedQuestion = ` ${cleanQuestion
+    .replace(/\s+/g, " ")
+    .trim()} `;
+
+  const names = [
+    artist.name,
+    ...(Array.isArray(artist.aliases) ? artist.aliases : [])
+  ]
+    .filter(Boolean)
+    .map((value) =>
+      String(value)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+    );
+
+  return names.some((name) =>
+    normalizedQuestion.includes(` ${name} `)
+  );
+});
+
+if (artistMatch) {
+  const parts = [];
+
+  if (artistMatch.biography) {
+    parts.push(artistMatch.biography);
+  }
+
+  if (artistMatch.country) {
+    parts.push(`Origine : ${artistMatch.country}.`);
+  }
+
+  if (Array.isArray(artistMatch.genres) && artistMatch.genres.length) {
+    parts.push(`Styles : ${artistMatch.genres.join(", ")}.`);
+  }
+
+  if (artistMatch.active_years) {
+    parts.push(`Période d'activité : ${artistMatch.active_years}.`);
+  }
+
+  if (artistMatch.known_for) {
+    parts.push(`Connu notamment pour : ${artistMatch.known_for}.`);
+  }
+
+  if (artistMatch.in_technorizon_rotation) {
+    parts.push(
+      "Cet artiste fait partie de l'univers musical de Technorizon."
+    );
+  }
+
+  if (artistMatch.technorizon_notes) {
+    parts.push(artistMatch.technorizon_notes);
+  }
+
+  return res.status(200).json({
+    success: true,
+    assistant: "Jaya",
+    found: true,
+    source: "artists",
+    answer:
+      parts.join(" ") ||
+      `${artistMatch.name} est référencé dans le cerveau musical Technorizon.`
+  });
+}
+
       const entityMatch = entities.find((entity) => {
   const names = [
     entity.name,
