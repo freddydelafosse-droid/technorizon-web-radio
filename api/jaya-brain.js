@@ -55,6 +55,20 @@ if (req.method === "POST" && !question) {
 
     const rules = await response.json();
 
+    const jayaRules = rules
+  .filter((rule) => rule?.instruction)
+  .map((rule) => ({
+    type: rule.rule_type || "general",
+    title: rule.title || null,
+    instruction: String(rule.instruction).trim(),
+    priority: rule.priority ?? 999
+  }))
+  .sort((a, b) => a.priority - b.priority);
+
+const jayaBehaviorContext = jayaRules
+  .map((rule) => rule.instruction)
+  .join("\n");
+
     const faqResponse = await fetch(
   `${supabaseUrl}/rest/v1/faq?select=question,answer,alternative_questions,category&status=eq.active&visibility=eq.public`,
   {
@@ -556,7 +570,8 @@ return res.status(200).json({
 return res.status(200).json({
   success: true,
   assistant: "Jaya",
-  rules_count: rules.length,
+  rules_count: jayaRules.length,
+behavior_ready: jayaBehaviorContext.length > 0,
 knowledge_count: knowledge.length,
 entities_count: entities.length,
   artists_count: artists.length,
