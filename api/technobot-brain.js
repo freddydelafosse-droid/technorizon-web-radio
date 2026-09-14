@@ -263,12 +263,36 @@ if (!artistsResponse.ok) {
 const artists = await artistsResponse.json();
 
 const artistMatch = artists.find((item) => {
-  const artistName = String(item.name || "").toLowerCase();
+  const normalizedQuestion = ` ${cleanQuestion
+    .replace(/\s+/g, " ")
+    .trim()} `;
 
-  if (artistName && cleanQuestion.includes(artistName)) {
+  const artistName = String(item.name || "")
+    .toLowerCase()
+    .trim();
+
+  if (
+    artistName &&
+    normalizedQuestion.includes(` ${artistName} `)
+  ) {
     return true;
   }
 
+  if (Array.isArray(item.aliases)) {
+    return item.aliases.some((alias) => {
+      const normalizedAlias = String(alias || "")
+        .toLowerCase()
+        .trim();
+
+      return (
+        normalizedAlias &&
+        normalizedQuestion.includes(` ${normalizedAlias} `)
+      );
+    });
+  }
+
+  return false;
+});
   if (Array.isArray(item.aliases)) {
     return item.aliases.some((alias) => {
       const normalizedAlias = String(alias || "").toLowerCase();
