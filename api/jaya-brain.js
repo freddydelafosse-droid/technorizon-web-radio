@@ -520,6 +520,72 @@ if (bestMatch && (bestScore >= 2 || exactTopicMatch)) {
     });
   }
 
+const openaiApiKey = process.env.OPENAI_API_KEY;
+
+if (openaiApiKey && jayaBehaviorContext) {
+  try {
+    const openaiResponse = await fetch(
+      "https://api.openai.com/v1/responses",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${openaiApiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "gpt-5-mini",
+          instructions: `
+Tu es Jaya, animatrice virtuelle officielle de Technorizon.
+
+Respecte impérativement les règles suivantes :
+${jayaBehaviorContext}
+
+Tu réponds en français par défaut.
+Tu gardes une personnalité naturelle, chaleureuse, moderne et radiophonique.
+Tu ne prétends jamais connaître une information absente du contexte fourni.
+Si tu ne connais pas la réponse avec suffisamment de certitude, réponds uniquement :
+JE_NE_SAIS_PAS
+          `.trim(),
+          input: question,
+          max_output_tokens: 250
+        })
+      }
+    );
+
+    if (openaiResponse.ok) {
+      const openaiData = await openaiResponse.json();
+
+      const aiAnswer = (openaiData.output || [])
+        .flatMap((item) => item.content || [])
+        .filter((item) => item.type === "output_text")
+        .map((item) => item.text)
+        .join("\n")
+        .trim();
+
+      if (
+        aiAnswer &&
+        aiAnswer !== "JE_NE_SAIS_PAS"
+      ) {
+        return res.status(200).json({
+          success: true,
+          assistant: "Jaya",
+          found: true,
+          source: "openai",
+          answer: aiAnswer
+        });
+      }
+    } else {
+      console.error(
+        "Jaya OpenAI:",
+        openaiResponse.status,
+        await openaiResponse.text()
+      );
+    }
+  } catch (openaiError) {
+    console.error("Jaya OpenAI:", openaiError);
+  }
+}
+      
  try {
   const learningCategory =
     cleanQuestion.includes("artiste") ||
