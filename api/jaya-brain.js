@@ -364,13 +364,51 @@ if (bestMatch && (bestScore >= 2 || exactTopicMatch)) {
     });
   }
 
-  return res.status(200).json({
-    success: true,
-    assistant: "Jaya",
-    found: false,
-    answer: null
-  });
+ try {
+  const learningCategory =
+    cleanQuestion.includes("artiste") ||
+    cleanQuestion.includes("titre") ||
+    cleanQuestion.includes("album") ||
+    cleanQuestion.includes("musique")
+      ? "music"
+      : "unknown";
+
+  const learningResponse = await fetch(
+    `${supabaseUrl}/rest/v1/learning_queue`,
+    {
+      method: "POST",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify({
+        source_assistant: "Jaya",
+        user_question: question.trim(),
+        proposed_answer: null,
+        category: learningCategory
+      })
+    }
+  );
+
+  if (!learningResponse.ok) {
+    console.error(
+      "Jaya learning_queue:",
+      learningResponse.status,
+      await learningResponse.text()
+    );
+  }
+} catch (learningError) {
+  console.error("Jaya learning_queue:", learningError);
 }
+
+return res.status(200).json({
+  success: true,
+  assistant: "Jaya",
+  found: false,
+  answer: null
+});
     
 return res.status(200).json({
   success: true,
