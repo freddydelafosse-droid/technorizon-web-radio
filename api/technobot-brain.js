@@ -850,12 +850,44 @@ const releaseYear = matchingYears.length
   }
 }
 
-    // 7. Aucune réponse fiable trouvée
-    return res.status(200).json({
-      found: false,
-      source: null,
-      answer: null
-    });
+   // 7. Aucune réponse fiable trouvée
+try {
+  const learningCategory =
+    musicIntent ? "music" : "unknown";
+
+  const learningResponse = await fetch(
+    `${supabaseUrl}/rest/v1/learning_queue`,
+    {
+      method: "POST",
+      headers: {
+        ...headers,
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify({
+        source_assistant: "TechnoBot",
+        user_question: question.trim(),
+        proposed_answer: null,
+        category: learningCategory
+      })
+    }
+  );
+
+  if (!learningResponse.ok) {
+    console.error(
+      "TechnoBot learning_queue:",
+      learningResponse.status,
+      await learningResponse.text()
+    );
+  }
+} catch (learningError) {
+  console.error("TechnoBot learning_queue:", learningError);
+}
+
+return res.status(200).json({
+  found: false,
+  source: null,
+  answer: null
+});
 
   } catch (error) {
     console.error("Technorizon Brain :", error);
