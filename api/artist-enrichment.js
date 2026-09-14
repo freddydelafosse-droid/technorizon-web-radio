@@ -123,6 +123,8 @@ export default async function handler(req, res) {
 
 if (!pendingResponse.ok) {
   const errorText = await pendingResponse.text();
+  
+  console.error("Supabase pending queue:", pendingResponse.status, errorText);
 
   return res.status(500).json({
     error: "Impossible de récupérer les artistes en attente",
