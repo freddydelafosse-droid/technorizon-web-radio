@@ -63,6 +63,17 @@ async function supabaseFetchWithRetry(url, options = {}, maxRetries = 3) {
   }
 }
 
+function getSearchArtistName(originalArtistName) {
+  if (!originalArtistName) return "";
+
+  const parts = String(originalArtistName)
+    .split(";")
+    .map((name) => name.trim())
+    .filter(Boolean);
+
+  return parts[0] || String(originalArtistName).trim();
+}
+
 export default async function handler(req, res) {
   const enrichmentSecret = process.env.ARTIST_ENRICHMENT_SECRET;
   const providedSecret = req.headers["x-enrichment-secret"];
@@ -130,8 +141,8 @@ const TEST_ARTISTS = pendingArtists.map(
 
     for (const artistName of TEST_ARTISTS) {
       try {
-        const data = await musicBrainzSearch(artistName);
-
+        const searchArtistName = getSearchArtistName(artistName);
+const data = await musicBrainzSearch(searchArtistName);
         const candidates = (data.artists || []).slice(0, 3);
 
        if (!candidates.length) {
@@ -192,6 +203,9 @@ const TEST_ARTISTS = pendingArtists.map(
         const sourceDetails = {
           provider: "MusicBrainz",
           mode: "FIRST_BATCH_REVIEW",
+            original_artist: artistName,
+  searched_artist: searchArtistName,
+  collaboration_detected: searchArtistName !== artistName,
           musicbrainz_score: best.score ?? null,
           type: best.type || null,
           area: best.area?.name || null,
