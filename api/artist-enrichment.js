@@ -44,6 +44,25 @@ async function musicBrainzSearch(artistName, maxRetries = 3) {
   }
 }
 
+async function supabaseFetchWithRetry(url, options = {}, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const response = await fetch(url, options);
+
+    if (response.ok) {
+      return response;
+    }
+
+    if ([429, 500, 502, 503, 504].includes(response.status)) {
+      if (attempt < maxRetries) {
+        await sleep(2000 * attempt);
+        continue;
+      }
+    }
+
+    return response;
+  }
+}
+
 export default async function handler(req, res) {
   const enrichmentSecret = process.env.ARTIST_ENRICHMENT_SECRET;
   const providedSecret = req.headers["x-enrichment-secret"];
@@ -82,7 +101,7 @@ export default async function handler(req, res) {
     Prefer: "return=representation"
   };
 
-  const pendingResponse = await fetch(
+ const pendingResponse = await supabaseFetchWithRetry(
   `${supabaseUrl}/rest/v1/artist_enrichment_queue` +
   `?select=artist_name` +
   `&status=eq.pending` +
@@ -121,7 +140,7 @@ const TEST_ARTISTS = pendingArtists.map(
     `?artist_name=ilike.${encodeURIComponent(artistName)}` +
     `&status=eq.pending`;
 
-  const notFoundResponse = await fetch(notFoundUrl, {
+  const notFoundResponse = await supabaseFetchWithRetry(notFoundUrl, {
     method: "PATCH",
     headers: dbHeaders,
     body: JSON.stringify({
@@ -208,7 +227,7 @@ const TEST_ARTISTS = pendingArtists.map(
   `?artist_name=ilike.${encodeURIComponent(artistName)}` +
   `&status=eq.pending`;
 
-        const updateResponse = await fetch(updateUrl, {
+        const updateResponse = await supabaseFetchWithRetry(updateUrl, {
           method: "PATCH",
           headers: dbHeaders,
           body: JSON.stringify(patchBody)
