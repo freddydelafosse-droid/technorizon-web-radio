@@ -292,6 +292,7 @@ const artistMatch = artists.find((item) => {
   }
 
   return false;
+});
 
 if (artistMatch && !asksArtistTracks) {
   const parts = [];
