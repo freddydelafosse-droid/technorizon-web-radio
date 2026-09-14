@@ -183,7 +183,50 @@ const data = await musicBrainzSearch(searchArtistName);
 
         // Pour ce premier test, on conserve le meilleur candidat
         // mais uniquement dans la file de validation.
-        const best = candidates[0];
+       const normalizeArtistName = (name) =>
+  String(name || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+
+const normalizedSearchName = normalizeArtistName(searchArtistName);
+
+const nonMusicKeywords = [
+  "actor",
+  "actress",
+  "voice actor",
+  "audiobook",
+  "comedian",
+  "politician",
+  "writer",
+  "author"
+];
+
+const safeCandidates = candidates.filter((candidate) => {
+  const normalizedCandidateName = normalizeArtistName(candidate.name);
+
+  const tags = Array.isArray(candidate.tags)
+    ? candidate.tags.map((tag) => String(tag.name || "").toLowerCase())
+    : [];
+
+  const disambiguation = String(
+    candidate.disambiguation || ""
+  ).toLowerCase();
+
+  const textToCheck = [...tags, disambiguation].join(" ");
+
+  const obviouslyNonMusical = nonMusicKeywords.some((keyword) =>
+    textToCheck.includes(keyword)
+  );
+
+  return (
+    normalizedCandidateName === normalizedSearchName &&
+    !obviouslyNonMusical
+  );
+});
+
+const best = safeCandidates[0] || candidates[0];
 
         const genres = Array.isArray(best.tags)
           ? [...best.tags]
@@ -195,10 +238,16 @@ const data = await musicBrainzSearch(searchArtistName);
               .map((tag) => tag.name)
           : [];
 
-        const confidence =
-          typeof best.score === "number"
-            ? best.score
-            : null;
+        const bestIsValidated =
+  safeCandidates.length > 0 &&
+  safeCandidates[0].id === best.id;
+
+const confidence =
+  typeof best.score === "number"
+    ? bestIsValidated
+      ? best.score
+      : Math.min(best.score, 50)
+    : null;
 
         const sourceDetails = {
           provider: "MusicBrainz",
