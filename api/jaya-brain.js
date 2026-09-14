@@ -455,7 +455,14 @@ if (artistMatch) {
   return names.some((name) => cleanQuestion.includes(name));
 });
 
-
+if (
+  entityMatch &&
+  !(
+    String(entityMatch.name || "").toLowerCase() === "jaya" &&
+    words.length > 0
+  )
+) {
+      
   return res.status(200).json({
     success: true,
     assistant: "Jaya",
