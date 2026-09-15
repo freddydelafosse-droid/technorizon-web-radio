@@ -1,0 +1,362 @@
+/* =========================================================
+   TECHNORIZON.FR — V2
+   Feuille de style principale
+   ========================================================= */
+
+:root {
+  --bg: #02040b;
+  --bg-soft: #07101d;
+  --cyan: #00eaff;
+  --blue: #168cff;
+  --magenta: #ff1f9d;
+  --white: #f5fbff;
+  --text: #dce9f2;
+  --muted: #8293a4;
+  --glass: rgba(5, 15, 28, 0.72);
+  --border: rgba(0, 234, 255, 0.25);
+}
+
+/* ---------- RESET ---------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  font-family: Arial, Helvetica, sans-serif;
+
+  color: var(--text);
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(0, 140, 255, 0.12),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 65% 45%,
+      rgba(255, 31, 157, 0.08),
+      transparent 30%
+    ),
+    var(--bg);
+}
+
+/* ---------- STRUCTURE ---------- */
+
+.v2-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  isolation: isolate;
+}
+
+.v2-container {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+/* ---------- FOND SPATIAL ---------- */
+
+.v2-background {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.v2-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 3, 10, 0.20),
+      rgba(0, 3, 10, 0.55) 65%,
+      rgba(0, 3, 10, 0.92)
+    );
+}
+
+/* ---------- HEADER ---------- */
+
+.v2-header {
+  width: 100%;
+  padding: 28px 0 10px;
+  text-align: center;
+}
+
+.v2-logo {
+  display: block;
+  width: min(620px, 80vw);
+  height: auto;
+  margin: 0 auto;
+}
+
+.v2-slogan {
+  margin-top: 4px;
+
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+
+  text-shadow:
+    0 0 8px rgba(0, 234, 255, 0.6),
+    0 0 18px rgba(255, 31, 157, 0.25);
+}
+
+/* ---------- CONTENU PRINCIPAL ---------- */
+
+.v2-main {
+  position: relative;
+  padding: 30px 0 50px;
+}
+
+/* ---------- EFFET VERRE / NÉON ---------- */
+
+.v2-glass {
+  background: var(--glass);
+
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    inset 0 0 25px rgba(0, 234, 255, 0.025);
+}
+
+/* ---------- LECTEUR ---------- */
+
+.v2-player {
+  position: relative;
+
+  width: min(720px, 100%);
+  min-height: 150px;
+
+  margin: 0 auto 34px;
+  padding: 24px 30px;
+
+  text-align: center;
+}
+
+.v2-now-label {
+  margin-bottom: 8px;
+
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.v2-track {
+  margin: 0;
+
+  color: var(--white);
+  font-size: clamp(18px, 3vw, 27px);
+  font-weight: 700;
+
+  text-shadow: 0 0 12px rgba(0, 234, 255, 0.25);
+}
+
+.v2-artist {
+  margin-top: 5px;
+
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ---------- BOUTON PLAY ---------- */
+
+.v2-play-button {
+  display: grid;
+  place-items: center;
+
+  width: 58px;
+  height: 58px;
+
+  margin: 18px auto 0;
+
+  border: 1px solid rgba(0, 234, 255, 0.55);
+  border-radius: 50%;
+
+  color: white;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 234, 255, 0.28),
+      rgba(255, 31, 157, 0.25)
+    );
+
+  cursor: pointer;
+
+  box-shadow:
+    0 0 18px rgba(0, 234, 255, 0.25),
+    0 0 28px rgba(255, 31, 157, 0.12);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.v2-play-button:hover {
+  transform: scale(1.07);
+
+  box-shadow:
+    0 0 24px rgba(0, 234, 255, 0.45),
+    0 0 35px rgba(255, 31, 157, 0.22);
+}
+
+/* ---------- 3 BLOCS ---------- */
+
+.v2-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.v2-card {
+  min-height: 220px;
+  padding: 22px;
+}
+
+.v2-card-title {
+  margin: 0 0 18px;
+
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.v2-card-title::after {
+  content: "";
+  display: block;
+
+  width: 42px;
+  height: 2px;
+
+  margin: 10px auto 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--cyan),
+      var(--magenta)
+    );
+
+  box-shadow: 0 0 8px rgba(0, 234, 255, 0.55);
+}
+
+/* ---------- DÉDICACES ---------- */
+
+.v2-dedicaces {
+  overflow: hidden;
+
+  margin-top: 22px;
+  padding: 13px 0;
+
+  white-space: nowrap;
+
+  border-top: 1px solid rgba(0, 234, 255, 0.22);
+  border-bottom: 1px solid rgba(255, 31, 157, 0.18);
+
+  background: rgba(2, 8, 18, 0.76);
+}
+
+.v2-dedicaces-track {
+  display: inline-block;
+  padding-left: 100%;
+
+  animation: v2-scroll-dedicaces 28s linear infinite;
+}
+
+@keyframes v2-scroll-dedicaces {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ---------- FOOTER ---------- */
+
+.v2-footer {
+  padding: 28px 20px 35px;
+
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.v2-footer strong {
+  color: var(--white);
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .v2-container {
+    width: min(100% - 24px, 520px);
+  }
+
+  .v2-header {
+    padding-top: 18px;
+  }
+
+  .v2-logo {
+    width: min(360px, 82vw);
+  }
+
+  .v2-slogan {
+    font-size: 9px;
+    letter-spacing: 3px;
+  }
+
+  .v2-main {
+    padding-top: 22px;
+  }
+
+  .v2-player {
+    padding: 22px 18px;
+    border-radius: 18px;
+  }
+
+  .v2-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .v2-card {
+    min-height: 170px;
+  }
+
+  .v2-play-button {
+    width: 54px;
+    height: 54px;
+  }
+}
