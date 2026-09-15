@@ -730,3 +730,9 @@ body {
     0 0 4px rgba(255,255,255,0.95),
     0 0 9px rgba(0,234,255,0.40) !important;
 }
+
+/* V2 — Micro-ajustement centrage TECHNORIZON */
+
+.v2-brand-logo {
+  transform: translateX(-4.5%) !important;
+}
