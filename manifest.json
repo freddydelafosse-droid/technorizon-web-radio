@@ -1,0 +1,18 @@
+{
+  "name": "Technorizon.fr — La musique sans frontières",
+  "short_name": "Technorizon",
+  "description": "Techno, Eurodance, House, Dance Pop et Electro. La musique sans frontières.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#020812",
+  "theme_color": "#020812",
+  "icons": [
+    {
+      "src": "/ImageLogoFinal.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
