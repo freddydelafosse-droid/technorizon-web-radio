@@ -1295,32 +1295,28 @@ const v2RadioPlayer = document.getElementById("radioPlayer");
 
 if (v2PlayButton && v2RadioPlayer) {
 
-  v2PlayButton.addEventListener("click", async function () {
-
-    try {
-
-      if (v2RadioPlayer.paused) {
+  v2PlayButton.addEventListener("click", async () => {
+    if (v2RadioPlayer.paused) {
+      try {
+        v2RadioPlayer.load();
         await v2RadioPlayer.play();
         v2PlayButton.textContent = "❚❚";
         v2PlayButton.setAttribute("aria-label", "Mettre Technorizon en pause");
-      } else {
-        v2RadioPlayer.pause();
-        v2PlayButton.textContent = "▶";
-        v2PlayButton.setAttribute("aria-label", "Écouter Technorizon");
+      } catch (error) {
+        console.error("Lecture Technorizon impossible :", error);
       }
-
-    } catch (error) {
-      console.error("Lecture Technorizon V2 impossible :", error);
+    } else {
+      v2RadioPlayer.pause();
+      v2PlayButton.textContent = "▶";
+      v2PlayButton.setAttribute("aria-label", "Écouter Technorizon");
     }
-
   });
 
-  v2RadioPlayer.addEventListener("play", function () {
+  v2RadioPlayer.addEventListener("play", () => {
     v2PlayButton.textContent = "❚❚";
   });
 
-  v2RadioPlayer.addEventListener("pause", function () {
+  v2RadioPlayer.addEventListener("pause", () => {
     v2PlayButton.textContent = "▶";
   });
-
 }
