@@ -14,14 +14,14 @@
   const player=document.querySelector('.v2-player'),audio=document.getElementById('v2-audio'),playButton=document.getElementById('v2-play'),nowLabel=player?.querySelector('.v2-now-label'),artist=document.getElementById('v2-artist');
   if(player&&audio&&playButton&&nowLabel&&artist){
     nowLabel.style.display='none';
-    const live=document.createElement('div');live.className='radio-live-row';live.innerHTML='<span class="radio-live-badge"><span class="radio-live-dot"></span><span>EN DIRECT</span></span><span class="radio-vu-mini paused" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>';
+    const live=document.createElement('div');live.className='radio-live-row';live.innerHTML='<span class="radio-live-badge"><span class="radio-live-dot"></span><span class="radio-live-text">EN DIRECT</span></span><span class="radio-vu-mini paused" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>';
     player.insertBefore(live,player.firstChild);
-    const genre=document.createElement('div');genre.className='radio-genre';genre.textContent="TECHNO • EURODANCE • HOUSE • 90’S → AUJOURD’HUI";artist.insertAdjacentElement('afterend',genre);
+    const genre=document.createElement('div');genre.className='radio-genre';artist.insertAdjacentElement('afterend',genre);
     const wave=document.createElement('div');wave.className='radio-wave paused';wave.setAttribute('aria-hidden','true');wave.innerHTML='<i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>';
     genre.insertAdjacentElement('afterend',wave);
     playButton.classList.add('radio-button');
-    const setRadioState=()=>{const playing=!audio.paused;playButton.textContent=playing?'❚❚  EN ÉCOUTE':'▶  ÉCOUTER LE DIRECT';playButton.classList.toggle('playing',playing);wave.classList.toggle('paused',!playing);live.querySelector('.radio-vu-mini').classList.toggle('paused',!playing)};
-    audio.addEventListener('playing',setRadioState);audio.addEventListener('pause',setRadioState);audio.addEventListener('ended',setRadioState);setRadioState();
+    const setRadioState=()=>{const playing=!audio.paused,isEn=(localStorage.getItem('technorizon-lang')||'fr')==='en';playButton.textContent=playing?(isEn?'❚❚  NOW PLAYING':'❚❚  EN ÉCOUTE'):(isEn?'▶  LISTEN LIVE':'▶  ÉCOUTER LE DIRECT');live.querySelector('.radio-live-text').textContent=isEn?'LIVE':'EN DIRECT';genre.textContent=isEn?'TECHNO • EURODANCE • HOUSE • 90’S → TODAY':"TECHNO • EURODANCE • HOUSE • 90’S → AUJOURD’HUI";playButton.classList.toggle('playing',playing);wave.classList.toggle('paused',!playing);live.querySelector('.radio-vu-mini').classList.toggle('paused',!playing)};
+    audio.addEventListener('playing',setRadioState);audio.addEventListener('pause',setRadioState);audio.addEventListener('ended',setRadioState);document.getElementById('lang-fr')?.addEventListener('click',()=>setTimeout(setRadioState,0));document.getElementById('lang-en')?.addEventListener('click',()=>setTimeout(setRadioState,0));setRadioState();
   }
 
   const fab=document.createElement('button');fab.className='jaya-fab';fab.type='button';fab.setAttribute('aria-label','Ouvrir Jaya');fab.innerHTML=`<img src="${avatar}" alt="Jaya">`;
