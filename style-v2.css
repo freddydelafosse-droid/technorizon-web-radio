@@ -678,45 +678,49 @@ body {
 }
 
 /* =========================================================
-   V2 — AJUSTEMENT LOGO
-   - TECHNORIZON centré seul
-   - espace N / Terre augmenté
-   - .FR réduit et exclu du centrage
+   V2 — CENTRAGE CORRIGÉ DU LOGO TECHNORIZON
    ========================================================= */
 
-/* Le bloc TECHNORIZON est centré indépendamment du .FR */
+/* TECHNORIZON centré par son conteneur naturel */
 .v2-brand-logo {
   position: relative !important;
   display: inline-flex !important;
   align-items: center !important;
-  justify-content: center !important;
 
-  left: 50% !important;
-  transform: translateX(-50%) !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
 
   width: max-content !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+
   overflow: visible !important;
 }
 
-/* Terre = O : augmente l'espace après TECHN */
+/* Terre = O
+   espace supplémentaire entre TECHN et la Terre */
 .v2-brand-o {
+  position: relative !important;
+
   width: 0.92em !important;
   height: 0.92em !important;
 
-  margin-left: 0.10em !important;
+  margin-left: 0.12em !important;
   margin-right: 0.02em !important;
 
   transform: translateY(0.01em) !important;
 }
 
-/* .FR : beaucoup plus petit et totalement hors du centrage */
+/* .FR totalement sorti du calcul de largeur :
+   il ne participe donc PAS au centrage de TECHNORIZON */
 .v2-brand-fr {
   position: absolute !important;
 
-  left: calc(100% + 0.10em) !important;
-  bottom: 0.05em !important;
+  left: calc(100% + 0.08em) !important;
+  bottom: 0.03em !important;
 
-  font-size: 0.32em !important;
+  font-size: 0.30em !important;
   line-height: 1 !important;
 
   color: #ffffff !important;
