@@ -259,6 +259,18 @@ setInterval(nextNews, 30000);
 const songTitle = data?.now_playing?.song?.title || "";
 const title = artist && songTitle ? `${artist} - ${songTitle}` : (songTitle || artist);
 
+          // ===== LECTEUR V2 : TITRE + ARTISTE =====
+const v2Track = document.getElementById("v2-track");
+const v2Artist = document.getElementById("v2-artist");
+
+if (v2Track) {
+  v2Track.textContent = songTitle || "Technorizon.fr";
+}
+
+if (v2Artist) {
+  v2Artist.textContent = artist || "La musique sans frontières";
+}
+
             if (title && title.trim()) {
                 titleEl.textContent = title.trim();
             }
@@ -1274,4 +1286,41 @@ if (technobotForm && technobotInput && technobotMessages) {
       addTechnoBotMessage(reply, "bot");
     }, 400);
   });
+}
+
+/* ===== LECTEUR TECHNORIZON V2 ===== */
+
+const v2PlayButton = document.getElementById("v2-play");
+const v2RadioPlayer = document.getElementById("radioPlayer");
+
+if (v2PlayButton && v2RadioPlayer) {
+
+  v2PlayButton.addEventListener("click", async function () {
+
+    try {
+
+      if (v2RadioPlayer.paused) {
+        await v2RadioPlayer.play();
+        v2PlayButton.textContent = "❚❚";
+        v2PlayButton.setAttribute("aria-label", "Mettre Technorizon en pause");
+      } else {
+        v2RadioPlayer.pause();
+        v2PlayButton.textContent = "▶";
+        v2PlayButton.setAttribute("aria-label", "Écouter Technorizon");
+      }
+
+    } catch (error) {
+      console.error("Lecture Technorizon V2 impossible :", error);
+    }
+
+  });
+
+  v2RadioPlayer.addEventListener("play", function () {
+    v2PlayButton.textContent = "❚❚";
+  });
+
+  v2RadioPlayer.addEventListener("pause", function () {
+    v2PlayButton.textContent = "▶";
+  });
+
 }
