@@ -377,6 +377,36 @@ async function updateV2Meteo() {
 updateV2Meteo();
 setInterval(updateV2Meteo, 600000);
 
+/* ===== TECHNOROSCOPE V2 ===== */
+
+const v2Technoroscope = document.getElementById("v2-technoroscope");
+
+const technoHoroscopes = [
+  "Bélier ♈ • Aujourd’hui, ton énergie est en mode BPM élevé. Canalise-la vers ce qui compte vraiment.",
+  "Taureau ♉ • Garde ton tempo. Inutile d’accélérer : les meilleures choses arrivent au bon rythme.",
+  "Gémeaux ♊ • Une rencontre ou un message pourrait changer la tonalité de ta journée. Reste connecté.",
+  "Cancer ♋ • Écoute ton intuition : aujourd’hui, elle connaît la bonne fréquence.",
+  "Lion ♌ • Les projecteurs sont sur toi. Assume ton énergie et fais entendre ta différence.",
+  "Vierge ♍ • Quelques réglages suffiront à remettre ta journée parfaitement dans le tempo.",
+  "Balance ♎ • Cherche l’harmonie, mais n’oublie pas d’ajouter ta propre touche au mix.",
+  "Scorpion ♏ • Intensité maximale aujourd’hui. Utilise cette énergie pour avancer, pas pour saturer.",
+  "Sagittaire ♐ • Besoin d’air et de nouveauté ? Change de playlist, de route ou simplement de perspective.",
+  "Capricorne ♑ • Ton sérieux paie. Continue d’avancer piste après piste, le résultat approche.",
+  "Verseau ♒ • Une idée originale pourrait faire toute la différence. Aujourd’hui, ose sortir du format.",
+  "Poissons ♓ • Laisse parler ta sensibilité. Certaines émotions méritent simplement d’être écoutées."
+];
+
+function updateV2Technoroscope() {
+  if (!v2Technoroscope) return;
+
+  const day = new Date().getDate();
+  const index = day % technoHoroscopes.length;
+
+  v2Technoroscope.textContent = technoHoroscopes[index];
+}
+
+updateV2Technoroscope();
+
   </script>
 
 </body>
