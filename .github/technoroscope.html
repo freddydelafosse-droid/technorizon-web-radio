@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Technoroscope | Technorizon.fr</title>
+
+  <link rel="stylesheet" href="style-v2.css">
+</head>
+
+<body>
+
+  <div class="v2-page technoroscope-page">
+
+    <main class="technoroscope-main">
+
+      <a href="index.html" class="technoroscope-back">
+        ← Retour à Technorizon
+      </a>
+
+      <section class="technoroscope-panel">
+
+        <h1>TECHNOROSCOPE</h1>
+
+        <p class="technoroscope-intro">
+          Découvrez votre horoscope du jour version Technorizon.
+        </p>
+
+        <div class="technoroscope-signs">
+
+          <button data-sign="belier">♈ Bélier</button>
+          <button data-sign="taureau">♉ Taureau</button>
+          <button data-sign="gemeaux">♊ Gémeaux</button>
+          <button data-sign="cancer">♋ Cancer</button>
+          <button data-sign="lion">♌ Lion</button>
+          <button data-sign="vierge">♍ Vierge</button>
+          <button data-sign="balance">♎ Balance</button>
+          <button data-sign="scorpion">♏ Scorpion</button>
+          <button data-sign="sagittaire">♐ Sagittaire</button>
+          <button data-sign="capricorne">♑ Capricorne</button>
+          <button data-sign="verseau">♒ Verseau</button>
+          <button data-sign="poissons">♓ Poissons</button>
+
+        </div>
+
+        <div id="technoroscope-result" class="technoroscope-result">
+          Sélectionnez votre signe pour découvrir votre Technoroscope du jour.
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  /* ===== PAGE TECHNOROSCOPE V2 ===== */
+
+.technoroscope-page {
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.technoroscope-main {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+}
+
+.technoroscope-back {
+  display: inline-block;
+  margin-bottom: 25px;
+  color: #dce8f5;
+  text-decoration: none;
+  font-size: 15px;
+  transition: 0.2s ease;
+}
+
+.technoroscope-back:hover {
+  color: #00eaff;
+}
+
+.technoroscope-panel {
+  padding: 45px;
+  border: 1px solid rgba(0, 234, 255, 0.35);
+  border-radius: 24px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 20, 35, 0.94),
+      rgba(20, 5, 40, 0.92)
+    );
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 40px rgba(0, 234, 255, 0.08),
+    0 0 50px rgba(255, 0, 200, 0.06);
+  text-align: center;
+}
+
+.technoroscope-panel h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(32px, 5vw, 52px);
+  letter-spacing: 7px;
+}
+
+.technoroscope-intro {
+  margin: 15px 0 35px;
+  color: #aebdcb;
+  font-size: 18px;
+}
+
+.technoroscope-signs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.technoroscope-signs button {
+  padding: 17px 12px;
+  border: 1px solid rgba(0, 234, 255, 0.35);
+  border-radius: 14px;
+  background: rgba(2, 14, 28, 0.78);
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.technoroscope-signs button:hover {
+  transform: translateY(-2px);
+  border-color: #00eaff;
+  box-shadow:
+    0 0 16px rgba(0, 234, 255, 0.22),
+    0 0 20px rgba(255, 0, 200, 0.12);
+}
+
+.technoroscope-result {
+  margin-top: 35px;
+  padding: 28px;
+  min-height: 80px;
+  border-top: 1px solid rgba(0, 234, 255, 0.25);
+  color: #dce8f5;
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+  .technoroscope-page {
+    padding: 20px 14px;
+  }
+
+  .technoroscope-panel {
+    padding: 28px 18px;
+  }
+
+  .technoroscope-panel h1 {
+    letter-spacing: 3px;
+  }
+
+  .technoroscope-signs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .technoroscope-signs button {
+    padding: 15px 8px;
+    font-size: 15px;
+  }
+
+  .technoroscope-result {
+    padding: 22px 5px;
+    font-size: 17px;
+  }
+}
+
+</body>
+</html>
