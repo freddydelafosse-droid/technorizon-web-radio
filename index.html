@@ -1,29 +1,38 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Technorizon.fr — La musique sans frontières</title>
-
   <meta name="description" content="Technorizon.fr — Techno, Eurodance, House, Dance Pop et Electro. La musique sans frontières.">
-
   <link rel="icon" type="image/jpeg" href="Logo-Officiel-Technorizon.jpg">
   <link rel="apple-touch-icon" href="Logo-Officiel-Technorizon.jpg">
   <link rel="canonical" href="https://www.technorizon.fr/">
-
   <meta property="og:title" content="Technorizon.fr">
   <meta property="og:description" content="La musique sans frontières">
   <meta property="og:url" content="https://www.technorizon.fr/">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://www.technorizon.fr/Logo-Officiel-Technorizon.jpg">
+  <link rel="stylesheet" href="style-v2.css?v=3">
 
-  <link rel="stylesheet" href="style-v2.css?v=2">
+  <style>
+    /* Décor fonctionnel des trois onglets — complément V2, sans modifier la structure validée */
+    .v2-card { position:relative; overflow:hidden; isolation:isolate; }
+    .v2-card::before { content:""; position:absolute; inset:0; z-index:-2; pointer-events:none; background:radial-gradient(circle at 50% 115%,rgba(0,234,255,.16),transparent 46%),linear-gradient(135deg,rgba(0,234,255,.035),transparent 45%,rgba(255,31,157,.045)); }
+    .v2-card::after { content:""; position:absolute; width:180px; height:180px; right:-90px; top:-100px; z-index:-1; border:1px solid rgba(0,234,255,.12); border-radius:50%; box-shadow:0 0 40px rgba(0,234,255,.05),inset 0 0 35px rgba(255,31,157,.035); pointer-events:none; }
+    .v2-card-icon { width:46px; height:46px; display:grid; place-items:center; margin:0 auto 13px; border:1px solid rgba(0,234,255,.34); border-radius:50%; background:rgba(2,12,26,.62); font-size:22px; box-shadow:0 0 18px rgba(0,234,255,.12),0 0 24px rgba(255,31,157,.06); }
+    .v2-card-content { min-height:82px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; line-height:1.45; }
+    .v2-live-label { color:#8293a4; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; }
+    .v2-live-main { color:#f5fbff; font-size:16px; font-weight:700; }
+    .v2-live-sub { color:#a9bac9; font-size:13px; }
+    .v2-technoroscope-link { display:inline-block; margin-top:5px; padding:10px 15px; color:#f5fbff; text-decoration:none; font-size:13px; font-weight:700; letter-spacing:.6px; border:1px solid rgba(0,234,255,.38); border-radius:999px; background:linear-gradient(90deg,rgba(0,234,255,.12),rgba(255,31,157,.10)); box-shadow:0 0 16px rgba(0,234,255,.08); transition:.2s ease; }
+    .v2-technoroscope-link:hover { transform:translateY(-1px); border-color:#00eaff; box-shadow:0 0 18px rgba(0,234,255,.2),0 0 20px rgba(255,31,157,.08); }
+    .v2-status-dot { display:inline-block; width:7px; height:7px; margin-right:6px; border-radius:50%; background:#00eaff; box-shadow:0 0 8px #00eaff; vertical-align:1px; }
+    .v2-dedicaces-track { will-change:transform; }
+    @media (max-width:760px) { .v2-card-icon{width:42px;height:42px;font-size:20px}.v2-card-content{min-height:68px}.v2-live-main{font-size:15px} }
+  </style>
 </head>
-
 <body>
-
   <div class="v2-page">
     <div class="v2-background"></div>
 
@@ -34,7 +43,6 @@
             <span class="v2-brand-techno">TECHN</span><span class="v2-brand-o">O</span><span class="v2-brand-rizon">RIZON</span><span class="v2-brand-fr">.FR</span>
           </div>
         </div>
-
         <div class="v2-slogan">La musique sans frontières</div>
       </div>
     </header>
@@ -42,29 +50,37 @@
     <main class="v2-main">
       <div class="v2-container">
         <section class="v2-player v2-glass">
-          <div class="v2-now-label">En ce moment sur Technorizon</div>
-
+          <div class="v2-now-label"><span class="v2-status-dot"></span>En ce moment sur Technorizon</div>
           <h1 id="v2-track" class="v2-track">Technorizon.fr</h1>
           <div id="v2-artist" class="v2-artist">La musique sans frontières</div>
-
           <button id="v2-play" class="v2-play-button" type="button" aria-label="Écouter Technorizon">▶</button>
         </section>
 
         <section class="v2-grid">
           <article class="v2-card v2-glass">
+            <div class="v2-card-icon" aria-hidden="true">◉</div>
             <h2 class="v2-card-title">Infos</h2>
-            <div id="v2-infos">L'actualité essentielle à retrouver sur Technorizon.fr</div>
+            <div id="v2-infos" class="v2-card-content" aria-live="polite">
+              <span class="v2-live-label">Flash actualité</span>
+              <span class="v2-live-main">Chargement des informations…</span>
+            </div>
           </article>
 
           <article class="v2-card v2-glass">
+            <div class="v2-card-icon" aria-hidden="true">☁</div>
             <h2 class="v2-card-title">Météo</h2>
-            <div id="v2-meteo">Votre météo sur Technorizon.fr</div>
+            <div id="v2-meteo" class="v2-card-content" aria-live="polite">
+              <span class="v2-live-label">Yerville</span>
+              <span class="v2-live-main">Chargement de la météo…</span>
+            </div>
           </article>
 
           <article class="v2-card v2-glass">
+            <div class="v2-card-icon" aria-hidden="true">✦</div>
             <h2 class="v2-card-title">Technoroscope</h2>
-            <div id="v2-technoroscope">
-              Découvrez votre Horoscope du jour.<br><br>
+            <div id="v2-technoroscope" class="v2-card-content">
+              <span class="v2-live-label">Votre horoscope du jour</span>
+              <span class="v2-live-main">12 signes • version Technorizon</span>
               <a href="technoroscope.html" class="v2-technoroscope-link">Découvrir mon Technoroscope</a>
             </div>
           </article>
@@ -72,13 +88,8 @@
       </div>
 
       <section class="v2-dedicaces" aria-label="Vos dédicaces">
-        <div class="v2-dedicaces-track">
-          <strong>VOS DÉDICACES</strong>
-          &nbsp;&nbsp;•&nbsp;&nbsp;
-          Bienvenue sur la nouvelle expérience Technorizon.fr
-          &nbsp;&nbsp;•&nbsp;&nbsp;
-          La musique sans frontières
-          &nbsp;&nbsp;•&nbsp;&nbsp;
+        <div id="v2-dedicaces-track" class="v2-dedicaces-track">
+          <strong>VOS DÉDICACES</strong>&nbsp;&nbsp;•&nbsp;&nbsp;Bienvenue sur la nouvelle expérience Technorizon.fr&nbsp;&nbsp;•&nbsp;&nbsp;La musique sans frontières&nbsp;&nbsp;•&nbsp;&nbsp;
         </div>
       </section>
     </main>
@@ -100,119 +111,102 @@
   <script>
     const audio = document.getElementById("v2-audio");
     const playButton = document.getElementById("v2-play");
-
-    if (audio && playButton) {
-      playButton.addEventListener("click", async () => {
-        if (audio.paused) {
-          try {
-            await audio.play();
-            playButton.textContent = "❚❚";
-            playButton.setAttribute("aria-label", "Mettre Technorizon en pause");
-          } catch (error) {
-            console.error("Lecture du flux Technorizon impossible :", error);
-            playButton.textContent = "▶";
-            playButton.setAttribute("aria-label", "Écouter Technorizon");
-          }
-        } else {
-          audio.pause();
-          playButton.textContent = "▶";
-          playButton.setAttribute("aria-label", "Écouter Technorizon");
-        }
-      });
-
-      audio.addEventListener("ended", () => {
-        playButton.textContent = "▶";
-        playButton.setAttribute("aria-label", "Écouter Technorizon");
-      });
-    }
-
     const v2Track = document.getElementById("v2-track");
     const v2Artist = document.getElementById("v2-artist");
+    const v2Infos = document.getElementById("v2-infos");
+    const v2Meteo = document.getElementById("v2-meteo");
+    const v2Dedicaces = document.getElementById("v2-dedicaces-track");
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+    }
+
+    if (audio && playButton) {
+      const setPlayState = playing => {
+        playButton.textContent = playing ? "❚❚" : "▶";
+        playButton.setAttribute("aria-label", playing ? "Mettre Technorizon en pause" : "Écouter Technorizon");
+      };
+      playButton.addEventListener("click", async () => {
+        if (audio.paused) {
+          try { await audio.play(); setPlayState(true); }
+          catch (error) { console.error("Lecture Technorizon :", error); setPlayState(false); }
+        } else { audio.pause(); setPlayState(false); }
+      });
+      audio.addEventListener("pause", () => setPlayState(false));
+      audio.addEventListener("playing", () => setPlayState(true));
+      audio.addEventListener("ended", () => setPlayState(false));
+    }
 
     async function updateV2NowPlaying() {
       if (!v2Track || !v2Artist) return;
-
       try {
-        const response = await fetch("/api/nowplaying/technorizon", { cache: "no-store" });
-        if (!response.ok) throw new Error("API AzuraCast inaccessible");
-
+        const response = await fetch("/api/nowplaying/technorizon", { cache:"no-store" });
+        if (!response.ok) throw new Error(`NowPlaying ${response.status}`);
         const data = await response.json();
-        const artist = data?.now_playing?.song?.artist || "";
-        const title = data?.now_playing?.song?.title || "";
-
-        if (title) v2Track.textContent = title;
-        if (artist) v2Artist.textContent = artist;
-      } catch (error) {
-        console.error("Titre V2 :", error);
-      }
+        const song = data?.now_playing?.song || {};
+        v2Track.textContent = song.title || "Technorizon.fr";
+        v2Artist.textContent = song.artist || "La musique sans frontières";
+      } catch (error) { console.error("Titre V2 :", error); }
     }
-
-    updateV2NowPlaying();
-    setInterval(updateV2NowPlaying, 10000);
-
-    const v2Infos = document.getElementById("v2-infos");
 
     async function updateV2Infos() {
       if (!v2Infos) return;
-
       try {
-        const response = await fetch("/api/news", { cache: "no-store" });
-        if (!response.ok) throw new Error("Infos indisponibles");
-
+        const response = await fetch("/api/news", { cache:"no-store" });
+        if (!response.ok) throw new Error(`Infos ${response.status}`);
         const data = await response.json();
-        const items = data?.items || [];
-
-        if (items.length > 0) {
-          const item = items[Math.floor(Date.now() / 15000) % items.length];
-          v2Infos.textContent = item.title;
-        }
+        const items = Array.isArray(data?.items) ? data.items.filter(item => item?.title) : [];
+        if (!items.length) throw new Error("Aucun titre disponible");
+        const item = items[Math.floor(Date.now() / 15000) % items.length];
+        v2Infos.innerHTML = `<span class="v2-live-label"><span class="v2-status-dot"></span>Flash actualité</span><span class="v2-live-main">${escapeHtml(item.title)}</span>`;
       } catch (error) {
         console.error("Infos V2 :", error);
+        v2Infos.innerHTML = `<span class="v2-live-label">Infos</span><span class="v2-live-main">Actualité momentanément indisponible</span>`;
       }
     }
-
-    updateV2Infos();
-    setInterval(updateV2Infos, 15000);
-
-    const v2Meteo = document.getElementById("v2-meteo");
 
     async function updateV2Meteo() {
       if (!v2Meteo) return;
-
       try {
-        const response = await fetch(
-          "https://api.open-meteo.com/v1/forecast?latitude=49.6684&longitude=0.8955&current=temperature_2m,weather_code&timezone=Europe%2FParis",
-          { cache: "no-store" }
-        );
-
-        if (!response.ok) throw new Error("Météo indisponible");
-
+        const url = "https://api.open-meteo.com/v1/forecast?latitude=49.6684&longitude=0.8955&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=Europe%2FParis";
+        const response = await fetch(url, { cache:"no-store" });
+        if (!response.ok) throw new Error(`Météo ${response.status}`);
         const data = await response.json();
         const current = data?.current;
-        if (!current || typeof current.temperature_2m !== "number") {
-          throw new Error("Données météo invalides");
-        }
-
-        const conditions = {
-          0: "☀️ ciel dégagé", 1: "🌤️ peu nuageux", 2: "⛅ partiellement nuageux",
-          3: "☁️ couvert", 45: "🌫️ brouillard", 48: "🌫️ brouillard givrant",
-          51: "🌦️ bruine légère", 53: "🌦️ bruine", 55: "🌧️ forte bruine",
-          61: "🌧️ pluie légère", 63: "🌧️ pluie", 65: "🌧️ forte pluie",
-          71: "🌨️ neige légère", 73: "🌨️ neige", 75: "❄️ forte neige",
-          80: "🌦️ averses légères", 81: "🌧️ averses", 82: "⛈️ fortes averses",
-          95: "⛈️ orage", 96: "⛈️ orage avec grêle", 99: "⛈️ fort orage avec grêle"
-        };
-
-        const condition = conditions[current.weather_code] || "conditions variables";
-        v2Meteo.textContent = `Yerville • ${Math.round(current.temperature_2m)}°C • ${condition}`;
+        if (!current || typeof current.temperature_2m !== "number") throw new Error("Données météo invalides");
+        const conditions = {0:"☀️ Ciel dégagé",1:"🌤️ Peu nuageux",2:"⛅ Partiellement nuageux",3:"☁️ Couvert",45:"🌫️ Brouillard",48:"🌫️ Brouillard givrant",51:"🌦️ Bruine légère",53:"🌦️ Bruine",55:"🌧️ Forte bruine",61:"🌧️ Pluie légère",63:"🌧️ Pluie",65:"🌧️ Forte pluie",71:"🌨️ Neige légère",73:"🌨️ Neige",75:"❄️ Forte neige",80:"🌦️ Averses légères",81:"🌧️ Averses",82:"⛈️ Fortes averses",95:"⛈️ Orage",96:"⛈️ Orage avec grêle",99:"⛈️ Fort orage avec grêle"};
+        const condition = conditions[current.weather_code] || "🌐 Conditions variables";
+        const temp = Math.round(current.temperature_2m);
+        const felt = Number.isFinite(current.apparent_temperature) ? Math.round(current.apparent_temperature) : temp;
+        const wind = Number.isFinite(current.wind_speed_10m) ? Math.round(current.wind_speed_10m) : null;
+        v2Meteo.innerHTML = `<span class="v2-live-label"><span class="v2-status-dot"></span>Yerville • maintenant</span><span class="v2-live-main">${temp}°C • ${condition}</span><span class="v2-live-sub">Ressenti ${felt}°C${wind !== null ? ` • Vent ${wind} km/h` : ""}</span>`;
       } catch (error) {
         console.error("Météo V2 :", error);
+        v2Meteo.innerHTML = `<span class="v2-live-label">Météo</span><span class="v2-live-main">Données momentanément indisponibles</span>`;
       }
     }
 
-    updateV2Meteo();
-    setInterval(updateV2Meteo, 600000);
-  </script>
+    async function updateV2Dedicaces() {
+      if (!v2Dedicaces) return;
+      try {
+        const response = await fetch("/api/dedicaces", { cache:"no-store" });
+        if (!response.ok) throw new Error(`Dédicaces ${response.status}`);
+        const data = await response.json();
+        const items = Array.isArray(data?.dedicaces) ? data.dedicaces.filter(Boolean) : [];
+        if (!items.length) return;
+        const safe = items.slice(0, 12).map(escapeHtml).join("&nbsp;&nbsp;•&nbsp;&nbsp;");
+        v2Dedicaces.innerHTML = `<strong>VOS DÉDICACES</strong>&nbsp;&nbsp;•&nbsp;&nbsp;${safe}&nbsp;&nbsp;•&nbsp;&nbsp;`;
+      } catch (error) { console.error("Dédicaces V2 :", error); }
+    }
 
+    updateV2NowPlaying();
+    updateV2Infos();
+    updateV2Meteo();
+    updateV2Dedicaces();
+    setInterval(updateV2NowPlaying, 10000);
+    setInterval(updateV2Infos, 15000);
+    setInterval(updateV2Meteo, 600000);
+    setInterval(updateV2Dedicaces, 60000);
+  </script>
 </body>
 </html>
