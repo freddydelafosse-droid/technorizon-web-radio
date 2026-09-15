@@ -734,5 +734,5 @@ body {
 /* V2 — Micro-ajustement centrage TECHNORIZON */
 
 .v2-brand-logo {
-  transform: translateX(-5.5%) !important;
+  transform: translateX(-5.0%) !important;
 }
