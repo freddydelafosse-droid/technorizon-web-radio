@@ -1,35 +1,24 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Technoroscope | Technorizon.fr</title>
-
-  <link rel="stylesheet" href="style-v2.css">
+  <link rel="icon" type="image/jpeg" href="Logo-Officiel-Technorizon.jpg">
+  <link rel="stylesheet" href="style-v2.css?v=3">
 </head>
-
 <body>
-
   <div class="v2-page technoroscope-page">
+    <div class="v2-background"></div>
 
     <main class="technoroscope-main">
-
-      <a href="index.html" class="technoroscope-back">
-        ← Retour à Technorizon
-      </a>
+      <a href="index.html" class="technoroscope-back">← Retour à Technorizon</a>
 
       <section class="technoroscope-panel">
-
         <h1>TECHNOROSCOPE</h1>
-
-        <p class="technoroscope-intro">
-          Découvrez votre horoscope du jour version Technorizon.
-        </p>
+        <p class="technoroscope-intro">Découvrez votre horoscope du jour version Technorizon.</p>
 
         <div class="technoroscope-signs">
-
           <button data-sign="belier">♈ Bélier</button>
           <button data-sign="taureau">♉ Taureau</button>
           <button data-sign="gemeaux">♊ Gémeaux</button>
@@ -42,25 +31,39 @@
           <button data-sign="capricorne">♑ Capricorne</button>
           <button data-sign="verseau">♒ Verseau</button>
           <button data-sign="poissons">♓ Poissons</button>
-
         </div>
 
         <div id="technoroscope-result" class="technoroscope-result">
           Sélectionnez votre signe pour découvrir votre Technoroscope du jour.
         </div>
-
       </section>
-
     </main>
-
   </div>
 
 <style>
-/* ===== PAGE TECHNOROSCOPE V2 ===== */
-
+/* Décor V2 : reprend exactement l'image de fond officielle du site */
 .technoroscope-page {
   min-height: 100vh;
   padding: 40px 20px;
+  position: relative;
+  isolation: isolate;
+}
+
+.technoroscope-page .v2-background {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image: url("Image principale V2 Technorizon.png");
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.technoroscope-page .v2-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,3,10,.08) 0%, rgba(0,3,10,.25) 48%, rgba(0,3,10,.78) 100%);
 }
 
 .technoroscope-main {
@@ -75,182 +78,103 @@
   text-decoration: none;
   font-size: 15px;
   transition: 0.2s ease;
+  text-shadow: 0 0 10px rgba(0,234,255,.35);
 }
 
-.technoroscope-back:hover {
-  color: #00eaff;
-}
+.technoroscope-back:hover { color: #00eaff; }
 
 .technoroscope-panel {
   padding: 45px;
   border: 1px solid rgba(0, 234, 255, 0.35);
   border-radius: 24px;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(0, 20, 35, 0.94),
-      rgba(20, 5, 40, 0.92)
-    );
+  background: linear-gradient(135deg, rgba(0,20,35,.82), rgba(20,5,40,.80));
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  box-shadow:
-    0 0 40px rgba(0, 234, 255, 0.08),
-    0 0 50px rgba(255, 0, 200, 0.06);
+  box-shadow: 0 0 40px rgba(0,234,255,.08), 0 0 50px rgba(255,0,200,.06);
   text-align: center;
 }
 
 .technoroscope-panel h1 {
   margin: 0;
-  color: #ffffff;
-  font-size: clamp(32px, 5vw, 52px);
+  color: #fff;
+  font-size: clamp(32px,5vw,52px);
   letter-spacing: 7px;
+  text-shadow: 0 0 18px rgba(0,234,255,.28), 0 0 26px rgba(255,31,157,.16);
 }
 
-.technoroscope-intro {
-  margin: 15px 0 35px;
-  color: #aebdcb;
-  font-size: 18px;
-}
-
-.technoroscope-signs {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-}
+.technoroscope-intro { margin: 15px 0 35px; color: #aebdcb; font-size: 18px; }
+.technoroscope-signs { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
 
 .technoroscope-signs button {
   padding: 17px 12px;
-  border: 1px solid rgba(0, 234, 255, 0.35);
+  border: 1px solid rgba(0,234,255,.35);
   border-radius: 14px;
-  background: rgba(2, 14, 28, 0.78);
-  color: #ffffff;
+  background: rgba(2,14,28,.78);
+  color: #fff;
   font-size: 16px;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
-.technoroscope-signs button:hover {
+.technoroscope-signs button:hover,
+.technoroscope-signs button.active {
   transform: translateY(-2px);
   border-color: #00eaff;
-  box-shadow:
-    0 0 16px rgba(0, 234, 255, 0.22),
-    0 0 20px rgba(255, 0, 200, 0.12);
+  background: linear-gradient(135deg, rgba(0,234,255,.14), rgba(255,31,157,.12));
+  box-shadow: 0 0 16px rgba(0,234,255,.22), 0 0 20px rgba(255,0,200,.12);
 }
 
 .technoroscope-result {
   margin-top: 35px;
   padding: 28px;
   min-height: 80px;
-  border-top: 1px solid rgba(0, 234, 255, 0.25);
+  border-top: 1px solid rgba(0,234,255,.25);
   color: #dce8f5;
   font-size: 19px;
   line-height: 1.6;
 }
 
 @media (max-width: 800px) {
-  .technoroscope-page {
-    padding: 20px 14px;
+  .technoroscope-page { padding: 20px 14px; }
+  .technoroscope-page .v2-background {
+    background-image: url("Fond-Smartphones.png");
+    background-position: center top;
   }
-
-  .technoroscope-panel {
-    padding: 28px 18px;
-  }
-
-  .technoroscope-panel h1 {
-    letter-spacing: 3px;
-  }
-
-  .technoroscope-signs {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .technoroscope-signs button {
-    padding: 15px 8px;
-    font-size: 15px;
-  }
-
-  .technoroscope-result {
-    padding: 22px 5px;
-    font-size: 17px;
-  }
+  .technoroscope-panel { padding: 28px 18px; }
+  .technoroscope-panel h1 { letter-spacing: 3px; }
+  .technoroscope-signs { grid-template-columns: repeat(2,1fr); }
+  .technoroscope-signs button { padding: 15px 8px; font-size: 15px; }
+  .technoroscope-result { padding: 22px 5px; font-size: 17px; }
 }
 </style>
 
 <script>
-/* ===== MOTEUR TECHNOROSCOPE ===== */
-
 const technoroscopeMessages = {
-  belier: {
-    name: "Bélier ♈",
-    text: "Votre énergie est en mode BPM élevé. Profitez de cet élan pour avancer sur ce qui vous tient vraiment à cœur."
-  },
-  taureau: {
-    name: "Taureau ♉",
-    text: "Gardez votre tempo. Inutile d’accélérer aujourd’hui : les meilleures choses arrivent au bon rythme."
-  },
-  gemeaux: {
-    name: "Gémeaux ♊",
-    text: "Une rencontre ou un message pourrait changer la tonalité de votre journée. Restez attentif aux signaux."
-  },
-  cancer: {
-    name: "Cancer ♋",
-    text: "Écoutez votre intuition : aujourd’hui, elle semble parfaitement calée sur la bonne fréquence."
-  },
-  lion: {
-    name: "Lion ♌",
-    text: "Les projecteurs sont sur vous. Assumez votre énergie et faites entendre votre différence."
-  },
-  vierge: {
-    name: "Vierge ♍",
-    text: "Quelques réglages suffiront à remettre votre journée dans le tempo. Ne cherchez pas à tout contrôler."
-  },
-  balance: {
-    name: "Balance ♎",
-    text: "Cherchez l’harmonie sans oublier votre propre mélodie. Un compromis pourrait débloquer une situation."
-  },
-  scorpion: {
-    name: "Scorpion ♏",
-    text: "L’intensité monte aujourd’hui. Utilisez cette énergie pour avancer sans pousser le volume trop loin."
-  },
-  sagittaire: {
-    name: "Sagittaire ♐",
-    text: "Besoin d’air et de nouveauté ? Changez de route, de playlist ou simplement de perspective."
-  },
-  capricorne: {
-    name: "Capricorne ♑",
-    text: "Votre constance commence à payer. Continuez d’avancer piste après piste : le résultat se rapproche."
-  },
-  verseau: {
-    name: "Verseau ♒",
-    text: "Une idée originale pourrait faire toute la différence. Aujourd’hui, osez sortir du format."
-  },
-  poissons: {
-    name: "Poissons ♓",
-    text: "Laissez parler votre sensibilité. Certaines émotions méritent simplement d’être écoutées."
-  }
+  belier:{name:"Bélier ♈",text:"Votre énergie est en mode BPM élevé. Profitez de cet élan pour avancer sur ce qui vous tient vraiment à cœur."},
+  taureau:{name:"Taureau ♉",text:"Gardez votre tempo. Inutile d’accélérer aujourd’hui : les meilleures choses arrivent au bon rythme."},
+  gemeaux:{name:"Gémeaux ♊",text:"Une rencontre ou un message pourrait changer la tonalité de votre journée. Restez attentif aux signaux."},
+  cancer:{name:"Cancer ♋",text:"Écoutez votre intuition : aujourd’hui, elle semble parfaitement calée sur la bonne fréquence."},
+  lion:{name:"Lion ♌",text:"Les projecteurs sont sur vous. Assumez votre énergie et faites entendre votre différence."},
+  vierge:{name:"Vierge ♍",text:"Quelques réglages suffiront à remettre votre journée dans le tempo. Ne cherchez pas à tout contrôler."},
+  balance:{name:"Balance ♎",text:"Cherchez l’harmonie sans oublier votre propre mélodie. Un compromis pourrait débloquer une situation."},
+  scorpion:{name:"Scorpion ♏",text:"L’intensité monte aujourd’hui. Utilisez cette énergie pour avancer sans pousser le volume trop loin."},
+  sagittaire:{name:"Sagittaire ♐",text:"Besoin d’air et de nouveauté ? Changez de route, de playlist ou simplement de perspective."},
+  capricorne:{name:"Capricorne ♑",text:"Votre constance commence à payer. Continuez d’avancer piste après piste : le résultat se rapproche."},
+  verseau:{name:"Verseau ♒",text:"Une idée originale pourrait faire toute la différence. Aujourd’hui, osez sortir du format."},
+  poissons:{name:"Poissons ♓",text:"Laissez parler votre sensibilité. Certaines émotions méritent simplement d’être écoutées."}
 };
 
-const result = document.getElementById("technoroscope-result");
-const signButtons = document.querySelectorAll(".technoroscope-signs button");
-
-signButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const horoscope = technoroscopeMessages[button.dataset.sign];
-
-    if (!horoscope || !result) return;
-
-    result.innerHTML = `
-      <strong>${horoscope.name}</strong><br><br>
-      ${horoscope.text}
-    `;
-
-    signButtons.forEach((item) => item.classList.remove("active"));
+const result=document.getElementById("technoroscope-result");
+const signButtons=document.querySelectorAll(".technoroscope-signs button");
+signButtons.forEach(button=>{
+  button.addEventListener("click",()=>{
+    const horoscope=technoroscopeMessages[button.dataset.sign];
+    if(!horoscope||!result)return;
+    result.innerHTML=`<strong>${horoscope.name}</strong><br><br>${horoscope.text}`;
+    signButtons.forEach(item=>item.classList.remove("active"));
     button.classList.add("active");
   });
 });
 </script>
-
 </body>
 </html>
