@@ -291,6 +291,39 @@ async function updateV2NowPlaying() {
 updateV2NowPlaying();
 setInterval(updateV2NowPlaying, 10000);
 
+/* ===== INFOS V2 ===== */
+
+const v2Infos = document.getElementById("v2-infos");
+
+async function updateV2Infos() {
+  if (!v2Infos) return;
+
+  try {
+    const response = await fetch(
+      "https://api.rss2json.com/v1/api.json?rss_url=https://www.franceinfo.fr/titres.rss",
+      { cache: "no-store" }
+    );
+
+    if (!response.ok) {
+      throw new Error("Infos indisponibles");
+    }
+
+    const data = await response.json();
+    const items = data?.items || [];
+
+    if (items.length > 0) {
+      const item = items[Math.floor(Date.now() / 15000) % items.length];
+      v2Infos.textContent = item.title;
+    }
+
+  } catch (error) {
+    console.error("Infos V2 :", error);
+  }
+}
+
+updateV2Infos();
+setInterval(updateV2Infos, 15000);
+
   </script>
 
 </body>
