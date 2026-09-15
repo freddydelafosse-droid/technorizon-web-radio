@@ -172,6 +172,25 @@ body {
   padding: 24px 30px;
 
   text-align: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(2, 18, 36, 0.94) 0%,
+      rgba(3, 12, 28, 0.96) 58%,
+      rgba(18, 5, 35, 0.94) 100%
+    );
+
+  border: 1px solid rgba(0, 234, 255, 0.32);
+  border-radius: 18px;
+
+  box-shadow:
+    0 0 22px rgba(0, 234, 255, 0.10),
+    0 0 35px rgba(255, 31, 157, 0.05),
+    inset 0 0 30px rgba(0, 0, 0, 0.20);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .v2-now-label {
