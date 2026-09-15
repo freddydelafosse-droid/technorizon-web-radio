@@ -573,3 +573,18 @@ body {
   content: none !important;
   display: none !important;
 }
+
+/* =========================================================
+   V2 — HALO SOLAIRE DERRIÈRE LA TERRE DU LOGO
+   ========================================================= */
+
+.v2-brand-o {
+  isolation: isolate;
+  overflow: visible !important;
+
+  box-shadow:
+    0 0 4px 2px rgba(255, 255, 255, 1),
+    0 0 10px 4px rgba(255, 255, 255, 0.90),
+    0 0 20px 7px rgba(0, 234, 255, 0.75),
+    0 0 34px 10px rgba(0, 140, 255, 0.40) !important;
+}
