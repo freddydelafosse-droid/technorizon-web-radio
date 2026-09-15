@@ -543,3 +543,33 @@ body {
     0 0 8px rgba(255, 255, 255, 0.35),
     0 0 12px rgba(0, 150, 255, 0.25) !important;
 }
+
+/* =========================================================
+   V2 — VRAIE TERRE DANS LE O
+   ========================================================= */
+
+.v2-brand-o {
+  width: 0.92em !important;
+  height: 0.92em !important;
+  margin: 0 0.02em !important;
+
+  border: none !important;
+  border-radius: 50% !important;
+
+  background-image: url("terre-logo-v2.png") !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+
+  box-shadow:
+    0 0 7px rgba(0, 234, 255, 0.95),
+    0 0 16px rgba(0, 160, 255, 0.55) !important;
+
+  filter: none !important;
+}
+
+/* Supprime le faux dessin intérieur de l'ancien O */
+.v2-brand-o::before {
+  content: none !important;
+  display: none !important;
+}
