@@ -29,6 +29,7 @@ export default async function handler(req, res) {
             .replace(/&#39;/g, "'")
             .replace(/&lt;/g, "<")
             .replace(/&gt;/g, ">")
+            .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
             .trim()
         };
       })
