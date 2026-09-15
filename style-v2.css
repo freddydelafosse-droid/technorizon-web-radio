@@ -66,14 +66,32 @@ body {
 
 /* ---------- FOND SPATIAL ---------- */
 
+/* ---------- FOND SPATIAL ---------- */
+
 .v2-background {
   position: fixed;
   inset: 0;
   z-index: -2;
 
-  background-position: center;
+  background-image: url("Image principale V2 Technorizon.png");
+  background-position: center top;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.v2-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 3, 10, 0.04) 0%,
+      rgba(0, 3, 10, 0.10) 42%,
+      rgba(0, 3, 10, 0.45) 72%,
+      rgba(0, 3, 10, 0.88) 100%
+    );
 }
 
 .v2-background::after {
