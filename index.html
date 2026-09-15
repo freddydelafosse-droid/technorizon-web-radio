@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Technorizon.fr — La musique sans frontières</title>
 
-  <meta name="description"
-        content="Technorizon.fr — Techno, Eurodance, House, Dance Pop et Electro. La musique sans frontières.">
+  <meta
+    name="description"
+    content="Technorizon.fr — Techno, Eurodance, House, Dance Pop et Electro. La musique sans frontières."
+  >
 
   <link rel="icon" type="image/jpeg" href="Logo-Officiel-Technorizon.jpg">
   <link rel="apple-touch-icon" href="Logo-Officiel-Technorizon.jpg">
@@ -17,604 +20,244 @@
   <meta property="og:description" content="La musique sans frontières">
   <meta property="og:url" content="https://www.technorizon.fr/">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://www.technorizon.fr/Logo-Officiel-Technorizon.jpg">
+  <meta
+    property="og:image"
+    content="https://www.technorizon.fr/Logo-Officiel-Technorizon.jpg"
+  >
 
-  <!-- Feuille de style dédiée exclusivement à la V2 -->
-  <link rel="stylesheet" href="style-v2.css?v=1">
+  <link rel="stylesheet" href="style-v2.css?v=2">
 </head>
 
-<body class="v2">
+<body>
 
-  <!-- =========================================================
-       NAVIGATION
-  ========================================================== -->
-  <header class="v2-header">
+  <div class="v2-page">
 
-    <button
-      class="mobile-menu-button"
-      id="menuButton"
-      type="button"
-      aria-label="Ouvrir le menu"
-      aria-expanded="false">
-      ☰
-    </button>
+    <!-- FOND -->
+    <div class="v2-background"></div>
 
-    <nav class="desktop-nav" aria-label="Navigation principale">
+    <!-- HEADER -->
+    <header class="v2-header">
 
-      <a class="nav-link active" href="#accueil">
-        <span>⌂</span>
-        ACCUEIL
-      </a>
+      <div class="v2-container">
 
-      <a class="nav-link" href="#newsCard">
-        INFOS
-      </a>
+        <img
+          class="v2-logo"
+          src="Logo-Officiel-Technorizon.jpg"
+          alt="Technorizon.fr"
+        >
 
-      <a class="nav-link" href="#weatherCard">
-        MÉTÉO
-      </a>
-
-      <a class="nav-link" href="#technoroscope">
-        TECHNOROSCOPE
-      </a>
-
-      <a class="nav-link" href="#contact">
-        CONTACT
-      </a>
-
-    </nav>
-
-    <div class="mobile-brand">
-      <img
-        src="Logo-Officiel-Technorizon.jpg"
-        alt="Technorizon.fr"
-        class="mobile-logo">
-    </div>
-
-    <div class="header-actions">
-
-      <button
-        class="header-search"
-        type="button"
-        aria-label="Rechercher">
-        ⌕
-      </button>
-
-      <div class="language-selector">
-        <button type="button" class="language active">🇫🇷 FR</button>
-        <button type="button" class="language">🇬🇧 EN</button>
-      </div>
-
-    </div>
-
-    <div class="technorizon-menu" id="technorizonMenu">
-      <button class="menu-share" id="shareTechnorizon" type="button">
-        ↗ PARTAGER TECHNORIZON.FR
-      </button>
-    </div>
-
-  </header>
-
-
-  <!-- =========================================================
-       HERO
-  ========================================================== -->
-  <main>
-
-    <section class="hero" id="accueil">
-
-      <div class="stars"></div>
-      <div class="earth-glow"></div>
-
-      <div class="hero-content">
-
-        <div class="hero-logo-zone">
-
-          <img
-            src="Logo-Officiel-Technorizon.jpg"
-            alt="Technorizon.fr"
-            class="hero-logo">
-
-          <p class="hero-tagline">
-            LA MUSIQUE SANS FRONTIÈRES
-          </p>
-
-        </div>
-
-        <div class="jaya-zone" aria-label="Jaya">
-
-          <!-- Emplacement Jaya V2 -->
-          <div class="jaya-placeholder"></div>
-
-        </div>
-
-        <div class="genres" aria-label="Styles musicaux">
-          <span>TECHNO</span>
-          <span>EURODANCE</span>
-          <span>HOUSE</span>
-          <span>DANCE POP</span>
-          <span>ELECTRO</span>
-          <span>&amp; MORE...</span>
+        <div class="v2-slogan">
+          La musique sans frontières
         </div>
 
       </div>
 
+    </header>
 
-      <!-- =====================================================
-           LECTEUR V2
-      ====================================================== -->
-      <section class="v2-player" id="liveArea">
 
-        <div class="player-cover">
-          <div class="cover-placeholder">
-            <strong>GOOD</strong>
-            <span>VIBES</span>
-            <strong>ONLY</strong>
+    <!-- CONTENU PRINCIPAL -->
+    <main class="v2-main">
+
+      <div class="v2-container">
+
+
+        <!-- LECTEUR -->
+        <section class="v2-player v2-glass">
+
+          <div class="v2-now-label">
+            En ce moment sur Technorizon
           </div>
-        </div>
 
-        <div class="player-information">
-
-          <div class="live-badge">
-            EN CE MOMENT
-          </div>
+          <h1
+            id="v2-track"
+            class="v2-track"
+          >
+            Technorizon.fr
+          </h1>
 
           <div
-            id="nowPlaying"
-            class="now-playing-track">
-            Chargement du titre...
+            id="v2-artist"
+            class="v2-artist"
+          >
+            La musique sans frontières
           </div>
-
-          <div class="equalizer" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-
-          <div class="player-tools">
-
-            <button
-              id="playerShareButton"
-              type="button"
-              aria-label="Partager">
-              ↗
-            </button>
-
-            <button
-              type="button"
-              aria-label="Ajouter aux favoris">
-              ♡
-            </button>
-
-            <button
-              type="button"
-              aria-label="Plus d'options">
-              •••
-            </button>
-
-          </div>
-
-        </div>
-
-        <div class="player-controls">
 
           <button
-            id="radioPlayButton"
-            class="radio-play-button"
+            id="v2-play"
+            class="v2-play-button"
             type="button"
-            aria-label="Écouter Technorizon">
-
-            <span id="radioPlayIcon">▶</span>
-
+            aria-label="Écouter Technorizon"
+          >
+            ▶
           </button>
 
-          <div class="volume-zone">
-            <span>🔊</span>
-            <input
-              id="radioVolume"
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value="0.8"
-              aria-label="Volume">
-          </div>
+        </section>
+
+
+        <!-- 3 BLOCS -->
+        <section class="v2-grid">
+
+
+          <!-- INFOS -->
+          <article class="v2-card v2-glass">
+
+            <h2 class="v2-card-title">
+              Infos
+            </h2>
+
+            <div id="v2-infos">
+              L'actualité essentielle à retrouver sur Technorizon.fr
+            </div>
+
+          </article>
+
+
+          <!-- MÉTÉO -->
+          <article class="v2-card v2-glass">
+
+            <h2 class="v2-card-title">
+              Météo
+            </h2>
+
+            <div id="v2-meteo">
+              Votre météo sur Technorizon.fr
+            </div>
+
+          </article>
+
+
+          <!-- TECHNOROSCOPE -->
+          <article class="v2-card v2-glass">
+
+            <h2 class="v2-card-title">
+              Technoroscope
+            </h2>
+
+            <div id="v2-technoroscope">
+              Votre horoscope version Technorizon.
+            </div>
+
+          </article>
+
+
+        </section>
+
+      </div>
+
+
+      <!-- DÉDICACES -->
+      <section
+        class="v2-dedicaces"
+        aria-label="Vos dédicaces"
+      >
+
+        <div class="v2-dedicaces-track">
+
+          <strong>VOS DÉDICACES</strong>
+
+          &nbsp;&nbsp;•&nbsp;&nbsp;
+
+          Bienvenue sur la nouvelle expérience Technorizon.fr
+
+          &nbsp;&nbsp;•&nbsp;&nbsp;
+
+          La musique sans frontières
+
+          &nbsp;&nbsp;•&nbsp;&nbsp;
 
         </div>
-
-        <div
-          id="radioPlayerMessage"
-          class="radio-player-message">
-          CLIQUEZ POUR ÉCOUTER
-        </div>
-
-        <audio id="radioPlayer" preload="none">
-          <source
-            src="https://radio.technorizon.fr/listen/technorizon/radio.mp3"
-            type="audio/mpeg">
-        </audio>
 
       </section>
 
-    </section>
+    </main>
 
 
-    <!-- =========================================================
-         3 CARTES PRINCIPALES
-    ========================================================== -->
-    <section class="quick-access">
+    <!-- FOOTER -->
+    <footer class="v2-footer">
 
-      <a class="quick-card" href="#newsCard">
-        <div class="quick-icon">▤</div>
+      <div class="v2-container">
+
         <div>
-          <h2>INFOS</h2>
-          <p>Toute l'actu en 60 secondes</p>
+          Facebook &nbsp;•&nbsp;
+          Instagram &nbsp;•&nbsp;
+          TikTok
         </div>
-        <span class="quick-arrow">›</span>
-      </a>
 
-      <a class="quick-card" href="#weatherCard">
-        <div class="quick-icon">☁</div>
-        <div>
-          <h2>MÉTÉO</h2>
-          <p>Votre météo en temps réel</p>
-        </div>
-        <span class="quick-arrow">›</span>
-      </a>
-
-      <a class="quick-card" href="#technoroscope">
-        <div class="quick-icon">♓</div>
-        <div>
-          <h2>TECHNOROSCOPE</h2>
-          <p>Votre dose d'étoiles</p>
-        </div>
-        <span class="quick-arrow">›</span>
-      </a>
-
-    </section>
-
-
-    <!-- =========================================================
-         DÉDICACES DÉFILANTES
-    ========================================================== -->
-    <section class="dedicace-ticker" aria-label="Vos dédicaces">
-
-      <div class="dedicace-ticker-label">
-        ♡
-        <strong>VOS DÉDICACES</strong>
-      </div>
-
-      <div class="dedicace-ticker-window">
-        <div
-          class="dedicace-ticker-track"
-          id="dedicaceTickerTrack">
-          Vos dédicaces apparaîtront bientôt ici sur Technorizon.fr ✨
-        </div>
-      </div>
-
-    </section>
-
-
-    <!-- =========================================================
-         INFOS
-    ========================================================== -->
-    <section class="v2-content-section" id="newsCard">
-
-      <div class="section-heading">
-        <span>▤</span>
-        <h2>INFOS</h2>
-      </div>
-
-      <div class="news-status" id="newsStatus">
-        Recherche des dernières actualités...
-      </div>
-
-      <article class="news-item">
-
-        <div class="news-time" id="newsTime">--:--</div>
-
-        <h3 id="newsTitle">
-          Chargement des actualités...
-        </h3>
-
-        <p id="newsDescription">
-          Les dernières informations arrivent...
+        <p>
+          © 2026 Technorizon.fr
         </p>
 
-        <a
-          id="newsLink"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer">
-          LIRE LA SUITE →
-        </a>
-
-      </article>
-
-    </section>
-
-
-    <!-- =========================================================
-         MÉTÉO
-    ========================================================== -->
-    <section class="v2-content-section" id="weatherCard">
-
-      <div class="section-heading">
-        <span>☁</span>
-        <h2>MÉTÉO</h2>
-      </div>
-
-      <div class="weather-search">
-
-        <input
-          id="cityInput"
-          type="text"
-          placeholder="Rechercher une ville..."
-          autocomplete="off">
-
-        <button id="cityButton" type="button">
-          OK
-        </button>
-
-      </div>
-
-      <h3 id="weatherCity">DIEPPE</h3>
-
-      <p id="weatherDate">
-        Chargement...
-      </p>
-
-      <div class="temperature" id="weatherTemp">
-        --°C
-      </div>
-
-      <p id="weatherDetails">
-        ↑ --° ↓ --° 💧 --% ≈ -- km/h
-      </p>
-
-      <p id="weatherStatus">
-        Recherche de la météo...
-      </p>
-
-    </section>
-
-
-    <!-- =========================================================
-         TECHNOROSCOPE
-    ========================================================== -->
-    <section class="v2-content-section technoroscope" id="technoroscope">
-
-      <div class="section-heading">
-        <span>♓</span>
-        <h2>TECHNOROSCOPE</h2>
-      </div>
-
-      <p class="technoroscope-intro">
-        Votre horoscope version Technorizon ✨
-      </p>
-
-      <div class="zodiac-grid">
-
-        <button type="button" class="zodiac-card" data-sign="belier">♈ <span>BÉLIER</span></button>
-        <button type="button" class="zodiac-card" data-sign="taureau">♉ <span>TAUREAU</span></button>
-        <button type="button" class="zodiac-card" data-sign="gemeaux">♊ <span>GÉMEAUX</span></button>
-        <button type="button" class="zodiac-card" data-sign="cancer">♋ <span>CANCER</span></button>
-        <button type="button" class="zodiac-card" data-sign="lion">♌ <span>LION</span></button>
-        <button type="button" class="zodiac-card" data-sign="vierge">♍ <span>VIERGE</span></button>
-        <button type="button" class="zodiac-card" data-sign="balance">♎ <span>BALANCE</span></button>
-        <button type="button" class="zodiac-card" data-sign="scorpion">♏ <span>SCORPION</span></button>
-        <button type="button" class="zodiac-card" data-sign="sagittaire">♐ <span>SAGITTAIRE</span></button>
-        <button type="button" class="zodiac-card" data-sign="capricorne">♑ <span>CAPRICORNE</span></button>
-        <button type="button" class="zodiac-card" data-sign="verseau">♒ <span>VERSEAU</span></button>
-        <button type="button" class="zodiac-card" data-sign="poissons">♓ <span>POISSONS</span></button>
-
-      </div>
-
-      <div id="horoscopeResult" class="horoscope-result">
-
-        <p id="horoscopeDay">
-          ✨ Sélectionnez votre signe
+        <p>
+          <strong>Écoutez plus loin…</strong>
         </p>
 
-        <div class="horoscope-ratings">
-
-          <div>
-            💗 AMOUR
-            <strong id="loveRating">☆☆☆☆☆</strong>
-          </div>
-
-          <div>
-            💼 TRAVAIL
-            <strong id="workRating">☆☆☆☆☆</strong>
-          </div>
-
-          <div>
-            🪙 FINANCES
-            <strong id="moneyRating">☆☆☆☆☆</strong>
-          </div>
-
-          <div>
-            ⚡ ÉNERGIE
-            <strong id="energyRating">☆☆☆☆☆</strong>
-          </div>
-
-        </div>
-
-        <div class="horoscope-extra">
-
-          <p>
-            🎧 HUMEUR MUSICALE :
-            <strong id="musicMood">---</strong>
-          </p>
-
-          <p>
-            🪩 INDICE DANCEFLOOR :
-            <strong id="dancefloorIndex">--%</strong>
-          </p>
-
-          <button id="shareHoroscopeButton" type="button">
-            PARTAGER MON TECHNOROSCOPE
-          </button>
-
-        </div>
+        <p>
+          Conception &amp; réalisation :
+          Studio Gaby Design
+        </p>
 
       </div>
 
-    </section>
-
-
-    <!-- =========================================================
-         DÉDICACE
-    ========================================================== -->
-    <section class="v2-content-section dedicaces" id="dedicaces">
-
-      <div class="section-heading">
-        <span>♡</span>
-        <h2>FAIRE UNE DÉDICACE</h2>
-      </div>
-
-      <form
-        id="dedicaceForm"
-        action="https://formspree.io/f/xvkoqeyp"
-        method="POST">
-
-        <input
-          type="text"
-          id="dedicaceName"
-          name="Prénom"
-          placeholder="Votre prénom"
-          maxlength="30"
-          required>
-
-        <input
-          type="text"
-          id="dedicaceCity"
-          name="Ville"
-          placeholder="Votre ville"
-          maxlength="40">
-
-        <textarea
-          id="dedicaceMessage"
-          name="Dédicace"
-          placeholder="Votre dédicace..."
-          maxlength="250"
-          required></textarea>
-
-        <button type="submit">
-          ENVOYER MA DÉDICACE
-        </button>
-
-      </form>
-
-    </section>
-
-
-    <!-- =========================================================
-         CONTACT
-    ========================================================== -->
-    <section class="v2-content-section contact" id="contact">
-
-      <div class="section-heading">
-        <span>✉</span>
-        <h2>NOUS CONTACTER</h2>
-      </div>
-
-      <p>
-        Une question, une suggestion ou un projet avec Technorizon ?
-      </p>
-
-      <a href="mailto:contact@technorizon.fr">
-        contact@technorizon.fr
-      </a>
-
-    </section>
-
-  </main>
-
-
-  <!-- =========================================================
-       FOOTER
-  ========================================================== -->
-  <footer class="v2-footer">
-
-    <div class="footer-brand">
-      TECHNORIZON.FR
-    </div>
-
-    <div class="footer-socials">
-
-      <a
-        href="https://www.facebook.com/Technorizon"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Facebook">
-        f
-      </a>
-
-      <a
-        href="https://www.instagram.com/technorizon.fr/"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Instagram">
-        ◎
-      </a>
-
-      <a
-        href="#"
-        aria-label="TikTok">
-        ♪
-      </a>
-
-      <a
-        href="https://www.youtube.com/@Gaby_del-technorizon"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="YouTube">
-        ▶
-      </a>
-
-      <a
-        href="#"
-        aria-label="X">
-        𝕏
-      </a>
-
-    </div>
-
-    <div class="footer-copyright">
-      © 2026
-    </div>
-
-    <div class="footer-signature">
-      Écoutez plus loin...
-    </div>
-
-  </footer>
-
-
-  <!-- Éléments conservés pour compatibilité moteur V1 -->
-  <div class="v2-compatibility" hidden>
-
-    <div id="clock">--:--:--</div>
-
-    <button id="timezoneButton" type="button">
-      Fuseau horaire
-    </button>
-
-    <div id="timezoneMenu"></div>
+    </footer>
 
   </div>
 
 
-  <!-- Le moteur fonctionnel existant reste chargé -->
-  <script src="app.js?v=126"></script>
+  <!-- AUDIO -->
+  <audio
+    id="v2-audio"
+    preload="none"
+  ></audio>
+
+
+  <script>
+
+    const audio = document.getElementById("v2-audio");
+    const playButton = document.getElementById("v2-play");
+
+    /*
+      L'adresse du flux AzuraCast sera raccordée
+      lors du bloc lecteur.
+    */
+
+    playButton.addEventListener("click", async () => {
+
+      if (audio.paused) {
+
+        try {
+
+          await audio.play();
+          playButton.textContent = "❚❚";
+          playButton.setAttribute(
+            "aria-label",
+            "Mettre Technorizon en pause"
+          );
+
+        } catch (error) {
+
+          console.log(
+            "Flux audio pas encore raccordé."
+          );
+
+        }
+
+      } else {
+
+        audio.pause();
+
+        playButton.textContent = "▶";
+
+        playButton.setAttribute(
+          "aria-label",
+          "Écouter Technorizon"
+        );
+
+      }
+
+    });
+
+  </script>
 
 </body>
+
 </html>
