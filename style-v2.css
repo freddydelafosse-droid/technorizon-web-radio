@@ -499,3 +499,47 @@ body {
   }
 
 }
+
+/* =========================================================
+   V2 — LOGO OFFICIEL TECHNORIZON
+   ========================================================= */
+
+/* TECHN : blanc / métal */
+.v2-brand-techno {
+  color: #ffffff !important;
+  text-shadow:
+    0 1px 0 #b9d9ef,
+    0 3px 5px rgba(0, 140, 255, 0.35),
+    0 0 12px rgba(255, 255, 255, 0.22) !important;
+}
+
+/* RIZON : dégradé BLEU ÉLECTRIQUE uniquement */
+.v2-brand-rizon {
+  color: transparent !important;
+  background: linear-gradient(
+    90deg,
+    #00f0ff 0%,
+    #00c8ff 28%,
+    #008cff 58%,
+    #1268ff 82%,
+    #2d4fff 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow: none !important;
+
+  filter:
+    drop-shadow(0 0 5px rgba(0, 220, 255, 0.55))
+    drop-shadow(0 0 10px rgba(0, 110, 255, 0.28));
+}
+
+/* .FR : blanc métallisé */
+.v2-brand-fr {
+  color: #ffffff !important;
+  text-shadow:
+    0 1px 0 #b9d9ef,
+    0 0 8px rgba(255, 255, 255, 0.35),
+    0 0 12px rgba(0, 150, 255, 0.25) !important;
+}
