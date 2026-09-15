@@ -299,10 +299,9 @@ async function updateV2Infos() {
   if (!v2Infos) return;
 
   try {
-    const response = await fetch(
-      "https://api.rss2json.com/v1/api.json?rss_url=https://www.franceinfo.fr/titres.rss",
-      { cache: "no-store" }
-    );
+    const response = await fetch("/api/news", {
+  cache: "no-store"
+});
 
     if (!response.ok) {
       throw new Error("Infos indisponibles");
