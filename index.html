@@ -260,6 +260,37 @@
 
     });
 
+    /* ===== TITRE EN DIRECT AZURACAST ===== */
+
+const v2Track = document.getElementById("v2-track");
+const v2Artist = document.getElementById("v2-artist");
+
+async function updateV2NowPlaying() {
+  try {
+    const response = await fetch("/api/nowplaying/technorizon", {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("API AzuraCast inaccessible");
+    }
+
+    const data = await response.json();
+
+    const artist = data?.now_playing?.song?.artist || "";
+    const title = data?.now_playing?.song?.title || "";
+
+    if (title) v2Track.textContent = title;
+    if (artist) v2Artist.textContent = artist;
+
+  } catch (error) {
+    console.error("Titre V2 :", error);
+  }
+}
+
+updateV2NowPlaying();
+setInterval(updateV2NowPlaying, 10000);
+
   </script>
 
 </body>
