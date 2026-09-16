@@ -4,7 +4,9 @@
   const STORAGE_KEY = 'technorizon-games-v1';
   const ROUNDS = 5;
 
-  let lang = localStorage.getItem('technorizon-lang') === 'en' ? 'en' : 'fr';
+  const SUPPORTED_LANGUAGES = ['fr', 'en', 'de', 'es', 'it', 'pt', 'nl'];
+  const savedLanguage = localStorage.getItem('technorizon-lang');
+  let lang = SUPPORTED_LANGUAGES.includes(savedLanguage) ? savedLanguage : 'fr';
   const I18N = {
     fr: {
       title: 'Jeux Technorizon — Blind Test, Hit ou Intox et TechnoQuiz',
@@ -38,7 +40,7 @@
       trackBy: '« {title} » est interprété par {artist}.', whoPerforms: 'Qui interprète « {title} » ?',
       whichTitle: 'Quel titre est interprété par {artist} ?', question: 'QUESTION {number}',
       goodAnswer: 'Bonne réponse !', rightAnswer: 'La bonne réponse était : {answer}', next: 'Question suivante →',
-      blindPartyName: 'Blind Test Soirée'
+      blindPartyName: 'Blind Test Soirée', intoxGameName: 'Hit ou Intox'
     },
     en: {
       title: 'Technorizon Games — Blind Test, Hit or Myth and TechnoQuiz',
@@ -72,7 +74,177 @@
       trackBy: '“{title}” is performed by {artist}.', whoPerforms: 'Who performs “{title}”?',
       whichTitle: 'Which track is performed by {artist}?', question: 'QUESTION {number}',
       goodAnswer: 'Correct!', rightAnswer: 'The correct answer was: {answer}', next: 'Next question →',
-      blindPartyName: 'Blind Test Party'
+      blindPartyName: 'Blind Test Party', intoxGameName: 'Hit or Myth'
+    },
+    de: {
+      title: 'Technorizon Spiele — Blind Test, Hit oder Mythos und TechnoQuiz',
+      description: 'Spiele den Blind Test, Hit oder Mythos und das TechnoQuiz von Technorizon.fr.',
+      home: '⌂ Startseite', info: 'ⓘ Infos', heroTitle: 'Wähle dein Spiel.<br><span>Fordere deine Freunde heraus</span>',
+      heroText: 'Musik, Herausforderungen und Punkte in einer Spielhalle 100 % Technorizon',
+      profileEyebrow: 'SPIELERPROFIL', profileTitle: 'Dein Benutzername', nickname: 'Benutzernamen eingeben', save: 'Speichern',
+      points: 'Punkte', streak: 'Tage in Folge', games: 'Spiele',
+      blindTab: '<span>🎧</span> Blind Test', intoxTab: '<span>⚡</span> Hit oder Mythos?', quizTab: '<span>🧠</span> TechnoQuiz',
+      blindTitle: 'Technorizon Blind Test', blindLead: 'Höre den Ausschnitt und finde den Titel. Fünf Songs, vier Antworten, nur eine ist richtig.',
+      blindIntro: 'Wähle deinen Modus. Die Ausschnitte dauern bis zu 15 Sekunden.',
+      express: '<span>⚡</span><strong>Schnelles Spiel</strong><small>5 Ausschnitte · schnelle Runde</small>',
+      party: '<span>🎉</span><strong>Abend mit Freunden</strong><small>25 Ausschnitte · der Reihe nach!</small>',
+      trueFalse: 'WAHR ODER FALSCH', intoxLead: 'Eine Aussage über Musik erscheint. Entscheide, ob sie ein Hit… oder ein Mythos ist.',
+      intoxIntro: 'Fünf Aussagen testen dein Musikwissen.', intoxStart: 'Hit oder Mythos spielen',
+      electro: 'ELEKTRONISCHE MUSIK', quizLead: 'Künstler, Titel und Klassiker: fünf Fragen, um dein Wissen zu zeigen.',
+      quizIntro: 'Jede richtige Antwort bringt 75 Punkte.', quizStart: 'TechnoQuiz starten',
+      topPlayers: 'TOP-SPIELER', rankingTitle: 'Bestenliste auf diesem Gerät',
+      rankingNote: 'Die globale Online-Bestenliste folgt nach der Freigabe dieser ersten Version.',
+      footer: '© 2026 Technorizon.fr · Musik ohne Grenzen',
+      emptyRanking: 'Sei der Erste in der Bestenliste!', pt: 'Pkt.', pts: 'Pkt.',
+      finished: 'Spiel beendet!', added: 'Deine Punkte wurden dem Profil {name} hinzugefügt.', replay: 'Noch einmal spielen',
+      preparing: 'Ausschnitt wird vorbereitet…', clip: 'AUSSCHNITT {number}', whatTitle: 'Wie heißt dieser Titel?',
+      listen: '▶ Ausschnitt abspielen', pause: '❚❚ Pause', listenAgain: '▶ Ausschnitt erneut abspielen',
+      audioError: 'Dieser Ausschnitt kann nicht abgespielt werden. Drücke auf Weiter.',
+      unavailable: 'Ausschnitt vorübergehend nicht verfügbar', replaced: 'Dieser Titel wird automatisch ersetzt.',
+      tryAnother: 'Anderen Ausschnitt versuchen', correctTrack: 'Richtig! {artist} — {title}', wasTrack: 'Es war {artist} — {title}',
+      statement: 'AUSSAGE {number}', hitTrue: '🎯 HIT — Wahr', intoxFalse: '🚨 MYTHOS — Falsch',
+      wellDone: 'Gut gemacht!', missed: 'Leider falsch!', exact: 'Richtig: {artist} spielt „{title}“.',
+      falseDetail: 'Mythos: „{title}“ ist von {artist}.',
+      trackBy: '„{title}“ ist von {artist}.', whoPerforms: 'Wer spielt „{title}“?',
+      whichTitle: 'Welcher Titel ist von {artist}?', question: 'FRAGE {number}',
+      goodAnswer: 'Richtige Antwort!', rightAnswer: 'Die richtige Antwort war: {answer}', next: 'Nächste Frage →',
+      blindPartyName: 'Blind Test Party', intoxGameName: 'Hit oder Mythos'
+    },
+    es: {
+      title: 'Juegos Technorizon — Blind Test, Hit o Mito y TechnoQuiz',
+      description: 'Juega al Blind Test, Hit o Mito y TechnoQuiz de Technorizon.fr.',
+      home: '⌂ Inicio', info: 'ⓘ Información', heroTitle: 'Elige tu juego.<br><span>Desafía a tus amigos</span>',
+      heroText: 'Música, retos y puntos en una sala de juegos 100 % Technorizon',
+      profileEyebrow: 'PERFIL DEL JUGADOR', profileTitle: 'Tu apodo', nickname: 'Escribe tu apodo', save: 'Guardar',
+      points: 'puntos', streak: 'días seguidos', games: 'partidas',
+      blindTab: '<span>🎧</span> Blind Test', intoxTab: '<span>⚡</span> ¿Hit o Mito?', quizTab: '<span>🧠</span> TechnoQuiz',
+      blindTitle: 'Blind Test Technorizon', blindLead: 'Escucha el fragmento y encuentra el título. Cinco canciones, cuatro respuestas y solo una correcta.',
+      blindIntro: 'Elige tu modo. Los fragmentos duran hasta 15 segundos.',
+      express: '<span>⚡</span><strong>Partida rápida</strong><small>5 fragmentos · ronda rápida</small>',
+      party: '<span>🎉</span><strong>Noche entre amigos</strong><small>25 fragmentos · ¡por turnos!</small>',
+      trueFalse: 'VERDADERO O FALSO', intoxLead: 'Aparece una afirmación musical. Decide si es un hit… o un mito.',
+      intoxIntro: 'Cinco afirmaciones para poner a prueba tu cultura musical.', intoxStart: 'Jugar a Hit o Mito',
+      electro: 'CULTURA ELECTRÓNICA', quizLead: 'Artistas, títulos y clásicos: cinco preguntas para demostrar lo que sabes.',
+      quizIntro: 'Cada respuesta correcta suma 75 puntos.', quizStart: 'Iniciar TechnoQuiz',
+      topPlayers: 'MEJORES JUGADORES', rankingTitle: 'Clasificación en este dispositivo',
+      rankingNote: 'La clasificación general en línea llegará tras validar esta primera versión.',
+      footer: '© 2026 Technorizon.fr · La música sin fronteras',
+      emptyRanking: '¡Sé el primero en la clasificación!', pt: 'pto.', pts: 'pts',
+      finished: '¡Partida terminada!', added: 'Tus puntos se han añadido al perfil de {name}.', replay: 'Volver a jugar',
+      preparing: 'Preparando el fragmento…', clip: 'FRAGMENTO {number}', whatTitle: '¿Cuál es este título?',
+      listen: '▶ Escuchar el fragmento', pause: '❚❚ Pausa', listenAgain: '▶ Volver a escuchar',
+      audioError: 'No se puede reproducir este fragmento. Pulsa Siguiente.',
+      unavailable: 'Fragmento no disponible temporalmente', replaced: 'Esta canción se sustituirá automáticamente.',
+      tryAnother: 'Probar otro fragmento', correctTrack: '¡Correcto! {artist} — {title}', wasTrack: 'Era {artist} — {title}',
+      statement: 'AFIRMACIÓN {number}', hitTrue: '🎯 HIT — Verdadero', intoxFalse: '🚨 MITO — Falso',
+      wellDone: '¡Bien visto!', missed: '¡Incorrecto!', exact: 'Correcto: {artist} interpreta «{title}».',
+      falseDetail: 'Mito: «{title}» está interpretada por {artist}.',
+      trackBy: '«{title}» está interpretada por {artist}.', whoPerforms: '¿Quién interpreta «{title}»?',
+      whichTitle: '¿Qué canción interpreta {artist}?', question: 'PREGUNTA {number}',
+      goodAnswer: '¡Respuesta correcta!', rightAnswer: 'La respuesta correcta era: {answer}', next: 'Siguiente pregunta →',
+      blindPartyName: 'Blind Test Fiesta', intoxGameName: 'Hit o Mito'
+    },
+    it: {
+      title: 'Giochi Technorizon — Blind Test, Hit o Mito e TechnoQuiz',
+      description: 'Gioca al Blind Test, Hit o Mito e TechnoQuiz di Technorizon.fr.',
+      home: '⌂ Home', info: 'ⓘ Info', heroTitle: 'Scegli il tuo gioco.<br><span>Sfida i tuoi amici</span>',
+      heroText: 'Musica, sfide e punti in una sala giochi 100% Technorizon',
+      profileEyebrow: 'PROFILO GIOCATORE', profileTitle: 'Il tuo nickname', nickname: 'Inserisci il nickname', save: 'Salva',
+      points: 'punti', streak: 'giorni di serie', games: 'partite',
+      blindTab: '<span>🎧</span> Blind Test', intoxTab: '<span>⚡</span> Hit o Mito?', quizTab: '<span>🧠</span> TechnoQuiz',
+      blindTitle: 'Blind Test Technorizon', blindLead: 'Ascolta l’estratto e trova il titolo. Cinque brani, quattro risposte, una sola corretta.',
+      blindIntro: 'Scegli la modalità. Gli estratti durano fino a 15 secondi.',
+      express: '<span>⚡</span><strong>Partita rapida</strong><small>5 estratti · sfida veloce</small>',
+      party: '<span>🎉</span><strong>Serata tra amici</strong><small>25 estratti · a turno!</small>',
+      trueFalse: 'VERO O FALSO', intoxLead: 'Appare un’affermazione musicale. Decidi se è un hit… o un mito.',
+      intoxIntro: 'Cinque affermazioni per mettere alla prova la tua cultura musicale.', intoxStart: 'Gioca a Hit o Mito',
+      electro: 'CULTURA ELETTRONICA', quizLead: 'Artisti, titoli e classici: cinque domande per mostrare ciò che sai.',
+      quizIntro: 'Ogni risposta corretta vale 75 punti.', quizStart: 'Avvia TechnoQuiz',
+      topPlayers: 'MIGLIORI GIOCATORI', rankingTitle: 'Classifica su questo dispositivo',
+      rankingNote: 'La classifica generale online arriverà dopo la convalida di questa prima versione.',
+      footer: '© 2026 Technorizon.fr · La musica senza frontiere',
+      emptyRanking: 'Sii il primo in classifica!', pt: 'pt', pts: 'pt',
+      finished: 'Partita terminata!', added: 'I tuoi punti sono stati aggiunti al profilo di {name}.', replay: 'Gioca ancora',
+      preparing: 'Preparazione dell’estratto…', clip: 'ESTRATTO {number}', whatTitle: 'Qual è questo titolo?',
+      listen: '▶ Ascolta l’estratto', pause: '❚❚ Pausa', listenAgain: '▶ Riascolta l’estratto',
+      audioError: 'Impossibile riprodurre questo estratto. Premi Avanti.',
+      unavailable: 'Estratto temporaneamente non disponibile', replaced: 'Questo brano verrà sostituito automaticamente.',
+      tryAnother: 'Prova un altro estratto', correctTrack: 'Corretto! {artist} — {title}', wasTrack: 'Era {artist} — {title}',
+      statement: 'AFFERMAZIONE {number}', hitTrue: '🎯 HIT — Vero', intoxFalse: '🚨 MITO — Falso',
+      wellDone: 'Ben fatto!', missed: 'Sbagliato!', exact: 'Esatto: {artist} interpreta «{title}».',
+      falseDetail: 'Mito: «{title}» è interpretato da {artist}.',
+      trackBy: '«{title}» è interpretato da {artist}.', whoPerforms: 'Chi interpreta «{title}»?',
+      whichTitle: 'Quale brano è interpretato da {artist}?', question: 'DOMANDA {number}',
+      goodAnswer: 'Risposta corretta!', rightAnswer: 'La risposta corretta era: {answer}', next: 'Domanda successiva →',
+      blindPartyName: 'Blind Test Serata', intoxGameName: 'Hit o Mito'
+    },
+    pt: {
+      title: 'Jogos Technorizon — Blind Test, Hit ou Mito e TechnoQuiz',
+      description: 'Jogue o Blind Test, Hit ou Mito e TechnoQuiz da Technorizon.fr.',
+      home: '⌂ Início', info: 'ⓘ Informações', heroTitle: 'Escolhe o teu jogo.<br><span>Desafia os teus amigos</span>',
+      heroText: 'Música, desafios e pontos numa sala de jogos 100% Technorizon',
+      profileEyebrow: 'PERFIL DO JOGADOR', profileTitle: 'O teu nome', nickname: 'Introduz o teu nome', save: 'Guardar',
+      points: 'pontos', streak: 'dias seguidos', games: 'partidas',
+      blindTab: '<span>🎧</span> Blind Test', intoxTab: '<span>⚡</span> Hit ou Mito?', quizTab: '<span>🧠</span> TechnoQuiz',
+      blindTitle: 'Blind Test Technorizon', blindLead: 'Ouve o excerto e encontra o título. Cinco músicas, quatro respostas e apenas uma correta.',
+      blindIntro: 'Escolhe o modo. Os excertos duram até 15 segundos.',
+      express: '<span>⚡</span><strong>Partida rápida</strong><small>5 excertos · ronda rápida</small>',
+      party: '<span>🎉</span><strong>Noite entre amigos</strong><small>25 excertos · cada um na sua vez!</small>',
+      trueFalse: 'VERDADEIRO OU FALSO', intoxLead: 'Surge uma afirmação musical. Decide se é um hit… ou um mito.',
+      intoxIntro: 'Cinco afirmações para testar a tua cultura musical.', intoxStart: 'Jogar Hit ou Mito',
+      electro: 'CULTURA ELETRÓNICA', quizLead: 'Artistas, títulos e clássicos: cinco perguntas para mostrares o que sabes.',
+      quizIntro: 'Cada resposta correta vale 75 pontos.', quizStart: 'Iniciar TechnoQuiz',
+      topPlayers: 'MELHORES JOGADORES', rankingTitle: 'Classificação neste dispositivo',
+      rankingNote: 'A classificação geral online chegará após a validação desta primeira versão.',
+      footer: '© 2026 Technorizon.fr · A música sem fronteiras',
+      emptyRanking: 'Sê o primeiro na classificação!', pt: 'pt', pts: 'pts',
+      finished: 'Partida terminada!', added: 'Os teus pontos foram adicionados ao perfil de {name}.', replay: 'Jogar novamente',
+      preparing: 'A preparar o excerto…', clip: 'EXCERTO {number}', whatTitle: 'Qual é este título?',
+      listen: '▶ Ouvir o excerto', pause: '❚❚ Pausa', listenAgain: '▶ Ouvir novamente',
+      audioError: 'Não foi possível reproduzir este excerto. Carrega em Seguinte.',
+      unavailable: 'Excerto temporariamente indisponível', replaced: 'Esta música será substituída automaticamente.',
+      tryAnother: 'Tentar outro excerto', correctTrack: 'Correto! {artist} — {title}', wasTrack: 'Era {artist} — {title}',
+      statement: 'AFIRMAÇÃO {number}', hitTrue: '🎯 HIT — Verdadeiro', intoxFalse: '🚨 MITO — Falso',
+      wellDone: 'Muito bem!', missed: 'Errado!', exact: 'Correto: {artist} interpreta «{title}».',
+      falseDetail: 'Mito: «{title}» é interpretado por {artist}.',
+      trackBy: '«{title}» é interpretado por {artist}.', whoPerforms: 'Quem interpreta «{title}»?',
+      whichTitle: 'Que música é interpretada por {artist}?', question: 'PERGUNTA {number}',
+      goodAnswer: 'Resposta correta!', rightAnswer: 'A resposta correta era: {answer}', next: 'Pergunta seguinte →',
+      blindPartyName: 'Blind Test Festa', intoxGameName: 'Hit ou Mito'
+    },
+    nl: {
+      title: 'Technorizon Games — Blind Test, Hit of Mythe en TechnoQuiz',
+      description: 'Speel de Blind Test, Hit of Mythe en TechnoQuiz van Technorizon.fr.',
+      home: '⌂ Home', info: 'ⓘ Info', heroTitle: 'Kies je spel.<br><span>Daag je vrienden uit</span>',
+      heroText: 'Muziek, uitdagingen en punten in een 100% Technorizon-speelhal',
+      profileEyebrow: 'SPELERS PROFIEL', profileTitle: 'Je bijnaam', nickname: 'Vul je bijnaam in', save: 'Opslaan',
+      points: 'punten', streak: 'dagen op rij', games: 'spellen',
+      blindTab: '<span>🎧</span> Blind Test', intoxTab: '<span>⚡</span> Hit of Mythe?', quizTab: '<span>🧠</span> TechnoQuiz',
+      blindTitle: 'Technorizon Blind Test', blindLead: 'Luister naar het fragment en vind de titel. Vijf nummers, vier antwoorden, slechts één is juist.',
+      blindIntro: 'Kies je modus. Fragmenten duren maximaal 15 seconden.',
+      express: '<span>⚡</span><strong>Snel spel</strong><small>5 fragmenten · snelle ronde</small>',
+      party: '<span>🎉</span><strong>Avond met vrienden</strong><small>25 fragmenten · om de beurt!</small>',
+      trueFalse: 'WAAR OF ONWAAR', intoxLead: 'Er verschijnt een muziekstelling. Bepaal of het een hit… of een mythe is.',
+      intoxIntro: 'Vijf stellingen om je muziekkennis te testen.', intoxStart: 'Speel Hit of Mythe',
+      electro: 'ELEKTRONISCHE MUZIEK', quizLead: 'Artiesten, titels en klassiekers: vijf vragen om je kennis te tonen.',
+      quizIntro: 'Elk goed antwoord levert 75 punten op.', quizStart: 'Start TechnoQuiz',
+      topPlayers: 'TOPSPELERS', rankingTitle: 'Ranglijst op dit apparaat',
+      rankingNote: 'De algemene online ranglijst volgt na goedkeuring van deze eerste versie.',
+      footer: '© 2026 Technorizon.fr · Muziek zonder grenzen',
+      emptyRanking: 'Wees de eerste in de ranglijst!', pt: 'pt', pts: 'pt',
+      finished: 'Spel afgelopen!', added: 'Je punten zijn toegevoegd aan het profiel van {name}.', replay: 'Opnieuw spelen',
+      preparing: 'Fragment voorbereiden…', clip: 'FRAGMENT {number}', whatTitle: 'Welk nummer is dit?',
+      listen: '▶ Fragment afspelen', pause: '❚❚ Pauze', listenAgain: '▶ Fragment opnieuw afspelen',
+      audioError: 'Dit fragment kan niet worden afgespeeld. Druk op Volgende.',
+      unavailable: 'Fragment tijdelijk niet beschikbaar', replaced: 'Dit nummer wordt automatisch vervangen.',
+      tryAnother: 'Probeer een ander fragment', correctTrack: 'Juist! {artist} — {title}', wasTrack: 'Het was {artist} — {title}',
+      statement: 'STELLING {number}', hitTrue: '🎯 HIT — Waar', intoxFalse: '🚨 MYTHE — Onwaar',
+      wellDone: 'Goed gezien!', missed: 'Helaas fout!', exact: 'Juist: {artist} voert “{title}” uit.',
+      falseDetail: 'Mythe: “{title}” wordt uitgevoerd door {artist}.',
+      trackBy: '“{title}” wordt uitgevoerd door {artist}.', whoPerforms: 'Wie voert “{title}” uit?',
+      whichTitle: 'Welk nummer wordt uitgevoerd door {artist}?', question: 'VRAAG {number}',
+      goodAnswer: 'Goed antwoord!', rightAnswer: 'Het juiste antwoord was: {answer}', next: 'Volgende vraag →',
+      blindPartyName: 'Blind Test Feest', intoxGameName: 'Hit of Mythe'
     }
   };
   const t = (key, vars = {}) => (I18N[lang][key] || key).replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? '');
@@ -392,7 +564,7 @@
     feedback.textContent = `${correct ? t('wellDone') : t('missed')} ${question.detail}`;
     addNextButton(intoxStage.querySelector('.question-wrap'), () => {
       intox.index += 1;
-      if (intox.index >= ROUNDS) result(intoxStage, 'Hit ou Intox', intox.score, startIntox);
+      if (intox.index >= ROUNDS) result(intoxStage, t('intoxGameName'), intox.score, startIntox);
       else showIntoxRound();
     });
   }
@@ -447,7 +619,7 @@
   }
 
   $('#game-language').addEventListener('change', event => {
-    const next = event.target.value === 'en' ? 'en' : 'fr';
+    const next = SUPPORTED_LANGUAGES.includes(event.target.value) ? event.target.value : 'fr';
     localStorage.setItem('technorizon-lang', next);
     window.location.reload();
   });
