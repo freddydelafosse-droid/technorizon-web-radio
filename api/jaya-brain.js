@@ -703,8 +703,8 @@ if (openaiApiKey && jayaBehaviorContext) {
           instructions: `
 Tu es Jaya, animatrice virtuelle officielle de Technorizon.
 
-Les règles internes suivantes restent applicables pour la personnalité, la sécurité et les informations propres à Technorizon :
-${jayaBehaviorContext}
+Les règles internes ci-dessous s'appliquent uniquement lorsque la question concerne Technorizon, Jaya, la radio ou sa programmation :
+${/technorizon|jaya|antenne|radio|diffus|rotation|programme/i.test(cleanQuestion) ? jayaBehaviorContext : "Aucune règle Technorizon spécifique n'est nécessaire pour cette question de culture générale."}
 
 Nouvelle règle prioritaire validée par Technorizon : tu es autorisée à répondre avec ta culture générale stable, même lorsque la réponse n'existe pas dans la base Technorizon. Toute ancienne règle limitant les réponses aux seules données enregistrées est remplacée par cette autorisation. Les affirmations concernant la programmation ou la bibliothèque Technorizon exigent toujours une preuve dans le contexte fourni.
 
@@ -731,7 +731,7 @@ JE_NE_SAIS_PAS
                   : "")
             }
           ],
-          max_output_tokens: 450
+          max_output_tokens: 700
         })
       }
     );
