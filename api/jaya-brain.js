@@ -117,8 +117,12 @@ const conversationHistory =
     .replace(/[’'?!.,;:-]/g, " ");
 
   const words = cleanQuestion
-    .split(/\s+/)
+    .split(/\\s+/)
     .filter((word) => word.length >= 4);
+
+  const asksContextualTechnorizon =
+    conversationHistory.length > 0 &&
+    /(passe|diffuse|diffusee|diffusé|diffusée|programme|programmee|rotation).*technorizon|technorizon.*(passe|diffuse|diffusee|diffusé|diffusée|programme|programmee|rotation)/i.test(cleanQuestion);
 
 const faqMatch = faq.find((item) => {
   const mainQuestion = String(item.question || "")
@@ -397,6 +401,7 @@ if (artistMatch) {
 
 if (
   entityMatch &&
+  !asksContextualTechnorizon &&
   !(
     String(entityMatch.name || "").toLowerCase() === "jaya" &&
     words.length > 0
@@ -457,7 +462,7 @@ if (
     .replace(/[\u0300-\u036f]/g, "")
     .includes(words[0]);
 
-if (bestMatch && (bestScore >= 2 || exactTopicMatch)) {
+if (!asksContextualTechnorizon && bestMatch && (bestScore >= 2 || exactTopicMatch)) {
     return res.status(200).json({
       success: true,
       assistant: "Jaya",
@@ -656,7 +661,7 @@ JE_NE_SAIS_PAS
               role: "user",
               content:
                 question +
-                (bestMatch && bestScore > 0
+                (!asksContextualTechnorizon && bestMatch && bestScore > 0
                   ? `\n\nContexte Technorizon potentiellement pertinent : ${bestMatch.content}`
                   : "")
             }
