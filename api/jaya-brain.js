@@ -139,6 +139,9 @@ const conversationHistory =
     conversationHistory.length > 0 &&
     /(passe|diffuse|diffusee|diffusé|diffusée|programme|programmee|rotation).*technorizon|technorizon.*(passe|diffuse|diffusee|diffusé|diffusée|programme|programmee|rotation)/i.test(cleanQuestion);
 
+  const isTechnorizonIntent =
+    /technorizon|jaya|antenne|webradio|web radio|direct|diffus|rotation|programmation/i.test(cleanQuestion);
+
 const faqMatch = faq.find((item) => {
   const mainQuestion = String(item.question || "")
     .toLowerCase()
@@ -478,7 +481,7 @@ if (
     .replace(/[\u0300-\u036f]/g, "")
     .includes(words[0]);
 
-if (requestedLanguage === "fr" && !asksContextualTechnorizon && bestMatch && (bestScore >= 2 || exactTopicMatch)) {
+if (requestedLanguage === "fr" && !asksContextualTechnorizon && bestMatch && (exactTopicMatch || (isTechnorizonIntent && bestScore >= 2))) {
     return res.status(200).json({
       success: true,
       assistant: "Jaya",
@@ -682,7 +685,7 @@ if (artistMatch) {
 if (entityMatch?.description) {
   knowledgeContext.push(`Entité Technorizon : ${entityMatch.name} — ${entityMatch.description}`);
 }
-if (bestMatch && bestScore > 0) {
+if (bestMatch && bestScore > 0 && (isTechnorizonIntent || exactTopicMatch)) {
   knowledgeContext.push(`Connaissance Technorizon : ${bestMatch.content}`);
 }
 
