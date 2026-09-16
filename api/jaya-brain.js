@@ -326,7 +326,7 @@ if (asksTechnorizon) {
 
 if (artistMatch) {
   const asksArtistTechnorizon =
-    /\\b(technorizon|rotation|diffuse|diffusé|programme|bibliotheque)\\b/i.test(cleanQuestion);
+    /\\b(technorizon|rotation|diffuse|diffusee|diffusé|diffusée|programme|programmee|programmée|bibliotheque)\\b/i.test(cleanQuestion);
 
   const hasArtistProfile = Boolean(
     artistMatch.biography ||
