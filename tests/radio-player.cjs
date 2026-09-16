@@ -1,0 +1,47 @@
+const vm = require('node:vm');
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const source = fs.readFileSync(__dirname + '/../radio-player.js', 'utf8');
+const flush = () => new Promise(resolve => setImmediate(resolve));
+function setup(saved, storageBlocked = false) {
+  const make = () => ({ style: {}, handlers: {}, addEventListener(n, f) { (this.handlers[n] ||= []).push(f); }, emit(n) { for (const f of this.handlers[n] || []) f(); }, setAttribute() {} });
+  const audio = Object.assign(make(), { paused: true, ended: false, plays: 0, play() { this.plays++; if (this.fail) return Promise.reject({ name: this.fail }); this.paused = false; this.emit('playing'); return Promise.resolve(); }, pause() { this.paused = true; this.emit('pause'); }, load() {} });
+  const button = Object.assign(make(), { insertAdjacentElement(_, hint) { this.hint = hint; } });
+  const document = Object.assign(make(), { visibilityState: 'visible', documentElement: { lang: 'fr' }, getElementById: id => id === 'v2-audio' ? audio : button, createElement: make });
+  const window = make();
+  const data = new Map(saved ? [['technorizon-listening-return', JSON.stringify(saved)]] : []);
+  const sessionStorage = { getItem: k => { if (storageBlocked) throw Error(); return data.get(k); }, setItem: (k,v) => { if (storageBlocked) throw Error(); data.set(k,v); }, removeItem: k => { if (storageBlocked) throw Error(); data.delete(k); } };
+  const mediaSession = { actions: {}, setActionHandler(k,v) { this.actions[k] = v; } };
+  vm.runInNewContext(source, { document, window, navigator: { mediaSession }, sessionStorage, Date });
+  return { audio, button, document, window, data, mediaSession };
+}
+(async () => {
+  let s = setup();
+  s.window.emit('focus'); s.window.emit('pageshow'); await flush();
+  assert.equal(s.audio.plays, 0, 'No autoplay before the listener starts');
+  s.button.onclick(); await flush();
+  s.document.visibilityState = 'hidden'; s.audio.pause(); s.document.emit('visibilitychange'); await flush();
+  assert.equal(s.audio.plays, 1, 'Do not compete with another app while hidden');
+  s.document.visibilityState = 'visible'; s.document.emit('visibilitychange'); s.window.emit('focus'); await flush();
+  assert.equal(s.audio.plays, 2, 'Resume once after an interruption');
+  s.button.onclick(); s.window.emit('focus'); s.window.emit('pageshow'); await flush();
+  assert.equal(s.audio.plays, 2, 'Respect explicit pause');
+  s.button.onclick(); await flush(); s.window.emit('pagehide');
+  assert.equal(JSON.parse(s.data.get('technorizon-listening-return')).playing, true);
+  s = setup(JSON.parse(s.data.get('technorizon-listening-return'))); await flush();
+  assert.equal(s.audio.plays, 1, 'Resume after return from a site page');
+  s.mediaSession.actions.pause(); s.window.emit('focus'); await flush();
+  assert.equal(s.audio.plays, 1, 'Respect lock-screen pause');
+  s = setup({ playing: true, at: Date.now() - 31 * 60 * 1000 }); await flush();
+  assert.equal(s.audio.plays, 0, 'Ignore stale listening intent');
+  s = setup(); s.button.onclick(); await flush(); s.audio.pause(); s.audio.fail = 'NotAllowedError';
+  s.window.emit('focus'); await flush();
+  assert.equal(s.button.hint.hidden, false);
+  assert.match(s.button.hint.textContent, /Touche/);
+  assert.equal(s.button.textContent, '▶', 'Blocked autoplay never displays playing');
+  s.audio.fail = null; s.button.onclick(); await flush();
+  assert.equal(s.audio.paused, false, 'Tap recovers blocked autoplay');
+  s = setup(null, true); s.button.onclick(); await flush();
+  assert.equal(s.audio.paused, false, 'Playback survives unavailable storage');
+  console.log('PASS: initial silence, interrupted playback, no duplicate resume, intentional pause, page return, lock-screen pause, expired intent, blocked autoplay recovery, unavailable storage');
+})();
