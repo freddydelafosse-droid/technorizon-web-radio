@@ -321,47 +321,62 @@ if (asksTechnorizon) {
 });
 
 if (artistMatch) {
-  const parts = [];
+  const asksArtistTechnorizon =
+    /\\b(technorizon|rotation|diffuse|diffusé|programme|bibliotheque)\\b/i.test(cleanQuestion);
 
-  if (artistMatch.biography) {
-    parts.push(artistMatch.biography);
+  const hasArtistProfile = Boolean(
+    artistMatch.biography ||
+    artistMatch.country ||
+    (Array.isArray(artistMatch.genres) && artistMatch.genres.length) ||
+    artistMatch.active_years ||
+    artistMatch.known_for
+  );
+
+  if (hasArtistProfile || asksArtistTechnorizon) {
+    const parts = [];
+
+    if (artistMatch.biography) {
+      parts.push(artistMatch.biography);
+    }
+
+    if (artistMatch.country) {
+      parts.push(`Origine : ${artistMatch.country}.`);
+    }
+
+    if (Array.isArray(artistMatch.genres) && artistMatch.genres.length) {
+      parts.push(`Styles : ${artistMatch.genres.join(", ")}.`);
+    }
+
+    if (artistMatch.active_years) {
+      parts.push(`Période d'activité : ${artistMatch.active_years}.`);
+    }
+
+    if (artistMatch.known_for) {
+      parts.push(`Connu notamment pour : ${artistMatch.known_for}.`);
+    }
+
+    if (asksArtistTechnorizon) {
+      parts.push(
+        artistMatch.in_technorizon_rotation
+          ? "Cet artiste fait partie de l'univers musical de Technorizon."
+          : "Cet artiste est connu de Jaya, mais sa présence dans la rotation Technorizon n'est pas confirmée."
+      );
+
+      if (artistMatch.technorizon_notes) {
+        parts.push(artistMatch.technorizon_notes);
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      assistant: "Jaya",
+      found: true,
+      source: "artists",
+      answer:
+        parts.join(" ") ||
+        `${artistMatch.name} est référencé dans le cerveau musical Technorizon.`
+    });
   }
-
-  if (artistMatch.country) {
-    parts.push(`Origine : ${artistMatch.country}.`);
-  }
-
-  if (Array.isArray(artistMatch.genres) && artistMatch.genres.length) {
-    parts.push(`Styles : ${artistMatch.genres.join(", ")}.`);
-  }
-
-  if (artistMatch.active_years) {
-    parts.push(`Période d'activité : ${artistMatch.active_years}.`);
-  }
-
-  if (artistMatch.known_for) {
-    parts.push(`Connu notamment pour : ${artistMatch.known_for}.`);
-  }
-
-  if (artistMatch.in_technorizon_rotation) {
-    parts.push(
-      "Cet artiste fait partie de l'univers musical de Technorizon."
-    );
-  }
-
-  if (artistMatch.technorizon_notes) {
-    parts.push(artistMatch.technorizon_notes);
-  }
-
-  return res.status(200).json({
-    success: true,
-    assistant: "Jaya",
-    found: true,
-    source: "artists",
-    answer:
-      parts.join(" ") ||
-      `${artistMatch.name} est référencé dans le cerveau musical Technorizon.`
-  });
 }
 
       const entityMatch = entities.find((entity) => {
