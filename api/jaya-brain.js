@@ -117,7 +117,7 @@ const conversationHistory =
     .replace(/[’'?!.,;:-]/g, " ");
 
   const words = cleanQuestion
-    .split(/\\s+/)
+    .split(/\s+/)
     .filter((word) => word.length >= 4);
 
   const asksContextualTechnorizon =
@@ -326,7 +326,7 @@ if (asksTechnorizon) {
 
 if (artistMatch) {
   const asksArtistTechnorizon =
-    /\\b(technorizon|rotation|diffuse|diffusee|diffusé|diffusée|programme|programmee|programmée|bibliotheque)\\b/i.test(cleanQuestion);
+    /\b(technorizon|rotation|diffuse|diffusee|diffusé|diffusée|programme|programmee|programmée|bibliotheque)\b/i.test(cleanQuestion);
 
   const hasArtistProfile = Boolean(
     artistMatch.biography ||
