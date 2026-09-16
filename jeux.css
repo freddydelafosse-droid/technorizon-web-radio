@@ -40,3 +40,8 @@ button{touch-action:manipulation}
 @media(max-width:820px){.player-card{grid-template-columns:1fr}.profile-stats{justify-content:center}.profile-stats div:first-child{border-left:0}.game-panel{min-height:520px}.games-shell{padding-top:20px}}
 @media(max-width:600px){.games-topbar{grid-template-columns:1fr auto}.games-brand{display:none}.games-shell{width:min(100% - 20px,1120px)}.games-hero::before,.games-hero::after{display:none}.games-hero h1{letter-spacing:-1.2px}.game-zone-sign span{font-size:9px;letter-spacing:4px}.player-card{padding:19px}.profile-form{flex-direction:column}.profile-stats{gap:0}.profile-stats div{min-width:0;flex:1}.game-tabs{grid-template-columns:1fr}.game-tab{text-align:left}.game-heading{align-items:center}.game-heading h2{font-size:25px}.game-lead{font-size:14px}.game-stage{padding:19px}.mode-grid{grid-template-columns:1fr}.answers{grid-template-columns:1fr}.answer-btn{min-height:52px}.round-score strong{font-size:16px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+.games-top-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px}
+.game-language{max-width:155px;padding:8px 30px 8px 12px;border:1px solid rgba(0,240,255,.36);border-radius:999px;color:#f4fbff;background:#071425;cursor:pointer;font:inherit;font-size:12px;font-weight:800}
+.game-language:focus{outline:2px solid rgba(0,240,255,.55);outline-offset:2px}
+@media(max-width:600px){.games-top-actions{gap:8px}.game-language{max-width:128px;padding-left:9px}.games-info-link{display:none}}
