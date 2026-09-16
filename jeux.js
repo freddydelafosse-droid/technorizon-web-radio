@@ -4,7 +4,7 @@
   const STORAGE_KEY = 'technorizon-games-v1';
   const ROUNDS = 5;
 
-  const blindTracks = [
+  const blindTracksLegacy = [
     { artist: 'Gala', title: 'Freed From Desire' },
     { artist: 'Haddaway', title: 'What Is Love' },
     { artist: 'Corona', title: 'The Rhythm of the Night' },
@@ -24,6 +24,9 @@
     { artist: 'Avicii', title: 'Levels' },
     { artist: 'Calvin Harris', title: 'Feel So Close' }
   ];
+  const blindTracks = Array.isArray(window.TECHNORIZON_TRACKS) && window.TECHNORIZON_TRACKS.length >= 200
+    ? window.TECHNORIZON_TRACKS
+    : blindTracksLegacy.map((track, index) => ({ ...track, id: index + 1 }));
 
   const intoxQuestions = [
     { text: 'Daft Punk était un duo français.', answer: true, detail: 'Thomas Bangalter et Guy-Manuel de Homem-Christo formaient Daft Punk.' },
@@ -51,9 +54,30 @@
     { text: 'Quel artiste est derrière « Levels » ?', answers: ['Avicii', 'Calvin Harris', 'Tiësto', 'Martin Garrix'], correct: 0 }
   ];
 
+  const createHitIntoxBank = () => blindTracks.slice(0, 60).flatMap((track, index, tracks) => {
+    const wrongArtist = tracks[(index + 17) % tracks.length].artist;
+    return [
+      { id: `hit-true-${track.id}`, text: `« ${track.title} » est interprété par ${track.artist}.`, answer: true, detail: `Exact : ${track.artist} interprète « ${track.title} ».` },
+      { id: `hit-false-${track.id}`, text: `« ${track.title} » est interprété par ${wrongArtist}.`, answer: false, detail: `Intox : « ${track.title} » est interprété par ${track.artist}.` }
+    ];
+  });
+
+  const createTechnoQuizBank = () => blindTracks.slice(0, 200).map((track, index, tracks) => {
+    if (index % 2 === 0) {
+      const alternatives = sample([...new Set(tracks.filter(item => item.artist !== track.artist).map(item => item.artist))], 3);
+      const answers = shuffle([track.artist, ...alternatives]);
+      return { id: `quiz-artist-${track.id}`, text: `Qui interprète « ${track.title} » ?`, answers, correct: answers.indexOf(track.artist) };
+    }
+    const alternatives = sample(tracks.filter(item => item.title !== track.title), 3).map(item => item.title);
+    const answers = shuffle([track.title, ...alternatives]);
+    return { id: `quiz-title-${track.id}`, text: `Quel titre est interprété par ${track.artist} ?`, answers, correct: answers.indexOf(track.title) };
+  });
+
   const $ = selector => document.querySelector(selector);
   const shuffle = list => [...list].sort(() => Math.random() - 0.5);
   const sample = (list, count) => shuffle(list).slice(0, count);
+  const hitIntoxBank = createHitIntoxBank();
+  const technoQuizBank = createTechnoQuizBank();
   const today = () => new Date().toISOString().slice(0, 10);
   const yesterday = () => {
     const d = new Date();
@@ -61,12 +85,26 @@
     return d.toISOString().slice(0, 10);
   };
 
-  const defaultState = () => ({ name: '', points: 0, streak: 0, lastPlayed: '', gamesPlayed: 0, ranking: [] });
+  const defaultState = () => ({ name: '', points: 0, streak: 0, lastPlayed: '', gamesPlayed: 0, ranking: [], seen: {} });
   function loadState() {
     try { return { ...defaultState(), ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }; }
     catch { return defaultState(); }
   }
   let player = loadState();
+
+  function drawUnseen(list, count, key) {
+    player.seen = player.seen && typeof player.seen === 'object' ? player.seen : {};
+    let seen = Array.isArray(player.seen[key]) ? player.seen[key] : [];
+    let available = list.filter(item => !seen.includes(item.id));
+    if (available.length < count) {
+      seen = [];
+      available = [...list];
+    }
+    const chosen = sample(available, count);
+    player.seen[key] = [...seen, ...chosen.map(item => item.id)];
+    saveState();
+    return chosen;
+  }
 
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(player));
@@ -144,7 +182,7 @@
   }
 
   // Blind Test
-  const blind = { questions: [], index: 0, score: 0, locked: false };
+  const blind = { questions: [], index: 0, score: 0, locked: false, total: ROUNDS };
   const blindStage = $('#blind-stage');
   const blindAudio = $('#blind-audio');
   function stopBlindAudio() {
@@ -152,10 +190,11 @@
     blindAudio.currentTime = 0;
   }
 
-  async function startBlind() {
+  async function startBlind(rounds = ROUNDS) {
     if (!ensureProfile()) return;
     stopBlindAudio();
-    blind.questions = sample(blindTracks, ROUNDS);
+    blind.total = Number(rounds) === 25 ? 25 : ROUNDS;
+    blind.questions = drawUnseen(blindTracks, blind.total, 'blind');
     blind.index = 0;
     blind.score = 0;
     $('#blind-score').textContent = '0 pts';
@@ -166,7 +205,7 @@
     stopBlindAudio();
     blind.locked = false;
     const track = blind.questions[blind.index];
-    $('#blind-round').textContent = `${blind.index + 1} / ${ROUNDS}`;
+    $('#blind-round').textContent = `${blind.index + 1} / ${blind.total}`;
     loading(blindStage, 'Préparation de l’extrait…');
     try {
       const params = new URLSearchParams({ artist: track.artist, title: track.title });
@@ -216,7 +255,7 @@
     feedback.textContent = correct ? `Bonne réponse ! ${track.artist} — ${track.title}` : `C’était ${track.artist} — ${track.title}`;
     addNextButton(blindStage.querySelector('.question-wrap'), () => {
       blind.index += 1;
-      if (blind.index >= ROUNDS) result(blindStage, 'Blind Test', blind.score, startBlind);
+      if (blind.index >= blind.total) result(blindStage, blind.total === 25 ? 'Blind Test Soirée' : 'Blind Test', blind.score, () => startBlind(blind.total));
       else loadBlindRound();
     });
   }
@@ -226,7 +265,7 @@
   const intoxStage = $('#intox-stage');
   function startIntox() {
     if (!ensureProfile()) return;
-    intox.questions = sample(intoxQuestions, ROUNDS);
+    intox.questions = drawUnseen(hitIntoxBank.length === 120 ? hitIntoxBank : intoxQuestions, ROUNDS, 'intox');
     intox.index = 0;
     intox.score = 0;
     $('#intox-score').textContent = '0 pts';
@@ -265,7 +304,7 @@
   const quizStage = $('#quiz-stage');
   function startQuiz() {
     if (!ensureProfile()) return;
-    quiz.questions = sample(quizQuestions, ROUNDS);
+    quiz.questions = drawUnseen(technoQuizBank.length === 200 ? technoQuizBank : quizQuestions, ROUNDS, 'quiz');
     quiz.index = 0;
     quiz.score = 0;
     $('#quiz-score').textContent = '0 pts';
@@ -309,7 +348,8 @@
     container.appendChild(button);
   }
 
-  $('#blind-start').addEventListener('click', startBlind);
+  $('#blind-start').addEventListener('click', () => startBlind(5));
+  $('#blind-party').addEventListener('click', () => startBlind(25));
   $('#intox-start').addEventListener('click', startIntox);
   $('#quiz-start').addEventListener('click', startQuiz);
   renderProfile();
