@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="/ImageLogoFinal.png">
   <link rel="apple-touch-icon" href="/ImageLogoFinal.png">
   <link rel="stylesheet" href="/style-v2.css?v=13">
-  <link rel="stylesheet" href="/jeux.css?v=1">
+  <link rel="stylesheet" href="/jeux.css?v=2">
 </head>
 <body>
   <div class="games-page">
@@ -19,7 +19,14 @@
     <nav class="games-topbar" aria-label="Navigation principale">
       <a class="games-home" href="/">⌂ Accueil</a>
       <span class="games-brand">TECHN<span>O</span>RIZON.FR</span>
-      <a class="games-info-link" href="/a-propos.html">ⓘ Infos</a>
+      <div class="games-top-actions">
+        <label class="sr-only" for="game-language">Langue</label>
+        <select id="game-language" class="game-language" aria-label="Langue">
+          <option value="fr">🇫🇷 Français</option>
+          <option value="en">🇬🇧 English</option>
+        </select>
+        <a class="games-info-link" href="/a-propos.html">ⓘ Infos</a>
+      </div>
     </nav>
 
     <main class="games-shell">
@@ -105,6 +112,6 @@
     <footer class="games-footer">© 2026 Technorizon.fr · La musique sans frontières</footer>
   </div>
   <script src="/jeux-data.js?v=1" defer></script>
-  <script src="/jeux.js?v=2" defer></script>
+  <script src="/jeux.js?v=3" defer></script>
 </body>
 </html>
