@@ -4,6 +4,104 @@
   const STORAGE_KEY = 'technorizon-games-v1';
   const ROUNDS = 5;
 
+  let lang = localStorage.getItem('technorizon-lang') === 'en' ? 'en' : 'fr';
+  const I18N = {
+    fr: {
+      title: 'Jeux Technorizon — Blind Test, Hit ou Intox et TechnoQuiz',
+      description: 'Jouez au Blind Test, à Hit ou Intox et au TechnoQuiz de Technorizon.fr.',
+      home: '⌂ Accueil', info: 'ⓘ Infos', heroTitle: 'Choisis ton jeu.<br><span>Défie tes amis</span>',
+      heroText: 'Du son, des défis et des points dans une salle de jeux 100 % Technorizon',
+      profileEyebrow: 'PROFIL JOUEUR', profileTitle: 'Ton pseudo', nickname: 'Entre ton pseudo', save: 'Enregistrer',
+      points: 'points', streak: 'jours de série', games: 'parties',
+      blindTab: '<span>🎧</span> Blind Test', intoxTab: '<span>⚡</span> Hit ou Intox ?', quizTab: '<span>🧠</span> TechnoQuiz',
+      blindTitle: 'Blind Test Technorizon', blindLead: 'Écoute l’extrait et retrouve le titre. Cinq morceaux, quatre réponses, une seule bonne.',
+      blindIntro: 'Choisis ton mode. Les extraits durent jusqu’à 15 secondes.',
+      express: '<span>⚡</span><strong>Partie express</strong><small>5 extraits · partie rapide</small>',
+      party: '<span>🎉</span><strong>Soirée entre amis</strong><small>25 extraits · chacun son tour !</small>',
+      trueFalse: 'VRAI OU FAUX', intoxLead: 'Une affirmation musicale s’affiche. À toi de décider si c’est un hit… ou une intox.',
+      intoxIntro: 'Cinq affirmations pour tester ta culture musicale.', intoxStart: 'Jouer à Hit ou Intox',
+      electro: 'CULTURE ÉLECTRO', quizLead: 'Artistes, titres et classiques : cinq questions pour montrer ce que tu sais.',
+      quizIntro: 'Une bonne réponse rapporte 75 points.', quizStart: 'Lancer le TechnoQuiz',
+      topPlayers: 'TOP JOUEURS', rankingTitle: 'Classement sur cet appareil',
+      rankingNote: 'Le classement général en ligne arrivera après validation de cette première version.',
+      footer: '© 2026 Technorizon.fr · La musique sans frontières',
+      emptyRanking: 'À toi d’ouvrir le classement !', pt: 'pt', pts: 'pts',
+      finished: 'Partie terminée !', added: 'Tes points sont ajoutés au profil {name}.', replay: 'Rejouer',
+      preparing: 'Préparation de l’extrait…', clip: 'EXTRAIT {number}', whatTitle: 'Quel est ce titre ?',
+      listen: '▶ Écouter l’extrait', pause: '❚❚ Mettre en pause', listenAgain: '▶ Réécouter l’extrait',
+      audioError: 'Impossible de lire cet extrait. Appuie sur Suivant.',
+      unavailable: 'Extrait momentanément indisponible', replaced: 'Ce morceau sera remplacé automatiquement.',
+      tryAnother: 'Essayer un autre extrait', correctTrack: 'Bonne réponse ! {artist} — {title}', wasTrack: 'C’était {artist} — {title}',
+      statement: 'AFFIRMATION {number}', hitTrue: '🎯 HIT — C’est vrai', intoxFalse: '🚨 INTOX — C’est faux',
+      wellDone: 'Bien vu !', missed: 'Raté !', exact: 'Exact : {artist} interprète « {title} ».',
+      falseDetail: 'Intox : « {title} » est interprété par {artist}.',
+      trackBy: '« {title} » est interprété par {artist}.', whoPerforms: 'Qui interprète « {title} » ?',
+      whichTitle: 'Quel titre est interprété par {artist} ?', question: 'QUESTION {number}',
+      goodAnswer: 'Bonne réponse !', rightAnswer: 'La bonne réponse était : {answer}', next: 'Question suivante →',
+      blindPartyName: 'Blind Test Soirée'
+    },
+    en: {
+      title: 'Technorizon Games — Blind Test, Hit or Myth and TechnoQuiz',
+      description: 'Play Technorizon.fr’s Blind Test, Hit or Myth and TechnoQuiz.',
+      home: '⌂ Home', info: 'ⓘ Info', heroTitle: 'Choose your game.<br><span>Challenge your friends</span>',
+      heroText: 'Music, challenges and points in a 100% Technorizon game room',
+      profileEyebrow: 'PLAYER PROFILE', profileTitle: 'Your nickname', nickname: 'Enter your nickname', save: 'Save',
+      points: 'points', streak: 'day streak', games: 'games',
+      blindTab: '<span>🎧</span> Blind Test', intoxTab: '<span>⚡</span> Hit or Myth?', quizTab: '<span>🧠</span> TechnoQuiz',
+      blindTitle: 'Technorizon Blind Test', blindLead: 'Listen to the clip and find the title. Five tracks, four answers, only one is right.',
+      blindIntro: 'Choose your mode. Clips last up to 15 seconds.',
+      express: '<span>⚡</span><strong>Quick game</strong><small>5 clips · fast round</small>',
+      party: '<span>🎉</span><strong>Friends’ night</strong><small>25 clips · take turns!</small>',
+      trueFalse: 'TRUE OR FALSE', intoxLead: 'A music statement appears. Decide whether it is a hit… or a myth.',
+      intoxIntro: 'Five statements to test your music knowledge.', intoxStart: 'Play Hit or Myth',
+      electro: 'ELECTRONIC MUSIC', quizLead: 'Artists, tracks and classics: five questions to show what you know.',
+      quizIntro: 'Each correct answer earns 75 points.', quizStart: 'Start TechnoQuiz',
+      topPlayers: 'TOP PLAYERS', rankingTitle: 'Leaderboard on this device',
+      rankingNote: 'The online global leaderboard will arrive after this first version is approved.',
+      footer: '© 2026 Technorizon.fr · Music without borders',
+      emptyRanking: 'Be the first on the leaderboard!', pt: 'pt', pts: 'pts',
+      finished: 'Game over!', added: 'Your points have been added to {name}’s profile.', replay: 'Play again',
+      preparing: 'Preparing the clip…', clip: 'CLIP {number}', whatTitle: 'What is this track?',
+      listen: '▶ Play the clip', pause: '❚❚ Pause', listenAgain: '▶ Play the clip again',
+      audioError: 'This clip cannot be played. Press Next.',
+      unavailable: 'Clip temporarily unavailable', replaced: 'This track will be replaced automatically.',
+      tryAnother: 'Try another clip', correctTrack: 'Correct! {artist} — {title}', wasTrack: 'It was {artist} — {title}',
+      statement: 'STATEMENT {number}', hitTrue: '🎯 HIT — True', intoxFalse: '🚨 MYTH — False',
+      wellDone: 'Well done!', missed: 'Not quite!', exact: 'Correct: {artist} performs “{title}”.',
+      falseDetail: 'Myth: “{title}” is performed by {artist}.',
+      trackBy: '“{title}” is performed by {artist}.', whoPerforms: 'Who performs “{title}”?',
+      whichTitle: 'Which track is performed by {artist}?', question: 'QUESTION {number}',
+      goodAnswer: 'Correct!', rightAnswer: 'The correct answer was: {answer}', next: 'Next question →',
+      blindPartyName: 'Blind Test Party'
+    }
+  };
+  const t = (key, vars = {}) => (I18N[lang][key] || key).replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? '');
+  const setText = (selector, key) => { const node = document.querySelector(selector); if (node) node.textContent = t(key); };
+  const setHtml = (selector, key) => { const node = document.querySelector(selector); if (node) node.innerHTML = t(key); };
+  function applyLanguage() {
+    document.documentElement.lang = lang;
+    document.title = t('title');
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.content = t('description');
+    const picker = document.querySelector('#game-language');
+    if (picker) picker.value = lang;
+    setText('.games-home', 'home'); setText('.games-info-link', 'info');
+    setHtml('.games-hero h1', 'heroTitle'); setText('.games-hero p', 'heroText');
+    setText('.player-card .eyebrow', 'profileEyebrow'); setText('#profile-title', 'profileTitle');
+    const nickname = document.querySelector('#player-name'); if (nickname) nickname.placeholder = t('nickname');
+    setText('#profile-form button', 'save');
+    setText('.profile-stats div:nth-child(1) span', 'points');
+    setText('.profile-stats div:nth-child(2) span', 'streak');
+    setText('.profile-stats div:nth-child(3) span', 'games');
+    setHtml('.game-tab[data-game="blind"]', 'blindTab'); setHtml('.game-tab[data-game="intox"]', 'intoxTab'); setHtml('.game-tab[data-game="quiz"]', 'quizTab');
+    setText('#blind-title', 'blindTitle'); setText('#game-blind .game-lead', 'blindLead'); setText('#blind-stage > p', 'blindIntro');
+    setHtml('#blind-start', 'express'); setHtml('#blind-party', 'party');
+    setText('#game-intox .secondary-badge', 'trueFalse'); setText('#game-intox .game-lead', 'intoxLead'); setText('#intox-stage > p', 'intoxIntro'); setText('#intox-start', 'intoxStart');
+    setText('#game-quiz .secondary-badge', 'electro'); setText('#game-quiz .game-lead', 'quizLead'); setText('#quiz-stage > p', 'quizIntro'); setText('#quiz-start', 'quizStart');
+    setText('.ranking-card .eyebrow', 'topPlayers'); setText('#ranking-title', 'rankingTitle'); setText('.ranking-note', 'rankingNote'); setText('.games-footer', 'footer');
+  }
+
+
   const blindTracksLegacy = [
     { artist: 'Gala', title: 'Freed From Desire' },
     { artist: 'Haddaway', title: 'What Is Love' },
@@ -57,8 +155,8 @@
   const createHitIntoxBank = () => blindTracks.slice(0, 60).flatMap((track, index, tracks) => {
     const wrongArtist = tracks[(index + 17) % tracks.length].artist;
     return [
-      { id: `hit-true-${track.id}`, text: `« ${track.title} » est interprété par ${track.artist}.`, answer: true, detail: `Exact : ${track.artist} interprète « ${track.title} ».` },
-      { id: `hit-false-${track.id}`, text: `« ${track.title} » est interprété par ${wrongArtist}.`, answer: false, detail: `Intox : « ${track.title} » est interprété par ${track.artist}.` }
+      { id: `hit-true-${track.id}`, text: t('trackBy', { title: track.title, artist: track.artist }), answer: true, detail: t('exact', { artist: track.artist, title: track.title }) },
+      { id: `hit-false-${track.id}`, text: t('trackBy', { title: track.title, artist: wrongArtist }), answer: false, detail: t('falseDetail', { title: track.title, artist: track.artist }) }
     ];
   });
 
@@ -66,11 +164,11 @@
     if (index % 2 === 0) {
       const alternatives = sample([...new Set(tracks.filter(item => item.artist !== track.artist).map(item => item.artist))], 3);
       const answers = shuffle([track.artist, ...alternatives]);
-      return { id: `quiz-artist-${track.id}`, text: `Qui interprète « ${track.title} » ?`, answers, correct: answers.indexOf(track.artist) };
+      return { id: `quiz-artist-${track.id}`, text: t('whoPerforms', { title: track.title }), answers, correct: answers.indexOf(track.artist) };
     }
     const alternatives = sample(tracks.filter(item => item.title !== track.title), 3).map(item => item.title);
     const answers = shuffle([track.title, ...alternatives]);
-    return { id: `quiz-title-${track.id}`, text: `Quel titre est interprété par ${track.artist} ?`, answers, correct: answers.indexOf(track.title) };
+    return { id: `quiz-title-${track.id}`, text: t('whichTitle', { artist: track.artist }), answers, correct: answers.indexOf(track.title) };
   });
 
   const $ = selector => document.querySelector(selector);
@@ -130,7 +228,7 @@
     const rows = [...player.ranking].sort((a, b) => b.score - a.score).slice(0, 5);
     $('#ranking-list').innerHTML = rows.length
       ? rows.map((row, index) => `<li><span class="ranking-rank">${index + 1}</span><span class="ranking-name">${escapeHtml(row.name)}</span><strong class="ranking-points">${row.score} pts · ${escapeHtml(row.game)}</strong></li>`).join('')
-      : '<li><span class="ranking-rank">–</span><span class="ranking-name">À toi d’ouvrir le classement !</span><strong class="ranking-points">0 pt</strong></li>';
+      : `<li><span class="ranking-rank">–</span><span class="ranking-name">${escapeHtml(t('emptyRanking'))}</span><strong class="ranking-points">0 ${t('pt')}</strong></li>`;
   }
 
   function escapeHtml(value) {
@@ -177,7 +275,7 @@
 
   function result(stage, game, score, restart) {
     completeGame(game, score);
-    stage.innerHTML = `<div class="result-score">${score}</div><h3 class="result-title">Partie terminée !</h3><p class="result-text">Tes points sont ajoutés au profil ${escapeHtml(player.name)}.</p><button class="primary-action" type="button">Rejouer</button>`;
+    stage.innerHTML = `<div class="result-score">${score}</div><h3 class="result-title">${escapeHtml(t('finished'))}</h3><p class="result-text">${escapeHtml(t('added', { name: player.name }))}</p><button class="primary-action" type="button">${escapeHtml(t('replay'))}</button>`;
     stage.querySelector('button').addEventListener('click', restart);
   }
 
@@ -206,7 +304,7 @@
     blind.locked = false;
     const track = blind.questions[blind.index];
     $('#blind-round').textContent = `${blind.index + 1} / ${blind.total}`;
-    loading(blindStage, 'Préparation de l’extrait…');
+    loading(blindStage, t('preparing'));
     try {
       const params = new URLSearchParams({ artist: track.artist, title: track.title });
       const response = await fetch(`/api/game-preview?${params}`, { cache: 'no-store' });
@@ -217,20 +315,20 @@
       blindAudio.load();
       const alternatives = sample(blindTracks.filter(item => item.title !== track.title), 3).map(item => item.title);
       const answers = shuffle([track.title, ...alternatives]);
-      blindStage.innerHTML = `<div class="question-wrap"><span class="question-label">EXTRAIT ${blind.index + 1}</span><h3 class="question-title">Quel est ce titre ?</h3><button class="audio-action" type="button">▶ Écouter l’extrait</button><div class="answers">${answers.map(answer => `<button class="answer-btn" type="button" data-answer="${escapeHtml(answer)}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
+      blindStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('clip', { number: blind.index + 1 }))}</span><h3 class="question-title">${escapeHtml(t('whatTitle'))}</h3><button class="audio-action" type="button">${escapeHtml(t('listen'))}</button><div class="answers">${answers.map(answer => `<button class="answer-btn" type="button" data-answer="${escapeHtml(answer)}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
       const play = blindStage.querySelector('.audio-action');
       play.addEventListener('click', async () => {
         try {
-          if (blindAudio.paused) { await blindAudio.play(); play.textContent = '❚❚ Mettre en pause'; play.classList.add('playing'); }
-          else { blindAudio.pause(); play.textContent = '▶ Réécouter l’extrait'; play.classList.remove('playing'); }
-        } catch { blindStage.querySelector('.feedback').textContent = 'Impossible de lire cet extrait. Appuie sur Suivant.'; }
+          if (blindAudio.paused) { await blindAudio.play(); play.textContent = t('pause'); play.classList.add('playing'); }
+          else { blindAudio.pause(); play.textContent = t('listenAgain'); play.classList.remove('playing'); }
+        } catch { blindStage.querySelector('.feedback').textContent = t('audioError'); }
       });
       blindAudio.ontimeupdate = () => {
         if (blindAudio.currentTime >= 15) { blindAudio.pause(); play.textContent = '▶ Réécouter l’extrait'; play.classList.remove('playing'); }
       };
       blindStage.querySelectorAll('.answer-btn').forEach(button => button.addEventListener('click', () => answerBlind(button, track)));
     } catch {
-      blindStage.innerHTML = '<div class="question-wrap"><h3 class="question-title">Extrait momentanément indisponible</h3><p class="result-text">Ce morceau sera remplacé automatiquement.</p><button class="primary-action" type="button">Essayer un autre extrait</button></div>';
+      blindStage.innerHTML = `<div class="question-wrap"><h3 class="question-title">${escapeHtml(t('unavailable'))}</h3><p class="result-text">${escapeHtml(t('replaced'))}</p><button class="primary-action" type="button">${escapeHtml(t('tryAnother'))}</button></div>`;
       blindStage.querySelector('button').addEventListener('click', () => {
         blind.questions[blind.index] = sample(blindTracks.filter(item => !blind.questions.includes(item)), 1)[0] || sample(blindTracks, 1)[0];
         loadBlindRound();
@@ -252,10 +350,10 @@
     if (!correct) button.classList.add('wrong');
     const feedback = blindStage.querySelector('.feedback');
     feedback.className = `feedback ${correct ? 'good' : 'bad'}`;
-    feedback.textContent = correct ? `Bonne réponse ! ${track.artist} — ${track.title}` : `C’était ${track.artist} — ${track.title}`;
+    feedback.textContent = correct ? t('correctTrack', { artist: track.artist, title: track.title }) : t('wasTrack', { artist: track.artist, title: track.title });
     addNextButton(blindStage.querySelector('.question-wrap'), () => {
       blind.index += 1;
-      if (blind.index >= blind.total) result(blindStage, blind.total === 25 ? 'Blind Test Soirée' : 'Blind Test', blind.score, () => startBlind(blind.total));
+      if (blind.index >= blind.total) result(blindStage, blind.total === 25 ? t('blindPartyName') : 'Blind Test', blind.score, () => startBlind(blind.total));
       else loadBlindRound();
     });
   }
@@ -275,7 +373,7 @@
     intox.locked = false;
     const question = intox.questions[intox.index];
     $('#intox-round').textContent = `${intox.index + 1} / ${ROUNDS}`;
-    intoxStage.innerHTML = `<div class="question-wrap"><span class="question-label">AFFIRMATION ${intox.index + 1}</span><h3 class="question-title">${escapeHtml(question.text)}</h3><div class="answers"><button class="answer-btn" type="button" data-value="true">🎯 HIT — C’est vrai</button><button class="answer-btn" type="button" data-value="false">🚨 INTOX — C’est faux</button></div><p class="feedback" aria-live="polite"></p></div>`;
+    intoxStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('statement', { number: intox.index + 1 }))}</span><h3 class="question-title">${escapeHtml(question.text)}</h3><div class="answers"><button class="answer-btn" type="button" data-value="true">${escapeHtml(t('hitTrue'))}</button><button class="answer-btn" type="button" data-value="false">${escapeHtml(t('intoxFalse'))}</button></div><p class="feedback" aria-live="polite"></p></div>`;
     intoxStage.querySelectorAll('.answer-btn').forEach(button => button.addEventListener('click', () => answerIntox(button, question)));
   }
   function answerIntox(button, question) {
@@ -291,7 +389,7 @@
     if (!correct) button.classList.add('wrong');
     const feedback = intoxStage.querySelector('.feedback');
     feedback.className = `feedback ${correct ? 'good' : 'bad'}`;
-    feedback.textContent = `${correct ? 'Bien vu !' : 'Raté !'} ${question.detail}`;
+    feedback.textContent = `${correct ? t('wellDone') : t('missed')} ${question.detail}`;
     addNextButton(intoxStage.querySelector('.question-wrap'), () => {
       intox.index += 1;
       if (intox.index >= ROUNDS) result(intoxStage, 'Hit ou Intox', intox.score, startIntox);
@@ -314,7 +412,7 @@
     quiz.locked = false;
     const question = quiz.questions[quiz.index];
     $('#quiz-round').textContent = `${quiz.index + 1} / ${ROUNDS}`;
-    quizStage.innerHTML = `<div class="question-wrap"><span class="question-label">QUESTION ${quiz.index + 1}</span><h3 class="question-title">${escapeHtml(question.text)}</h3><div class="answers">${question.answers.map((answer, index) => `<button class="answer-btn" type="button" data-index="${index}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
+    quizStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('question', { number: quiz.index + 1 }))}</span><h3 class="question-title">${escapeHtml(question.text)}</h3><div class="answers">${question.answers.map((answer, index) => `<button class="answer-btn" type="button" data-index="${index}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
     quizStage.querySelectorAll('.answer-btn').forEach(button => button.addEventListener('click', () => answerQuiz(button, question)));
   }
   function answerQuiz(button, question) {
@@ -331,7 +429,7 @@
     if (!correct) button.classList.add('wrong');
     const feedback = quizStage.querySelector('.feedback');
     feedback.className = `feedback ${correct ? 'good' : 'bad'}`;
-    feedback.textContent = correct ? 'Bonne réponse !' : `La bonne réponse était : ${question.answers[question.correct]}`;
+    feedback.textContent = correct ? t('goodAnswer') : t('rightAnswer', { answer: question.answers[question.correct] });
     addNextButton(quizStage.querySelector('.question-wrap'), () => {
       quiz.index += 1;
       if (quiz.index >= ROUNDS) result(quizStage, 'TechnoQuiz', quiz.score, startQuiz);
@@ -343,11 +441,17 @@
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'primary-action next-action';
-    button.textContent = 'Question suivante →';
+    button.textContent = t('next');
     button.addEventListener('click', action, { once: true });
     container.appendChild(button);
   }
 
+  $('#game-language').addEventListener('change', event => {
+    const next = event.target.value === 'en' ? 'en' : 'fr';
+    localStorage.setItem('technorizon-lang', next);
+    window.location.reload();
+  });
+  applyLanguage();
   $('#blind-start').addEventListener('click', () => startBlind(5));
   $('#blind-party').addEventListener('click', () => startBlind(25));
   $('#intox-start').addEventListener('click', startIntox);
