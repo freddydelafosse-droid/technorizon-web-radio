@@ -1,5 +1,5 @@
-const CACHE='technorizon-v2-shell-4';
-const SHELL=['/','/index.html','/style-v2.css?v=13','/ImageLogoFinal.png','/Fond-Technorizon-V2.png.png','/jeux.html','/jeux.css?v=2','/jeux.js?v=5','/jeux-data.js?v=1'];
+const CACHE='technorizon-v2-shell-5';
+const SHELL=['/','/index.html','/style-v2.css?v=13','/ImageLogoFinal.png','/Fond-Technorizon-V2.png.png','/jeux.html','/jeux.css?v=2','/jeux.js?v=7','/jeux-data.js?v=1'];
 
 self.addEventListener('install',event=>{
   self.skipWaiting();
