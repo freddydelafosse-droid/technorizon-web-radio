@@ -324,7 +324,7 @@
         } catch { blindStage.querySelector('.feedback').textContent = t('audioError'); }
       });
       blindAudio.ontimeupdate = () => {
-        if (blindAudio.currentTime >= 15) { blindAudio.pause(); play.textContent = '▶ Réécouter l’extrait'; play.classList.remove('playing'); }
+        if (blindAudio.currentTime >= 15) { blindAudio.pause(); play.textContent = t('listenAgain'); play.classList.remove('playing'); }
       };
       blindStage.querySelectorAll('.answer-btn').forEach(button => button.addEventListener('click', () => answerBlind(button, track)));
     } catch {
