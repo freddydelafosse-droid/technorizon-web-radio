@@ -24,9 +24,9 @@
 
     <main class="games-shell">
       <header class="games-hero">
-        <span class="games-kicker">L’ESPACE JEUX</span>
-        <h1>Joue. Marque des points.<br><span>Entre dans le classement.</span></h1>
-        <p>Blind Test, Hit ou Intox ? et TechnoQuiz dans l’univers Technorizon.</p>
+        <div class="game-zone-sign"><span>TECHNORIZON</span><strong>GAME ZONE</strong></div>
+        <h1>Choisis ton jeu.<br><span>Défie tes amis.</span></h1>
+        <p>Du son, des défis et des points dans une salle de jeux 100 % Technorizon.</p>
       </header>
 
       <section class="player-card glass" aria-labelledby="profile-title">
@@ -60,8 +60,11 @@
         <p class="game-lead">Écoute l’extrait et retrouve le titre. Cinq morceaux, quatre réponses, une seule bonne.</p>
         <div id="blind-stage" class="game-stage">
           <div class="game-intro-icon">♫</div>
-          <p>Les extraits durent jusqu’à 15 secondes.</p>
-          <button id="blind-start" class="primary-action" type="button">Lancer le Blind Test</button>
+          <p>Choisis ton mode. Les extraits durent jusqu’à 15 secondes.</p>
+          <div class="mode-grid">
+            <button id="blind-start" class="mode-card cyan" type="button"><span>⚡</span><strong>Partie express</strong><small>5 extraits · partie rapide</small></button>
+            <button id="blind-party" class="mode-card pink" type="button"><span>🎉</span><strong>Soirée entre amis</strong><small>25 extraits · chacun son tour !</small></button>
+          </div>
         </div>
         <audio id="blind-audio" preload="none"></audio>
       </section>
@@ -101,6 +104,7 @@
 
     <footer class="games-footer">© 2026 Technorizon.fr · La musique sans frontières</footer>
   </div>
-  <script src="/jeux.js?v=1" defer></script>
+  <script src="/jeux-data.js?v=1" defer></script>
+  <script src="/jeux.js?v=2" defer></script>
 </body>
 </html>
