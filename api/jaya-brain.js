@@ -563,7 +563,7 @@ const genericMusicTerms = new Set([
 ]);
 
 if (
-  musicIntent &&
+  (musicIntent || wantsArtist) &&
   externalMusicQuery.length >= 2 &&
   !genericMusicTerms.has(externalMusicQuery.toLowerCase())
 ) {
