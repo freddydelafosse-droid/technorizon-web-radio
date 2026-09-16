@@ -1,1 +1,106 @@
-sed: -e expression #1, char 3: unexpected `,'
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <title>Jeux Technorizon — Blind Test, Hit ou Intox et TechnoQuiz</title>
+  <meta name="description" content="Jouez au Blind Test, à Hit ou Intox et au TechnoQuiz de Technorizon.fr.">
+  <meta name="theme-color" content="#020812">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="/ImageLogoFinal.png">
+  <link rel="apple-touch-icon" href="/ImageLogoFinal.png">
+  <link rel="stylesheet" href="/style-v2.css?v=13">
+  <link rel="stylesheet" href="/jeux.css?v=1">
+</head>
+<body>
+  <div class="games-page">
+    <div class="games-bg" aria-hidden="true"></div>
+
+    <nav class="games-topbar" aria-label="Navigation principale">
+      <a class="games-home" href="/">⌂ Accueil</a>
+      <span class="games-brand">TECHN<span>O</span>RIZON.FR</span>
+      <a class="games-info-link" href="/a-propos.html">ⓘ Infos</a>
+    </nav>
+
+    <main class="games-shell">
+      <header class="games-hero">
+        <span class="games-kicker">L’ESPACE JEUX</span>
+        <h1>Joue. Marque des points.<br><span>Entre dans le classement.</span></h1>
+        <p>Blind Test, Hit ou Intox ? et TechnoQuiz dans l’univers Technorizon.</p>
+      </header>
+
+      <section class="player-card glass" aria-labelledby="profile-title">
+        <div>
+          <span class="eyebrow">PROFIL JOUEUR</span>
+          <h2 id="profile-title">Ton pseudo</h2>
+        </div>
+        <form id="profile-form" class="profile-form">
+          <label class="sr-only" for="player-name">Pseudo</label>
+          <input id="player-name" maxlength="18" autocomplete="nickname" placeholder="Entre ton pseudo" required>
+          <button type="submit">Enregistrer</button>
+        </form>
+        <div class="profile-stats" aria-live="polite">
+          <div><strong id="total-points">0</strong><span>points</span></div>
+          <div><strong id="daily-streak">0</strong><span>jours de série</span></div>
+          <div><strong id="games-played">0</strong><span>parties</span></div>
+        </div>
+      </section>
+
+      <nav class="game-tabs" aria-label="Choisir un jeu">
+        <button class="game-tab active" data-game="blind" type="button"><span>🎧</span> Blind Test</button>
+        <button class="game-tab" data-game="intox" type="button"><span>⚡</span> Hit ou Intox ?</button>
+        <button class="game-tab" data-game="quiz" type="button"><span>🧠</span> TechnoQuiz</button>
+      </nav>
+
+      <section id="game-blind" class="game-panel active glass" aria-labelledby="blind-title">
+        <div class="game-heading">
+          <div><span class="priority-badge">JEU PRIORITAIRE</span><h2 id="blind-title">Blind Test Technorizon</h2></div>
+          <div class="round-score"><span id="blind-round">0 / 5</span><strong id="blind-score">0 pts</strong></div>
+        </div>
+        <p class="game-lead">Écoute l’extrait et retrouve le titre. Cinq morceaux, quatre réponses, une seule bonne.</p>
+        <div id="blind-stage" class="game-stage">
+          <div class="game-intro-icon">♫</div>
+          <p>Les extraits durent jusqu’à 15 secondes.</p>
+          <button id="blind-start" class="primary-action" type="button">Lancer le Blind Test</button>
+        </div>
+        <audio id="blind-audio" preload="none"></audio>
+      </section>
+
+      <section id="game-intox" class="game-panel glass" aria-labelledby="intox-title" hidden>
+        <div class="game-heading">
+          <div><span class="secondary-badge">VRAI OU FAUX</span><h2 id="intox-title">Hit ou Intox ?</h2></div>
+          <div class="round-score"><span id="intox-round">0 / 5</span><strong id="intox-score">0 pts</strong></div>
+        </div>
+        <p class="game-lead">Une affirmation musicale s’affiche. À toi de décider si c’est un hit… ou une intox.</p>
+        <div id="intox-stage" class="game-stage">
+          <div class="game-intro-icon">⚡</div>
+          <p>Cinq affirmations pour tester ta culture musicale.</p>
+          <button id="intox-start" class="primary-action" type="button">Jouer à Hit ou Intox</button>
+        </div>
+      </section>
+
+      <section id="game-quiz" class="game-panel glass" aria-labelledby="quiz-title" hidden>
+        <div class="game-heading">
+          <div><span class="secondary-badge">CULTURE ÉLECTRO</span><h2 id="quiz-title">TechnoQuiz</h2></div>
+          <div class="round-score"><span id="quiz-round">0 / 5</span><strong id="quiz-score">0 pts</strong></div>
+        </div>
+        <p class="game-lead">Artistes, titres et classiques : cinq questions pour montrer ce que tu sais.</p>
+        <div id="quiz-stage" class="game-stage">
+          <div class="game-intro-icon">🧠</div>
+          <p>Une bonne réponse rapporte 75 points.</p>
+          <button id="quiz-start" class="primary-action" type="button">Lancer le TechnoQuiz</button>
+        </div>
+      </section>
+
+      <section class="ranking-card glass" aria-labelledby="ranking-title">
+        <div><span class="eyebrow">TOP JOUEURS</span><h2 id="ranking-title">Classement sur cet appareil</h2></div>
+        <ol id="ranking-list" class="ranking-list"></ol>
+        <p class="ranking-note">Le classement général en ligne arrivera après validation de cette première version.</p>
+      </section>
+    </main>
+
+    <footer class="games-footer">© 2026 Technorizon.fr · La musique sans frontières</footer>
+  </div>
+  <script src="/jeux.js?v=1" defer></script>
+</body>
+</html>
