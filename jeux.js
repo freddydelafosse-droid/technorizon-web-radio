@@ -247,6 +247,26 @@
       blindPartyName: 'Blind Test Feest', intoxGameName: 'Hit of Mythe'
     }
   };
+  const JAYA_HOST = {
+    fr: { label: 'JAYA · MAÎTRESSE DE JEU', blindAsk: 'Écoute bien cet extrait… Sauras-tu retrouver le titre ?', correct: 'Bien joué ! Tu as trouvé 😎', wrong: 'Presque ! Regarde bien la bonne réponse 😉', finished: 'Partie terminée ! Voyons ton score.' },
+    en: { label: 'JAYA · GAME HOST', blindAsk: 'Listen carefully… Can you name this track?', correct: 'Well played! You got it 😎', wrong: 'Almost! Take a look at the correct answer 😉', finished: 'Game over! Let’s see your score.' },
+    de: { label: 'JAYA · SPIELLEITERIN', blindAsk: 'Hör gut zu… Erkennst du diesen Titel?', correct: 'Gut gespielt! Das ist richtig 😎', wrong: 'Fast! Schau dir die richtige Antwort an 😉', finished: 'Spiel beendet! Sehen wir uns deinen Punktestand an.' },
+    es: { label: 'JAYA · PRESENTADORA', blindAsk: 'Escucha bien… ¿Sabrás reconocer este tema?', correct: '¡Bien jugado! Has acertado 😎', wrong: '¡Casi! Mira la respuesta correcta 😉', finished: '¡Partida terminada! Veamos tu puntuación.' },
+    it: { label: 'JAYA · CONDUTTRICE', blindAsk: 'Ascolta bene… Riconoscerai questo brano?', correct: 'Ottimo! Hai indovinato 😎', wrong: 'Quasi! Guarda la risposta corretta 😉', finished: 'Partita terminata! Vediamo il tuo punteggio.' },
+    pt: { label: 'JAYA · APRESENTADORA', blindAsk: 'Ouve com atenção… Consegues reconhecer este título?', correct: 'Muito bem! Acertaste 😎', wrong: 'Quase! Vê a resposta correta 😉', finished: 'Jogo terminado! Vamos ver a tua pontuação.' },
+    nl: { label: 'JAYA · SPELLEIDER', blindAsk: 'Luister goed… Herken jij dit nummer?', correct: 'Goed gespeeld! Dat is juist 😎', wrong: 'Bijna! Bekijk het juiste antwoord 😉', finished: 'Spel afgelopen! Laten we je score bekijken.' }
+  };
+  const jayaCopy = key => (JAYA_HOST[lang] || JAYA_HOST.fr)[key];
+  const jayaHost = (message, mood = 'ask') => `<div class="jaya-game-host ${mood}"><img class="jaya-game-avatar" src="/JayaV2.jpg" alt="Jaya"><div class="jaya-game-bubble"><span class="jaya-game-name">${escapeHtml(jayaCopy('label'))}</span><p class="jaya-game-text">${escapeHtml(message)}</p></div></div>`;
+  function setJayaReaction(stage, correct) {
+    const host = stage.querySelector('.jaya-game-host');
+    if (!host) return;
+    host.classList.remove('ask', 'correct', 'wrong');
+    host.classList.add(correct ? 'correct' : 'wrong');
+    const message = host.querySelector('.jaya-game-text');
+    if (message) message.textContent = jayaCopy(correct ? 'correct' : 'wrong');
+  }
+
   const t = (key, vars = {}) => (I18N[lang][key] || key).replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? '');
   const setText = (selector, key) => { const node = document.querySelector(selector); if (node) node.textContent = t(key); };
   const setHtml = (selector, key) => { const node = document.querySelector(selector); if (node) node.innerHTML = t(key); };
@@ -447,7 +467,7 @@
 
   function result(stage, game, score, restart) {
     completeGame(game, score);
-    stage.innerHTML = `<div class="result-score">${score}</div><h3 class="result-title">${escapeHtml(t('finished'))}</h3><p class="result-text">${escapeHtml(t('added', { name: player.name }))}</p><button class="primary-action" type="button">${escapeHtml(t('replay'))}</button>`;
+    stage.innerHTML = `${jayaHost(jayaCopy('finished'), 'finish')}<div class="result-score">${score}</div><h3 class="result-title">${escapeHtml(t('finished'))}</h3><p class="result-text">${escapeHtml(t('added', { name: player.name }))}</p><button class="primary-action" type="button">${escapeHtml(t('replay'))}</button>`;
     stage.querySelector('button').addEventListener('click', restart);
   }
 
@@ -487,7 +507,7 @@
       blindAudio.load();
       const alternatives = sample(blindTracks.filter(item => item.title !== track.title), 3).map(item => item.title);
       const answers = shuffle([track.title, ...alternatives]);
-      blindStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('clip', { number: blind.index + 1 }))}</span><h3 class="question-title">${escapeHtml(t('whatTitle'))}</h3><button class="audio-action" type="button">${escapeHtml(t('listen'))}</button><div class="answers">${answers.map(answer => `<button class="answer-btn" type="button" data-answer="${escapeHtml(answer)}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
+      blindStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('clip', { number: blind.index + 1 }))}</span>${jayaHost(jayaCopy('blindAsk'))}<button class="audio-action" type="button">${escapeHtml(t('listen'))}</button><div class="answers">${answers.map(answer => `<button class="answer-btn" type="button" data-answer="${escapeHtml(answer)}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
       const play = blindStage.querySelector('.audio-action');
       play.addEventListener('click', async () => {
         try {
@@ -523,6 +543,7 @@
     const feedback = blindStage.querySelector('.feedback');
     feedback.className = `feedback ${correct ? 'good' : 'bad'}`;
     feedback.textContent = correct ? t('correctTrack', { artist: track.artist, title: track.title }) : t('wasTrack', { artist: track.artist, title: track.title });
+    setJayaReaction(blindStage, correct);
     addNextButton(blindStage.querySelector('.question-wrap'), () => {
       blind.index += 1;
       if (blind.index >= blind.total) result(blindStage, blind.total === 25 ? t('blindPartyName') : 'Blind Test', blind.score, () => startBlind(blind.total));
@@ -545,7 +566,7 @@
     intox.locked = false;
     const question = intox.questions[intox.index];
     $('#intox-round').textContent = `${intox.index + 1} / ${ROUNDS}`;
-    intoxStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('statement', { number: intox.index + 1 }))}</span><h3 class="question-title">${escapeHtml(question.text)}</h3><div class="answers"><button class="answer-btn" type="button" data-value="true">${escapeHtml(t('hitTrue'))}</button><button class="answer-btn" type="button" data-value="false">${escapeHtml(t('intoxFalse'))}</button></div><p class="feedback" aria-live="polite"></p></div>`;
+    intoxStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('statement', { number: intox.index + 1 }))}</span>${jayaHost(question.text)}<div class="answers"><button class="answer-btn" type="button" data-value="true">${escapeHtml(t('hitTrue'))}</button><button class="answer-btn" type="button" data-value="false">${escapeHtml(t('intoxFalse'))}</button></div><p class="feedback" aria-live="polite"></p></div>`;
     intoxStage.querySelectorAll('.answer-btn').forEach(button => button.addEventListener('click', () => answerIntox(button, question)));
   }
   function answerIntox(button, question) {
@@ -562,6 +583,7 @@
     const feedback = intoxStage.querySelector('.feedback');
     feedback.className = `feedback ${correct ? 'good' : 'bad'}`;
     feedback.textContent = `${correct ? t('wellDone') : t('missed')} ${question.detail}`;
+    setJayaReaction(intoxStage, correct);
     addNextButton(intoxStage.querySelector('.question-wrap'), () => {
       intox.index += 1;
       if (intox.index >= ROUNDS) result(intoxStage, t('intoxGameName'), intox.score, startIntox);
@@ -584,7 +606,7 @@
     quiz.locked = false;
     const question = quiz.questions[quiz.index];
     $('#quiz-round').textContent = `${quiz.index + 1} / ${ROUNDS}`;
-    quizStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('question', { number: quiz.index + 1 }))}</span><h3 class="question-title">${escapeHtml(question.text)}</h3><div class="answers">${question.answers.map((answer, index) => `<button class="answer-btn" type="button" data-index="${index}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
+    quizStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('question', { number: quiz.index + 1 }))}</span>${jayaHost(question.text)}<div class="answers">${question.answers.map((answer, index) => `<button class="answer-btn" type="button" data-index="${index}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
     quizStage.querySelectorAll('.answer-btn').forEach(button => button.addEventListener('click', () => answerQuiz(button, question)));
   }
   function answerQuiz(button, question) {
@@ -602,6 +624,7 @@
     const feedback = quizStage.querySelector('.feedback');
     feedback.className = `feedback ${correct ? 'good' : 'bad'}`;
     feedback.textContent = correct ? t('goodAnswer') : t('rightAnswer', { answer: question.answers[question.correct] });
+    setJayaReaction(quizStage, correct);
     addNextButton(quizStage.querySelector('.question-wrap'), () => {
       quiz.index += 1;
       if (quiz.index >= ROUNDS) result(quizStage, 'TechnoQuiz', quiz.score, startQuiz);
