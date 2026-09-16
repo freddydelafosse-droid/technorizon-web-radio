@@ -5,7 +5,7 @@
   const ROUNDS = 5;
 
   const SUPPORTED_LANGUAGES = ['fr', 'en', 'de', 'es', 'it', 'pt', 'nl'];
-  const savedLanguage = localStorage.getItem('technorizon-lang');
+  const savedLanguage = localStorage.getItem('technorizon-games-lang');
   let lang = SUPPORTED_LANGUAGES.includes(savedLanguage) ? savedLanguage : 'fr';
   const I18N = {
     fr: {
@@ -620,7 +620,7 @@
 
   $('#game-language').addEventListener('change', event => {
     const next = SUPPORTED_LANGUAGES.includes(event.target.value) ? event.target.value : 'fr';
-    localStorage.setItem('technorizon-lang', next);
+    localStorage.setItem('technorizon-games-lang', next);
     window.location.reload();
   });
   applyLanguage();
