@@ -576,6 +576,50 @@ if (
   }
 }
 
+if (wantsArtist && externalMusicQuery.length >= 2) {
+  try {
+    const wikipediaUrl =
+      "https://fr.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=" +
+      encodeURIComponent(`intitle:"${externalMusicQuery}"`) +
+      "&gsrlimit=1&prop=extracts&exintro=1&explaintext=1&redirects=1&format=json";
+
+    const wikipediaResponse = await fetch(wikipediaUrl, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "Technorizon-Jaya/2.0 (https://technorizon.fr)"
+      },
+      signal: AbortSignal.timeout(5000)
+    });
+
+    if (wikipediaResponse.ok) {
+      const wikipediaData = await wikipediaResponse.json();
+      const pages = Object.values(wikipediaData?.query?.pages || {});
+      const page = pages[0];
+      const extract = String(page?.extract || "")
+        .replace(/\\s+/g, " ")
+        .trim();
+
+      if (extract.length >= 80) {
+        const completeSentences =
+          extract.match(/[^.!?]+[.!?]+/g)?.slice(0, 3).join(" ").trim() ||
+          extract.slice(0, 420).trim();
+
+        return res.status(200).json({
+          success: true,
+          assistant: "Jaya",
+          found: true,
+          source: "wikipedia_artist",
+          answer:
+            completeSentences +
+            " Cette information générale ne confirme pas automatiquement une diffusion sur Technorizon."
+        });
+      }
+    }
+  } catch (wikipediaError) {
+    console.error("Jaya Wikipedia:", wikipediaError);
+  }
+}
+
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
 if (openaiApiKey && jayaBehaviorContext) {
