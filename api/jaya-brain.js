@@ -80,120 +80,34 @@ const conversationHistory =
         .filter((item) => item.content)
     : [];
 
-    const faqResponse = await fetch(
-  `${supabaseUrl}/rest/v1/faq?select=question,answer,alternative_questions,category&status=eq.active&visibility=eq.public`,
-  {
-    headers: {
+    const supabaseHeaders = {
       apikey: supabaseKey,
       Authorization: `Bearer ${supabaseKey}`,
       "Content-Type": "application/json"
+    };
+
+    const brainRequests = [
+      ["faq", `${supabaseUrl}/rest/v1/faq?select=question,answer,alternative_questions,category&status=eq.active&visibility=eq.public`],
+      ["knowledge", `${supabaseUrl}/rest/v1/knowledge?select=*&status=eq.active&visibility=eq.public`],
+      ["entities", `${supabaseUrl}/rest/v1/entities?select=name,entity_type,aliases,description,visibility,status&status=eq.active&visibility=eq.public`],
+      ["artists", `${supabaseUrl}/rest/v1/artists?select=name,aliases,country,genres,active_years,biography,known_for,technorizon_notes,in_technorizon_rotation,visibility,status&status=eq.active&visibility=eq.public`],
+      ["tracks", `${supabaseUrl}/rest/v1/tracks?select=title,aliases,primary_artist,featured_artists,album,release_year,genres,description,facts,in_technorizon_library,in_rotation,rotation_group,technorizon_notes,visibility,status&status=eq.active&visibility=eq.public`]
+    ];
+
+    const brainResponses = await Promise.all(
+      brainRequests.map(([, url]) => fetch(url, { headers: supabaseHeaders }))
+    );
+
+    const failedRequest = brainResponses.findIndex((response) => !response.ok);
+    if (failedRequest !== -1) {
+      const source = brainRequests[failedRequest][0];
+      console.error(`Jaya ${source} error:`, await brainResponses[failedRequest].text());
+      return res.status(500).json({ error: "Impossible de charger le cerveau de Jaya" });
     }
-  }
-);
 
-if (!faqResponse.ok) {
-  const errorText = await faqResponse.text();
-
-  console.error("Jaya faq error:", errorText);
-
-  return res.status(500).json({
-    error: "Impossible de charger la FAQ Technorizon"
-  });
-}
-
-const faq = await faqResponse.json();
-
-    const knowledgeResponse = await fetch(
-  `${supabaseUrl}/rest/v1/knowledge?select=*&status=eq.active&visibility=eq.public`,
-  {
-    headers: {
-      apikey: supabaseKey,
-      Authorization: `Bearer ${supabaseKey}`,
-      "Content-Type": "application/json"
-    }
-  }
-);
-
-if (!knowledgeResponse.ok) {
-  const errorText = await knowledgeResponse.text();
-
-  console.error("Jaya knowledge error:", errorText);
-
-  return res.status(500).json({
-    error: "Impossible de charger le cerveau commun Technorizon"
-  });
-}
-
-const knowledge = await knowledgeResponse.json();
-
-    const entitiesResponse = await fetch(
-  `${supabaseUrl}/rest/v1/entities?select=name,entity_type,aliases,description,visibility,status&status=eq.active&visibility=eq.public`,
-  {
-    headers: {
-      apikey: supabaseKey,
-      Authorization: `Bearer ${supabaseKey}`,
-      "Content-Type": "application/json"
-    }
-  }
-);
-
-if (!entitiesResponse.ok) {
-  const errorText = await entitiesResponse.text();
-
-  console.error("Jaya entities error:", errorText);
-
-  return res.status(500).json({
-    error: "Impossible de charger les entités Technorizon"
-  });
-}
-
-const entities = await entitiesResponse.json();
-
-    const artistsResponse = await fetch(
-  `${supabaseUrl}/rest/v1/artists?select=name,aliases,country,genres,active_years,biography,known_for,technorizon_notes,in_technorizon_rotation,visibility,status&status=eq.active&visibility=eq.public`,
-  {
-    headers: {
-      apikey: supabaseKey,
-      Authorization: `Bearer ${supabaseKey}`,
-      "Content-Type": "application/json"
-    }
-  }
-);
-
-if (!artistsResponse.ok) {
-  const errorText = await artistsResponse.text();
-
-  console.error("Jaya artists error:", errorText);
-
-  return res.status(500).json({
-    error: "Impossible de charger les artistes Technorizon"
-  });
-}
-
-const artists = await artistsResponse.json();
-
-    const tracksResponse = await fetch(
-  `${supabaseUrl}/rest/v1/tracks?select=title,aliases,primary_artist,featured_artists,album,release_year,genres,description,facts,in_technorizon_library,in_rotation,rotation_group,technorizon_notes,visibility,status&status=eq.active&visibility=eq.public`,
-  {
-    headers: {
-      apikey: supabaseKey,
-      Authorization: `Bearer ${supabaseKey}`,
-      "Content-Type": "application/json"
-    }
-  }
-);
-
-if (!tracksResponse.ok) {
-  const errorText = await tracksResponse.text();
-
-  console.error("Jaya tracks error:", errorText);
-
-  return res.status(500).json({
-    error: "Impossible de charger les titres Technorizon"
-  });
-}
-
-const tracks = await tracksResponse.json();
+    const [faq, knowledge, entities, artists, tracks] = await Promise.all(
+      brainResponses.map((response) => response.json())
+    );
 
     if (req.method === "POST") {
   const cleanQuestion = question
@@ -578,7 +492,7 @@ if (
         "https://musicbrainz.org/ws/2/artist/?query=" +
         encodeURIComponent(`artist:"${externalMusicQuery}"`) +
         "&limit=3&fmt=json";
-      const response = await fetch(url, { headers: musicbrainzHeaders });
+      const response = await fetch(url, { headers: musicbrainzHeaders, signal: AbortSignal.timeout(4500) });
 
       if (response.ok) {
         const data = await response.json();
@@ -615,7 +529,7 @@ if (
         "https://musicbrainz.org/ws/2/recording/?query=" +
         encodeURIComponent(`recording:"${externalMusicQuery}"`) +
         "&limit=3&fmt=json";
-      const response = await fetch(url, { headers: musicbrainzHeaders });
+      const response = await fetch(url, { headers: musicbrainzHeaders, signal: AbortSignal.timeout(4500) });
 
       if (response.ok) {
         const data = await response.json();
@@ -669,6 +583,7 @@ ${jayaBehaviorContext}
 
 Tu réponds dans la langue utilisée par l'auditeur, en français par défaut.
 Tu gardes une personnalité naturelle, chaleureuse, moderne et radiophonique.
+Tu réponds de façon concise en 2 à 4 phrases complètes, sauf si l'auditeur demande explicitement davantage de détails.
 Tu peux répondre avec tes connaissances générales stables, particulièrement sur la musique, les artistes, les styles, la radio et la culture populaire, lorsque tu es suffisamment sûre.
 Tu ne prétends jamais qu'un artiste ou un titre est présent, programmé ou diffusé sur Technorizon sans preuve explicite provenant du contexte Technorizon.
 Tu distingues clairement les informations générales des informations propres à Technorizon.
@@ -687,7 +602,7 @@ JE_NE_SAIS_PAS
                   : "")
             }
           ],
-          max_output_tokens: 800
+          max_output_tokens: 450
         })
       }
     );
