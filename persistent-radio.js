@@ -12,36 +12,34 @@
     overlay.remove();overlay=null;
     document.documentElement.style.overflow='';
     history.replaceState(null,'',location.pathname+location.search);
-    try{window.focus()}catch(e){}
   };
 
   const openOverlay=url=>{
     if(overlay)overlay.remove();
     overlay=document.createElement('div');
     overlay.id='tz-internal-view';
-    overlay.innerHTML='<div class="tz-view-bar"><button type="button" class="tz-view-back">← Accueil</button><span>TECHNORIZON.FR</span></div><iframe class="tz-view-frame" title="Technorizon" src="'+url+'"></iframe>';
-    document.body.appendChild(overlay);
+    const bar=document.createElement('div');bar.className='tz-view-bar';
+    const back=document.createElement('button');back.type='button';back.className='tz-view-back';back.textContent='← Accueil';back.onclick=closeOverlay;
+    const brand=document.createElement('span');brand.textContent='TECHNORIZON.FR';
+    const frame=document.createElement('iframe');frame.className='tz-view-frame';frame.title='Technorizon';frame.src=url;
+    bar.append(back,brand);overlay.append(bar,frame);document.body.appendChild(overlay);
     document.documentElement.style.overflow='hidden';
-    history.replaceState(null,'','#'+url.replace('.html',''));
-    overlay.querySelector('.tz-view-back').onclick=closeOverlay;
   };
 
-  document.addEventListener('click',event=>{
-    const link=event.target.closest('a[href]');
-    if(!link||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
-    if(link.target==='_blank'||link.hasAttribute('download'))return;
+  // Capture before any other site script. composedPath() also catches clicks on nested icons/spans.
+  window.addEventListener('click',event=>{
+    if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+    const path=typeof event.composedPath==='function'?event.composedPath():[];
+    const link=path.find(node=>node&&node.tagName==='A')||(event.target&&event.target.closest?event.target.closest('a[href]'):null);
+    if(!link||!link.href||link.target==='_blank'||link.hasAttribute('download'))return;
     let u;try{u=new URL(link.href,location.href)}catch(e){return}
     if(u.origin!==location.origin)return;
     const file=u.pathname.split('/').pop()||'index.html';
     if(!INTERNAL.has(file))return;
     event.preventDefault();
-    openOverlay(file+u.search+u.hash);
+    event.stopImmediatePropagation();
+    openOverlay(u.pathname+u.search+u.hash);
   },true);
-
-  // A child page's own “Retour à l'accueil” must close the internal view instead of reloading index.html.
-  window.addEventListener('message',event=>{
-    if(event.origin===location.origin&&event.data==='technorizon-home')closeOverlay();
-  });
 
   if('mediaSession' in navigator){
     try{
