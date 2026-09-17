@@ -1,4 +1,4 @@
-const CACHE='technorizon-v2-shell-8';
+const CACHE='technorizon-v2-shell-9';
 const SHELL=['/style-v2.css?v=13','/ImageLogoFinal.png','/Fond-Technorizon-V2.png.png','/jeux.css?v=3','/jeux.js?v=8','/jeux-data.js?v=1'];
 
 self.addEventListener('install',event=>{
