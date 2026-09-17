@@ -246,13 +246,13 @@ const dailyLayers={
 };
 
 const astroUi={
-  fr:{trend:'Tendance du jour',work:'Travail',love:'Amour',health:'Santé',rating:'Indice',note:'Le Technoroscope est proposé pour le divertissement.',locale:'fr-FR',outOf:'sur'},
-  en:{trend:"Today's outlook",work:'Work',love:'Love',health:'Well-being',rating:'Rating',note:'The Technoroscope is provided for entertainment purposes.',locale:'en-GB',outOf:'out of'},
-  es:{trend:'Tendencia del día',work:'Trabajo',love:'Amor',health:'Salud',rating:'Índice',note:'El Technoroscope se ofrece con fines de entretenimiento.',locale:'es-ES',outOf:'de'},
-  de:{trend:'Tagestendenz',work:'Arbeit',love:'Liebe',health:'Gesundheit',rating:'Wertung',note:'Das Technoroscope dient der Unterhaltung.',locale:'de-DE',outOf:'von'},
-  it:{trend:'Tendenza del giorno',work:'Lavoro',love:'Amore',health:'Salute',rating:'Indice',note:'Il Technoroscope è proposto a scopo di intrattenimento.',locale:'it-IT',outOf:'su'},
-  nl:{trend:'Trend van vandaag',work:'Werk',love:'Liefde',health:'Gezondheid',rating:'Score',note:'De Technoroscope is uitsluitend bedoeld voor entertainment.',locale:'nl-NL',outOf:'van'},
-  pt:{trend:'Tendência do dia',work:'Trabalho',love:'Amor',health:'Saúde',rating:'Índice',note:'O Technoroscope é disponibilizado para fins de entretenimento.',locale:'pt-PT',outOf:'de'}
+  fr:{trend:'Tendance du jour',work:'Travail',love:'Amour',health:'Santé',rating:'Indice',note:'Source : Technorizon',locale:'fr-FR',outOf:'sur'},
+  en:{trend:"Today's outlook",work:'Work',love:'Love',health:'Well-being',rating:'Rating',note:'Source: Technorizon',locale:'en-GB',outOf:'out of'},
+  es:{trend:'Tendencia del día',work:'Trabajo',love:'Amor',health:'Salud',rating:'Índice',note:'Fuente: Technorizon',locale:'es-ES',outOf:'de'},
+  de:{trend:'Tagestendenz',work:'Arbeit',love:'Liebe',health:'Gesundheit',rating:'Wertung',note:'Quelle: Technorizon',locale:'de-DE',outOf:'von'},
+  it:{trend:'Tendenza del giorno',work:'Lavoro',love:'Amore',health:'Salute',rating:'Indice',note:'Fonte: Technorizon',locale:'it-IT',outOf:'su'},
+  nl:{trend:'Trend van vandaag',work:'Werk',love:'Liefde',health:'Gezondheid',rating:'Score',note:'Bron: Technorizon',locale:'nl-NL',outOf:'van'},
+  pt:{trend:'Tendência do dia',work:'Trabalho',love:'Amor',health:'Saúde',rating:'Índice',note:'Fonte: Technorizon',locale:'pt-PT',outOf:'de'}
 };
 
 const symbols={belier:'♈',taureau:'♉',gemeaux:'♊',cancer:'♋',lion:'♌',vierge:'♍',balance:'♎',scorpion:'♏',sagittaire:'♐',capricorne:'♑',verseau:'♒',poissons:'♓'};
