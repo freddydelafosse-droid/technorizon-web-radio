@@ -12,6 +12,7 @@
   let frequencyData=null;
   let animationFrame=0;
   let graphFailed=false;
+  let silentFrames=0;
 
   const bars=()=>[...document.querySelectorAll('.radio-wave i')];
   const miniBars=()=>[...document.querySelectorAll('.radio-vu-mini i')];
@@ -84,14 +85,31 @@
     return Math.max(.08,value);
   };
 
+  // Safari/iOS peut laisser l'AnalyserNode à zéro alors que le son joue.
+  // Ce mouvement de secours reste musical et évite un égaliseur figé.
+  const fallbackValue=(index,total,time)=>{
+    const center=(total-1)/2;
+    const distance=Math.abs(index-center)/Math.max(1,center);
+    const seconds=time/1000;
+    const beat=Math.pow(Math.max(0,Math.sin(seconds*Math.PI*4.15)),5);
+    const sway=(Math.sin(seconds*(5.4+index*.07)+index*1.43)+1)/2;
+    const detail=(Math.sin(seconds*(9.2+index*.13)+index*.71)+1)/2;
+    const centerWeight=1-(distance*.58);
+    return Math.min(1,.12+sway*.20+detail*.10+beat*.52*centerWeight);
+  };
+
   const drawSpectrum=()=>{
     if(audio.paused||!analyser||!frequencyData){animationFrame=0;return}
     analyser.getByteFrequencyData(frequencyData);
     const main=bars();
     const mini=miniBars();
+    const peak=frequencyData.reduce((highest,value)=>Math.max(highest,value),0);
+    silentFrames=peak<3?silentFrames+1:0;
+    const useFallback=silentFrames>8;
+    const now=performance.now();
 
     main.forEach((bar,index)=>{
-      const value=spectrumValue(index,main.length);
+      const value=useFallback?fallbackValue(index,main.length,now):spectrumValue(index,main.length);
       bar.style.animation='none';
       bar.style.transition='transform 70ms linear,opacity 90ms linear';
       bar.style.transform=`scaleY(${(.10+value*1.18).toFixed(3)})`;
@@ -103,7 +121,8 @@
       const [from,to]=groups[index]||groups[groups.length-1];
       let sum=0;
       for(let i=from;i<=to;i++)sum+=frequencyData[i]||0;
-      const value=Math.max(.10,Math.pow((sum/((to-from+1)*255)),.72));
+      const measured=Math.max(.10,Math.pow((sum/((to-from+1)*255)),.72));
+      const value=useFallback?fallbackValue(index,mini.length,now+170):measured;
       bar.style.animation='none';
       bar.style.transition='transform 80ms linear,opacity 90ms linear';
       bar.style.transform=`scaleY(${(.16+value*1.10).toFixed(3)})`;
