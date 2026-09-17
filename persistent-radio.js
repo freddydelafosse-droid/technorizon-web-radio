@@ -8,15 +8,9 @@
 
   const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   const MP3_STREAM='https://radio.technorizon.fr/listen/technorizon/radio.mp3';
-  const IOS_STREAM='https://radio.technorizon.fr/hls/technorizon/live.m3u8';
-  if(isIOS){
-    // Native HLS is substantially more resilient than a never-ending MP3
-    // connection when Safari changes network or suspends the page.
-    audio.removeAttribute('crossorigin');
-    if(audio.getAttribute('src')!==IOS_STREAM)audio.setAttribute('src',IOS_STREAM);
-  }else if(!audio.getAttribute('src')){
-    audio.setAttribute('src',MP3_STREAM);
-  }
+  // Keep the proven Icecast MP3 mount on iPhone. The available HLS manifest
+  // remains stuck in Safari on this AzuraCast installation.
+  if(audio.getAttribute('src')!==MP3_STREAM)audio.setAttribute('src',MP3_STREAM);
   const mark=playing=>{try{sessionStorage.setItem(KEY,playing?'1':'0')}catch(e){}};
   let audioContext=null;
   let analyser=null;
@@ -246,9 +240,9 @@
     stopVisualizer();
     connecting=false;
     renderButton();
-    if(isIOS&&userWantsPlayback){
-      // A genuine HLS error is the one safe moment to refresh the playlist.
-      audio.src=IOS_STREAM+'?t='+Date.now();
+    if(userWantsPlayback){
+      // Refresh only after a genuine media error, never during ordinary buffering.
+      audio.src=MP3_STREAM+'?t='+Date.now();
       audio.load();
     }
     scheduleReconnect(900);
