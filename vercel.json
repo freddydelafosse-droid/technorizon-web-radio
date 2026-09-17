@@ -1,1 +1,37 @@
-{}
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.technorizon.fr"
+        }
+      ],
+      "destination": "https://technorizon.fr/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "technorizon-web-radio-v5.vercel.app"
+        }
+      ],
+      "destination": "https://technorizon.fr/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "technorizon-web-radio-v5-git-v2-freddydelafosse-7797.vercel.app"
+        }
+      ],
+      "destination": "https://technorizon.fr/:path*",
+      "permanent": true
+    }
+  ]
+}
