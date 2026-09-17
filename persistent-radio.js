@@ -8,11 +8,25 @@
   if(!audio||!playButton)return;
 
   const mark=playing=>{try{sessionStorage.setItem(KEY,playing?'1':'0')}catch(e){}};
-  const play=async()=>{try{await audio.play();mark(true);return true}catch(e){mark(false);return false}};
-  const pause=()=>{audio.pause();mark(false)};
+  const refreshVisualizer=()=>{
+    const playing=!audio.paused;
+    const wave=document.querySelector('.radio-wave');
+    const vu=document.querySelector('.radio-vu-mini');
+    if(wave)wave.classList.toggle('paused',!playing);
+    if(vu)vu.classList.toggle('paused',!playing);
+    if(playing){
+      document.querySelectorAll('.radio-wave i,.radio-vu-mini i').forEach(bar=>{
+        bar.style.animation='none';
+        void bar.offsetHeight;
+        bar.style.animation='';
+      });
+    }
+  };
+  const play=async()=>{try{await audio.play();mark(true);requestAnimationFrame(refreshVisualizer);return true}catch(e){mark(false);return false}};
+  const pause=()=>{audio.pause();mark(false);refreshVisualizer()};
 
-  audio.addEventListener('playing',()=>mark(true));
-  audio.addEventListener('pause',()=>mark(false));
+  audio.addEventListener('playing',()=>{mark(true);requestAnimationFrame(refreshVisualizer)});
+  audio.addEventListener('pause',()=>{mark(false);refreshVisualizer()});
   audio.addEventListener('ended',()=>{if(sessionStorage.getItem(KEY)==='1')setTimeout(play,500)});
   audio.addEventListener('error',()=>{if(sessionStorage.getItem(KEY)==='1')setTimeout(play,1500)});
 
@@ -30,8 +44,7 @@
     }catch(e){}
   }
 
-  // A normal HTML navigation destroys the audio element. While listening, open the destination
-  // separately so the Technorizon player remains alive in its original page/app view.
+  // While listening, open destinations separately so the homepage and its single live stream survive.
   document.addEventListener('click',event=>{
     const link=event.target.closest('a[href]');
     if(!link||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
@@ -39,26 +52,26 @@
     const raw=link.getAttribute('href')||'';
     if(!raw||raw.startsWith('#')||raw.startsWith('mailto:')||raw.startsWith('tel:')||raw.startsWith('javascript:'))return;
     if(audio.paused&&sessionStorage.getItem(KEY)!=='1')return;
-
     let url;
     try{url=new URL(link.href,location.href)}catch(e){return}
-    if(!/^https?:$/.test(url.protocol))return;
-    if(url.href===location.href)return;
-
-    // Existing target=_blank links already preserve this page and its stream.
+    if(!/^https?:$/.test(url.protocol)||url.href===location.href)return;
     if(link.target==='_blank')return;
-
     event.preventDefault();
     mark(true);
     const opened=window.open(url.href,'_blank','noopener,noreferrer');
-    // If a browser blocks the new view, do not kill the current live stream.
     if(!opened){
       const lang=localStorage.getItem('technorizon-lang')||'fr';
       console.info(lang==='fr'?'Technorizon : navigation bloquée pour préserver le direct.':'Technorizon: navigation blocked to preserve live playback.');
     }
   },true);
 
-  document.addEventListener('visibilitychange',()=>{
-    if(!document.hidden&&sessionStorage.getItem(KEY)==='1'&&audio.paused)play();
-  });
+  // Browsers can freeze CSS animations while the homepage is hidden. Force the equalizer to restart on return.
+  const restoreHomepage=()=>{
+    if(sessionStorage.getItem(KEY)==='1'&&audio.paused)play();
+    else requestAnimationFrame(refreshVisualizer);
+  };
+  window.addEventListener('pageshow',()=>setTimeout(restoreHomepage,30));
+  window.addEventListener('focus',()=>setTimeout(restoreHomepage,30));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(restoreHomepage,30)});
+  setTimeout(refreshVisualizer,250);
 })();
