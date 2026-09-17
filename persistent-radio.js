@@ -7,6 +7,16 @@
   if(!audio||!playButton)return;
 
   const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const MP3_STREAM='https://radio.technorizon.fr/listen/technorizon/radio.mp3';
+  const IOS_STREAM='https://radio.technorizon.fr/hls/technorizon/live.m3u8';
+  if(isIOS){
+    // Native HLS is substantially more resilient than a never-ending MP3
+    // connection when Safari changes network or suspends the page.
+    audio.removeAttribute('crossorigin');
+    if(audio.getAttribute('src')!==IOS_STREAM)audio.setAttribute('src',IOS_STREAM);
+  }else if(!audio.getAttribute('src')){
+    audio.setAttribute('src',MP3_STREAM);
+  }
   const mark=playing=>{try{sessionStorage.setItem(KEY,playing?'1':'0')}catch(e){}};
   let audioContext=null;
   let analyser=null;
@@ -161,46 +171,88 @@
 
   const play=async()=>{
     userWantsPlayback=true;
+    connecting=true;
+    renderButton();
     try{
       await ensureAudioGraph();
       await audio.play();
       mark(true);
-      startVisualizer();
       return true;
-    }catch(e){return false}
+    }catch(e){
+      connecting=false;
+      renderButton();
+      return false;
+    }
   };
-  const pause=()=>{userWantsPlayback=false;cancelReconnect();audio.pause();mark(false);stopVisualizer()};
+  const pause=()=>{userWantsPlayback=false;connecting=false;cancelReconnect();audio.pause();mark(false);stopVisualizer();renderButton()};
 
   let reconnectTimer=0;
   let userWantsPlayback=false;
+  let connecting=false;
+  const renderButton=()=>{
+    const playing=!audio.paused&&!audio.ended&&audio.readyState>=2;
+    const english=document.documentElement.lang==='en';
+    playButton.textContent=connecting&&!playing
+      ? (english?'… CONNECTING':'… CONNEXION')
+      : playing
+        ? (english?'❚❚ PAUSE':'❚❚ PAUSE')
+        : (english?'▶ LISTEN LIVE':'▶ ÉCOUTER LE DIRECT');
+    playButton.setAttribute('aria-label',connecting&&!playing
+      ? (english?'Connecting to live radio':'Connexion au direct')
+      : playing
+        ? (english?'Pause radio':'Mettre la radio en pause')
+        : (english?'Listen live':'Écouter le direct'));
+    playButton.setAttribute('aria-pressed',String(playing));
+  };
   const cancelReconnect=()=>{if(reconnectTimer)clearTimeout(reconnectTimer);reconnectTimer=0};
-  const scheduleReconnect=(delay=2500)=>{
+  const scheduleReconnect=(delay=1200)=>{
     if(reconnectTimer||!userWantsPlayback)return;
     reconnectTimer=setTimeout(async()=>{
       reconnectTimer=0;
       if(!userWantsPlayback)return;
-      try{
-        // Do not call audio.load() here: on Safari iOS it tears down a healthy
-        // live connection and can turn a short interruption into a hard stop.
-        await audio.play();
-        mark(true);
-      }catch(e){}
+      connecting=true;
+      renderButton();
+      try{await audio.play()}catch(e){connecting=false;renderButton()}
     },delay);
   };
 
-  audio.addEventListener('playing',()=>{cancelReconnect();userWantsPlayback=true;mark(true);startVisualizer()});
+  // One controller only: this replaces the small inline fallback handler.
+  playButton.onclick=event=>{
+    event.preventDefault();
+    if(userWantsPlayback&&!audio.paused)pause();
+    else play();
+  };
+  audio.addEventListener('loadstart',()=>{if(userWantsPlayback){connecting=true;renderButton()}});
+  audio.addEventListener('playing',()=>{
+    cancelReconnect();
+    connecting=false;
+    userWantsPlayback=true;
+    mark(true);
+    renderButton();
+    startVisualizer();
+  });
   audio.addEventListener('pause',()=>{
     cancelReconnect();
+    connecting=false;
     stopVisualizer();
-    // iOS emits pause during calls, Siri and route changes. Keep the listening
-    // intent; an explicit button press is the only action that clears it.
+    renderButton();
     if(!userWantsPlayback)mark(false);
   });
-  audio.addEventListener('waiting',()=>{});
-  audio.addEventListener('stalled',()=>{});
-  audio.addEventListener('canplay',cancelReconnect);
-  audio.addEventListener('ended',()=>{stopVisualizer();scheduleReconnect(800)});
-  audio.addEventListener('error',()=>{stopVisualizer();scheduleReconnect(1800)});
+  audio.addEventListener('waiting',()=>{if(userWantsPlayback){connecting=true;renderButton()}});
+  audio.addEventListener('stalled',()=>{if(userWantsPlayback){connecting=true;renderButton()}});
+  audio.addEventListener('canplay',()=>{cancelReconnect();if(!audio.paused){connecting=false;renderButton()}});
+  audio.addEventListener('ended',()=>{stopVisualizer();scheduleReconnect(500)});
+  audio.addEventListener('error',()=>{
+    stopVisualizer();
+    connecting=false;
+    renderButton();
+    if(isIOS&&userWantsPlayback){
+      // A genuine HLS error is the one safe moment to refresh the playlist.
+      audio.src=IOS_STREAM+'?t='+Date.now();
+      audio.load();
+    }
+    scheduleReconnect(900);
+  });
 
   if('mediaSession' in navigator){
     try{
@@ -221,12 +273,14 @@
     else startVisualizer();
   };
 
-  window.addEventListener('pageshow',()=>setTimeout(refreshVisualizer,80));
-  window.addEventListener('focus',()=>{if(!audio.paused)setTimeout(startVisualizer,80)});
+  window.addEventListener('pageshow',()=>{setTimeout(refreshVisualizer,80);if(userWantsPlayback&&audio.paused)scheduleReconnect(100)});
+  window.addEventListener('focus',()=>{if(userWantsPlayback&&audio.paused)scheduleReconnect(100);else if(!audio.paused)setTimeout(startVisualizer,80)});
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden){if(animationFrame)cancelAnimationFrame(animationFrame);animationFrame=0}
+    else if(userWantsPlayback&&audio.paused)scheduleReconnect(100);
     else if(!audio.paused)setTimeout(startVisualizer,80);
   });
   document.addEventListener('DOMContentLoaded',()=>setTimeout(refreshVisualizer,80),{once:true});
+  renderButton();
   setTimeout(refreshVisualizer,350);
 })();
