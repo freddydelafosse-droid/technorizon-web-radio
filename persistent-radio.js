@@ -6,6 +6,7 @@
   const playButton=document.getElementById('v2-play');
   if(!audio||!playButton)return;
 
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   const mark=playing=>{try{sessionStorage.setItem(KEY,playing?'1':'0')}catch(e){}};
   let audioContext=null;
   let analyser=null;
@@ -45,6 +46,9 @@
   };
 
   const ensureAudioGraph=async()=>{
+    // iOS suspend souvent Web Audio en arrière-plan. Le flux reste donc relié
+    // directement à l'élément audio et l'égaliseur utilise son animation visuelle.
+    if(isIOS){graphFailed=true;return false}
     if(graphFailed)return false;
     try{
       if(!audioContext){
@@ -99,13 +103,14 @@
   };
 
   const drawSpectrum=()=>{
-    if(audio.paused||!analyser||!frequencyData){animationFrame=0;return}
-    analyser.getByteFrequencyData(frequencyData);
+    if(audio.paused){animationFrame=0;return}
+    const hasAnalysis=Boolean(analyser&&frequencyData&&!isIOS);
+    if(hasAnalysis)analyser.getByteFrequencyData(frequencyData);
     const main=bars();
     const mini=miniBars();
-    const peak=frequencyData.reduce((highest,value)=>Math.max(highest,value),0);
-    silentFrames=peak<3?silentFrames+1:0;
-    const useFallback=silentFrames>8;
+    const peak=hasAnalysis?frequencyData.reduce((highest,value)=>Math.max(highest,value),0):0;
+    silentFrames=hasAnalysis&&peak>=3?0:silentFrames+1;
+    const useFallback=!hasAnalysis||silentFrames>8;
     const now=performance.now();
 
     main.forEach((bar,index)=>{
@@ -119,9 +124,12 @@
     const groups=[[2,5],[5,10],[10,18],[18,30],[30,50],[50,76]];
     mini.forEach((bar,index)=>{
       const [from,to]=groups[index]||groups[groups.length-1];
-      let sum=0;
-      for(let i=from;i<=to;i++)sum+=frequencyData[i]||0;
-      const measured=Math.max(.10,Math.pow((sum/((to-from+1)*255)),.72));
+      let measured=.10;
+      if(hasAnalysis){
+        let sum=0;
+        for(let i=from;i<=to;i++)sum+=frequencyData[i]||0;
+        measured=Math.max(.10,Math.pow((sum/((to-from+1)*255)),.72));
+      }
       const value=useFallback?fallbackValue(index,mini.length,now+170):measured;
       bar.style.animation='none';
       bar.style.transition='transform 80ms linear,opacity 90ms linear';
@@ -136,7 +144,8 @@
     if(animationFrame)cancelAnimationFrame(animationFrame);
     animationFrame=0;
     colorBars();
-    if(await ensureAudioGraph())drawSpectrum();
+    await ensureAudioGraph();
+    drawSpectrum();
   };
 
   const stopVisualizer=()=>{
@@ -161,8 +170,26 @@
   };
   const pause=()=>{audio.pause();mark(false);stopVisualizer()};
 
-  audio.addEventListener('playing',()=>{mark(true);startVisualizer()});
-  audio.addEventListener('pause',()=>{mark(false);stopVisualizer()});
+  let reconnectTimer=0;
+  const cancelReconnect=()=>{if(reconnectTimer)clearTimeout(reconnectTimer);reconnectTimer=0};
+  const scheduleReconnect=()=>{
+    if(reconnectTimer||audio.paused||sessionStorage.getItem(KEY)!=='1')return;
+    reconnectTimer=setTimeout(async()=>{
+      reconnectTimer=0;
+      if(audio.paused||sessionStorage.getItem(KEY)!=='1')return;
+      try{
+        audio.load();
+        await audio.play();
+        mark(true);
+      }catch(e){}
+    },6000);
+  };
+
+  audio.addEventListener('playing',()=>{cancelReconnect();mark(true);startVisualizer()});
+  audio.addEventListener('pause',()=>{cancelReconnect();mark(false);stopVisualizer()});
+  audio.addEventListener('waiting',scheduleReconnect);
+  audio.addEventListener('stalled',scheduleReconnect);
+  audio.addEventListener('canplay',cancelReconnect);
   audio.addEventListener('ended',()=>{stopVisualizer();if(sessionStorage.getItem(KEY)==='1')setTimeout(play,500)});
   audio.addEventListener('error',()=>{stopVisualizer();if(sessionStorage.getItem(KEY)==='1')setTimeout(play,1500)});
 
