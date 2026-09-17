@@ -274,6 +274,11 @@ body {
   padding: 22px;
 }
 
+.v2-card > h2 {
+  width: 100%;
+  text-align: center;
+}
+
 .v2-card-title {
   margin: 0 0 18px;
 
