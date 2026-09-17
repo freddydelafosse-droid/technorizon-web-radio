@@ -11,7 +11,7 @@ button{touch-action:manipulation}
 .glass{border:1px solid var(--line);background:linear-gradient(145deg,rgba(5,24,44,.76),rgba(3,10,25,.69));box-shadow:0 18px 60px rgba(0,0,0,.30);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .games-topbar{min-height:60px;padding:10px max(18px,calc((100% - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:15px;border-bottom:1px solid rgba(0,234,255,.25);background:rgba(2,8,18,.86);position:relative;z-index:5}
 .games-topbar a{color:#dce9f2;text-decoration:none;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px}
-.games-info-link{text-align:right}
+.games-home{color:#00eaff!important;text-transform:none!important;letter-spacing:0!important}.games-info-link{text-align:right}
 .games-brand{font-size:15px;font-weight:900;letter-spacing:2px}.games-brand span{color:var(--cyan);text-shadow:0 0 14px var(--cyan)}
 .games-shell{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:28px 0 48px}
 .games-hero{position:relative;text-align:center;margin-bottom:34px;padding:4px 0 18px}.games-hero::before,.games-hero::after{content:"★";position:absolute;top:45%;color:var(--yellow);font-size:22px;text-shadow:0 0 16px var(--yellow);animation:pulse-star 1.8s ease-in-out infinite}.games-hero::before{left:5%}.games-hero::after{right:5%;animation-delay:.7s}@keyframes pulse-star{50%{opacity:.35;transform:scale(.72)}}
