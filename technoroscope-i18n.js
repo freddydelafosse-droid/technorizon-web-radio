@@ -18,6 +18,233 @@ const astroPools={
   pt:{work:['Uma prioridade merece toda a tua atenção. Ao evitares distrações, avançarás mais depressa do que esperavas.','Uma ideia simples pode convencer. Apresenta-a com confiança e deixa as tuas competências falar.','Uma colaboração torna-se promissora quando todos expressam claramente as suas expectativas.','Um contratempo não é um fracasso: ajusta o método e mantém o rumo.'],love:['Um gesto sincero contará mais do que uma grande declaração. A ternura favorecerá a aproximação.','Diz o que sentes sem procurar as palavras perfeitas: a autenticidade criará a ligação.','Uma conversa leve pode dissipar uma tensão. O humor será o teu melhor aliado.','Dá algum espaço à outra pessoa sem deixares de estar presente: esse equilíbrio reforçará a confiança.'],health:['A tua energia está boa, mas algumas pausas ajudarão a manter o ritmo até ao fim do dia.','Um pouco de movimento e algumas respirações profundas ajudarão a aliviar as tensões.','O teu corpo pede um ritmo mais suave. Escuta os sinais e reserva mais espaço para o descanso.','Hidratação, refeições regulares e sono serão os teus melhores aliados para manter o equilíbrio.']}
 };
 
+const dailyLayers={
+  "fr": {
+    "pulse": [
+      "Une énergie constructive accompagne vos décisions.",
+      "Le rythme du jour favorise une évolution positive.",
+      "Une dynamique nouvelle se met doucement en place.",
+      "Les influences du moment invitent à avancer avec confiance."
+    ],
+    "focus": [
+      "Un détail discret pourrait prendre toute son importance.",
+      "Une occasion inattendue mérite votre attention.",
+      "Un échange apportera un éclairage utile.",
+      "Votre intuition repérera ce que les autres ne voient pas.",
+      "Une décision ancienne pourrait enfin porter ses fruits.",
+      "Le bon tempo sera plus utile que la précipitation.",
+      "Une petite initiative peut produire un bel effet.",
+      "Un changement de perspective ouvrira une possibilité.",
+      "La constance donnera aujourd’hui de meilleurs résultats.",
+      "Une information reçue au bon moment fera la différence."
+    ],
+    "advice": [
+      "Faites confiance à votre première impression.",
+      "Gardez une marge pour l’imprévu.",
+      "Avancez sans chercher à tout maîtriser.",
+      "Choisissez la simplicité et restez à l’écoute.",
+      "Préservez votre énergie pour ce qui compte vraiment.",
+      "Accueillez les signes sans forcer les événements.",
+      "Exprimez clairement ce que vous souhaitez.",
+      "Prenez le temps d’observer avant d’agir.",
+      "Restez fidèle à votre rythme naturel.",
+      "Laissez la journée vous surprendre agréablement."
+    ]
+  },
+  "en": {
+    "pulse": [
+      "Constructive energy supports your decisions.",
+      "Today's rhythm encourages positive progress.",
+      "A new momentum is gradually taking shape.",
+      "The current influences invite you to move forward confidently."
+    ],
+    "focus": [
+      "A subtle detail could become very important.",
+      "An unexpected opportunity deserves your attention.",
+      "A conversation will bring useful insight.",
+      "Your intuition will notice what others overlook.",
+      "An earlier decision may finally bear fruit.",
+      "The right timing will matter more than speed.",
+      "A small initiative could create a lovely effect.",
+      "A change of perspective will open a possibility.",
+      "Consistency will bring the best results today.",
+      "Timely information could make the difference."
+    ],
+    "advice": [
+      "Trust your first impression.",
+      "Leave some room for the unexpected.",
+      "Move forward without trying to control everything.",
+      "Choose simplicity and keep listening.",
+      "Save your energy for what truly matters.",
+      "Notice the signs without forcing events.",
+      "Express clearly what you want.",
+      "Take time to observe before acting.",
+      "Stay true to your natural rhythm.",
+      "Let the day surprise you pleasantly."
+    ]
+  },
+  "es": {
+    "pulse": [
+      "Una energía constructiva acompaña tus decisiones.",
+      "El ritmo de hoy favorece una evolución positiva.",
+      "Una nueva dinámica empieza a tomar forma.",
+      "Las influencias del momento invitan a avanzar con confianza."
+    ],
+    "focus": [
+      "Un detalle discreto podría cobrar gran importancia.",
+      "Una oportunidad inesperada merece tu atención.",
+      "Una conversación aportará una visión útil.",
+      "Tu intuición detectará lo que otros no ven.",
+      "Una decisión anterior podría dar por fin sus frutos.",
+      "El momento adecuado importará más que la rapidez.",
+      "Una pequeña iniciativa puede producir un bonito efecto.",
+      "Un cambio de perspectiva abrirá una posibilidad.",
+      "La constancia dará hoy los mejores resultados.",
+      "Una información oportuna podría marcar la diferencia."
+    ],
+    "advice": [
+      "Confía en tu primera impresión.",
+      "Deja espacio para lo inesperado.",
+      "Avanza sin intentar controlarlo todo.",
+      "Elige la sencillez y sigue escuchando.",
+      "Reserva tu energía para lo que importa.",
+      "Observa las señales sin forzar los acontecimientos.",
+      "Expresa claramente lo que deseas.",
+      "Tómate tiempo para observar antes de actuar.",
+      "Mantente fiel a tu ritmo natural.",
+      "Deja que el día te sorprenda gratamente."
+    ]
+  },
+  "de": {
+    "pulse": [
+      "Konstruktive Energie begleitet deine Entscheidungen.",
+      "Der heutige Rhythmus begünstigt positive Entwicklungen.",
+      "Eine neue Dynamik nimmt langsam Gestalt an.",
+      "Die aktuellen Einflüsse laden zu Zuversicht ein."
+    ],
+    "focus": [
+      "Ein unauffälliges Detail könnte wichtig werden.",
+      "Eine unerwartete Gelegenheit verdient Aufmerksamkeit.",
+      "Ein Gespräch bringt eine hilfreiche Erkenntnis.",
+      "Deine Intuition erkennt, was andere übersehen.",
+      "Eine frühere Entscheidung könnte endlich Früchte tragen.",
+      "Das richtige Timing zählt mehr als Schnelligkeit.",
+      "Eine kleine Initiative kann viel bewirken.",
+      "Ein Perspektivwechsel eröffnet eine Möglichkeit.",
+      "Beständigkeit bringt heute die besten Ergebnisse.",
+      "Eine rechtzeitige Information macht den Unterschied."
+    ],
+    "advice": [
+      "Vertraue deinem ersten Eindruck.",
+      "Lass Raum für das Unerwartete.",
+      "Geh voran, ohne alles kontrollieren zu wollen.",
+      "Wähle Einfachheit und höre aufmerksam zu.",
+      "Bewahre deine Energie für das Wesentliche.",
+      "Beachte die Zeichen, ohne etwas zu erzwingen.",
+      "Sprich klar aus, was du möchtest.",
+      "Beobachte erst, bevor du handelst.",
+      "Bleib deinem natürlichen Rhythmus treu.",
+      "Lass dich vom Tag angenehm überraschen."
+    ]
+  },
+  "it": {
+    "pulse": [
+      "Un’energia costruttiva accompagna le tue decisioni.",
+      "Il ritmo di oggi favorisce un’evoluzione positiva.",
+      "Una nuova dinamica sta prendendo forma.",
+      "Le influenze del momento invitano ad avanzare con fiducia."
+    ],
+    "focus": [
+      "Un dettaglio discreto potrebbe diventare importante.",
+      "Un’occasione inattesa merita la tua attenzione.",
+      "Una conversazione offrirà una visione utile.",
+      "Il tuo intuito noterà ciò che gli altri trascurano.",
+      "Una decisione passata potrebbe finalmente dare frutti.",
+      "Il momento giusto conterà più della velocità.",
+      "Una piccola iniziativa può produrre un bell’effetto.",
+      "Un cambio di prospettiva aprirà una possibilità.",
+      "La costanza darà oggi i risultati migliori.",
+      "Un’informazione tempestiva farà la differenza."
+    ],
+    "advice": [
+      "Fidati della tua prima impressione.",
+      "Lascia spazio all’imprevisto.",
+      "Avanza senza cercare di controllare tutto.",
+      "Scegli la semplicità e continua ad ascoltare.",
+      "Conserva l’energia per ciò che conta davvero.",
+      "Cogli i segnali senza forzare gli eventi.",
+      "Esprimi chiaramente ciò che desideri.",
+      "Osserva con calma prima di agire.",
+      "Resta fedele al tuo ritmo naturale.",
+      "Lascia che la giornata ti sorprenda piacevolmente."
+    ]
+  },
+  "nl": {
+    "pulse": [
+      "Constructieve energie ondersteunt je beslissingen.",
+      "Het ritme van vandaag bevordert positieve vooruitgang.",
+      "Een nieuwe dynamiek krijgt langzaam vorm.",
+      "De invloeden van dit moment nodigen uit tot vertrouwen."
+    ],
+    "focus": [
+      "Een subtiel detail kan belangrijk worden.",
+      "Een onverwachte kans verdient je aandacht.",
+      "Een gesprek zal nuttig inzicht geven.",
+      "Je intuïtie ziet wat anderen missen.",
+      "Een eerdere beslissing kan eindelijk vruchten afwerpen.",
+      "De juiste timing telt meer dan snelheid.",
+      "Een klein initiatief kan veel teweegbrengen.",
+      "Een ander perspectief opent een mogelijkheid.",
+      "Volharding geeft vandaag de beste resultaten.",
+      "Informatie op het juiste moment maakt het verschil."
+    ],
+    "advice": [
+      "Vertrouw op je eerste indruk.",
+      "Laat ruimte voor het onverwachte.",
+      "Ga vooruit zonder alles te willen beheersen.",
+      "Kies eenvoud en blijf goed luisteren.",
+      "Bewaar je energie voor wat echt belangrijk is.",
+      "Let op de signalen zonder iets te forceren.",
+      "Zeg duidelijk wat je wilt.",
+      "Neem tijd om te observeren voordat je handelt.",
+      "Blijf trouw aan je natuurlijke ritme.",
+      "Laat de dag je aangenaam verrassen."
+    ]
+  },
+  "pt": {
+    "pulse": [
+      "Uma energia construtiva acompanha as tuas decisões.",
+      "O ritmo de hoje favorece uma evolução positiva.",
+      "Uma nova dinâmica começa a ganhar forma.",
+      "As influências do momento convidam-te a avançar com confiança."
+    ],
+    "focus": [
+      "Um detalhe discreto poderá tornar-se importante.",
+      "Uma oportunidade inesperada merece a tua atenção.",
+      "Uma conversa trará uma perspetiva útil.",
+      "A tua intuição verá o que outros não veem.",
+      "Uma decisão anterior poderá finalmente dar frutos.",
+      "O momento certo contará mais do que a rapidez.",
+      "Uma pequena iniciativa poderá ter um belo efeito.",
+      "Uma mudança de perspetiva abrirá uma possibilidade.",
+      "A consistência dará hoje os melhores resultados.",
+      "Uma informação oportuna fará a diferença."
+    ],
+    "advice": [
+      "Confia na tua primeira impressão.",
+      "Deixa espaço para o inesperado.",
+      "Avança sem tentar controlar tudo.",
+      "Escolhe a simplicidade e continua atento.",
+      "Guarda a tua energia para o que realmente importa.",
+      "Observa os sinais sem forçares os acontecimentos.",
+      "Expressa claramente aquilo que desejas.",
+      "Observa com calma antes de agir.",
+      "Mantém-te fiel ao teu ritmo natural.",
+      "Deixa que o dia te surpreenda agradavelmente."
+    ]
+  }
+};
+
 const astroUi={
   fr:{trend:'Tendance du jour',work:'Travail',love:'Amour',health:'Santé',rating:'Indice',note:'Le Technoroscope est proposé pour le divertissement.',locale:'fr-FR',outOf:'sur'},
   en:{trend:"Today's outlook",work:'Work',love:'Love',health:'Well-being',rating:'Rating',note:'The Technoroscope is provided for entertainment purposes.',locale:'en-GB',outOf:'out of'},
@@ -40,9 +267,14 @@ let lang=regionLanguages[region].lang;
 let selected=null;
 
 function astroHash(value){let h=2166136261;for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function dayNumber(){const now=new Date();return Math.floor(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/86400000)}
+function signNumber(){return Math.max(0,Object.keys(symbols).indexOf(selected))}
+function cycleValue(key,total){const offsets={summary:0,work:71,love:149,health:227};return (dayNumber()+signNumber()*31+(offsets[key]||0))%total}
 function dailyValue(category,modulo){const now=new Date(),day=now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate();return astroHash(day+'-'+selected+'-'+category)%modulo}
-function categoryCard(key,icon,cssClass){const copy=astroUi[lang],messages=astroPools[lang][key],level=2+dailyValue(key,4),message=messages[dailyValue(key,messages.length)];return '<article class="astro-card '+cssClass+'"><div class="astro-card-top"><h3>'+icon+' '+copy[key]+'</h3><span class="astro-score" aria-label="'+copy.rating+' '+level+' '+copy.outOf+' 5">'+copy.rating+' : '+level+'/5</span></div><div class="astro-meter" aria-hidden="true">'+[1,2,3,4,5].map(n=>'<span class="'+(n<=level?'on':'')+'"></span>').join('')+'</div><p>'+message+'</p></article>'}
-function render(){const copy=astroUi[lang],locale=regionLanguages[region].locale;document.documentElement.lang=locale;langSelect.value=region;intro.textContent=data[lang].intro;back.textContent=data[lang].back;buttons.forEach(button=>button.querySelector('span').textContent=data[lang].signs[button.dataset.sign][0]);if(!selected){result.classList.remove('visible');result.textContent=data[lang].choose;return}const sign=data[lang].signs[selected],date=new Intl.DateTimeFormat(locale,{weekday:'long',day:'numeric',month:'long'}).format(new Date());result.classList.add('visible');result.innerHTML='<div class="result-head"><h2 class="result-sign">'+symbols[selected]+' '+sign[0]+'</h2><div class="result-date">'+copy.trend+' · '+date+'</div><p class="result-summary">'+sign[1]+'</p></div><div class="astro-indices">'+categoryCard('work','💼','astro-card-work')+categoryCard('love','❤️','astro-card-love')+categoryCard('health','🌿','astro-card-health')+'</div><p class="astro-note">'+copy.note+'</p>'}
+function composeDaily(key,baseMessages){const layer=dailyLayers[lang],total=baseMessages.length*layer.focus.length*layer.advice.length;let value=cycleValue(key,total);const base=baseMessages[value%baseMessages.length];value=Math.floor(value/baseMessages.length);const focus=layer.focus[value%layer.focus.length];value=Math.floor(value/layer.focus.length);const advice=layer.advice[value%layer.advice.length];return base+' '+focus+' '+advice}
+function summaryText(base){const layer=dailyLayers[lang],total=layer.pulse.length*layer.focus.length*layer.advice.length;let value=cycleValue('summary',total);const pulse=layer.pulse[value%layer.pulse.length];value=Math.floor(value/layer.pulse.length);const focus=layer.focus[value%layer.focus.length];value=Math.floor(value/layer.focus.length);const advice=layer.advice[value%layer.advice.length];return base+' '+pulse+' '+focus+' '+advice}
+function categoryCard(key,icon,cssClass){const copy=astroUi[lang],messages=astroPools[lang][key],level=2+dailyValue(key,4),message=composeDaily(key,messages);return '<article class="astro-card '+cssClass+'"><div class="astro-card-top"><h3>'+icon+' '+copy[key]+'</h3><span class="astro-score" aria-label="'+copy.rating+' '+level+' '+copy.outOf+' 5">'+copy.rating+' : '+level+'/5</span></div><div class="astro-meter" aria-hidden="true">'+[1,2,3,4,5].map(n=>'<span class="'+(n<=level?'on':'')+'"></span>').join('')+'</div><p>'+message+'</p></article>'}
+function render(){const copy=astroUi[lang],locale=regionLanguages[region].locale;document.documentElement.lang=locale;langSelect.value=region;intro.textContent=data[lang].intro;back.textContent=data[lang].back;buttons.forEach(button=>button.querySelector('span').textContent=data[lang].signs[button.dataset.sign][0]);if(!selected){result.classList.remove('visible');result.textContent=data[lang].choose;return}const sign=data[lang].signs[selected],date=new Intl.DateTimeFormat(locale,{weekday:'long',day:'numeric',month:'long'}).format(new Date());result.classList.add('visible');result.innerHTML='<div class="result-head"><h2 class="result-sign">'+symbols[selected]+' '+sign[0]+'</h2><div class="result-date">'+copy.trend+' · '+date+'</div><p class="result-summary">'+summaryText(sign[1])+'</p></div><div class="astro-indices">'+categoryCard('work','💼','astro-card-work')+categoryCard('love','❤️','astro-card-love')+categoryCard('health','🌿','astro-card-health')+'</div><p class="astro-note">'+copy.note+'</p>'}
 function setLang(nextRegion){region=supportedRegions.includes(nextRegion)?nextRegion:'fr';lang=regionLanguages[region].lang;localStorage.setItem('technorizon-horoscope-lang',region);render()}
 langSelect.addEventListener('change',event=>setLang(event.target.value));
 buttons.forEach(button=>button.addEventListener('click',()=>{selected=button.dataset.sign;buttons.forEach(item=>item.classList.toggle('active',item===button));render();result.scrollIntoView({behavior:'smooth',block:'nearest'})}));
