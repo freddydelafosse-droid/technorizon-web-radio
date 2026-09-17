@@ -29,18 +29,21 @@ const astroUi={
 };
 
 const symbols={belier:'♈',taureau:'♉',gemeaux:'♊',cancer:'♋',lion:'♌',vierge:'♍',balance:'♎',scorpion:'♏',sagittaire:'♐',capricorne:'♑',verseau:'♒',poissons:'♓'};
-const supportedLanguages=Object.keys(data);
+const regionLanguages={fr:{lang:'fr',locale:'fr-FR'},be:{lang:'fr',locale:'fr-BE'},ch:{lang:'fr',locale:'fr-CH'},gb:{lang:'en',locale:'en-GB'},us:{lang:'en',locale:'en-US'},ca:{lang:'fr',locale:'fr-CA'},de:{lang:'de',locale:'de-DE'},es:{lang:'es',locale:'es-ES'},it:{lang:'it',locale:'it-IT'},pt:{lang:'pt',locale:'pt-PT'},nl:{lang:'nl',locale:'nl-NL'}};
+const supportedRegions=Object.keys(regionLanguages);
 const result=document.getElementById('result');
 const buttons=[...document.querySelectorAll('.signs button')];
 const savedLanguage=localStorage.getItem('technorizon-horoscope-lang')||localStorage.getItem('technorizon-jaya-lang')||localStorage.getItem('technorizon-lang');
-let lang=supportedLanguages.includes(savedLanguage)?savedLanguage:'fr';
+const migratedRegion=savedLanguage==='en'?'gb':savedLanguage;
+let region=supportedRegions.includes(migratedRegion)?migratedRegion:'fr';
+let lang=regionLanguages[region].lang;
 let selected=null;
 
 function astroHash(value){let h=2166136261;for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 function dailyValue(category,modulo){const now=new Date(),day=now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate();return astroHash(day+'-'+selected+'-'+category)%modulo}
 function categoryCard(key,icon,cssClass){const copy=astroUi[lang],messages=astroPools[lang][key],level=2+dailyValue(key,4),message=messages[dailyValue(key,messages.length)];return '<article class="astro-card '+cssClass+'"><div class="astro-card-top"><h3>'+icon+' '+copy[key]+'</h3><span class="astro-score" aria-label="'+copy.rating+' '+level+' '+copy.outOf+' 5">'+copy.rating+' : '+level+'/5</span></div><div class="astro-meter" aria-hidden="true">'+[1,2,3,4,5].map(n=>'<span class="'+(n<=level?'on':'')+'"></span>').join('')+'</div><p>'+message+'</p></article>'}
-function render(){const copy=astroUi[lang];document.documentElement.lang=lang;langSelect.value=lang;intro.textContent=data[lang].intro;back.textContent=data[lang].back;buttons.forEach(button=>button.querySelector('span').textContent=data[lang].signs[button.dataset.sign][0]);if(!selected){result.classList.remove('visible');result.textContent=data[lang].choose;return}const sign=data[lang].signs[selected],date=new Intl.DateTimeFormat(copy.locale,{weekday:'long',day:'numeric',month:'long'}).format(new Date());result.classList.add('visible');result.innerHTML='<div class="result-head"><h2 class="result-sign">'+symbols[selected]+' '+sign[0]+'</h2><div class="result-date">'+copy.trend+' · '+date+'</div><p class="result-summary">'+sign[1]+'</p></div><div class="astro-indices">'+categoryCard('work','💼','astro-card-work')+categoryCard('love','❤️','astro-card-love')+categoryCard('health','🌿','astro-card-health')+'</div><p class="astro-note">'+copy.note+'</p>'}
-function setLang(nextLanguage){lang=supportedLanguages.includes(nextLanguage)?nextLanguage:'fr';localStorage.setItem('technorizon-horoscope-lang',lang);render()}
+function render(){const copy=astroUi[lang],locale=regionLanguages[region].locale;document.documentElement.lang=locale;langSelect.value=region;intro.textContent=data[lang].intro;back.textContent=data[lang].back;buttons.forEach(button=>button.querySelector('span').textContent=data[lang].signs[button.dataset.sign][0]);if(!selected){result.classList.remove('visible');result.textContent=data[lang].choose;return}const sign=data[lang].signs[selected],date=new Intl.DateTimeFormat(locale,{weekday:'long',day:'numeric',month:'long'}).format(new Date());result.classList.add('visible');result.innerHTML='<div class="result-head"><h2 class="result-sign">'+symbols[selected]+' '+sign[0]+'</h2><div class="result-date">'+copy.trend+' · '+date+'</div><p class="result-summary">'+sign[1]+'</p></div><div class="astro-indices">'+categoryCard('work','💼','astro-card-work')+categoryCard('love','❤️','astro-card-love')+categoryCard('health','🌿','astro-card-health')+'</div><p class="astro-note">'+copy.note+'</p>'}
+function setLang(nextRegion){region=supportedRegions.includes(nextRegion)?nextRegion:'fr';lang=regionLanguages[region].lang;localStorage.setItem('technorizon-horoscope-lang',region);render()}
 langSelect.addEventListener('change',event=>setLang(event.target.value));
 buttons.forEach(button=>button.addEventListener('click',()=>{selected=button.dataset.sign;buttons.forEach(item=>item.classList.toggle('active',item===button));render();result.scrollIntoView({behavior:'smooth',block:'nearest'})}));
 render();

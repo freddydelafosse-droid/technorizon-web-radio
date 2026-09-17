@@ -4,9 +4,13 @@
   const STORAGE_KEY = 'technorizon-games-v1';
   const ROUNDS = 5;
 
-  const SUPPORTED_LANGUAGES = ['fr', 'en', 'de', 'es', 'it', 'pt', 'nl'];
+  const REGION_LANGUAGES = { fr:'fr', be:'fr', ch:'fr', gb:'en', us:'en', ca:'fr', de:'de', es:'es', it:'it', pt:'pt', nl:'nl' };
+  const REGION_LOCALES = { fr:'fr-FR', be:'fr-BE', ch:'fr-CH', gb:'en-GB', us:'en-US', ca:'fr-CA', de:'de-DE', es:'es-ES', it:'it-IT', pt:'pt-PT', nl:'nl-NL' };
+  const SUPPORTED_REGIONS = Object.keys(REGION_LANGUAGES);
   const savedLanguage = localStorage.getItem('technorizon-games-lang');
-  let lang = SUPPORTED_LANGUAGES.includes(savedLanguage) ? savedLanguage : 'fr';
+  let region = savedLanguage === 'en' ? 'gb' : savedLanguage;
+  if (!SUPPORTED_REGIONS.includes(region)) region = 'fr';
+  let lang = REGION_LANGUAGES[region];
   const I18N = {
     fr: {
       title: 'Jeux Technorizon — Blind Test, Hit ou Intox et TechnoQuiz',
@@ -271,12 +275,12 @@
   const setText = (selector, key) => { const node = document.querySelector(selector); if (node) node.textContent = t(key); };
   const setHtml = (selector, key) => { const node = document.querySelector(selector); if (node) node.innerHTML = t(key); };
   function applyLanguage() {
-    document.documentElement.lang = lang;
+    document.documentElement.lang = REGION_LOCALES[region];
     document.title = t('title');
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.content = t('description');
     const picker = document.querySelector('#game-language');
-    if (picker) picker.value = lang;
+    if (picker) picker.value = region;
     setText('.games-home', 'home'); setText('.games-info-link', 'info');
     setHtml('.games-hero h1', 'heroTitle'); setText('.games-hero p', 'heroText');
     setText('.player-card .eyebrow', 'profileEyebrow'); setText('#profile-title', 'profileTitle');
@@ -642,7 +646,7 @@
   }
 
   $('#game-language').addEventListener('change', event => {
-    const next = SUPPORTED_LANGUAGES.includes(event.target.value) ? event.target.value : 'fr';
+    const next = SUPPORTED_REGIONS.includes(event.target.value) ? event.target.value : 'fr';
     localStorage.setItem('technorizon-games-lang', next);
     window.location.reload();
   });
