@@ -160,38 +160,47 @@
   },true);
 
   const play=async()=>{
+    userWantsPlayback=true;
     try{
       await ensureAudioGraph();
       await audio.play();
       mark(true);
       startVisualizer();
       return true;
-    }catch(e){mark(false);return false}
+    }catch(e){return false}
   };
-  const pause=()=>{audio.pause();mark(false);stopVisualizer()};
+  const pause=()=>{userWantsPlayback=false;cancelReconnect();audio.pause();mark(false);stopVisualizer()};
 
   let reconnectTimer=0;
+  let userWantsPlayback=false;
   const cancelReconnect=()=>{if(reconnectTimer)clearTimeout(reconnectTimer);reconnectTimer=0};
-  const scheduleReconnect=()=>{
-    if(reconnectTimer||audio.paused||sessionStorage.getItem(KEY)!=='1')return;
+  const scheduleReconnect=(delay=2500)=>{
+    if(reconnectTimer||!userWantsPlayback)return;
     reconnectTimer=setTimeout(async()=>{
       reconnectTimer=0;
-      if(audio.paused||sessionStorage.getItem(KEY)!=='1')return;
+      if(!userWantsPlayback)return;
       try{
-        audio.load();
+        // Do not call audio.load() here: on Safari iOS it tears down a healthy
+        // live connection and can turn a short interruption into a hard stop.
         await audio.play();
         mark(true);
       }catch(e){}
-    },6000);
+    },delay);
   };
 
-  audio.addEventListener('playing',()=>{cancelReconnect();mark(true);startVisualizer()});
-  audio.addEventListener('pause',()=>{cancelReconnect();mark(false);stopVisualizer()});
-  audio.addEventListener('waiting',scheduleReconnect);
-  audio.addEventListener('stalled',scheduleReconnect);
+  audio.addEventListener('playing',()=>{cancelReconnect();userWantsPlayback=true;mark(true);startVisualizer()});
+  audio.addEventListener('pause',()=>{
+    cancelReconnect();
+    stopVisualizer();
+    // iOS emits pause during calls, Siri and route changes. Keep the listening
+    // intent; an explicit button press is the only action that clears it.
+    if(!userWantsPlayback)mark(false);
+  });
+  audio.addEventListener('waiting',()=>{});
+  audio.addEventListener('stalled',()=>{});
   audio.addEventListener('canplay',cancelReconnect);
-  audio.addEventListener('ended',()=>{stopVisualizer();if(sessionStorage.getItem(KEY)==='1')setTimeout(play,500)});
-  audio.addEventListener('error',()=>{stopVisualizer();if(sessionStorage.getItem(KEY)==='1')setTimeout(play,1500)});
+  audio.addEventListener('ended',()=>{stopVisualizer();scheduleReconnect(800)});
+  audio.addEventListener('error',()=>{stopVisualizer();scheduleReconnect(1800)});
 
   if('mediaSession' in navigator){
     try{
