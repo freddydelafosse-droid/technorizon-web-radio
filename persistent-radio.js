@@ -1,30 +1,22 @@
 (()=>{
-  const STREAM='https://radio.technorizon.fr/listen/technorizon/radio.mp3';
+  'use strict';
   const KEY='technorizon-radio-playing';
-  const INTERNAL_SELECTOR='a[href]';
-  let audio=document.getElementById('v2-audio');
-  if(!audio){
-    audio=document.createElement('audio');
-    audio.id='v2-audio';
-    audio.preload='none';
-    audio.src=STREAM;
-    document.body.appendChild(audio);
-  }
-  if(!audio.src) audio.src=STREAM;
+  const audio=document.getElementById('v2-audio');
   const playButton=document.getElementById('v2-play');
-  const state=playing=>{if(playButton)playButton.textContent=playing?'❚❚':'▶'};
+
+  // Only the homepage owns the live audio stream. Never create a second player on child pages.
+  if(!audio||!playButton)return;
+
   const mark=playing=>{try{sessionStorage.setItem(KEY,playing?'1':'0')}catch(e){}};
-  const play=async()=>{try{await audio.play();mark(true);state(true);return true}catch(e){state(false);return false}};
-  const pause=()=>{audio.pause();mark(false);state(false)};
-  if(playButton){
-    playButton.onclick=async()=>{audio.paused?await play():pause()};
-  }
-  audio.addEventListener('playing',()=>{mark(true);state(true)});
-  audio.addEventListener('pause',()=>state(false));
-  audio.addEventListener('ended',()=>{if(sessionStorage.getItem(KEY)==='1')play()});
+  const play=async()=>{try{await audio.play();mark(true);return true}catch(e){mark(false);return false}};
+  const pause=()=>{audio.pause();mark(false)};
+
+  audio.addEventListener('playing',()=>mark(true));
+  audio.addEventListener('pause',()=>mark(false));
+  audio.addEventListener('ended',()=>{if(sessionStorage.getItem(KEY)==='1')setTimeout(play,500)});
   audio.addEventListener('error',()=>{if(sessionStorage.getItem(KEY)==='1')setTimeout(play,1500)});
 
-  // Media Session improves lock-screen/background controls where supported.
+  // Keep lock-screen / background controls available where the browser supports Media Session.
   if('mediaSession' in navigator){
     try{
       navigator.mediaSession.metadata=new MediaMetadata({
@@ -38,35 +30,34 @@
     }catch(e){}
   }
 
-  // Restore playback after a normal page load when the listener was already listening.
-  if(sessionStorage.getItem(KEY)==='1') play();
-
-  // Internal pages are loaded into the current document so the same audio element survives.
-  document.addEventListener('click',async event=>{
-    const link=event.target.closest(INTERNAL_SELECTOR);
+  // A normal HTML navigation destroys the audio element. While listening, open the destination
+  // separately so the Technorizon player remains alive in its original page/app view.
+  document.addEventListener('click',event=>{
+    const link=event.target.closest('a[href]');
     if(!link||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
-    if(link.target==='_blank'||link.hasAttribute('download'))return;
-    const url=new URL(link.href,location.href);
-    if(url.origin!==location.origin)return;
-    if(url.hash&&url.pathname===location.pathname)return;
-    if(!/\.html$|\/$/.test(url.pathname))return;
-    event.preventDefault();
-    const wasPlaying=!audio.paused||sessionStorage.getItem(KEY)==='1';
-    try{
-      const response=await fetch(url.href,{cache:'no-store'});
-      if(!response.ok)throw new Error('navigation');
-      const html=await response.text();
-      const doc=new DOMParser().parseFromString(html,'text/html');
-      // Complex pages own their scripts; use normal navigation there. Playback will auto-resume.
-      location.href=url.href;
-      if(wasPlaying)mark(true);
-    }catch(e){
-      if(wasPlaying)mark(true);
-      location.href=url.href;
-    }
-  });
+    if(link.hasAttribute('download'))return;
+    const raw=link.getAttribute('href')||'';
+    if(!raw||raw.startsWith('#')||raw.startsWith('mailto:')||raw.startsWith('tel:')||raw.startsWith('javascript:'))return;
+    if(audio.paused&&sessionStorage.getItem(KEY)!=='1')return;
 
-  // Do not pause on visibilitychange/page hide: browsers may keep the live stream in background.
+    let url;
+    try{url=new URL(link.href,location.href)}catch(e){return}
+    if(!/^https?:$/.test(url.protocol))return;
+    if(url.href===location.href)return;
+
+    // Existing target=_blank links already preserve this page and its stream.
+    if(link.target==='_blank')return;
+
+    event.preventDefault();
+    mark(true);
+    const opened=window.open(url.href,'_blank','noopener,noreferrer');
+    // If a browser blocks the new view, do not kill the current live stream.
+    if(!opened){
+      const lang=localStorage.getItem('technorizon-lang')||'fr';
+      console.info(lang==='fr'?'Technorizon : navigation bloquée pour préserver le direct.':'Technorizon: navigation blocked to preserve live playback.');
+    }
+  },true);
+
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden&&sessionStorage.getItem(KEY)==='1'&&audio.paused)play();
   });
