@@ -10,7 +10,7 @@ const translations={
 
 const regionLanguages={fr:{lang:'fr',locale:'fr-FR'},be:{lang:'fr',locale:'fr-BE'},ch:{lang:'fr',locale:'fr-CH'},gb:{lang:'en',locale:'en-GB'},us:{lang:'en',locale:'en-US'},ca:{lang:'fr',locale:'fr-CA'},de:{lang:'de',locale:'de-DE'},es:{lang:'es',locale:'es-ES'},it:{lang:'it',locale:'it-IT'},pt:{lang:'pt',locale:'pt-PT'},nl:{lang:'nl',locale:'nl-NL'}};
 const supportedRegions=Object.keys(regionLanguages);
-const icons={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',56:'🌧️',57:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',77:'🌨️',80:'🌦️',81:'🌦️',82:'🌧️',85:'🌨️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'};
+const icons={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'☁️',48:'☁️',51:'🌦️',53:'🌦️',55:'🌧️',56:'🌧️',57:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',77:'🌨️',80:'🌦️',81:'🌦️',82:'🌧️',85:'🌨️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'};
 const conditions={
   fr:{0:'Ciel dégagé',1:'Peu nuageux',2:'Partiellement nuageux',3:'Couvert',45:'Brouillard',48:'Brouillard givrant',51:'Bruine faible',53:'Bruine',55:'Forte bruine',61:'Pluie faible',63:'Pluie',65:'Forte pluie',71:'Neige faible',73:'Neige',75:'Forte neige',80:'Averses faibles',81:'Averses',82:'Fortes averses',95:'Orage',96:'Orage avec grêle',99:'Fort orage avec grêle',fallback:'Variable'},
   en:{0:'Clear sky',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Freezing fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',80:'Light showers',81:'Showers',82:'Heavy showers',95:'Thunderstorm',96:'Thunderstorm with hail',99:'Heavy thunderstorm with hail',fallback:'Variable'},
