@@ -15,7 +15,7 @@
     fr: {
       title: 'Jeux Technorizon — Blind Test, Hit ou Intox et TechnoQuiz',
       description: 'Jouez au Blind Test, à Hit ou Intox et au TechnoQuiz de Technorizon.fr.',
-      home: '⌂ Accueil', info: 'ⓘ Infos', heroTitle: 'Choisis ton jeu.<br><span>Défie tes amis</span>',
+      home: "← Retour à l'accueil", info: 'ⓘ Infos', heroTitle: 'Choisis ton jeu.<br><span>Défie tes amis</span>',
       heroText: 'Du son, des défis et des points dans une salle de jeux 100 % Technorizon',
       profileEyebrow: 'PROFIL JOUEUR', profileTitle: 'Ton pseudo', nickname: 'Entre ton pseudo', save: 'Enregistrer',
       points: 'points', streak: 'jours de série', games: 'parties',
@@ -49,7 +49,7 @@
     en: {
       title: 'Technorizon Games — Blind Test, Hit or Myth and TechnoQuiz',
       description: 'Play Technorizon.fr’s Blind Test, Hit or Myth and TechnoQuiz.',
-      home: '⌂ Home', info: 'ⓘ Info', heroTitle: 'Choose your game.<br><span>Challenge your friends</span>',
+      home: '← Back to home', info: 'ⓘ Info', heroTitle: 'Choose your game.<br><span>Challenge your friends</span>',
       heroText: 'Music, challenges and points in a 100% Technorizon game room',
       profileEyebrow: 'PLAYER PROFILE', profileTitle: 'Your nickname', nickname: 'Enter your nickname', save: 'Save',
       points: 'points', streak: 'day streak', games: 'games',
@@ -83,7 +83,7 @@
     de: {
       title: 'Technorizon Spiele — Blind Test, Hit oder Mythos und TechnoQuiz',
       description: 'Spiele den Blind Test, Hit oder Mythos und das TechnoQuiz von Technorizon.fr.',
-      home: '⌂ Startseite', info: 'ⓘ Infos', heroTitle: 'Wähle dein Spiel.<br><span>Fordere deine Freunde heraus</span>',
+      home: '← Zurück zur Startseite', info: 'ⓘ Infos', heroTitle: 'Wähle dein Spiel.<br><span>Fordere deine Freunde heraus</span>',
       heroText: 'Musik, Herausforderungen und Punkte in einer Spielhalle 100 % Technorizon',
       profileEyebrow: 'SPIELERPROFIL', profileTitle: 'Dein Benutzername', nickname: 'Benutzernamen eingeben', save: 'Speichern',
       points: 'Punkte', streak: 'Tage in Folge', games: 'Spiele',
@@ -117,7 +117,7 @@
     es: {
       title: 'Juegos Technorizon — Blind Test, Hit o Mito y TechnoQuiz',
       description: 'Juega al Blind Test, Hit o Mito y TechnoQuiz de Technorizon.fr.',
-      home: '⌂ Inicio', info: 'ⓘ Información', heroTitle: 'Elige tu juego.<br><span>Desafía a tus amigos</span>',
+      home: '← Volver al inicio', info: 'ⓘ Información', heroTitle: 'Elige tu juego.<br><span>Desafía a tus amigos</span>',
       heroText: 'Música, retos y puntos en una sala de juegos 100 % Technorizon',
       profileEyebrow: 'PERFIL DEL JUGADOR', profileTitle: 'Tu apodo', nickname: 'Escribe tu apodo', save: 'Guardar',
       points: 'puntos', streak: 'días seguidos', games: 'partidas',
@@ -151,7 +151,7 @@
     it: {
       title: 'Giochi Technorizon — Blind Test, Hit o Mito e TechnoQuiz',
       description: 'Gioca al Blind Test, Hit o Mito e TechnoQuiz di Technorizon.fr.',
-      home: '⌂ Home', info: 'ⓘ Info', heroTitle: 'Scegli il tuo gioco.<br><span>Sfida i tuoi amici</span>',
+      home: '← Torna alla home', info: 'ⓘ Info', heroTitle: 'Scegli il tuo gioco.<br><span>Sfida i tuoi amici</span>',
       heroText: 'Musica, sfide e punti in una sala giochi 100% Technorizon',
       profileEyebrow: 'PROFILO GIOCATORE', profileTitle: 'Il tuo nickname', nickname: 'Inserisci il nickname', save: 'Salva',
       points: 'punti', streak: 'giorni di serie', games: 'partite',
@@ -185,7 +185,7 @@
     pt: {
       title: 'Jogos Technorizon — Blind Test, Hit ou Mito e TechnoQuiz',
       description: 'Jogue o Blind Test, Hit ou Mito e TechnoQuiz da Technorizon.fr.',
-      home: '⌂ Início', info: 'ⓘ Informações', heroTitle: 'Escolhe o teu jogo.<br><span>Desafia os teus amigos</span>',
+      home: '← Voltar ao início', info: 'ⓘ Informações', heroTitle: 'Escolhe o teu jogo.<br><span>Desafia os teus amigos</span>',
       heroText: 'Música, desafios e pontos numa sala de jogos 100% Technorizon',
       profileEyebrow: 'PERFIL DO JOGADOR', profileTitle: 'O teu nome', nickname: 'Introduz o teu nome', save: 'Guardar',
       points: 'pontos', streak: 'dias seguidos', games: 'partidas',
@@ -219,7 +219,7 @@
     nl: {
       title: 'Technorizon Games — Blind Test, Hit of Mythe en TechnoQuiz',
       description: 'Speel de Blind Test, Hit of Mythe en TechnoQuiz van Technorizon.fr.',
-      home: '⌂ Home', info: 'ⓘ Info', heroTitle: 'Kies je spel.<br><span>Daag je vrienden uit</span>',
+      home: '← Terug naar home', info: 'ⓘ Info', heroTitle: 'Kies je spel.<br><span>Daag je vrienden uit</span>',
       heroText: 'Muziek, uitdagingen en punten in een 100% Technorizon-speelhal',
       profileEyebrow: 'SPELERS PROFIEL', profileTitle: 'Je bijnaam', nickname: 'Vul je bijnaam in', save: 'Opslaan',
       points: 'punten', streak: 'dagen op rij', games: 'spellen',
