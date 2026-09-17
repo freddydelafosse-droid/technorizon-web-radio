@@ -6,44 +6,49 @@
   if(!audio||!playButton)return;
 
   const mark=playing=>{try{sessionStorage.setItem(KEY,playing?'1':'0')}catch(e){}};
+  let visualizerTimer=0;
 
-  // Recreate the animated visualizers when necessary. Some mobile/PWA browsers keep a CSS
-  // animation frozen after the page has spent time in the background; replacing the nodes
-  // gives the browser brand-new animation timelines instead of trying to resume a frozen one.
-  const rebuildVisualizer=()=>{
+  // JS-driven visualizer: unlike CSS animation timelines, this reliably resumes after a tab/PWA
+  // has been backgrounded. We update transforms directly while the live audio is playing.
+  const stopVisualizer=()=>{
+    if(visualizerTimer){clearInterval(visualizerTimer);visualizerTimer=0}
+  };
+  const paintVisualizer=()=>{
     const playing=!audio.paused;
-    ['.radio-wave','.radio-vu-mini'].forEach(selector=>{
-      const old=document.querySelector(selector);
-      if(!old)return;
-      const fresh=old.cloneNode(true);
-      fresh.classList.toggle('paused',!playing);
-      old.replaceWith(fresh);
+    const bars=[...document.querySelectorAll('.radio-wave i,.radio-vu-mini i')];
+    document.querySelector('.radio-wave')?.classList.toggle('paused',!playing);
+    document.querySelector('.radio-vu-mini')?.classList.toggle('paused',!playing);
+    bars.forEach((bar,index)=>{
+      bar.style.animation='none';
+      bar.style.transition='transform 110ms linear,opacity 110ms linear';
+      if(playing){
+        const min=index<24?.16:.28;
+        const scale=min+Math.random()*(1.18-min);
+        bar.style.transform=`scaleY(${scale.toFixed(2)})`;
+        bar.style.opacity=String(.48+Math.random()*.52);
+      }else{
+        bar.style.transform=index<24?'scaleY(.12)':'scaleY(.28)';
+        bar.style.opacity=index<24?'.28':'.35';
+      }
     });
   };
-  const refreshVisualizer=()=>{
-    const playing=!audio.paused;
-    const wave=document.querySelector('.radio-wave');
-    const vu=document.querySelector('.radio-vu-mini');
-    if(wave)wave.classList.toggle('paused',!playing);
-    if(vu)vu.classList.toggle('paused',!playing);
+  const startVisualizer=()=>{
+    stopVisualizer();
+    paintVisualizer();
+    if(!audio.paused)visualizerTimer=setInterval(paintVisualizer,130);
   };
 
-  const play=async()=>{try{await audio.play();mark(true);requestAnimationFrame(rebuildVisualizer);return true}catch(e){mark(false);return false}};
-  const pause=()=>{audio.pause();mark(false);refreshVisualizer()};
+  const play=async()=>{try{await audio.play();mark(true);startVisualizer();return true}catch(e){mark(false);return false}};
+  const pause=()=>{audio.pause();mark(false);stopVisualizer();paintVisualizer()};
 
-  audio.addEventListener('playing',()=>{mark(true);requestAnimationFrame(rebuildVisualizer)});
-  audio.addEventListener('pause',()=>{mark(false);refreshVisualizer()});
-  audio.addEventListener('ended',()=>{if(sessionStorage.getItem(KEY)==='1')setTimeout(play,500)});
-  audio.addEventListener('error',()=>{if(sessionStorage.getItem(KEY)==='1')setTimeout(play,1500)});
+  audio.addEventListener('playing',()=>{mark(true);startVisualizer()});
+  audio.addEventListener('pause',()=>{mark(false);stopVisualizer();paintVisualizer()});
+  audio.addEventListener('ended',()=>{stopVisualizer();if(sessionStorage.getItem(KEY)==='1')setTimeout(play,500)});
+  audio.addEventListener('error',()=>{stopVisualizer();if(sessionStorage.getItem(KEY)==='1')setTimeout(play,1500)});
 
   if('mediaSession' in navigator){
     try{
-      navigator.mediaSession.metadata=new MediaMetadata({
-        title:'Technorizon.fr',
-        artist:'La musique sans frontières',
-        album:'Technorizon.fr',
-        artwork:[{src:'/ImageLogoFinal.png',sizes:'512x512',type:'image/png'}]
-      });
+      navigator.mediaSession.metadata=new MediaMetadata({title:'Technorizon.fr',artist:'La musique sans frontières',album:'Technorizon.fr',artwork:[{src:'/ImageLogoFinal.png',sizes:'512x512',type:'image/png'}]});
       navigator.mediaSession.setActionHandler('play',play);
       navigator.mediaSession.setActionHandler('pause',pause);
     }catch(e){}
@@ -58,26 +63,18 @@
     if(audio.paused&&sessionStorage.getItem(KEY)!=='1')return;
     let url;
     try{url=new URL(link.href,location.href)}catch(e){return}
-    if(!/^https?:$/.test(url.protocol)||url.href===location.href)return;
-    if(link.target==='_blank')return;
+    if(!/^https?:$/.test(url.protocol)||url.href===location.href||link.target==='_blank')return;
     event.preventDefault();
     mark(true);
-    const opened=window.open(url.href,'_blank','noopener,noreferrer');
-    if(!opened){
-      const lang=localStorage.getItem('technorizon-lang')||'fr';
-      console.info(lang==='fr'?'Technorizon : navigation bloquée pour préserver le direct.':'Technorizon: navigation blocked to preserve live playback.');
-    }
+    window.open(url.href,'_blank','noopener,noreferrer');
   },true);
 
   const restoreHomepage=()=>{
     if(sessionStorage.getItem(KEY)==='1'&&audio.paused){play();return}
-    if(!audio.paused){
-      // Two frames ensure the page is actually painted again before new animation timelines start.
-      requestAnimationFrame(()=>requestAnimationFrame(rebuildVisualizer));
-    }else refreshVisualizer();
+    if(!audio.paused)startVisualizer();else paintVisualizer();
   };
-  window.addEventListener('pageshow',()=>setTimeout(restoreHomepage,60));
-  window.addEventListener('focus',()=>setTimeout(restoreHomepage,60));
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(restoreHomepage,60)});
-  setTimeout(refreshVisualizer,250);
+  window.addEventListener('pageshow',()=>setTimeout(restoreHomepage,80));
+  window.addEventListener('focus',()=>setTimeout(restoreHomepage,80));
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopVisualizer();else setTimeout(restoreHomepage,80)});
+  setTimeout(startVisualizer,300);
 })();
