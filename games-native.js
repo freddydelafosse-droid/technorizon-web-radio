@@ -6,6 +6,7 @@
   const mainAudio = document.getElementById('v2-audio');
   const originalTitle = document.title;
   const pages = {
+    'infos.html': { page: 'infos', inlineScripts: true },
     'jeux.html': { page: 'games', style: '/jeux.css?v=6', scripts: ['/jeux-data.js?v=1', '/jeux.js?v=9'] },
     'a-propos.html': { page: 'about', scripts: ['/content-pages-i18n.js?v=1'] },
     'contact.html': { page: 'contact', scripts: ['/content-pages-i18n.js?v=1'] },
@@ -68,6 +69,8 @@
     delete window.langSelect;
     delete window.intro;
     delete window.back;
+    delete window.title;
+    delete window.sub;
     document.title = originalTitle;
     resumeRadio();
   };
@@ -100,9 +103,15 @@
       if (!response.ok) throw new Error('Content unavailable');
       const html = await response.text();
       const parsed = new DOMParser().parseFromString(html, 'text/html');
+      const inlineScripts = [...parsed.scripts]
+        .filter(script => !script.src)
+        .map(script => script.textContent)
+        .filter(Boolean);
       parsed.querySelectorAll('head style').forEach(sourceStyle => {
         const style = document.createElement('style');
-        style.textContent = sourceStyle.textContent.replace(/(^|})\s*body\s*\{/g, '$1 .tz-games-host{');
+        style.textContent = sourceStyle.textContent
+          .replace(/html\s*,\s*body\s*\{/g, '.tz-games-host{')
+          .replace(/(^|})\s*body\s*\{/g, '$1 .tz-games-host{');
         document.head.appendChild(style);
         temporaryStyles.push(style);
       });
@@ -119,7 +128,15 @@
         window.intro = host.querySelector('#intro');
         window.back = host.querySelector('#back');
       }
-      for (const script of config.scripts) await runScript(script);
+      if (config.page === 'infos') {
+        window.back = host.querySelector('#back');
+        window.title = host.querySelector('#title');
+        window.sub = host.querySelector('#sub');
+      }
+      for (const script of config.scripts || []) await runScript(script);
+      if (config.inlineScripts) {
+        for (const source of inlineScripts) new Function(source)();
+      }
 
       gameAudio = config.page === 'games' ? host.querySelector('#blind-audio') : null;
       gameAudio?.addEventListener('play', () => {
