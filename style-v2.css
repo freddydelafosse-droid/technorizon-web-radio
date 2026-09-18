@@ -894,3 +894,9 @@ margin-right: 0.05em !important;
   font-size: 20px;
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* V2 — icônes lecteur dessinées en CSS (centrage iOS/PWA fiable) */
+.v2-player-icon{display:block;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.v2-player-icon-play{width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:15px solid #fff;margin-left:2px}
+.v2-player-icon-pause{display:flex;width:16px;height:19px;gap:6px;align-items:stretch;justify-content:center}
+.v2-player-icon-pause i{display:block;width:5px;height:19px;border-radius:1px;background:#fff}
