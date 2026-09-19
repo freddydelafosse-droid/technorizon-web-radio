@@ -862,11 +862,14 @@
     container.appendChild(button);
   }
 
-  $('#game-language').addEventListener('change', event => {
-    const next = SUPPORTED_REGIONS.includes(event.target.value) ? event.target.value : 'fr';
-    localStorage.setItem('technorizon-games-lang', next);
-    window.location.reload();
-  });
+  const gameLanguagePicker = $('#game-language');
+  if (gameLanguagePicker) {
+    gameLanguagePicker.addEventListener('change', event => {
+      const next = SUPPORTED_REGIONS.includes(event.target.value) ? event.target.value : 'fr';
+      localStorage.setItem('technorizon-games-lang', next);
+      window.location.reload();
+    });
+  }
   applyLanguage();
   $('#blind-start').addEventListener('click', () => startBlind(5));
   $('#blind-party').addEventListener('click', () => startBlind(25));
