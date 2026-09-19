@@ -457,6 +457,62 @@
     }
   }
 
+  let fullRankingGame = 'blind';
+  let fullRankingOffset = 0;
+  const FULL_RANKING_PAGE = 50;
+
+  function fullRankingRow(row) {
+    const rank = Number(row.rank) || 0;
+    const medals = ['🥇','🥈','🥉'];
+    const mine = player.name && String(row.player_name).toLocaleLowerCase() === player.name.toLocaleLowerCase();
+    return `<li class="${mine ? 'is-me' : ''}"><span class="ranking-rank">${medals[rank - 1] || rank}</span><span class="ranking-name">${escapeHtml(row.player_name)}</span><strong class="ranking-points">${Number(row.score) || 0} pts</strong></li>`;
+  }
+
+  async function fetchFullRanking({ reset = false, search = '' } = {}) {
+    const list = $('#full-ranking-list');
+    const status = $('#full-ranking-status');
+    const more = $('#load-more-ranking');
+    if (reset) { fullRankingOffset = 0; list.innerHTML = ''; }
+    status.textContent = 'Chargement…';
+    try {
+      const params = new URLSearchParams({ game: fullRankingGame, limit: String(FULL_RANKING_PAGE), offset: String(fullRankingOffset), full: '1' });
+      if (player.name) params.set('me', player.name);
+      if (search) params.set('search', search);
+      const response = await fetch('/api/game-leaderboard?' + params, { cache: 'no-store' });
+      if (!response.ok) throw new Error('leaderboard');
+      const data = await response.json();
+      const rows = Array.isArray(data.items) ? data.items : [];
+      if (reset && !rows.length) list.innerHTML = '<li><span class="ranking-rank">–</span><span class="ranking-name">Aucun joueur trouvé</span><strong class="ranking-points">0 pt</strong></li>';
+      else list.insertAdjacentHTML('beforeend', rows.map(fullRankingRow).join(''));
+      fullRankingOffset += rows.length;
+      more.hidden = Boolean(search) || rows.length < FULL_RANKING_PAGE;
+      status.textContent = data.total ? `${data.total} joueur${data.total > 1 ? 's' : ''} classé${data.total > 1 ? 's' : ''}` : '';
+      const mine = $('#my-ranking-position');
+      if (data.me && data.me.rank) mine.textContent = `🏁 Ma position : ${data.me.rank}e sur ${data.total} · ${data.me.score} pts`;
+      else mine.textContent = '';
+    } catch {
+      status.textContent = 'Classement momentanément indisponible.';
+    }
+  }
+
+  $('#open-full-ranking')?.addEventListener('click', () => {
+    $('#full-ranking').hidden = false;
+    $('#full-ranking').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    fetchFullRanking({ reset: true });
+  });
+  $('#close-full-ranking')?.addEventListener('click', () => { $('#full-ranking').hidden = true; });
+  document.querySelectorAll('.full-ranking-tab').forEach(button => button.addEventListener('click', () => {
+    document.querySelectorAll('.full-ranking-tab').forEach(item => item.classList.toggle('active', item === button));
+    fullRankingGame = button.dataset.rankingGame;
+    $('#ranking-search').value = '';
+    fetchFullRanking({ reset: true });
+  }));
+  $('#ranking-search-form')?.addEventListener('submit', event => {
+    event.preventDefault();
+    fetchFullRanking({ reset: true, search: cleanName($('#ranking-search').value) });
+  });
+  $('#load-more-ranking')?.addEventListener('click', () => fetchFullRanking());
+
   async function submitOnlineScore(gameName, score) {
     const game = GAME_KEYS[gameName] || (String(gameName).toLowerCase().includes('blind') ? 'blind' : null);
     if (!game || !player.name || !score) return;
