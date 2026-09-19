@@ -329,13 +329,13 @@ body {
   display: inline-block;
   width: max-content;
   min-width: 100%;
-  padding-left: 100%;
+  padding-left: 12px;
   white-space: nowrap;
   animation: v2-scroll-dedicaces 60s linear infinite;
 }
 
 @keyframes v2-scroll-dedicaces {
-  from { transform: translateX(0); }
+  from { transform: translateX(100vw); }
   to { transform: translateX(-100%); }
 }
 
