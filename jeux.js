@@ -297,6 +297,22 @@
     setText('#game-intox .secondary-badge', 'trueFalse'); setText('#game-intox .game-lead', 'intoxLead'); setText('#intox-stage > p', 'intoxIntro'); setText('#intox-start', 'intoxStart');
     setText('#game-quiz .secondary-badge', 'electro'); setText('#game-quiz .game-lead', 'quizLead'); setText('#quiz-stage > p', 'quizIntro'); setText('#quiz-start', 'quizStart');
     setText('.ranking-card .eyebrow', 'topPlayers'); setText('#ranking-title', 'rankingTitle'); setText('.ranking-note', 'rankingNote'); setText('.games-footer', 'footer');
+    const fullRankingCopy = {
+      fr:['🌍 Voir le classement complet','🌍 Classement complet','Rechercher un pseudo','Rechercher','Afficher les 50 suivants','Fermer'],
+      en:['🌍 View full ranking','🌍 Full ranking','Search for a nickname','Search','Show next 50','Close'],
+      de:['🌍 Vollständige Rangliste anzeigen','🌍 Vollständige Rangliste','Nickname suchen','Suchen','Nächste 50 anzeigen','Schließen'],
+      es:['🌍 Ver clasificación completa','🌍 Clasificación completa','Buscar un apodo','Buscar','Mostrar los 50 siguientes','Cerrar'],
+      it:['🌍 Vedi classifica completa','🌍 Classifica completa','Cerca un nickname','Cerca','Mostra i prossimi 50','Chiudi'],
+      pt:['🌍 Ver classificação completa','🌍 Classificação completa','Procurar um nome','Procurar','Mostrar os próximos 50','Fechar'],
+      nl:['🌍 Volledige ranglijst bekijken','🌍 Volledige ranglijst','Zoek een nickname','Zoeken','Volgende 50 tonen','Sluiten']
+    };
+    const rc = fullRankingCopy[lang] || fullRankingCopy.fr;
+    setText('#open-full-ranking', null); const openRanking = document.querySelector('#open-full-ranking'); if (openRanking) openRanking.textContent = rc[0];
+    const fullTitle = document.querySelector('.full-ranking-head h3'); if (fullTitle) fullTitle.textContent = rc[1];
+    const rankingSearch = document.querySelector('#ranking-search'); if (rankingSearch) rankingSearch.placeholder = rc[2];
+    const rankingSearchButton = document.querySelector('#ranking-search-form button'); if (rankingSearchButton) rankingSearchButton.textContent = rc[3];
+    const loadMore = document.querySelector('#load-more-ranking'); if (loadMore) loadMore.textContent = rc[4];
+    const closeRanking = document.querySelector('#close-full-ranking'); if (closeRanking) closeRanking.setAttribute('aria-label', rc[5]);
   }
 
 
