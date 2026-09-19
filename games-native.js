@@ -97,6 +97,10 @@
     layer.innerHTML = '<div class="tz-games-host"><p style="padding:70px 20px;text-align:center;color:#aebdcb;font-family:Arial,sans-serif">Chargement…</p></div>';
     document.body.appendChild(layer);
     document.body.style.overflow = 'hidden';
+    const jayaFab = document.querySelector('.jaya-fab');
+    const jayaPanel = document.querySelector('.jaya-panel');
+    if (jayaFab) { jayaFab.style.setProperty('z-index','100001','important'); jayaFab.style.setProperty('display','block','important'); }
+    if (jayaPanel) jayaPanel.style.setProperty('z-index','100001','important');
 
     try {
       const tasks = [fetch(`/${path}`, { cache: 'no-store' })];
