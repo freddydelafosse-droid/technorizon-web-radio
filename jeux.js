@@ -421,14 +421,53 @@
     $('#total-points').textContent = player.points;
     $('#daily-streak').textContent = player.streak;
     $('#games-played').textContent = player.gamesPlayed;
-    const rows = [...player.ranking].sort((a, b) => b.score - a.score).slice(0, 5);
-    $('#ranking-list').innerHTML = rows.length
-      ? rows.map((row, index) => `<li><span class="ranking-rank">${index + 1}</span><span class="ranking-name">${escapeHtml(row.name)}</span><strong class="ranking-points">${row.score} pts · ${escapeHtml(row.game)}</strong></li>`).join('')
-      : `<li><span class="ranking-rank">–</span><span class="ranking-name">${escapeHtml(t('emptyRanking'))}</span><strong class="ranking-points">0 ${t('pt')}</strong></li>`;
+
   }
 
   function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  }
+
+  const GAME_KEYS = { 'Blind Test': 'blind', 'Blind Test Soirée': 'blind', 'Blind Test Party': 'blind', 'Hit ou Intox': 'intox', 'Hit or Myth': 'intox', 'TechnoQuiz': 'quiz' };
+
+  function rankingRow(row, index) {
+    const medals = ['🥇','🥈','🥉'];
+    return `<li><span class="ranking-rank">${medals[index] || index + 1}</span><span class="ranking-name">${escapeHtml(row.player_name)}</span><strong class="ranking-points">${Number(row.score) || 0} pts</strong></li>`;
+  }
+
+  async function loadOnlineRankings() {
+    const status = $('#ranking-status');
+    try {
+      const games = ['blind', 'intox', 'quiz'];
+      const results = await Promise.all(games.map(async game => {
+        const response = await fetch(`/api/game-leaderboard?game=${game}&limit=10`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('leaderboard');
+        return [game, await response.json()];
+      }));
+      results.forEach(([game, data]) => {
+        const list = $(`#ranking-${game}`);
+        const rows = Array.isArray(data.items) ? data.items : [];
+        list.innerHTML = rows.length
+          ? rows.map(rankingRow).join('')
+          : `<li><span class="ranking-rank">–</span><span class="ranking-name">${escapeHtml(t('emptyRanking'))}</span><strong class="ranking-points">0 ${t('pt')}</strong></li>`;
+      });
+      if (status) status.textContent = '';
+    } catch {
+      if (status) status.textContent = 'Classements momentanément indisponibles.';
+    }
+  }
+
+  async function submitOnlineScore(gameName, score) {
+    const game = GAME_KEYS[gameName] || (String(gameName).toLowerCase().includes('blind') ? 'blind' : null);
+    if (!game || !player.name || !score) return;
+    try {
+      const response = await fetch('/api/game-leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: player.name, game, score })
+      });
+      if (response.ok) await loadOnlineRankings();
+    } catch {}
   }
 
   function completeGame(game, score) {
@@ -442,6 +481,7 @@
     player.ranking.push({ name: player.name, score, game, at: Date.now() });
     player.ranking = player.ranking.sort((a, b) => b.score - a.score).slice(0, 20);
     saveState();
+    submitOnlineScore(game, score);
   }
 
   $('#profile-form').addEventListener('submit', event => {
@@ -656,4 +696,5 @@
   $('#intox-start').addEventListener('click', startIntox);
   $('#quiz-start').addEventListener('click', startQuiz);
   renderProfile();
+  loadOnlineRankings();
 })();
