@@ -4,8 +4,8 @@
   const STORAGE_KEY = 'technorizon-games-v1';
   const ROUNDS = 5;
 
-  const REGION_LANGUAGES = { fr:'fr', be:'fr', ch:'fr', gb:'en', us:'en', ca:'fr', de:'de', es:'es', it:'it', pt:'pt', nl:'nl' };
-  const REGION_LOCALES = { fr:'fr-FR', be:'fr-BE', ch:'fr-CH', gb:'en-GB', us:'en-US', ca:'fr-CA', de:'de-DE', es:'es-ES', it:'it-IT', pt:'pt-PT', nl:'nl-NL' };
+  const REGION_LANGUAGES = { fr:'fr', be:'fr', ch:'fr', gb:'en', us:'en', ca:'fr', de:'de', es:'es', it:'it', pt:'pt', nl:'nl', pl:'pl', jp:'ja' };
+  const REGION_LOCALES = { fr:'fr-FR', be:'fr-BE', ch:'fr-CH', gb:'en-GB', us:'en-US', ca:'fr-CA', de:'de-DE', es:'es-ES', it:'it-IT', pt:'pt-PT', nl:'nl-NL', pl:'pl-PL', jp:'ja-JP' };
   const SUPPORTED_REGIONS = Object.keys(REGION_LANGUAGES);
   const savedLanguage = localStorage.getItem('technorizon-games-lang');
   let region = savedLanguage === 'en' ? 'gb' : savedLanguage;
@@ -249,6 +249,12 @@
       whichTitle: 'Welk nummer wordt uitgevoerd door {artist}?', question: 'VRAAG {number}',
       goodAnswer: 'Goed antwoord!', rightAnswer: 'Het juiste antwoord was: {answer}', next: 'Volgende vraag →',
       blindPartyName: 'Blind Test Feest', intoxGameName: 'Hit of Mythe'
+    },
+    pl: {
+      title:'Gry Technorizon — Blind Test, Hit czy Mit i TechnoQuiz',description:'Zagraj w Blind Test, Hit czy Mit i TechnoQuiz na Technorizon.fr.',home:'← Powrót do strony głównej',info:'ⓘ Informacje',heroTitle:'Wybierz grę.<br><span>Rzuć wyzwanie znajomym</span>',heroText:'Muzyka, wyzwania i punkty w strefie gier Technorizon',profileEyebrow:'PROFIL GRACZA',profileTitle:'Twój pseudonim',nickname:'Wpisz pseudonim',save:'Zapisz',points:'punkty',streak:'dni z rzędu',games:'gry',blindTab:'<span>🎧</span> Blind Test',intoxTab:'<span>⚡</span> Hit czy Mit?',quizTab:'<span>🧠</span> TechnoQuiz',blindTitle:'Blind Test Technorizon',blindLead:'Posłuchaj fragmentu i odgadnij tytuł. Pięć utworów, cztery odpowiedzi, tylko jedna poprawna.',blindIntro:'Wybierz tryb. Fragmenty trwają do 15 sekund.',express:'<span>⚡</span><strong>Szybka gra</strong><small>5 fragmentów · szybka runda</small>',party:'<span>🎉</span><strong>Wieczór ze znajomymi</strong><small>25 fragmentów · grajcie na zmianę!</small>',trueFalse:'PRAWDA CZY FAŁSZ',intoxLead:'Pojawia się stwierdzenie muzyczne. Zdecyduj, czy to hit… czy mit.',intoxIntro:'Pięć stwierdzeń sprawdzających Twoją wiedzę muzyczną.',intoxStart:'Zagraj w Hit czy Mit',electro:'MUZYKA ELEKTRONICZNA',quizLead:'Artyści, utwory i klasyki: pięć pytań, by sprawdzić swoją wiedzę.',quizIntro:'Każda poprawna odpowiedź daje 75 punktów.',quizStart:'Uruchom TechnoQuiz',topPlayers:'NAJLEPSI GRACZE',rankingTitle:'Ranking online',rankingNote:'',footer:'© 2026 Technorizon.fr · Muzyka bez granic',emptyRanking:'Zajmij pierwsze miejsce w rankingu!',pt:'pkt',pts:'pkt',finished:'Koniec gry!',added:'Punkty dodano do profilu {name}.',replay:'Zagraj ponownie',preparing:'Przygotowywanie fragmentu…',clip:'FRAGMENT {number}',whatTitle:'Jaki to utwór?',listen:'▶ Odtwórz fragment',pause:'❚❚ Pauza',listenAgain:'▶ Odtwórz ponownie',audioError:'Nie można odtworzyć fragmentu. Naciśnij Dalej.',unavailable:'Fragment chwilowo niedostępny',replaced:'Ten utwór zostanie automatycznie zastąpiony.',tryAnother:'Spróbuj innego fragmentu',correctTrack:'Dobrze! {artist} — {title}',wasTrack:'To było {artist} — {title}',statement:'STWIERDZENIE {number}',hitTrue:'🎯 HIT — Prawda',intoxFalse:'🚨 MIT — Fałsz',wellDone:'Brawo!',missed:'Niestety!',exact:'Dokładnie: {artist} wykonuje „{title}”.',falseDetail:'Mit: „{title}” wykonuje {artist}.',trackBy:'„{title}” wykonuje {artist}.',whoPerforms:'Kto wykonuje „{title}”?',whichTitle:'Który utwór wykonuje {artist}?',question:'PYTANIE {number}',goodAnswer:'Dobra odpowiedź!',rightAnswer:'Poprawna odpowiedź to: {answer}',next:'Następne pytanie →',blindPartyName:'Blind Test Impreza',intoxGameName:'Hit czy Mit'
+    },
+    ja: {
+      title:'Technorizonゲーム — Blind Test・Hit or Myth・TechnoQuiz',description:'Technorizon.frのBlind Test、Hit or Myth、TechnoQuizで遊ぼう。',home:'← ホームに戻る',info:'ⓘ 情報',heroTitle:'ゲームを選ぼう。<br><span>友だちに挑戦</span>',heroText:'音楽、チャレンジ、ポイントを楽しむTechnorizonゲームゾーン',profileEyebrow:'プレイヤープロフィール',profileTitle:'ニックネーム',nickname:'ニックネームを入力',save:'保存',points:'ポイント',streak:'連続日数',games:'ゲーム',blindTab:'<span>🎧</span> Blind Test',intoxTab:'<span>⚡</span> Hit or Myth?',quizTab:'<span>🧠</span> TechnoQuiz',blindTitle:'Technorizon Blind Test',blindLead:'音源を聴いて曲名を当てよう。5曲、4つの選択肢、正解は1つ。',blindIntro:'モードを選択。音源は最大15秒です。',express:'<span>⚡</span><strong>クイックゲーム</strong><small>5曲 · 短時間プレイ</small>',party:'<span>🎉</span><strong>友だちとパーティー</strong><small>25曲 · 交代でプレイ！</small>',trueFalse:'○か×か',intoxLead:'音楽に関する文章が表示されます。正しいか間違いかを当てよう。',intoxIntro:'5つの問題で音楽知識をチェック。',intoxStart:'Hit or Mythをプレイ',electro:'エレクトロニック音楽',quizLead:'アーティスト、曲、名曲について5問に挑戦。',quizIntro:'正解すると75ポイント。',quizStart:'TechnoQuizを開始',topPlayers:'トッププレイヤー',rankingTitle:'オンラインランキング',rankingNote:'',footer:'© 2026 Technorizon.fr · 国境のない音楽',emptyRanking:'ランキングの最初のプレイヤーになろう！',pt:'pt',pts:'pt',finished:'ゲーム終了！',added:'{name}のプロフィールにポイントを追加しました。',replay:'もう一度プレイ',preparing:'音源を準備中…',clip:'音源 {number}',whatTitle:'この曲は？',listen:'▶ 音源を聴く',pause:'❚❚ 一時停止',listenAgain:'▶ もう一度聴く',audioError:'この音源を再生できません。「次へ」を押してください。',unavailable:'音源は一時的に利用できません',replaced:'この曲は自動的に別の曲へ置き換えられます。',tryAnother:'別の音源を試す',correctTrack:'正解！ {artist} — {title}',wasTrack:'正解は {artist} — {title}',statement:'問題 {number}',hitTrue:'🎯 HIT — 正しい',intoxFalse:'🚨 MYTH — 間違い',wellDone:'正解！',missed:'残念！',exact:'正解：{artist} の「{title}」。',falseDetail:'間違い：「{title}」は {artist} の曲です。',trackBy:'「{title}」は {artist} の曲です。',whoPerforms:'「{title}」を歌っているのは？',whichTitle:'{artist} の曲はどれ？',question:'問題 {number}',goodAnswer:'正解！',rightAnswer:'正解は：{answer}',next:'次の問題 →',blindPartyName:'Blind Test パーティー',intoxGameName:'Hit or Myth'
     }
   };
   const JAYA_HOST = {
@@ -258,7 +264,9 @@
     es: { label: 'JAYA · PRESENTADORA', blindAsk: 'Escucha bien… ¿Sabrás reconocer este tema?', correct: '¡Bien jugado! Has acertado 😎', wrong: '¡Casi! Mira la respuesta correcta 😉', finished: '¡Partida terminada! Veamos tu puntuación.' },
     it: { label: 'JAYA · CONDUTTRICE', blindAsk: 'Ascolta bene… Riconoscerai questo brano?', correct: 'Ottimo! Hai indovinato 😎', wrong: 'Quasi! Guarda la risposta corretta 😉', finished: 'Partita terminata! Vediamo il tuo punteggio.' },
     pt: { label: 'JAYA · APRESENTADORA', blindAsk: 'Ouve com atenção… Consegues reconhecer este título?', correct: 'Muito bem! Acertaste 😎', wrong: 'Quase! Vê a resposta correta 😉', finished: 'Jogo terminado! Vamos ver a tua pontuação.' },
-    nl: { label: 'JAYA · SPELLEIDER', blindAsk: 'Luister goed… Herken jij dit nummer?', correct: 'Goed gespeeld! Dat is juist 😎', wrong: 'Bijna! Bekijk het juiste antwoord 😉', finished: 'Spel afgelopen! Laten we je score bekijken.' }
+    nl: { label: 'JAYA · SPELLEIDER', blindAsk: 'Luister goed… Herken jij dit nummer?', correct: 'Goed gespeeld! Dat is juist 😎', wrong: 'Bijna! Bekijk het juiste antwoord 😉', finished: 'Spel afgelopen! Laten we je score bekijken.' },
+    pl:{label:'JAYA · PROWADZĄCA',blindAsk:'Słuchaj uważnie… Rozpoznasz ten utwór?',correct:'Brawo! Dobra odpowiedź 😎',wrong:'Prawie! Spójrz na poprawną odpowiedź 😉',finished:'Koniec gry! Zobaczmy Twój wynik.'},
+    ja:{label:'JAYA · ゲームホスト',blindAsk:'よく聴いて… この曲がわかるかな？',correct:'正解！お見事 😎',wrong:'惜しい！正解を確認してね 😉',finished:'ゲーム終了！スコアを見てみよう。'}
   };
   const jayaCopy = key => (JAYA_HOST[lang] || JAYA_HOST.fr)[key];
   const jayaHost = (message, mood = 'ask') => `<div class="jaya-game-host ${mood}"><img class="jaya-game-avatar" src="/JayaV2.jpg" alt="Jaya"><div class="jaya-game-bubble"><span class="jaya-game-name">${escapeHtml(jayaCopy('label'))}</span><p class="jaya-game-text">${escapeHtml(message)}</p></div></div>`;
@@ -304,7 +312,9 @@
       es:['🌍 Ver clasificación completa','🌍 Clasificación completa','Buscar un apodo','Buscar','Mostrar los 50 siguientes','Cerrar'],
       it:['🌍 Vedi classifica completa','🌍 Classifica completa','Cerca un nickname','Cerca','Mostra i prossimi 50','Chiudi'],
       pt:['🌍 Ver classificação completa','🌍 Classificação completa','Procurar um nome','Procurar','Mostrar os próximos 50','Fechar'],
-      nl:['🌍 Volledige ranglijst bekijken','🌍 Volledige ranglijst','Zoek een nickname','Zoeken','Volgende 50 tonen','Sluiten']
+      nl:['🌍 Volledige ranglijst bekijken','🌍 Volledige ranglijst','Zoek een nickname','Zoeken','Volgende 50 tonen','Sluiten'],
+      pl:['🌍 Zobacz pełny ranking','🌍 Pełny ranking','Szukaj pseudonimu','Szukaj','Pokaż następnych 50','Zamknij'],
+      ja:['🌍 ランキングをすべて見る','🌍 全ランキング','ニックネームを検索','検索','次の50件を表示','閉じる']
     };
     const rc = fullRankingCopy[lang] || fullRankingCopy.fr;
     const openRanking = document.querySelector('#open-full-ranking'); if (openRanking) openRanking.textContent = rc[0];
