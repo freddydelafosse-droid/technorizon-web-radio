@@ -247,8 +247,16 @@ const dailyLayers={
       "Deixa que o dia te surpreenda agradavelmente."
     ]
   },
-  pl:{trend:"Today's outlook",work:'Work',love:'Love',health:'Well-being',rating:'Rating',note:'Source: Technorizon',locale:'en-GB',outOf:'out of'},
-  ja:{trend:"Today's outlook",work:'Work',love:'Love',health:'Well-being',rating:'Rating',note:'Source: Technorizon',locale:'en-GB',outOf:'out of'},
+  pl:{
+    pulse:["Konstruktywna energia wspiera dziś Twoje decyzje.","Dzisiejszy rytm sprzyja pozytywnym zmianom.","Nowa dynamika zaczyna nabierać kształtu.","Dzisiejsze wpływy zachęcają do działania z pewnością siebie."],
+    focus:["Drobny szczegół może dziś nabrać znaczenia.","Nieoczekiwana okazja zasługuje na uwagę.","Rozmowa może przynieść cenną wskazówkę.","Intuicja pomoże dostrzec to, co umyka innym.","Wcześniejsza decyzja może wreszcie przynieść efekty.","Właściwy moment będzie ważniejszy niż pośpiech.","Mała inicjatywa może przynieść dobry rezultat.","Zmiana perspektywy otworzy nową możliwość.","Konsekwencja przyniesie dziś najlepsze rezultaty.","Informacja otrzymana w odpowiednim momencie może wiele zmienić."],
+    advice:["Zaufaj pierwszemu wrażeniu.","Zostaw trochę miejsca na niespodzianki.","Idź naprzód bez potrzeby kontrolowania wszystkiego.","Postaw na prostotę i uważnie słuchaj.","Zachowaj energię na to, co naprawdę ważne.","Dostrzegaj znaki, ale niczego nie wymuszaj.","Jasno wyrażaj swoje oczekiwania.","Najpierw obserwuj, potem działaj.","Pozostań wierny swojemu naturalnemu rytmowi.","Pozwól, by dzień pozytywnie Cię zaskoczył."]
+  },
+  ja:{
+    pulse:["今日は前向きなエネルギーがあなたの決断を後押しします。","今日の流れは良い変化を促しています。","新しい流れが少しずつ形になっていきます。","今の運気は自信を持って前進するよう促しています。"],
+    focus:["何気ない小さなことが重要になるかもしれません。","思いがけないチャンスに注目してみましょう。","会話の中から役立つヒントが得られそうです。","直感が他の人の見落とすことに気づかせてくれます。","以前の決断がようやく実を結ぶかもしれません。","速さよりもタイミングが大切な日です。","小さな一歩が良い結果につながりそうです。","視点を変えることで新しい可能性が見えてきます。","今日は継続することが良い結果につながります。","ちょうどよいタイミングで得た情報が役立ちそうです。"],
+    advice:["最初の直感を信じてみましょう。","予想外の出来事にも対応できる余裕を残しましょう。","すべてをコントロールしようとせず前へ進みましょう。","シンプルに考え、周囲の声にも耳を傾けましょう。","本当に大切なことのためにエネルギーを残しましょう。","流れを無理に変えず、サインを受け取りましょう。","望んでいることを明確に伝えましょう。","行動する前に少し観察する時間を取りましょう。","自分らしいペースを大切にしましょう。","今日という日がもたらす嬉しい驚きを楽しみましょう。"]
+  },
 };
 
 const astroUi={
