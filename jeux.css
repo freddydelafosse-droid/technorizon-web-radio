@@ -60,3 +60,11 @@ button{touch-action:manipulation}
 .jaya-game-host.wrong .jaya-game-name{color:#ff7892}
 .jaya-game-host.finish .jaya-game-avatar{box-shadow:0 0 23px rgba(0,234,255,.38),0 0 42px rgba(239,44,255,.20)}
 @media(max-width:600px){.jaya-game-host{grid-template-columns:54px minmax(0,1fr);gap:10px;margin-bottom:18px}.jaya-game-avatar{width:54px;height:54px}.jaya-game-bubble{padding:10px 12px;border-radius:14px}.jaya-game-bubble::before{top:20px}.jaya-game-text{font-size:14px}.jaya-game-name{letter-spacing:1.2px}}
+
+/* Online Top 10 — 3 game modes */
+.online-rankings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px}
+.online-ranking{min-width:0;padding:16px;border:1px solid rgba(91,224,255,.18);border-radius:18px;background:rgba(2,8,18,.38)}
+.online-ranking h3{margin:0 0 12px;font-size:1rem;color:#eafaff;text-align:center}
+.online-ranking .ranking-list{margin:0;padding:0;list-style:none}
+.online-ranking .ranking-list li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:8px}
+@media(max-width:820px){.online-rankings{grid-template-columns:1fr}.online-ranking{padding:14px}}
