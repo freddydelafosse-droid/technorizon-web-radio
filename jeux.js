@@ -348,23 +348,43 @@
     { text: 'Quel artiste est derrière « Levels » ?', answers: ['Avicii', 'Calvin Harris', 'Tiësto', 'Martin Garrix'], correct: 0 }
   ];
 
-  const createHitIntoxBank = () => blindTracks.slice(0, 60).flatMap((track, index, tracks) => {
-    const wrongArtist = tracks[(index + 17) % tracks.length].artist;
+  const createHitIntoxBank = () => blindTracks.flatMap((track, index, tracks) => {
+    const sameDecade = tracks.filter(item => decadeOf(item) === decadeOf(track) && item.id !== track.id);
+    const wrongArtist = (sameDecade[(index + 7) % Math.max(1, sameDecade.length)] || tracks[(index + 17) % tracks.length]).artist;
+    const wrongTitle = (sameDecade[(index + 13) % Math.max(1, sameDecade.length)] || tracks[(index + 29) % tracks.length]).title;
+    const decade = decadeOf(track);
+    const otherDecades = DECADES.filter(item => item !== 'all' && item !== decade);
+    const wrongDecade = otherDecades[index % otherDecades.length];
     return [
-      { id: `hit-true-${track.id}`, decade: decadeOf(track), text: t('trackBy', { title: track.title, artist: track.artist }), answer: true, detail: t('exact', { artist: track.artist, title: track.title }) },
-      { id: `hit-false-${track.id}`, decade: decadeOf(track), text: t('trackBy', { title: track.title, artist: wrongArtist }), answer: false, detail: t('falseDetail', { title: track.title, artist: track.artist }) }
+      { id: `hit-artist-true-${track.id}`, decade, text: `« ${track.title} » est interprété par ${track.artist}.`, answer: true, detail: `Exact : « ${track.title} » est bien interprété par ${track.artist}.` },
+      { id: `hit-artist-false-${track.id}`, decade, text: `« ${track.title} » est interprété par ${wrongArtist}.`, answer: false, detail: `Intox : « ${track.title} » est interprété par ${track.artist}.` },
+      { id: `hit-title-false-${track.id}`, decade, text: `${track.artist} interprète « ${wrongTitle} ».`, answer: false, detail: `Intox : le titre retenu ici est « ${track.title} » de ${track.artist}.` },
+      { id: `hit-decade-true-${track.id}`, decade, text: `Cette version de « ${track.title} » de ${track.artist} appartient aux ${decadeLabel(decade)}.`, answer: true, detail: `Exact : cette version est classée dans les ${decadeLabel(decade)}.` },
+      { id: `hit-decade-false-${track.id}`, decade, text: `Cette version de « ${track.title} » de ${track.artist} appartient aux ${decadeLabel(wrongDecade)}.`, answer: false, detail: `Intox : cette version est classée dans les ${decadeLabel(decade)}.` }
     ];
   });
 
-  const createTechnoQuizBank = () => blindTracks.slice(0, 200).map((track, index, tracks) => {
-    if (index % 2 === 0) {
-      const alternatives = sample([...new Set(tracks.filter(item => item.artist !== track.artist).map(item => item.artist))], 3);
-      const answers = shuffle([track.artist, ...alternatives]);
-      return { id: `quiz-artist-${track.id}`, decade: decadeOf(track), text: t('whoPerforms', { title: track.title }), answers, correct: answers.indexOf(track.artist) };
-    }
-    const alternatives = sample(tracks.filter(item => item.title !== track.title), 3).map(item => item.title);
-    const answers = shuffle([track.title, ...alternatives]);
-    return { id: `quiz-title-${track.id}`, decade: decadeOf(track), text: t('whichTitle', { artist: track.artist }), answers, correct: answers.indexOf(track.title) };
+  const makeQuiz = (id, decade, text, correctAnswer, alternatives) => {
+    const answers = shuffle([correctAnswer, ...alternatives.filter(item => item !== correctAnswer).slice(0, 3)]);
+    return { id, decade, text, answers, correct: answers.indexOf(correctAnswer) };
+  };
+
+  const createTechnoQuizBank = () => blindTracks.flatMap((track, index, tracks) => {
+    const decade = decadeOf(track);
+    const sameDecade = tracks.filter(item => decadeOf(item) === decade && item.id !== track.id);
+    const artists = [...new Set(sameDecade.map(item => item.artist).filter(item => item !== track.artist))];
+    const titles = [...new Set(sameDecade.map(item => item.title).filter(item => item !== track.title))];
+    const otherDecades = DECADES.filter(item => item !== 'all' && item !== decade);
+    const artistAlts = sample(artists, 3);
+    const titleAlts = sample(titles, 3);
+    const decadeAlts = sample(otherDecades, 3);
+    const reverseTitleAlts = sample(titles.slice().reverse(), 3);
+    return [
+      makeQuiz(`quiz-artist-${track.id}`, decade, `Qui interprète « ${track.title} » ?`, track.artist, artistAlts),
+      makeQuiz(`quiz-title-${track.id}`, decade, `Quel titre de ${track.artist} figure dans la sélection Technorizon ?`, track.title, titleAlts),
+      makeQuiz(`quiz-decade-${track.id}`, decade, `À quelle décennie appartient cette version de « ${track.title} » ?`, decadeLabel(decade), decadeAlts.map(decadeLabel)),
+      makeQuiz(`quiz-match-${track.id}`, decade, `Lequel de ces titres correspond à ${track.artist} ?`, track.title, reverseTitleAlts)
+    ];
   });
 
   const $ = selector => document.querySelector(selector);
