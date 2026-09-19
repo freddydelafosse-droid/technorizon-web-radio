@@ -327,21 +327,16 @@ body {
 
 .v2-dedicaces-track {
   display: inline-block;
-  min-width: max-content;
+  width: max-content;
+  min-width: 100%;
   padding-left: 100%;
-  will-change: transform;
-
+  white-space: nowrap;
   animation: v2-scroll-dedicaces 60s linear infinite;
 }
 
 @keyframes v2-scroll-dedicaces {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(calc(-100% + 100vw));
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
 }
 
 /* ---------- FOOTER ---------- */
