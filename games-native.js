@@ -7,7 +7,7 @@
   const originalTitle = document.title;
   const pages = {
     'infos.html': { page: 'infos', inlineScripts: true },
-    'jeux.html': { page: 'games', style: '/jeux.css?v=13', scripts: ['/jeux-data.js?v=3', '/jeux.js?v=14'] },
+    'jeux.html': { page: 'games', style: '/jeux.css?v=13', scripts: ['/jeux-data.js?v=3', '/jeux.js?v=15'] },
     'a-propos.html': { page: 'about', scripts: ['/content-pages-i18n.js?v=1'] },
     'contact.html': { page: 'contact', scripts: ['/content-pages-i18n.js?v=1'] },
     'technoroscope.html': { page: 'technoroscope', scripts: ['/technoroscope-i18n.js?v=5'] },
