@@ -74,3 +74,13 @@ button{touch-action:manipulation}
 .timer-label{min-width:58px;font-size:.92rem;color:#eafaff}
 .timer-track{height:6px;flex:1;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.10)}
 .timer-fill{display:block;width:100%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#10e7ff,#ff2fcf);transition:width .25s linear}
+
+/* Classement complet : chargement progressif, sans alourdir la page */
+.full-ranking-actions{display:flex;justify-content:center;margin-top:20px}
+.full-ranking{margin-top:20px;padding:18px;border:1px solid rgba(0,240,255,.22);border-radius:18px;background:rgba(2,8,18,.55)}
+.full-ranking-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.full-ranking-head h3{margin:0}.full-ranking-head button{border:0;background:transparent;color:#fff;font-size:30px;cursor:pointer}
+.full-ranking-tools{display:grid;gap:12px;margin:16px 0}.full-ranking-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.full-ranking-tab{padding:10px;border:1px solid rgba(0,240,255,.24);border-radius:12px;color:#dce9f2;background:rgba(5,17,33,.82);font-weight:800;cursor:pointer}.full-ranking-tab.active{border-color:var(--cyan);color:#fff;box-shadow:0 0 16px rgba(0,240,255,.15)}
+#ranking-search-form{display:flex;gap:8px}#ranking-search{min-width:0;flex:1;padding:11px 14px;border:1px solid rgba(0,240,255,.30);border-radius:999px;color:#fff;background:rgba(2,8,18,.75)}#ranking-search-form button{border:0;border-radius:999px;padding:10px 16px;font-weight:900;background:linear-gradient(90deg,var(--cyan),#68bcff);color:#00131b;cursor:pointer}
+.my-ranking-position{padding:10px 13px;border-radius:12px;color:#fff;background:rgba(255,47,189,.10);font-weight:850}.full-ranking-list{max-height:560px;overflow:auto}.full-ranking-list li.is-me{border:1px solid var(--pink);background:rgba(255,47,189,.12)}
+#load-more-ranking{display:block;margin:14px auto 0;color:#fff;background:rgba(0,240,255,.10);border:1px solid rgba(0,240,255,.32)}
+@media(max-width:600px){.full-ranking-tabs{grid-template-columns:1fr}.full-ranking{padding:13px}#ranking-search-form{flex-direction:column}}
