@@ -351,8 +351,8 @@
   const createHitIntoxBank = () => blindTracks.slice(0, 60).flatMap((track, index, tracks) => {
     const wrongArtist = tracks[(index + 17) % tracks.length].artist;
     return [
-      { id: `hit-true-${track.id}`, text: t('trackBy', { title: track.title, artist: track.artist }), answer: true, detail: t('exact', { artist: track.artist, title: track.title }) },
-      { id: `hit-false-${track.id}`, text: t('trackBy', { title: track.title, artist: wrongArtist }), answer: false, detail: t('falseDetail', { title: track.title, artist: track.artist }) }
+      { id: `hit-true-${track.id}`, decade: decadeOf(track), text: t('trackBy', { title: track.title, artist: track.artist }), answer: true, detail: t('exact', { artist: track.artist, title: track.title }) },
+      { id: `hit-false-${track.id}`, decade: decadeOf(track), text: t('trackBy', { title: track.title, artist: wrongArtist }), answer: false, detail: t('falseDetail', { title: track.title, artist: track.artist }) }
     ];
   });
 
@@ -360,16 +360,35 @@
     if (index % 2 === 0) {
       const alternatives = sample([...new Set(tracks.filter(item => item.artist !== track.artist).map(item => item.artist))], 3);
       const answers = shuffle([track.artist, ...alternatives]);
-      return { id: `quiz-artist-${track.id}`, text: t('whoPerforms', { title: track.title }), answers, correct: answers.indexOf(track.artist) };
+      return { id: `quiz-artist-${track.id}`, decade: decadeOf(track), text: t('whoPerforms', { title: track.title }), answers, correct: answers.indexOf(track.artist) };
     }
     const alternatives = sample(tracks.filter(item => item.title !== track.title), 3).map(item => item.title);
     const answers = shuffle([track.title, ...alternatives]);
-    return { id: `quiz-title-${track.id}`, text: t('whichTitle', { artist: track.artist }), answers, correct: answers.indexOf(track.title) };
+    return { id: `quiz-title-${track.id}`, decade: decadeOf(track), text: t('whichTitle', { artist: track.artist }), answers, correct: answers.indexOf(track.title) };
   });
 
   const $ = selector => document.querySelector(selector);
   const shuffle = list => [...list].sort(() => Math.random() - 0.5);
   const sample = (list, count) => shuffle(list).slice(0, count);
+  const DECADES = ['all', '80s', '90s', '2000s', '2010s', '2020s'];
+  const decadeState = { blind: 'all', intox: 'all', quiz: 'all' };
+  const decadeOf = track => track.decade || 'all';
+  const tracksForDecade = decade => decade === 'all' ? blindTracks : blindTracks.filter(track => decadeOf(track) === decade);
+  const questionsForDecade = (bank, decade) => decade === 'all' ? bank : bank.filter(question => question.decade === decade);
+  const decadeLabel = decade => ({ all: 'Toutes époques', '80s': '80’s', '90s': '90’s', '2000s': '2000’s', '2010s': '2010’s', '2020s': '2020’s' }[decade] || decade);
+  function setDecade(game, decade) {
+    if (!DECADES.includes(decade)) return;
+    decadeState[game] = decade;
+    document.querySelectorAll(`[data-decade-game="${game}"] .decade-btn`).forEach(button => {
+      const active = button.dataset.decade === decade;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+  }
+  document.querySelectorAll('.decade-picker').forEach(picker => picker.addEventListener('click', event => {
+    const button = event.target.closest('.decade-btn');
+    if (button) setDecade(picker.dataset.decadeGame, button.dataset.decade);
+  }));
   const hitIntoxBank = createHitIntoxBank();
   const technoQuizBank = createTechnoQuizBank();
   const today = () => new Date().toISOString().slice(0, 10);
@@ -627,7 +646,9 @@
     if (!ensureProfile()) return;
     stopBlindAudio();
     blind.total = Number(rounds) === 25 ? 25 : ROUNDS;
-    blind.questions = drawUnseen(blindTracks, blind.total, 'blind');
+    const pool = tracksForDecade(decadeState.blind);
+    if (pool.length < blind.total) return;
+    blind.questions = drawUnseen(pool, blind.total, `blind-${decadeState.blind}`);
     blind.index = 0;
     blind.score = 0;
     $('#blind-score').textContent = '0 pts';
@@ -648,7 +669,7 @@
       if (!data.previewUrl) throw new Error('preview');
       blindAudio.src = data.previewUrl;
       blindAudio.load();
-      const alternatives = sample(blindTracks.filter(item => item.title !== track.title), 3).map(item => item.title);
+      const alternatives = sample(tracksForDecade(decadeState.blind).filter(item => item.title !== track.title), 3).map(item => item.title);
       const answers = shuffle([track.title, ...alternatives]);
       blindStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('clip', { number: blind.index + 1 }))}</span>${jayaHost(jayaCopy('blindAsk'))}<button class="audio-action" type="button">${escapeHtml(t('listen'))}</button><div class="answers">${answers.map(answer => `<button class="answer-btn" type="button" data-answer="${escapeHtml(answer)}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
       const play = blindStage.querySelector('.audio-action');
@@ -708,7 +729,8 @@
   const intoxStage = $('#intox-stage');
   function startIntox() {
     if (!ensureProfile()) return;
-    intox.questions = drawUnseen(hitIntoxBank.length === 120 ? hitIntoxBank : intoxQuestions, ROUNDS, 'intox');
+    const pool = questionsForDecade(hitIntoxBank, decadeState.intox);
+    intox.questions = drawUnseen(pool.length >= ROUNDS ? pool : intoxQuestions, ROUNDS, `intox-${decadeState.intox}`);
     intox.index = 0;
     intox.score = 0;
     $('#intox-score').textContent = '0 pts';
@@ -754,7 +776,8 @@
   const quizStage = $('#quiz-stage');
   function startQuiz() {
     if (!ensureProfile()) return;
-    quiz.questions = drawUnseen(technoQuizBank.length === 200 ? technoQuizBank : quizQuestions, ROUNDS, 'quiz');
+    const pool = questionsForDecade(technoQuizBank, decadeState.quiz);
+    quiz.questions = drawUnseen(pool.length >= ROUNDS ? pool : quizQuestions, ROUNDS, `quiz-${decadeState.quiz}`);
     quiz.index = 0;
     quiz.score = 0;
     $('#quiz-score').textContent = '0 pts';
