@@ -11,6 +11,7 @@
     'a-propos.html': { page: 'about', scripts: ['/content-pages-i18n.js?v=1'] },
     'contact.html': { page: 'contact', scripts: ['/content-pages-i18n.js?v=1'] },
     'technoroscope.html': { page: 'technoroscope', scripts: ['/technoroscope-i18n.js?v=5'] },
+    'dedicaces.html': { page: 'dedicaces', inlineScripts: true },
   };
   let layer = null;
   let opening = false;
