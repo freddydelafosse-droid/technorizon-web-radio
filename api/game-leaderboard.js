@@ -39,19 +39,49 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       const requested = Number.parseInt(req.query?.limit, 10);
-      const limit = Number.isFinite(requested) ? Math.min(10, Math.max(1, requested)) : 10;
+      const full = String(req.query?.full || '') === '1';
+      const limit = Number.isFinite(requested) ? Math.min(full ? 50 : 10, Math.max(1, requested)) : 10;
+      const requestedOffset = Number.parseInt(req.query?.offset, 10);
+      const offset = full && Number.isFinite(requestedOffset) ? Math.max(0, requestedOffset) : 0;
+      const search = cleanName(req.query?.search);
       const game = String(req.query?.game || '').toLowerCase();
       if (!GAME_RULES[game]) return send(res, 400, { error: 'Jeu invalide.' });
-      const params = new URLSearchParams({
-        game: `eq.${game}`,
-        select: 'player_name,score,updated_at',
-        order: 'score.desc,updated_at.asc',
-        limit: String(limit)
-      });
+      const base = new URLSearchParams({ game: `eq.${game}` });
+      if (search) base.set('player_name', `ilike.*${search.replace(/[%*,]/g, '')}*`);
+      const params = new URLSearchParams(base);
+      params.set('select', 'player_name,score,updated_at');
+      params.set('order', 'score.desc,updated_at.asc');
+      params.set('limit', String(limit));
+      if (full) params.set('offset', String(offset));
       const response = await fetch(`${url}/rest/v1/game_scores?${params}`, { headers });
       if (!response.ok) throw new Error(`Supabase leaderboard GET ${response.status}`);
-      const items = await response.json();
-      return send(res, 200, { items: Array.isArray(items) ? items : [] });
+      const raw = await response.json();
+      const items = (Array.isArray(raw) ? raw : []).map((item, index) => ({ ...item, rank: offset + index + 1 }));
+
+      if (!full) return send(res, 200, { items });
+
+      const countParams = new URLSearchParams({ game: `eq.${game}`, select: 'player_key' });
+      const countResponse = await fetch(`${url}/rest/v1/game_scores?${countParams}`, { headers: { ...headers, Prefer: 'count=exact' } });
+      const range = countResponse.headers.get('content-range') || '';
+      const total = Number(range.split('/')[1]) || 0;
+
+      let me = null;
+      const meName = cleanName(req.query?.me);
+      if (meName) {
+        const meParams = new URLSearchParams({ game: `eq.${game}`, player_name: `ilike.${meName.replace(/[%*,]/g, '')}`, select: 'player_name,score,updated_at', limit: '1' });
+        const meResponse = await fetch(`${url}/rest/v1/game_scores?${meParams}`, { headers });
+        if (meResponse.ok) {
+          const meRows = await meResponse.json();
+          if (meRows[0]) {
+            const betterParams = new URLSearchParams({ game: `eq.${game}`, score: `gt.${meRows[0].score}`, select: 'player_key' });
+            const betterResponse = await fetch(`${url}/rest/v1/game_scores?${betterParams}`, { headers: { ...headers, Prefer: 'count=exact' } });
+            const betterRange = betterResponse.headers.get('content-range') || '';
+            const better = Number(betterRange.split('/')[1]) || 0;
+            me = { ...meRows[0], rank: better + 1 };
+          }
+        }
+      }
+      return send(res, 200, { items, total, me });
     }
 
     if (req.method === 'POST') {
