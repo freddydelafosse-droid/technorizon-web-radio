@@ -31,6 +31,12 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     try {
+      const allItems = await redis(["LRANGE", REDIS_KEY, "0", "49"]);
+      const duplicate = (allItems || []).find(item => {
+        try { return JSON.parse(item)?.message === "Bon week-end à tous à l’écoute de Technorizon.fr 😎"; }
+        catch { return false; }
+      });
+      if (duplicate) await redis(["LREM", REDIS_KEY, "1", duplicate]);
       const items = await redis([
         "LRANGE",
         REDIS_KEY,
