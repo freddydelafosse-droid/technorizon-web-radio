@@ -39,12 +39,16 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       const requested = Number.parseInt(req.query?.limit, 10);
-      const limit = Number.isFinite(requested) ? Math.min(50, Math.max(1, requested)) : 10;
-      const response = await fetch(`${url}/rest/v1/rpc/get_game_leaderboard`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ p_limit: limit })
+      const limit = Number.isFinite(requested) ? Math.min(10, Math.max(1, requested)) : 10;
+      const game = String(req.query?.game || '').toLowerCase();
+      if (!GAME_RULES[game]) return send(res, 400, { error: 'Jeu invalide.' });
+      const params = new URLSearchParams({
+        game: `eq.${game}`,
+        select: 'player_name,score,updated_at',
+        order: 'score.desc,updated_at.asc',
+        limit: String(limit)
       });
+      const response = await fetch(`${url}/rest/v1/game_scores?${params}`, { headers });
       if (!response.ok) throw new Error(`Supabase leaderboard GET ${response.status}`);
       const items = await response.json();
       return send(res, 200, { items: Array.isArray(items) ? items : [] });
