@@ -339,6 +339,11 @@ body {
   to { transform: translateX(-100%); }
 }
 
+.v2-dedicaces-tab { display:inline-flex; align-items:center; gap:8px; }
+.v2-dedicaces-icon { position:relative; display:inline-block; width:25px; height:17px; flex:0 0 auto; border:1.8px solid #00eaff; border-radius:3px; box-shadow:0 0 8px rgba(0,234,255,.55); }
+.v2-dedicaces-icon::before { content:""; position:absolute; left:4px; top:1px; width:13px; height:9px; border-right:1.8px solid #00eaff; border-bottom:1.8px solid #00eaff; transform:rotate(45deg); }
+.v2-dedicaces-icon::after { content:"✦"; position:absolute; right:-7px; bottom:-9px; color:#ff1f9d; font-size:13px; line-height:1; text-shadow:0 0 6px rgba(255,31,157,.85); }
+
 /* ---------- FOOTER ---------- */
 
 .v2-footer {
