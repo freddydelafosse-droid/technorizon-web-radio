@@ -693,24 +693,38 @@
       const answers = shuffle([track.title, ...alternatives]);
       blindStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('clip', { number: blind.index + 1 }))}</span>${jayaHost(jayaCopy('blindAsk'))}<button class="audio-action" type="button">${escapeHtml(t('listen'))}</button><div class="answers">${answers.map(answer => `<button class="answer-btn" type="button" data-answer="${escapeHtml(answer)}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
       const play = blindStage.querySelector('.audio-action');
+      let timerStarted = false;
+      const startBlindTimer = () => {
+        if (timerStarted) return;
+        timerStarted = true;
+        startQuestionTimer(blindStage, () => {
+          stopBlindAudio();
+          timeoutRound(blindStage, blind, item => item.dataset.answer === track.title, 'Temps écoulé !', () => {
+            blind.index += 1;
+            if (blind.index >= blind.total) result(blindStage, blind.total === 25 ? t('blindPartyName') : 'Blind Test', blind.score, () => startBlind(blind.total));
+            else loadBlindRound();
+          });
+        });
+      };
       play.addEventListener('click', async () => {
         try {
-          if (blindAudio.paused) { await blindAudio.play(); play.textContent = t('pause'); play.classList.add('playing'); }
-          else { blindAudio.pause(); play.textContent = t('listenAgain'); play.classList.remove('playing'); }
+          if (blindAudio.paused) {
+            await blindAudio.play();
+            startBlindTimer();
+            play.textContent = t('pause');
+            play.classList.add('playing');
+          } else {
+            blindAudio.pause();
+            play.textContent = t('listenAgain');
+            play.classList.remove('playing');
+          }
         } catch { blindStage.querySelector('.feedback').textContent = t('audioError'); }
       });
       blindAudio.ontimeupdate = () => {
         if (blindAudio.currentTime >= 15) { blindAudio.pause(); play.textContent = t('listenAgain'); play.classList.remove('playing'); }
       };
       blindStage.querySelectorAll('.answer-btn').forEach(button => button.addEventListener('click', () => answerBlind(button, track)));
-      startQuestionTimer(blindStage, () => {
-        stopBlindAudio();
-        timeoutRound(blindStage, blind, item => item.dataset.answer === track.title, 'Temps écoulé !', () => {
-          blind.index += 1;
-          if (blind.index >= blind.total) result(blindStage, blind.total === 25 ? t('blindPartyName') : 'Blind Test', blind.score, () => startBlind(blind.total));
-          else loadBlindRound();
-        });
-      });
+
     } catch {
       blindStage.innerHTML = `<div class="question-wrap"><h3 class="question-title">${escapeHtml(t('unavailable'))}</h3><p class="result-text">${escapeHtml(t('replaced'))}</p><button class="primary-action" type="button">${escapeHtml(t('tryAnother'))}</button></div>`;
       blindStage.querySelector('button').addEventListener('click', () => {
