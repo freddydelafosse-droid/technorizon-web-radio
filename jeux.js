@@ -291,6 +291,8 @@
     setText('.profile-stats div:nth-child(3) span', 'games');
     setHtml('.game-tab[data-game="blind"]', 'blindTab'); setHtml('.game-tab[data-game="intox"]', 'intoxTab'); setHtml('.game-tab[data-game="quiz"]', 'quizTab');
     setText('#blind-title', 'blindTitle'); setText('#game-blind .game-lead', 'blindLead'); setText('#blind-stage > p', 'blindIntro');
+    document.querySelectorAll('.decade-picker > span').forEach(node => { node.textContent = lang === 'fr' ? 'Choisis ton époque' : lang === 'en' ? 'Choose your era' : lang === 'de' ? 'Wähle deine Epoche' : lang === 'es' ? 'Elige tu época' : lang === 'it' ? 'Scegli la tua epoca' : lang === 'pt' ? 'Escolhe a tua época' : lang === 'nl' ? 'Kies je periode' : 'Choose your era'; });
+    document.querySelectorAll('.decade-btn[data-decade="all"]').forEach(node => { node.textContent = lang === 'fr' ? 'Toutes époques' : lang === 'en' ? 'All eras' : lang === 'de' ? 'Alle Epochen' : lang === 'es' ? 'Todas las épocas' : lang === 'it' ? 'Tutte le epoche' : lang === 'pt' ? 'Todas as épocas' : lang === 'nl' ? 'Alle periodes' : 'All eras'; });
     setHtml('#blind-start', 'express'); setHtml('#blind-party', 'party');
     setText('#game-intox .secondary-badge', 'trueFalse'); setText('#game-intox .game-lead', 'intoxLead'); setText('#intox-stage > p', 'intoxIntro'); setText('#intox-start', 'intoxStart');
     setText('#game-quiz .secondary-badge', 'electro'); setText('#game-quiz .game-lead', 'quizLead'); setText('#quiz-stage > p', 'quizIntro'); setText('#quiz-start', 'quizStart');
