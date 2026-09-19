@@ -92,6 +92,7 @@
 
     layer = document.createElement('section');
     layer.className = 'tz-games-layer';
+    layer.style.zIndex = '900';
     layer.setAttribute('aria-label', config.page === 'games' ? 'Jeux Technorizon' : 'Contenu Technorizon');
     layer.innerHTML = '<div class="tz-games-host"><p style="padding:70px 20px;text-align:center;color:#aebdcb;font-family:Arial,sans-serif">Chargement…</p></div>';
     document.body.appendChild(layer);
