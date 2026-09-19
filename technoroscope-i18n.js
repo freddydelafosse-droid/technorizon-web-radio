@@ -247,7 +247,7 @@ const dailyLayers={
       "Deixa que o dia te surpreenda agradavelmente."
     ]
   },
-  pl:{trend:"Today's outlook",work:'Work',love:'Love',health:'Well-being',rating:'Rating',note:'Source: Technorizon',locale:'en-GB',outOf:'out of'},,
+  pl:{trend:"Today's outlook",work:'Work',love:'Love',health:'Well-being',rating:'Rating',note:'Source: Technorizon',locale:'en-GB',outOf:'out of'},
   ja:{trend:"Today's outlook",work:'Work',love:'Love',health:'Well-being',rating:'Rating',note:'Source: Technorizon',locale:'en-GB',outOf:'out of'},
 };
 
