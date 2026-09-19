@@ -307,7 +307,7 @@
       nl:['🌍 Volledige ranglijst bekijken','🌍 Volledige ranglijst','Zoek een nickname','Zoeken','Volgende 50 tonen','Sluiten']
     };
     const rc = fullRankingCopy[lang] || fullRankingCopy.fr;
-    setText('#open-full-ranking', null); const openRanking = document.querySelector('#open-full-ranking'); if (openRanking) openRanking.textContent = rc[0];
+    const openRanking = document.querySelector('#open-full-ranking'); if (openRanking) openRanking.textContent = rc[0];
     const fullTitle = document.querySelector('.full-ranking-head h3'); if (fullTitle) fullTitle.textContent = rc[1];
     const rankingSearch = document.querySelector('#ranking-search'); if (rankingSearch) rankingSearch.placeholder = rc[2];
     const rankingSearchButton = document.querySelector('#ranking-search-form button'); if (rankingSearchButton) rankingSearchButton.textContent = rc[3];
