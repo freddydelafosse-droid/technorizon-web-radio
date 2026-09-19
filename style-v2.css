@@ -327,7 +327,9 @@ body {
 
 .v2-dedicaces-track {
   display: inline-block;
+  min-width: max-content;
   padding-left: 100%;
+  will-change: transform;
 
   animation: v2-scroll-dedicaces 60s linear infinite;
 }
@@ -338,7 +340,7 @@ body {
   }
 
   to {
-    transform: translateX(-100%);
+    transform: translateX(calc(-100% + 100vw));
   }
 }
 
