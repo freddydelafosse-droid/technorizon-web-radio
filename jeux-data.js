@@ -1,219 +1,219 @@
-window.TECHNORIZON_TRACKS = `legacy|Technotronic|Pump Up the Jam
-legacy|SNAP!|The Power
-legacy|SNAP!|Rhythm Is a Dancer
-legacy|2 Unlimited|Get Ready for This
-legacy|2 Unlimited|No Limit
-legacy|Haddaway|What Is Love
-legacy|Culture Beat|Mr. Vain
-legacy|Corona|The Rhythm of the Night
-legacy|Gala|Freed From Desire
-legacy|La Bouche|Be My Lover
-legacy|Real McCoy|Another Night
-legacy|Dr. Alban|It's My Life
-legacy|Dr. Alban|Sing Hallelujah!
-legacy|Ice MC|Think About the Way
-legacy|Whigfield|Saturday Night
-legacy|Captain Hollywood Project|More and More
-legacy|Maxx|Get-A-Way
-legacy|Masterboy|Feel the Heat of the Night
-legacy|Twenty 4 Seven|Slave to the Music
-legacy|Cappella|U Got 2 Let the Music
-legacy|Ace of Base|All That She Wants
-legacy|Scatman John|Scatman
-legacy|Rednex|Cotton Eye Joe
-legacy|E-Type|Set the World on Fire
-legacy|DJ BoBo|Everybody
-legacy|Fun Factory|Close to You
-legacy|Le Click|Tonight Is the Night
-legacy|Rozalla|Everybody's Free
-legacy|Crystal Waters|Gypsy Woman
-legacy|Robin S|Show Me Love
-legacy|CeCe Peniston|Finally
-legacy|Black Box|Ride on Time
-legacy|C+C Music Factory|Gonna Make You Sweat
-legacy|The KLF|3 A.M. Eternal
-legacy|M People|Moving on Up
-legacy|Livin' Joy|Dreamer
-legacy|Alex Party|Don't Give Me Your Life
-legacy|Nightcrawlers|Push the Feeling On
-legacy|Ultra Naté|Free
-legacy|Everything But The Girl|Missing
-legacy|Robert Miles|Children
-legacy|Sash!|Ecuador
-legacy|Sash!|Encore une fois
-legacy|Faithless|Insomnia
-legacy|Darude|Sandstorm
-legacy|ATB|9 PM (Till I Come)
-legacy|Alice Deejay|Better Off Alone
-legacy|Eiffel 65|Blue (Da Ba Dee)
-legacy|Gigi D'Agostino|L'Amour Toujours
-legacy|Vengaboys|Boom, Boom, Boom, Boom!!
-legacy|Aqua|Barbie Girl
-legacy|DJ Dado|X-Files
-legacy|Chicane|Saltwater
-legacy|Paul van Dyk|For an Angel
-legacy|Binary Finary|1998
-legacy|Energy 52|Café del Mar
-legacy|Delerium|Silence
-legacy|Safri Duo|Played-A-Live
-legacy|Ian Van Dahl|Castles in the Sky
-legacy|Lasgo|Something
-legacy|Modjo|Lady (Hear Me Tonight)
-legacy|Stardust|Music Sounds Better with You
-legacy|Daft Punk|One More Time
-legacy|Daft Punk|Harder, Better, Faster, Stronger
-legacy|Alcazar|Crying at the Discoteque
-legacy|Sophie Ellis-Bextor|Murder on the Dancefloor
-legacy|Kylie Minogue|Can't Get You Out of My Head
-legacy|Benny Benassi|Satisfaction
-legacy|Eric Prydz|Call on Me
-legacy|Room 5|Make Luv
-legacy|Junior Senior|Move Your Feet
-legacy|Bob Sinclar|Love Generation
-legacy|Bob Sinclar|World, Hold On
-legacy|David Guetta|Love Don't Let Me Go
-legacy|David Guetta|The World Is Mine
-legacy|Pakito|Living on Video
-legacy|Global Deejays|The Sound of San Francisco
-legacy|Royal Gigolos|California Dreamin'
-legacy|Michael Gray|The Weekend
-legacy|Mylo|Drop the Pressure
-legacy|Freemasons|Love on My Mind
-legacy|Roger Sanchez|Another Chance
-legacy|Basement Jaxx|Where's Your Head At
-legacy|The Shapeshifters|Lola's Theme
-legacy|Tomcraft|Loneliness
-legacy|Fedde Le Grand|Put Your Hands Up for Detroit
-legacy|Mason|Exceeder
-legacy|Ida Corr|Let Me Think About It
-legacy|Guru Josh Project|Infinity 2008
-legacy|Laurent Wolf|No Stress
-legacy|Martin Solveig|C'est la vie
-legacy|Martin Solveig|Hello
-legacy|Yves Larock|Rise Up
-legacy|September|Cry for You
-legacy|Cascada|Everytime We Touch
-legacy|Cascada|Evacuate the Dancefloor
-legacy|Basshunter|Now You're Gone
-legacy|Scooter|The Logical Song
-legacy|Special D.|Come with Me
-legacy|Groove Coverage|Moonlight Shadow
-legacy|Sylver|Turn the Tide
-legacy|Milk Inc.|Walk on Water
-legacy|Kate Ryan|Désenchantée
-legacy|Kate Ryan|Ella elle l'a
-legacy|David Guetta|When Love Takes Over
-legacy|David Guetta|Sexy Bitch
-legacy|Edward Maya|Stereo Love
-legacy|Inna|Hot
-legacy|Alexandra Stan|Mr. Saxobeat
-legacy|Yolanda Be Cool|We No Speak Americano
-legacy|Stromae|Alors on danse
-legacy|Duck Sauce|Barbra Streisand
-legacy|Swedish House Mafia|One
-legacy|Eric Prydz|Pjanoo
-legacy|deadmau5|Ghosts 'n' Stuff
-legacy|Calvin Harris|I'm Not Alone
-legacy|Justice|D.A.N.C.E.
-legacy|The Chemical Brothers|Galvanize
-legacy|The Prodigy|Omen
-legacy|Tiësto|Adagio for Strings
-legacy|Avicii|Levels
-legacy|Avicii|Wake Me Up
-legacy|Swedish House Mafia|Don't You Worry Child
-legacy|Calvin Harris|Feel So Close
-legacy|Calvin Harris|Summer
-legacy|David Guetta|Titanium
-legacy|David Guetta|Play Hard
-legacy|Martin Garrix|Animals
-legacy|Major Lazer|Lean On
-legacy|DJ Snake|Turn Down for What
-legacy|DJ Snake|Taki Taki
-legacy|Clean Bandit|Rather Be
-legacy|Robin Schulz|Prayer in C
-legacy|Robin Schulz|Sugar
-legacy|Lost Frequencies|Are You with Me
-legacy|Kygo|Firestone
-legacy|Felix Jaehn|Ain't Nobody
-legacy|Kungs|This Girl
-legacy|Ofenbach|Be Mine
-legacy|Feder|Goodbye
-legacy|The Chainsmokers|Closer
-legacy|Zedd|Clarity
-legacy|Zedd|Stay
-legacy|Marshmello|Happier
-legacy|Alan Walker|Faded
-legacy|Galantis|Runaway (U & I)
-legacy|Duke Dumont|I Got U
-legacy|Disclosure|Latch
-legacy|Route 94|My Love
-legacy|Gorgon City|Ready for Your Love
-legacy|Klingande|Jubel
-legacy|Bakermat|One Day (Vandaag)
-legacy|Klingande|Riva
-legacy|Sigala|Easy Love
-legacy|Jonas Blue|Fast Car
-legacy|Jax Jones|You Don't Know Me
-legacy|Regard|Ride It
-legacy|Meduza|Piece of Your Heart
-legacy|Dynoro|In My Mind
-legacy|Riton|Turn Me On
-legacy|Purple Disco Machine|Hypnotized
-legacy|Topic|Breaking Me
-legacy|Joel Corry|Head & Heart
-legacy|Calvin Harris|How Deep Is Your Love
-legacy|Disclosure|You & Me
-legacy|Flume|Never Be Like You
-legacy|Major Lazer|Light It Up
-legacy|Martin Solveig|Intoxicated
-legacy|David Guetta|Hey Mama
-legacy|Tiësto|Red Lights
-legacy|Hardwell|Spaceman
-legacy|Armin van Buuren|This Is What It Feels Like
-legacy|Dimitri Vegas & Like Mike|Tremor
-legacy|DVBBS|Tsunami
-legacy|R3HAB|All Around the World (La La La)
-legacy|Axwell Λ Ingrosso|More Than You Know
-legacy|Alesso|Heroes (We Could Be)
-legacy|Sebastian Ingrosso|Reload
-legacy|Nicky Romero|Toulouse
-legacy|Showtek|Booyah
-legacy|Dua Lipa|Physical
-legacy|Dua Lipa|Don't Start Now
-legacy|The Weeknd|Blinding Lights
-legacy|David Guetta & Bebe Rexha|I'm Good (Blue)
-legacy|Elton John & Dua Lipa|Cold Heart (PNAU Remix)
-legacy|Purple Disco Machine|Dopamine
-legacy|Calvin Harris & Ellie Goulding|Miracle
-legacy|David Guetta & OneRepublic|I Don't Wanna Wait
-legacy|Peggy Gou|(It Goes Like) Nanana
-legacy|Kenya Grace|Strangers
-legacy|cassö|Prada
-legacy|Tiësto|The Business
-legacy|Joel Corry|Sorry
-legacy|Nathan Dawe|21 Reasons
-legacy|LF SYSTEM|Afraid to Feel
-legacy|Fred again..|Marea (We've Lost Dancing)
-legacy|John Summit|Where You Are
-legacy|Swedish House Mafia|Moth to a Flame
-legacy|Alok|Hear Me Now
-legacy|Lost Frequencies|Where Are You Now
-legacy|Becky Hill|Remember
-legacy|Becky Hill|Disconnect
-legacy|Joel Corry|Lonely
-legacy|Topic & A7S|Kernkraft 400 (A Better Day)
-legacy|Gabry Ponte|Thunder
-legacy|RAYE|Regardless
-legacy|Sigala|Melody
-legacy|Jax Jones|Where Did You Go?
-legacy|MEDUZA|Lose Control
-legacy|Purple Disco Machine|In the Dark
-legacy|Ofenbach|Head Shoulders Knees & Toes
-legacy|Kungs|Never Going Home
-legacy|Robin Schulz|Young Right Now
-legacy|Alesso & Katy Perry|When I'm Gone
-legacy|Tiësto & Ava Max|The Motto
-legacy|David Guetta & Kim Petras|When We Were Young (The Logical Song)
+window.TECHNORIZON_TRACKS = `80s|Technotronic|Pump Up the Jam
+90s|SNAP!|The Power
+90s|SNAP!|Rhythm Is a Dancer
+90s|2 Unlimited|Get Ready for This
+90s|2 Unlimited|No Limit
+90s|Haddaway|What Is Love
+90s|Culture Beat|Mr. Vain
+90s|Corona|The Rhythm of the Night
+90s|Gala|Freed From Desire
+90s|La Bouche|Be My Lover
+90s|Real McCoy|Another Night
+90s|Dr. Alban|It's My Life
+90s|Dr. Alban|Sing Hallelujah!
+90s|Ice MC|Think About the Way
+90s|Whigfield|Saturday Night
+90s|Captain Hollywood Project|More and More
+90s|Maxx|Get-A-Way
+90s|Masterboy|Feel the Heat of the Night
+90s|Twenty 4 Seven|Slave to the Music
+90s|Cappella|U Got 2 Let the Music
+90s|Ace of Base|All That She Wants
+90s|Scatman John|Scatman
+90s|Rednex|Cotton Eye Joe
+90s|E-Type|Set the World on Fire
+90s|DJ BoBo|Everybody
+90s|Fun Factory|Close to You
+90s|Le Click|Tonight Is the Night
+90s|Rozalla|Everybody's Free
+90s|Crystal Waters|Gypsy Woman
+90s|Robin S|Show Me Love
+90s|CeCe Peniston|Finally
+80s|Black Box|Ride on Time
+90s|C+C Music Factory|Gonna Make You Sweat
+90s|The KLF|3 A.M. Eternal
+90s|M People|Moving on Up
+90s|Livin' Joy|Dreamer
+90s|Alex Party|Don't Give Me Your Life
+90s|Nightcrawlers|Push the Feeling On
+90s|Ultra Naté|Free
+90s|Everything But The Girl|Missing
+90s|Robert Miles|Children
+90s|Sash!|Ecuador
+90s|Sash!|Encore une fois
+90s|Faithless|Insomnia
+90s|Darude|Sandstorm
+90s|ATB|9 PM (Till I Come)
+90s|Alice Deejay|Better Off Alone
+90s|Eiffel 65|Blue (Da Ba Dee)
+90s|Gigi D'Agostino|L'Amour Toujours
+90s|Vengaboys|Boom, Boom, Boom, Boom!!
+90s|Aqua|Barbie Girl
+90s|DJ Dado|X-Files
+90s|Chicane|Saltwater
+90s|Paul van Dyk|For an Angel
+90s|Binary Finary|1998
+90s|Energy 52|Café del Mar
+90s|Delerium|Silence
+2000s|Safri Duo|Played-A-Live
+2000s|Ian Van Dahl|Castles in the Sky
+2000s|Lasgo|Something
+2000s|Modjo|Lady (Hear Me Tonight)
+2000s|Stardust|Music Sounds Better with You
+2000s|Daft Punk|One More Time
+2000s|Daft Punk|Harder, Better, Faster, Stronger
+2000s|Alcazar|Crying at the Discoteque
+2000s|Sophie Ellis-Bextor|Murder on the Dancefloor
+2000s|Kylie Minogue|Can't Get You Out of My Head
+2000s|Benny Benassi|Satisfaction
+2000s|Eric Prydz|Call on Me
+2000s|Room 5|Make Luv
+2000s|Junior Senior|Move Your Feet
+2000s|Bob Sinclar|Love Generation
+2000s|Bob Sinclar|World, Hold On
+2000s|David Guetta|Love Don't Let Me Go
+2000s|David Guetta|The World Is Mine
+2000s|Pakito|Living on Video
+2000s|Global Deejays|The Sound of San Francisco
+2000s|Royal Gigolos|California Dreamin'
+2000s|Michael Gray|The Weekend
+2000s|Mylo|Drop the Pressure
+2000s|Freemasons|Love on My Mind
+2000s|Roger Sanchez|Another Chance
+2000s|Basement Jaxx|Where's Your Head At
+2000s|The Shapeshifters|Lola's Theme
+2000s|Tomcraft|Loneliness
+2000s|Fedde Le Grand|Put Your Hands Up for Detroit
+2000s|Mason|Exceeder
+2000s|Ida Corr|Let Me Think About It
+2000s|Guru Josh Project|Infinity 2008
+2000s|Laurent Wolf|No Stress
+2000s|Martin Solveig|C'est la vie
+2010s|Martin Solveig|Hello
+2000s|Yves Larock|Rise Up
+2000s|September|Cry for You
+2000s|Cascada|Everytime We Touch
+2000s|Cascada|Evacuate the Dancefloor
+2000s|Basshunter|Now You're Gone
+2000s|Scooter|The Logical Song
+2000s|Special D.|Come with Me
+2000s|Groove Coverage|Moonlight Shadow
+2000s|Sylver|Turn the Tide
+2000s|Milk Inc.|Walk on Water
+2000s|Kate Ryan|Désenchantée
+2000s|Kate Ryan|Ella elle l'a
+2000s|David Guetta|When Love Takes Over
+2000s|David Guetta|Sexy Bitch
+2000s|Edward Maya|Stereo Love
+2000s|Inna|Hot
+2010s|Alexandra Stan|Mr. Saxobeat
+2010s|Yolanda Be Cool|We No Speak Americano
+2000s|Stromae|Alors on danse
+2010s|Duck Sauce|Barbra Streisand
+2010s|Swedish House Mafia|One
+2000s|Eric Prydz|Pjanoo
+2000s|deadmau5|Ghosts 'n' Stuff
+2000s|Calvin Harris|I'm Not Alone
+2000s|Justice|D.A.N.C.E.
+2000s|The Chemical Brothers|Galvanize
+2000s|The Prodigy|Omen
+2000s|Tiësto|Adagio for Strings
+2010s|Avicii|Levels
+2010s|Avicii|Wake Me Up
+2010s|Swedish House Mafia|Don't You Worry Child
+2010s|Calvin Harris|Feel So Close
+2010s|Calvin Harris|Summer
+2010s|David Guetta|Titanium
+2010s|David Guetta|Play Hard
+2010s|Martin Garrix|Animals
+2010s|Major Lazer|Lean On
+2010s|DJ Snake|Turn Down for What
+2010s|DJ Snake|Taki Taki
+2010s|Clean Bandit|Rather Be
+2010s|Robin Schulz|Prayer in C
+2010s|Robin Schulz|Sugar
+2010s|Lost Frequencies|Are You with Me
+2010s|Kygo|Firestone
+2010s|Felix Jaehn|Ain't Nobody
+2010s|Kungs|This Girl
+2010s|Ofenbach|Be Mine
+2010s|Feder|Goodbye
+2010s|The Chainsmokers|Closer
+2010s|Zedd|Clarity
+2010s|Zedd|Stay
+2010s|Marshmello|Happier
+2010s|Alan Walker|Faded
+2010s|Galantis|Runaway (U & I)
+2010s|Duke Dumont|I Got U
+2010s|Disclosure|Latch
+2010s|Route 94|My Love
+2010s|Gorgon City|Ready for Your Love
+2010s|Klingande|Jubel
+2010s|Bakermat|One Day (Vandaag)
+2010s|Klingande|Riva
+2010s|Sigala|Easy Love
+2010s|Jonas Blue|Fast Car
+2010s|Jax Jones|You Don't Know Me
+2010s|Regard|Ride It
+2010s|Meduza|Piece of Your Heart
+2010s|Dynoro|In My Mind
+2010s|Riton|Turn Me On
+2010s|Purple Disco Machine|Hypnotized
+2010s|Topic|Breaking Me
+2010s|Joel Corry|Head & Heart
+2010s|Calvin Harris|How Deep Is Your Love
+2010s|Disclosure|You & Me
+2010s|Flume|Never Be Like You
+2010s|Major Lazer|Light It Up
+2010s|Martin Solveig|Intoxicated
+2010s|David Guetta|Hey Mama
+2010s|Tiësto|Red Lights
+2010s|Hardwell|Spaceman
+2010s|Armin van Buuren|This Is What It Feels Like
+2010s|Dimitri Vegas & Like Mike|Tremor
+2010s|DVBBS|Tsunami
+2010s|R3HAB|All Around the World (La La La)
+2010s|Axwell Λ Ingrosso|More Than You Know
+2010s|Alesso|Heroes (We Could Be)
+2010s|Sebastian Ingrosso|Reload
+2010s|Nicky Romero|Toulouse
+2010s|Showtek|Booyah
+2020s|Dua Lipa|Physical
+2010s|Dua Lipa|Don't Start Now
+2010s|The Weeknd|Blinding Lights
+2020s|David Guetta & Bebe Rexha|I'm Good (Blue)
+2020s|Elton John & Dua Lipa|Cold Heart (PNAU Remix)
+2020s|Purple Disco Machine|Dopamine
+2020s|Calvin Harris & Ellie Goulding|Miracle
+2020s|David Guetta & OneRepublic|I Don't Wanna Wait
+2020s|Peggy Gou|(It Goes Like) Nanana
+2020s|Kenya Grace|Strangers
+2020s|cassö|Prada
+2020s|Tiësto|The Business
+2010s|Joel Corry|Sorry
+2020s|Nathan Dawe|21 Reasons
+2020s|LF SYSTEM|Afraid to Feel
+2020s|Fred again..|Marea (We've Lost Dancing)
+2020s|John Summit|Where You Are
+2020s|Swedish House Mafia|Moth to a Flame
+2010s|Alok|Hear Me Now
+2020s|Lost Frequencies|Where Are You Now
+2020s|Becky Hill|Remember
+2020s|Becky Hill|Disconnect
+2020s|Joel Corry|Lonely
+2020s|Topic & A7S|Kernkraft 400 (A Better Day)
+2020s|Gabry Ponte|Thunder
+2020s|RAYE|Regardless
+2020s|Sigala|Melody
+2020s|Jax Jones|Where Did You Go?
+2010s|MEDUZA|Lose Control
+2020s|Purple Disco Machine|In the Dark
+2020s|Ofenbach|Head Shoulders Knees & Toes
+2020s|Kungs|Never Going Home
+2020s|Robin Schulz|Young Right Now
+2020s|Alesso & Katy Perry|When I'm Gone
+2020s|Tiësto & Ava Max|The Motto
+2020s|David Guetta & Kim Petras|When We Were Young (The Logical Song)
 80s|New Order|Blue Monday
 80s|Eurythmics|Sweet Dreams (Are Made of This)
 80s|Depeche Mode|Just Can't Get Enough
@@ -273,7 +273,6 @@ legacy|David Guetta & Kim Petras|When We Were Young (The Logical Song)
 90s|Gigi D'Agostino|Bla Bla Bla
 90s|Paul Johnson|Get Get Down
 90s|The Bucketheads|The Bomb! (These Sounds Fall into My Mind)
-90s|Everything But the Girl|Missing
 2000s|David Guetta feat. Kelly Rowland|When Love Takes Over
 2000s|Alex Gaudino feat. Crystal Waters|Destination Calabria
 2000s|Junior Jack|Stupidisco
@@ -283,7 +282,6 @@ legacy|David Guetta & Kim Petras|When We Were Young (The Logical Song)
 2010s|Major Lazer & DJ Snake|Lean On
 2010s|Kungs vs Cookin' on 3 Burners|This Girl
 2010s|Duke Dumont|Ocean Drive
-2010s|MEDUZA|Piece of Your Heart
 2010s|Fisher|Losing It
 2010s|Purple Disco Machine|Body Funk
 2010s|CamelPhat & Elderbrook|Cola
@@ -298,7 +296,8 @@ legacy|David Guetta & Kim Petras|When We Were Young (The Logical Song)
 2020s|MEDUZA feat. Goodboys|Lose Control
 2020s|Purple Disco Machine & Sophie and the Giants|In the Dark
 2020s|Ofenbach & Quarterhead|Head Shoulders Knees & Toes
-2020s|Joel Corry feat. MNEK|Head & Heart`.trim().split('\n').map((line, index) => {
+2020s|Joel Corry feat. MNEK|Head & Heart
+`.trim().split('\n').map((line, index) => {
   const parts = line.split('|');
   const tagged = ['80s','90s','2000s','2010s','2020s'].includes(parts[0]);
   const decade = tagged ? parts.shift() : 'all';
