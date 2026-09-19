@@ -515,6 +515,49 @@
     stage.querySelector('button').addEventListener('click', restart);
   }
 
+  // Chronomètre anti-triche : 10 secondes par question
+  let questionTimer = null;
+  function stopQuestionTimer() {
+    if (questionTimer) clearInterval(questionTimer);
+    questionTimer = null;
+  }
+  function startQuestionTimer(stage, onTimeout) {
+    stopQuestionTimer();
+    const wrap = stage.querySelector('.question-wrap');
+    if (!wrap) return;
+    const timer = document.createElement('div');
+    timer.className = 'question-timer';
+    timer.innerHTML = '<span class="timer-label">⏱ <strong>10</strong>s</span><span class="timer-track"><span class="timer-fill"></span></span>';
+    wrap.insertBefore(timer, wrap.firstChild);
+    const value = timer.querySelector('strong');
+    const fill = timer.querySelector('.timer-fill');
+    let remaining = 10;
+    questionTimer = setInterval(() => {
+      remaining -= 1;
+      if (value) value.textContent = String(Math.max(0, remaining));
+      if (fill) fill.style.width = Math.max(0, remaining * 10) + '%';
+      if (remaining <= 0) {
+        stopQuestionTimer();
+        onTimeout();
+      }
+    }, 1000);
+  }
+  function timeoutRound(stage, state, correctSelector, feedbackText, nextAction) {
+    if (state.locked) return;
+    state.locked = true;
+    stage.querySelectorAll('.answer-btn').forEach(item => {
+      item.disabled = true;
+      if (correctSelector(item)) item.classList.add('correct');
+    });
+    const feedback = stage.querySelector('.feedback');
+    if (feedback) {
+      feedback.className = 'feedback bad';
+      feedback.textContent = feedbackText;
+    }
+    setJayaReaction(stage, false);
+    addNextButton(stage.querySelector('.question-wrap'), nextAction);
+  }
+
   // Blind Test
   const blind = { questions: [], index: 0, score: 0, locked: false, total: ROUNDS };
   const blindStage = $('#blind-stage');
@@ -563,6 +606,14 @@
         if (blindAudio.currentTime >= 15) { blindAudio.pause(); play.textContent = t('listenAgain'); play.classList.remove('playing'); }
       };
       blindStage.querySelectorAll('.answer-btn').forEach(button => button.addEventListener('click', () => answerBlind(button, track)));
+      startQuestionTimer(blindStage, () => {
+        stopBlindAudio();
+        timeoutRound(blindStage, blind, item => item.dataset.answer === track.title, 'Temps écoulé !', () => {
+          blind.index += 1;
+          if (blind.index >= blind.total) result(blindStage, blind.total === 25 ? t('blindPartyName') : 'Blind Test', blind.score, () => startBlind(blind.total));
+          else loadBlindRound();
+        });
+      });
     } catch {
       blindStage.innerHTML = `<div class="question-wrap"><h3 class="question-title">${escapeHtml(t('unavailable'))}</h3><p class="result-text">${escapeHtml(t('replaced'))}</p><button class="primary-action" type="button">${escapeHtml(t('tryAnother'))}</button></div>`;
       blindStage.querySelector('button').addEventListener('click', () => {
@@ -574,6 +625,7 @@
 
   function answerBlind(button, track) {
     if (blind.locked) return;
+    stopQuestionTimer();
     blind.locked = true;
     stopBlindAudio();
     const correct = button.dataset.answer === track.title;
@@ -612,9 +664,15 @@
     $('#intox-round').textContent = `${intox.index + 1} / ${ROUNDS}`;
     intoxStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('statement', { number: intox.index + 1 }))}</span>${jayaHost(question.text)}<div class="answers"><button class="answer-btn" type="button" data-value="true">${escapeHtml(t('hitTrue'))}</button><button class="answer-btn" type="button" data-value="false">${escapeHtml(t('intoxFalse'))}</button></div><p class="feedback" aria-live="polite"></p></div>`;
     intoxStage.querySelectorAll('.answer-btn').forEach(button => button.addEventListener('click', () => answerIntox(button, question)));
+    startQuestionTimer(intoxStage, () => timeoutRound(intoxStage, intox, item => (item.dataset.value === 'true') === question.answer, 'Temps écoulé ! ' + question.detail, () => {
+      intox.index += 1;
+      if (intox.index >= ROUNDS) result(intoxStage, t('intoxGameName'), intox.score, startIntox);
+      else showIntoxRound();
+    }));
   }
   function answerIntox(button, question) {
     if (intox.locked) return;
+    stopQuestionTimer();
     intox.locked = true;
     const correct = (button.dataset.value === 'true') === question.answer;
     if (correct) intox.score += 75;
@@ -652,9 +710,15 @@
     $('#quiz-round').textContent = `${quiz.index + 1} / ${ROUNDS}`;
     quizStage.innerHTML = `<div class="question-wrap"><span class="question-label">${escapeHtml(t('question', { number: quiz.index + 1 }))}</span>${jayaHost(question.text)}<div class="answers">${question.answers.map((answer, index) => `<button class="answer-btn" type="button" data-index="${index}">${escapeHtml(answer)}</button>`).join('')}</div><p class="feedback" aria-live="polite"></p></div>`;
     quizStage.querySelectorAll('.answer-btn').forEach(button => button.addEventListener('click', () => answerQuiz(button, question)));
+    startQuestionTimer(quizStage, () => timeoutRound(quizStage, quiz, item => Number(item.dataset.index) === question.correct, 'Temps écoulé ! ' + t('rightAnswer', { answer: question.answers[question.correct] }), () => {
+      quiz.index += 1;
+      if (quiz.index >= ROUNDS) result(quizStage, 'TechnoQuiz', quiz.score, startQuiz);
+      else showQuizRound();
+    }));
   }
   function answerQuiz(button, question) {
     if (quiz.locked) return;
+    stopQuestionTimer();
     quiz.locked = true;
     const chosen = Number(button.dataset.index);
     const correct = chosen === question.correct;
