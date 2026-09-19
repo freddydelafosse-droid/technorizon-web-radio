@@ -10,7 +10,7 @@
     'jeux.html': { page: 'games', style: '/jeux.css?v=13', scripts: ['/jeux-data.js?v=3', '/jeux.js?v=19'] },
     'a-propos.html': { page: 'about', scripts: ['/content-pages-i18n.js?v=1'] },
     'contact.html': { page: 'contact', scripts: ['/content-pages-i18n.js?v=1'] },
-    'technoroscope.html': { page: 'technoroscope', scripts: ['/technoroscope-i18n.js?v=5'] },
+    'technoroscope.html': { page: 'technoroscope', scripts: ['/technoroscope-i18n.js?v=7'] },
     'dedicaces.html': { page: 'dedicaces', inlineScripts: true },
   };
   let layer = null;
