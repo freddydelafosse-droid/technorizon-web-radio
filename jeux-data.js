@@ -297,6 +297,20 @@ window.TECHNORIZON_TRACKS = `80s|Technotronic|Pump Up the Jam
 2020s|Purple Disco Machine & Sophie and the Giants|In the Dark
 2020s|Ofenbach & Quarterhead|Head Shoulders Knees & Toes
 2020s|Joel Corry feat. MNEK|Head & Heart
+2020s|Joel Corry & MNEK|Head & Heart
+2020s|Nathan Dawe feat. KSI|Lighter
+2020s|Sigala & James Arthur|Lasting Lover
+2020s|Riton x Nightcrawlers feat. Mufasa & Hypeman|Friday
+2020s|Majestic x Boney M.|Rasputin
+2020s|Shouse|Love Tonight
+2020s|Acraze feat. Cherish|Do It to It
+2020s|James Hype & Miggy Dela Rosa|Ferrari
+2020s|Eliza Rose & Interplanetary Criminal|B.O.T.A. (Baddest of Them All)
+2020s|David Guetta & Anne-Marie & Coi Leray|Baby Don't Hurt Me
+2020s|Switch Disco & Ella Henderson|REACT
+2020s|Calvin Harris & Sam Smith|Desire
+2020s|Becky Hill & Sonny Fodera|Never Be Alone
+2020s|Artemas|I Like the Way You Kiss Me
 `.trim().split('\n').map((line, index) => {
   const parts = line.split('|');
   const tagged = ['80s','90s','2000s','2010s','2020s'].includes(parts[0]);
