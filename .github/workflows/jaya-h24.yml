@@ -1,0 +1,19 @@
+name: Jaya H24
+
+on:
+  schedule:
+    - cron: '8,23,38,53 * * * *'
+  workflow_dispatch:
+
+jobs:
+  jaya:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Declencher Jaya
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail --silent --show-error \
+            --retry 2 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "https://www.technorizon.fr/api/azuracast-test"
