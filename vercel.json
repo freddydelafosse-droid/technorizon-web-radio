@@ -64,7 +64,7 @@
   "crons": [
     {
       "path": "/api/azuracast-test",
-      "schedule": "*/20 * * * *"
+      "schedule": "8,28,48 * * * *"
     }
   ]
 }
