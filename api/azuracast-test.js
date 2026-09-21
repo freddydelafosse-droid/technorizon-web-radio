@@ -10,13 +10,17 @@ const MESSAGES=[
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 async function az(base,key,path,opts={}){return fetch(base+"/api/station/"+SID+path,{...opts,headers:{"X-API-Key":key,"Accept":"application/json",...(opts.headers||{})}})}
 function queueRows(data){return Array.isArray(data)?data:(data?.rows||[])}
+function cleanMeta(v){
+ return String(v||"").replace(/https?:\/\/\S+|www\.\S+|\b(?:vk|facebook|instagram|youtube|youtu\.be)\.com\/\S+/gi,"").replace(/\.(?:mp3|wav|flac|m4a|aac|ogg)\b/gi,"").replace(/\s+/g," ").replace(/^[\s\-–—_;:|]+|[\s\-–—_;:|]+$/g,"").trim();
+}
 function songFromRow(x){
  const s=x?.song||x?.media?.song||x?.media||x||{};
- const artist=s.artist||s.artist_name||s?.custom_fields?.artist||"";
- const title=s.title||s.name||s.song_title||s?.custom_fields?.title||"";
- if(!title)return null;
- if(String(title).toLowerCase().includes("jaya"))return null;
- return {artist:String(artist).trim(),title:String(title).trim()};
+ const artist=cleanMeta(s.artist||s.artist_name||s?.custom_fields?.artist||"");
+ let title=cleanMeta(s.title||s.name||s.song_title||s?.custom_fields?.title||"");
+ if(!title||title.toLowerCase().includes("jaya"))return null;
+ const parts=title.split(";").map(cleanMeta).filter(Boolean); if(parts.length>1&&parts[0].toLowerCase()===parts[1].toLowerCase())title=parts[0];
+ if(title.length>100||/[<>]|(?:https?|www\.|\.com\b)/i.test(title))return null;
+ return {artist,title};
 }
 function daypart(){const h=new Date().getUTCHours()+2;const x=h%24;return x<6?"nuit":x<12?"matin":x<18?"journee":"soiree"}
 function generic(slot){const p=daypart(),pool={matin:["Bonjour à toutes et à tous ! Jaya avec vous sur Technorizon.fr. Très bonne matinée en musique !","Technorizon.fr vous accompagne ce matin. Ici Jaya, et on continue en musique !"],journee:["Jaya avec vous sur Technorizon.fr. Merci de nous accompagner, et place à la musique !","Vous êtes bien sur Technorizon.fr. Ici Jaya, très bonne écoute à toutes et à tous !"],soiree:["Bonsoir à toutes et à tous ! Ici Jaya sur Technorizon.fr. Profitez bien de votre soirée en musique !","Jaya avec vous ce soir sur Technorizon.fr. Montez le son, la musique continue !"],nuit:["Vous êtes toujours avec Technorizon.fr. Ici Jaya, très bonne écoute à tous les noctambules !","Jaya vous accompagne dans la nuit sur Technorizon.fr. La musique continue !"]};return pool[p][hash(String(slot)+p)%pool[p].length]}
@@ -54,7 +58,8 @@ export default async function handler(req,res){
   const rows=queueRows(qdata);
   const pendingJaya=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
   if(pendingJaya)return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
-  const nextSong=rows.map(songFromRow).filter(Boolean)[0]||null;
+  const songs=rows.map(songFromRow).filter(Boolean);
+  const nextSong=songs[1]||null;
   const slot=Math.floor(now.getTime()/(10*60*1000));
   const mode=hash(String(slot)+"mode")%3,text=(mode<2&&nextSong?announcement(nextSong):generic(slot))||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length],file="jaya-auto-"+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.92}})});
