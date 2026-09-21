@@ -54,7 +54,7 @@ export default async function handler(req,res){
   const rows=queueRows(qdata);
   if(rows.some(x=>JSON.stringify(x).toLowerCase().includes("jaya")))return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
   const nextSong=rows.map(songFromRow).filter(Boolean)[0]||null;
-  const slot=Math.floor(now.getTime()/(12*60*1000));
+  const slot=Math.floor(now.getTime()/(10*60*1000));
   const mode=hash(String(slot)+"mode")%3,text=(mode<2&&nextSong?announcement(nextSong):generic(slot))||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length],file="jaya-auto-"+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.92}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
