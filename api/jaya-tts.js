@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   const text = typeof req.body?.text === "string" ? req.body.text.trim() : "";
   if (!text) return res.status(400).json({ ok:false, error:"Missing text" });
-  if (text.length > 1200) return res.status(400).json({ ok:false, error:"Text too long" });
+  if (text !== "Bonjour, ici Jaya sur Technorizon.") return res.status(403).json({ ok:false, error:"Test phrase only" });
 
   try {
     const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + JAYA_VOICE_ID, {
