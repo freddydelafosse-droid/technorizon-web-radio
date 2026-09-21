@@ -44,7 +44,7 @@ function speechMeta(v){
  for(const [re,to] of aliases)s=s.replace(re,to);
  return s.replace(/,\s*([^,]+)$/," et $1").replace(/\s+/g," ").trim();
 }
-function radioPause(s){return String(s).replace(/\.\.\./g,"…").replace(/([.!?])\s+/g,"$1 … ").replace(/,\s+/g,", … ").replace(/\s+…\s+/g," … ").trim()}
+function radioPause(s){return String(s).replace(/\.\.\./g,"…").replace(/([.!?])\s+/g,"$1 ").replace(/,\s+/g,", ").replace(/\s*…\s*/g," … ").trim()}
 function generic(slot){const p=daypart(),pool={matin:["Bonjour à toutes et à tous ! Jaya avec vous sur Technorizon.fr. Très bonne matinée en musique !","Technorizon.fr vous accompagne ce matin. Ici Jaya, et on continue en musique !"],journee:["Jaya avec vous sur Technorizon.fr. Merci de nous accompagner, et place à la musique !","Vous êtes bien sur Technorizon.fr. Ici Jaya, très bonne écoute à toutes et à tous !"],soiree:["Bonsoir à toutes et à tous ! Ici Jaya sur Technorizon.fr. Profitez bien de votre soirée en musique !","Jaya avec vous ce soir sur Technorizon.fr. Montez le son, la musique continue !"],nuit:["Vous êtes toujours avec Technorizon.fr. Ici Jaya, très bonne écoute à tous les noctambules !","Jaya vous accompagne dans la nuit sur Technorizon.fr. La musique continue !"]};return pool[p][hash(String(slot)+p)%pool[p].length]}
 function weatherSky(code){if(code===0)return "un ciel bien dégagé";if(code<=3)return "un ciel partagé entre éclaircies et nuages";if(code===45||code===48)return "des brouillards par endroits";if(code>=51&&code<=67)return "des pluies ou averses";if(code>=71&&code<=77)return "quelques chutes de neige";if(code>=80&&code<=82)return "des averses";if(code>=95)return "un risque d'orages";return "un temps variable"}
 async function weatherBulletin(){const cities=[["Lille",50.6292,3.0573],["Paris",48.8566,2.3522],["Strasbourg",48.5734,7.7521],["Nantes",47.2184,-1.5536],["Bordeaux",44.8378,-0.5792],["Lyon",45.764,4.8357],["Marseille",43.2965,5.3698]];const data=await Promise.all(cities.map(async([city,latitude,longitude])=>{const u=new URL("https://api.open-meteo.com/v1/forecast");u.searchParams.set("latitude",latitude);u.searchParams.set("longitude",longitude);u.searchParams.set("daily","weather_code,temperature_2m_max,precipitation_probability_max");u.searchParams.set("timezone","Europe/Paris");u.searchParams.set("forecast_days","1");const r=await fetch(u);if(!r.ok)throw new Error("Weather "+city);const j=await r.json();return{city,max:Math.round(j.daily.temperature_2m_max[0]),rain:Math.round(j.daily.precipitation_probability_max[0]||0),code:Number(j.daily.weather_code[0]||0)}}));const get=n=>data.find(x=>x.city===n),wet=data.filter(x=>x.rain>=50).map(x=>x.city);return "Bonjour, ici Jaya avec votre météo nationale sur Technorizon.fr. Aujourd'hui, comptez environ "+get("Lille").max+" degrés à Lille, "+get("Paris").max+" à Paris, "+get("Strasbourg").max+" à Strasbourg, "+get("Nantes").max+" à Nantes, "+get("Bordeaux").max+" à Bordeaux, "+get("Lyon").max+" à Lyon et "+get("Marseille").max+" à Marseille. Côté ciel, "+weatherSky(get("Paris").code)+" sur la région parisienne, "+weatherSky(get("Nantes").code)+" dans l'Ouest et "+weatherSky(get("Marseille").code)+" près de la Méditerranée. "+(wet.length?"Le risque de pluie est plus marqué vers "+wet.slice(0,3).join(", ")+".":"Le risque de pluie reste globalement limité sur les villes suivies.")+" Et pour retrouver la météo détaillée de votre ville, rendez-vous sur Technorizon.fr, rubrique Météo. Très bonne écoute !"}
@@ -77,12 +77,12 @@ function announcement(song){
  if(!song)return null;
  const artist=speechMeta(song.artist),title=speechMeta(song.title);
  const choices=artist?[
-  `Dans quelques instants sur Technorizon.fr … ${artist} … avec ${title}. … Très bonne écoute !`,
-  `La musique continue sur Technorizon.fr. … Et maintenant … ${artist}, avec ${title} !`,
-  `Ici Jaya sur Technorizon.fr. … On enchaîne avec ${artist} … et ${title}. … Montez le son !`
+  `Dans quelques instants sur Technorizon.fr … ${artist}, avec ${title}. Très bonne écoute !`,
+  `La musique continue sur Technorizon.fr. Et maintenant … ${artist}, avec ${title} !`,
+  `Ici Jaya sur Technorizon.fr. On enchaîne avec ${artist}, et ${title}. Montez le son !`
  ]:[
-  `Dans quelques instants sur Technorizon.fr … ${title}. … Très bonne écoute !`,
-  `Ici Jaya sur Technorizon.fr. … Et maintenant … place à ${title} !`
+  `Dans quelques instants sur Technorizon.fr … ${title}. Très bonne écoute !`,
+  `Ici Jaya sur Technorizon.fr. Et maintenant … place à ${title} !`
  ];
  return choices[hash(song.artist+"|"+song.title)%choices.length];
 }
