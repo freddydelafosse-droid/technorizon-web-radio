@@ -4,10 +4,19 @@ const FILE="jaya-premiere-intervention.mp3";
 
 export default async function handler(req,res){
  res.setHeader("Cache-Control","no-store");
- if(req.method!=="POST") return res.status(405).json({ok:false,error:"POST only"});\n const action=req.body?.action || "upload";
- const base=(process.env.AZURACAST_BASE_URL||"").replace(/\/$/,""), key=process.env.AZURACAST_API_KEY, el=process.env.ELEVENLABS_API_KEY;
+ if(req.method!=="POST") return res.status(405).json({ok:false,error:"POST only"});
+ const action=req.body?.action || "upload";
+ const base=(process.env.AZURACAST_BASE_URL||"").replace(/\/$/,"");
+ const key=process.env.AZURACAST_API_KEY;
+ const el=process.env.ELEVENLABS_API_KEY;
  if(!base||!key||!el) return res.status(500).json({ok:false,error:"Configuration missing"});
  try{
+  if(action==="queue"){
+   const q=await fetch(base+"/api/station/1/files/batch",{method:"PUT",headers:{"X-API-Key":key,"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({do:"queue",files:["Jaya/"+FILE],dirs:[]})});
+   const raw=await q.text(); let data=null; try{data=JSON.parse(raw)}catch{}
+   if(!q.ok) return res.status(q.status).json({ok:false,error:"Queue failed",status:q.status,detail:raw.slice(0,200)});
+   return res.status(200).json({ok:true,queued:true,onAir:false,file:"Jaya/"+FILE,result:data});
+  }
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+JAYA_VOICE_ID,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:TEXT,model_id:"eleven_multilingual_v2"})});
   if(!t.ok) return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const audio=await t.arrayBuffer();
@@ -17,5 +26,5 @@ export default async function handler(req,res){
   const raw=await up.text();
   if(!up.ok) return res.status(up.status).json({ok:false,error:"Upload failed",status:up.status,detail:raw.slice(0,200)});
   return res.status(200).json({ok:true,uploaded:"Jaya/"+FILE,queued:false,onAir:false});
- }catch(e){console.error("Jaya upload",e?.message||e);return res.status(502).json({ok:false,error:"Jaya upload unavailable"});}
+ }catch(e){console.error("Jaya AzuraCast",e?.message||e);return res.status(502).json({ok:false,error:"Jaya AzuraCast unavailable"});}
 }
