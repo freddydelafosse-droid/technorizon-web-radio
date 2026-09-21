@@ -29,12 +29,12 @@ async function weatherBulletin(){const cities=[["Lille",50.6292,3.0573],["Paris"
 function announcement(song){
  if(!song)return null;
  const choices=song.artist?[
-  `Dans quelques instants sur Technorizon.fr, ${song.artist} avec ${song.title}. Très bonne écoute !`,
-  `La musique continue sur Technorizon.fr. Et maintenant, ${song.artist} avec ${song.title} !`,
-  `Ici Jaya sur Technorizon.fr. On enchaîne avec ${song.artist} et ${song.title}. Montez le son !`
+  `Dans quelques instants, sur Technorizon.fr… ${song.artist}, avec ${song.title}. Très bonne écoute !`,
+  `La musique continue sur Technorizon.fr… Et maintenant, ${song.artist}, avec ${song.title} !`,
+  `Ici Jaya, sur Technorizon.fr. On enchaîne avec ${song.artist}… et ${song.title}. Montez le son !`
  ]:[
-  `Dans quelques instants sur Technorizon.fr : ${song.title}. Très bonne écoute !`,
-  `Ici Jaya sur Technorizon.fr. Et maintenant, place à ${song.title} !`
+  `Dans quelques instants, sur Technorizon.fr… ${song.title}. Très bonne écoute !`,
+  `Ici Jaya, sur Technorizon.fr… Et maintenant, place à ${song.title} !`
  ];
  return choices[hash(song.artist+"|"+song.title)%choices.length];
 }
@@ -65,7 +65,7 @@ export default async function handler(req,res){
   const slot=Math.floor(now.getTime()/(10*60*1000));
   const local=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now).reduce((a,p)=>(a[p.type]=p.value,a),{}),lh=Number(local.hour),lm=Number(local.minute),isWeather=lh>=6&&lh<=12&&lm>=23&&lm<=33;
   const mode=isWeather?3:hash(String(slot)+"mode")%3,text=isWeather?await weatherBulletin():((mode<2&&nextSong?announcement(nextSong):generic(slot))||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length]),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
-  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.9:0.92}})});
+  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.88:0.91,stability:isWeather?0.4:0.36,similarity_boost:0.78,style:isWeather?0.2:0.28,use_speaker_boost:true}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
   const up=await az(base,key,"/files/upload?currentDirectory=Jaya/Auto",{method:"POST",body:form});
