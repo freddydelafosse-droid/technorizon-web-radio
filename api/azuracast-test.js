@@ -1,4 +1,4 @@
-const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1,GUARD=6;
+const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1;
 const MESSAGES=[
  "Vous écoutez Technorizon.fr, la musique sans frontières. Ici Jaya, très bonne écoute à toutes et à tous !",
  "Ici Jaya sur Technorizon.fr. Je reste avec vous pour le meilleur de l'électro, de l'Eurodance et de la House. Très bonne écoute !",
@@ -48,14 +48,13 @@ export default async function handler(req,res){
   const secret=process.env.CRON_SECRET;
   if(!secret||req.headers.authorization!=="Bearer "+secret)return res.status(401).json({ok:false,error:"Unauthorized"});
   const el=process.env.ELEVENLABS_API_KEY;if(!el)return res.status(500).json({ok:false,error:"TTS configuration missing"});
-  const now=new Date(),m=now.getUTCMinutes();
-  if(m>=60-GUARD||m<GUARD)return res.status(200).json({ok:true,action:"skip",reason:"hourly-top-guard"});
+  const now=new Date();
   const qr=await az(base,key,"/queue"),qraw=await qr.text();let qdata=null;try{qdata=JSON.parse(qraw)}catch{}
   if(!qr.ok)return res.status(502).json({ok:false,error:"Queue check failed"});
   const rows=queueRows(qdata);
   if(rows.some(x=>JSON.stringify(x).toLowerCase().includes("jaya")))return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
   const nextSong=rows.map(songFromRow).filter(Boolean)[0]||null;
-  const slot=Math.floor(now.getTime()/(15*60*1000));
+  const slot=Math.floor(now.getTime()/(12*60*1000));
   const mode=hash(String(slot)+"mode")%3,text=(mode<2&&nextSong?announcement(nextSong):generic(slot))||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length],file="jaya-auto-"+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.92}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
