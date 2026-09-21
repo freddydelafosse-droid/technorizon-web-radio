@@ -4,7 +4,7 @@ const FILE="jaya-premiere-intervention.mp3";
 
 export default async function handler(req,res){
  res.setHeader("Cache-Control","no-store");
- if(req.method!=="POST") return res.status(405).json({ok:false,error:"POST only"});
+ if(req.method!=="POST") return res.status(405).json({ok:false,error:"POST only"});\n const action=req.body?.action || "upload";
  const base=(process.env.AZURACAST_BASE_URL||"").replace(/\/$/,""), key=process.env.AZURACAST_API_KEY, el=process.env.ELEVENLABS_API_KEY;
  if(!base||!key||!el) return res.status(500).json({ok:false,error:"Configuration missing"});
  try{
