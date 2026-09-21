@@ -1,0 +1,19 @@
+name: Jaya Meteo
+
+on:
+  schedule:
+    - cron: '27 * * * *'
+  workflow_dispatch:
+
+jobs:
+  meteo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Declencher la meteo de Jaya
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail --silent --show-error \
+            --retry 2 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "https://www.technorizon.fr/api/jaya-meteo"
