@@ -1,5 +1,6 @@
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
+  // Deployment refresh: load current Production environment variables.
   if (req.method !== "GET") return res.status(405).json({ok:false,error:"GET only"});
 
   const base=(process.env.AZURACAST_BASE_URL || "").replace(/\/$/,"");
