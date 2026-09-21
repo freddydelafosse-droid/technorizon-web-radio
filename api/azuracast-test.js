@@ -5,7 +5,31 @@ const MESSAGES=[
  "Toujours avec vous sur Technorizon.fr ! Ici Jaya. Montez le son, la musique continue !",
  "Un petit coucou de Jaya ! Vous êtes bien sur Technorizon.fr, la musique sans frontières.",
  "Ici Jaya sur Technorizon.fr. Merci d'être avec nous, et surtout ne bougez pas : la musique continue !",
- "Technorizon.fr, la musique sans frontières. Jaya avec vous, et encore beaucoup de musique à venir !"
+ "Technorizon.fr, la musique sans frontières. Jaya avec vous, et encore beaucoup de musique à venir !",
+ "Vous êtes toujours avec Jaya sur Technorizon.fr. Merci pour votre fidélité et profitez bien de la musique !",
+ "Ici Jaya ! Où que vous soyez, merci d'avoir choisi Technorizon.fr. On continue ensemble !",
+ "Technorizon.fr vous accompagne partout. Ici Jaya, et la musique continue sans frontières !",
+ "Petit passage de Jaya pour vous souhaiter une excellente écoute sur Technorizon.fr !",
+ "Vous venez de nous rejoindre ? Bienvenue sur Technorizon.fr ! Moi c'est Jaya, et je reste avec vous.",
+ "Toujours plus de musique sur Technorizon.fr ! Ici Jaya, et on poursuit sans interruption.",
+ "Jaya avec vous sur Technorizon.fr. Installez-vous, montez le son et profitez de la musique !",
+ "Merci d'être de plus en plus nombreux à écouter Technorizon.fr. Ici Jaya, très bonne écoute !",
+ "Un peu d'électro, beaucoup d'énergie et surtout de la musique sans frontières. Vous êtes sur Technorizon.fr !",
+ "Ici Jaya. Vous écoutez Technorizon.fr, votre radio électro, Eurodance et House. La suite arrive tout de suite !",
+ "Où que vous nous écoutiez dans le monde, bienvenue sur Technorizon.fr. Ici Jaya, heureuse de vous accompagner !",
+ "Technorizon.fr continue avec vous. Moi c'est Jaya, et je vous réserve encore beaucoup de musique !",
+ "Pas de frontières pour la musique ! Ici Jaya, vous êtes bien sur Technorizon.fr.",
+ "Jaya au micro de Technorizon.fr pour un petit coucou. Merci d'être avec nous et très bonne écoute !",
+ "La musique continue sur Technorizon.fr. Ici Jaya, je vous accompagne encore un moment !",
+ "Vous êtes sur Technorizon.fr et moi c'est Jaya. Merci de partager ce moment avec nous !",
+ "Encore de très bons titres à venir sur Technorizon.fr. Ici Jaya, restez avec nous !",
+ "Technorizon.fr, c'est votre musique sans frontières. Jaya avec vous, et on continue !",
+ "Ici Jaya sur Technorizon.fr. Une pensée à tous ceux qui nous écoutent en France et partout ailleurs dans le monde !",
+ "Vous travaillez, vous roulez ou vous vous détendez ? Jaya est avec vous sur Technorizon.fr !",
+ "Merci de faire partie de l'aventure Technorizon.fr. Ici Jaya, et maintenant place à la musique !",
+ "Jaya avec vous ! Technorizon.fr ne s'arrête pas, alors profitez de la suite !",
+ "Vous écoutez Technorizon.fr. Ici Jaya, votre petite voix entre deux bonnes doses de musique !",
+ "Toujours connectés à Technorizon.fr ? Parfait ! Ici Jaya, et on repart pour la suite !"
 ];
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 async function az(base,key,path,opts={}){return fetch(base+"/api/station/"+SID+path,{...opts,headers:{"X-API-Key":key,"Accept":"application/json",...(opts.headers||{})}})}
