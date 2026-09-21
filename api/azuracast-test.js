@@ -22,19 +22,34 @@ function songFromRow(x){
  if(title.length>100||/[<>]|(?:https?|www\.|\.com\b)/i.test(title))return null;
  return {artist,title};
 }
-function daypart(){const h=new Date().getUTCHours()+2;const x=h%24;return x<6?"nuit":x<12?"matin":x<18?"journee":"soiree"}
+function parisHour(){return Number(new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",hourCycle:"h23"}).format(new Date()))}
+function daypart(){const x=parisHour();return x<6?"nuit":x<12?"matin":x<18?"journee":"soiree"}
+function speechMeta(v){
+ let s=cleanMeta(v).replace(/\s*;\s*/g,", ").replace(/\s*&\s*/g," et ");
+ const aliases=[
+  [/\bfeat\.?\b/gi,"featuring"],[/\bft\.?\b/gi,"featuring"],
+  [/\bvs\.?\b/gi,"versus"],[/\bDJ\b/g,"D.J."],
+  [/\bHUGEL\b/gi,"Hugel"],[/\bDavid Guetta\b/gi,"David Guetta"],
+  [/\bCalvin Harris\b/gi,"Calvin Harris"],[/\bTiësto\b/gi,"Tiësto"],
+  [/\bUltra Nat[eé]\b/gi,"Ultra Naté"],[/\bMovin'\b/gi,"Moving"]
+ ];
+ for(const [re,to] of aliases)s=s.replace(re,to);
+ return s.replace(/,\s*([^,]+)$/," et $1").replace(/\s+/g," ").trim();
+}
+function radioPause(s){return String(s).replace(/\.\.\./g,"…").replace(/([.!?])\s+/g,"$1 … ").replace(/,\s+/g,", … ").replace(/\s+…\s+/g," … ").trim()}
 function generic(slot){const p=daypart(),pool={matin:["Bonjour à toutes et à tous ! Jaya avec vous sur Technorizon.fr. Très bonne matinée en musique !","Technorizon.fr vous accompagne ce matin. Ici Jaya, et on continue en musique !"],journee:["Jaya avec vous sur Technorizon.fr. Merci de nous accompagner, et place à la musique !","Vous êtes bien sur Technorizon.fr. Ici Jaya, très bonne écoute à toutes et à tous !"],soiree:["Bonsoir à toutes et à tous ! Ici Jaya sur Technorizon.fr. Profitez bien de votre soirée en musique !","Jaya avec vous ce soir sur Technorizon.fr. Montez le son, la musique continue !"],nuit:["Vous êtes toujours avec Technorizon.fr. Ici Jaya, très bonne écoute à tous les noctambules !","Jaya vous accompagne dans la nuit sur Technorizon.fr. La musique continue !"]};return pool[p][hash(String(slot)+p)%pool[p].length]}
 function weatherSky(code){if(code===0)return "un ciel bien dégagé";if(code<=3)return "un ciel partagé entre éclaircies et nuages";if(code===45||code===48)return "des brouillards par endroits";if(code>=51&&code<=67)return "des pluies ou averses";if(code>=71&&code<=77)return "quelques chutes de neige";if(code>=80&&code<=82)return "des averses";if(code>=95)return "un risque d'orages";return "un temps variable"}
 async function weatherBulletin(){const cities=[["Lille",50.6292,3.0573],["Paris",48.8566,2.3522],["Strasbourg",48.5734,7.7521],["Nantes",47.2184,-1.5536],["Bordeaux",44.8378,-0.5792],["Lyon",45.764,4.8357],["Marseille",43.2965,5.3698]];const data=await Promise.all(cities.map(async([city,latitude,longitude])=>{const u=new URL("https://api.open-meteo.com/v1/forecast");u.searchParams.set("latitude",latitude);u.searchParams.set("longitude",longitude);u.searchParams.set("daily","weather_code,temperature_2m_max,precipitation_probability_max");u.searchParams.set("timezone","Europe/Paris");u.searchParams.set("forecast_days","1");const r=await fetch(u);if(!r.ok)throw new Error("Weather "+city);const j=await r.json();return{city,max:Math.round(j.daily.temperature_2m_max[0]),rain:Math.round(j.daily.precipitation_probability_max[0]||0),code:Number(j.daily.weather_code[0]||0)}}));const get=n=>data.find(x=>x.city===n),wet=data.filter(x=>x.rain>=50).map(x=>x.city);return "Bonjour, ici Jaya avec votre météo nationale sur Technorizon.fr. Aujourd'hui, comptez environ "+get("Lille").max+" degrés à Lille, "+get("Paris").max+" à Paris, "+get("Strasbourg").max+" à Strasbourg, "+get("Nantes").max+" à Nantes, "+get("Bordeaux").max+" à Bordeaux, "+get("Lyon").max+" à Lyon et "+get("Marseille").max+" à Marseille. Côté ciel, "+weatherSky(get("Paris").code)+" sur la région parisienne, "+weatherSky(get("Nantes").code)+" dans l'Ouest et "+weatherSky(get("Marseille").code)+" près de la Méditerranée. "+(wet.length?"Le risque de pluie est plus marqué vers "+wet.slice(0,3).join(", ")+".":"Le risque de pluie reste globalement limité sur les villes suivies.")+" Et pour retrouver la météo détaillée de votre ville, rendez-vous sur Technorizon.fr, rubrique Météo. Très bonne écoute !"}
 function announcement(song){
  if(!song)return null;
- const choices=song.artist?[
-  `Dans quelques instants, sur Technorizon.fr… ${song.artist}, avec ${song.title}. Très bonne écoute !`,
-  `La musique continue sur Technorizon.fr… Et maintenant, ${song.artist}, avec ${song.title} !`,
-  `Ici Jaya, sur Technorizon.fr. On enchaîne avec ${song.artist}… et ${song.title}. Montez le son !`
+ const artist=speechMeta(song.artist),title=speechMeta(song.title);
+ const choices=artist?[
+  `Dans quelques instants sur Technorizon.fr … ${artist} … avec ${title}. … Très bonne écoute !`,
+  `La musique continue sur Technorizon.fr. … Et maintenant … ${artist}, avec ${title} !`,
+  `Ici Jaya sur Technorizon.fr. … On enchaîne avec ${artist} … et ${title}. … Montez le son !`
  ]:[
-  `Dans quelques instants, sur Technorizon.fr… ${song.title}. Très bonne écoute !`,
-  `Ici Jaya, sur Technorizon.fr… Et maintenant, place à ${song.title} !`
+  `Dans quelques instants sur Technorizon.fr … ${title}. … Très bonne écoute !`,
+  `Ici Jaya sur Technorizon.fr. … Et maintenant … place à ${title} !`
  ];
  return choices[hash(song.artist+"|"+song.title)%choices.length];
 }
@@ -64,8 +79,8 @@ export default async function handler(req,res){
   const nextSong=songs[1]||null;
   const slot=Math.floor(now.getTime()/(10*60*1000));
   const local=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now).reduce((a,p)=>(a[p.type]=p.value,a),{}),lh=Number(local.hour),lm=Number(local.minute),isWeather=lh>=6&&lh<=12&&lm>=23&&lm<=33;
-  const mode=isWeather?3:hash(String(slot)+"mode")%3,text=isWeather?await weatherBulletin():((mode<2&&nextSong?announcement(nextSong):generic(slot))||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length]),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
-  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.88:0.91,stability:isWeather?0.4:0.36,similarity_boost:0.78,style:isWeather?0.2:0.28,use_speaker_boost:true}})});
+  const mode=isWeather?3:hash(String(slot)+"mode")%3,text=radioPause(isWeather?await weatherBulletin():((mode<2&&nextSong?announcement(nextSong):generic(slot))||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length])),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
+  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.87:0.90,stability:isWeather?0.36:0.32,similarity_boost:0.78,style:isWeather?0.28:0.36,use_speaker_boost:true}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
   const up=await az(base,key,"/files/upload?currentDirectory=Jaya/Auto",{method:"POST",body:form});
