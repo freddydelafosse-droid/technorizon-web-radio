@@ -53,9 +53,9 @@ export default async function handler(req,res){
   const rows=queueRows(qdata);
   if(rows.some(x=>JSON.stringify(x).toLowerCase().includes("jaya")))return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
   const nextSong=rows.map(songFromRow).filter(Boolean)[0]||null;
-  const slot=Math.floor(now.getTime()/(20*60*1000));
+  const slot=Math.floor(now.getTime()/(15*60*1000));
   const text=announcement(nextSong)||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length],file="jaya-auto-"+slot+".mp3";
-  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2"})});
+  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.92}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
   const up=await az(base,key,"/files/upload?currentDirectory=Jaya/Auto",{method:"POST",body:form});
