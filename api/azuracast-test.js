@@ -45,7 +45,15 @@ function speechMeta(v){
  return s.replace(/,\s*([^,]+)$/," et $1").replace(/\s+/g," ").trim();
 }
 function radioPause(s){return String(s).replace(/\.\.\./g,"…").replace(/([.!?])\s+/g,"$1 ").replace(/,\s+/g,", ").replace(/\s*…\s*/g," … ").trim()}
-function generic(slot){const p=daypart(),pool={matin:["Bonjour à toutes et à tous ! Jaya avec vous sur Technorizon.fr. Très bonne matinée en musique !","Technorizon.fr vous accompagne ce matin. Ici Jaya, et on continue en musique !"],journee:["Jaya avec vous sur Technorizon.fr. Merci de nous accompagner, et place à la musique !","Vous êtes bien sur Technorizon.fr. Ici Jaya, très bonne écoute à toutes et à tous !"],soiree:["Bonsoir à toutes et à tous ! Ici Jaya sur Technorizon.fr. Profitez bien de votre soirée en musique !","Jaya avec vous ce soir sur Technorizon.fr. Montez le son, la musique continue !"],nuit:["Vous êtes toujours avec Technorizon.fr. Ici Jaya, très bonne écoute à tous les noctambules !","Jaya vous accompagne dans la nuit sur Technorizon.fr. La musique continue !"]};return pool[p][hash(String(slot)+p)%pool[p].length]}
+function generic(slot){
+ const p=daypart(),pool={
+  matin:["Bonjour ! Jaya avec vous pour démarrer la journée en musique.","Très bonne matinée à toutes et à tous. On continue ensemble !","J'espère que votre matinée se passe bien. Je reste avec vous en musique !","Un petit coucou de Jaya pour accompagner votre matinée. Bonne écoute !","On garde le rythme ce matin. Merci d'être avec nous !","Réveil en musique avec Jaya. Très bonne écoute !"],
+  journee:["Jaya avec vous. Merci de nous accompagner, et place à la musique !","Très bonne journée à toutes et à tous. On continue ensemble !","Un petit passage de Jaya entre deux titres. Profitez bien de la musique !","Je reste avec vous pour la suite. Bonne écoute !","On poursuit cette journée en musique. Merci d'être là !","Toujours en votre compagnie. Et maintenant, retour à la musique !"],
+  soiree:["Bonsoir à toutes et à tous ! Profitez bien de votre soirée en musique.","Jaya avec vous ce soir. Montez le son, la musique continue !","Très bonne soirée à l'écoute de Technorizon.fr. On poursuit en musique !","Je passe vous faire un petit coucou avant la suite. Bonne soirée !","On garde l'énergie pour la soirée. Très bonne écoute !","Votre soirée continue en musique, et je reste avec vous !"],
+  nuit:["Très bonne écoute à tous les noctambules. Jaya reste avec vous !","Je vous accompagne dans la nuit. La musique continue !","Encore réveillés ? Alors on continue ensemble en musique !","Pour celles et ceux qui ne dorment pas encore, je reste avec vous.","La nuit continue, et la musique aussi. Bonne écoute !","Petit passage de Jaya avant de repartir en musique. Bonne nuit aux couche-tard !"]
+ };
+ return pool[p][hash(String(slot)+"|generic|"+p)%pool[p].length];
+}
 function weatherSky(code){if(code===0)return "un ciel bien dégagé";if(code<=3)return "un ciel partagé entre éclaircies et nuages";if(code===45||code===48)return "des brouillards par endroits";if(code>=51&&code<=67)return "des pluies ou averses";if(code>=71&&code<=77)return "quelques chutes de neige";if(code>=80&&code<=82)return "des averses";if(code>=95)return "un risque d'orages";return "un temps variable"}
 async function weatherBulletin(){const cities=[["Lille",50.6292,3.0573],["Paris",48.8566,2.3522],["Strasbourg",48.5734,7.7521],["Nantes",47.2184,-1.5536],["Bordeaux",44.8378,-0.5792],["Lyon",45.764,4.8357],["Marseille",43.2965,5.3698]];const data=await Promise.all(cities.map(async([city,latitude,longitude])=>{const u=new URL("https://api.open-meteo.com/v1/forecast");u.searchParams.set("latitude",latitude);u.searchParams.set("longitude",longitude);u.searchParams.set("daily","weather_code,temperature_2m_max,precipitation_probability_max");u.searchParams.set("timezone","Europe/Paris");u.searchParams.set("forecast_days","1");const r=await fetch(u);if(!r.ok)throw new Error("Weather "+city);const j=await r.json();return{city,max:Math.round(j.daily.temperature_2m_max[0]),rain:Math.round(j.daily.precipitation_probability_max[0]||0),code:Number(j.daily.weather_code[0]||0)}}));const get=n=>data.find(x=>x.city===n),wet=data.filter(x=>x.rain>=50).map(x=>x.city);return "Bonjour, ici Jaya avec votre météo nationale sur Technorizon.fr. Aujourd'hui, comptez environ "+get("Lille").max+" degrés à Lille, "+get("Paris").max+" à Paris, "+get("Strasbourg").max+" à Strasbourg, "+get("Nantes").max+" à Nantes, "+get("Bordeaux").max+" à Bordeaux, "+get("Lyon").max+" à Lyon et "+get("Marseille").max+" à Marseille. Côté ciel, "+weatherSky(get("Paris").code)+" sur la région parisienne, "+weatherSky(get("Nantes").code)+" dans l'Ouest et "+weatherSky(get("Marseille").code)+" près de la Méditerranée. "+(wet.length?"Le risque de pluie est plus marqué vers "+wet.slice(0,3).join(", ")+".":"Le risque de pluie reste globalement limité sur les villes suivies.")+" Et pour retrouver la météo détaillée de votre ville, rendez-vous sur Technorizon.fr, rubrique Météo. Très bonne écoute !"}
 function normBrain(v){return cleanMeta(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
@@ -75,21 +83,46 @@ async function verifyWithBrain(song){
 }
 function announcement(song,slot){
  if(!song)return null;
- const artist=speechMeta(song.artist),title=speechMeta(song.title),seed=hash(song.artist+"|"+song.title+"|"+slot),lengthMode=seed%3;
- if(!artist){
-  const solo=[
-   `Dans quelques instants sur Technorizon.fr … ${title}. Très bonne écoute !`,
-   `Ici Jaya sur Technorizon.fr. Et maintenant … place à ${title} !`,
-   `Vous êtes bien sur Technorizon.fr, la musique sans frontières. Je reste avec vous, et dans un instant on poursuit avec ${title}. Montez le son et très bonne écoute !`
-  ];
-  return solo[lengthMode];
- }
- const short=[`Dans quelques instants sur Technorizon.fr … ${artist}, avec ${title}. Très bonne écoute !`,`La musique continue sur Technorizon.fr. Et maintenant … ${artist}, avec ${title} !`];
- const medium=[`Ici Jaya sur Technorizon.fr. Je reste avec vous pour la suite de notre programmation électro, Eurodance et House. Dans quelques instants, retrouvez ${artist} avec ${title}. Montez le son et très bonne écoute !`,`Vous êtes bien sur Technorizon.fr, la musique sans frontières. On poursuit ensemble avec ${artist}, et le titre ${title}. Merci d'être avec nous et profitez bien de la musique !`];
- const enriched=[];
- if(song.rotation)enriched.push(`Ici Jaya sur Technorizon.fr. On continue avec un titre bien présent dans l'univers musical Technorizon : ${artist}, avec ${title}. Il est actuellement référencé dans notre rotation ${speechMeta(song.rotation)}. Restez avec moi, la musique continue sur Technorizon.fr !`);
- enriched.push(`Toujours avec vous sur Technorizon.fr ! Dans quelques instants, place à ${artist} avec ${title}. Un titre que The Brain, le cerveau musical Technorizon, a bien identifié dans notre bibliothèque. Je vous laisse profiter du son, et on se retrouve très vite sur Technorizon.fr !`);
- const pools=[short,medium,enriched],pool=pools[lengthMode];
+ const artist=speechMeta(song.artist),title=speechMeta(song.title),seed=hash(song.artist+"|"+song.title+"|"+slot);
+ const withArtist=[
+  `Dans un instant, place à ${artist} avec ${title}. Bonne écoute !`,
+  `On poursuit avec ${artist} et ${title}. Montez un peu le son !`,
+  `La suite arrive avec ${artist}, ${title}. Profitez bien !`,
+  `Et maintenant, ${artist} avec ${title}. C'est parti !`,
+  `Je vous laisse avec ${artist} et ${title}. Très bonne écoute !`,
+  `On change d'ambiance avec ${artist} et ${title}. À vous de monter le son !`,
+  `La musique continue : ${artist}, ${title}. On y va !`,
+  `Encore un titre pour vous : ${artist} avec ${title}. Bonne écoute !`,
+  `On reste ensemble, et voici ${artist} avec ${title}.`,
+  `La suite de la programmation, c'est ${artist} avec ${title}. Profitez-en !`,
+  `Jaya avec vous. Dans un instant, ${artist} avec ${title}.`,
+  `Je reste avec vous, et on enchaîne avec ${artist}, ${title}.`,
+  `Un peu de son pour la suite : ${artist} avec ${title}. C'est parti !`,
+  `On continue sans attendre avec ${artist} et ${title}.`,
+  `Voici ${artist} avec ${title}. Et la musique continue !`,
+  `Prochain rendez-vous musical : ${artist}, ${title}. Bonne écoute !`,
+  `Sur Technorizon.fr, on poursuit avec ${artist} et ${title}.`,
+  `Toujours en musique avec ${artist}, ${title}. Profitez bien de ce titre !`,
+  `Je vous accompagne encore un moment. Voici ${artist} avec ${title}.`,
+  `Pas de pause côté musique : ${artist} arrive avec ${title} !`,
+  `On garde le rythme. ${artist} avec ${title}, juste maintenant !`,
+  `La musique sans frontières continue avec ${artist} et ${title}.`,
+  `À suivre, ${artist} avec ${title}. Je vous laisse profiter du son !`,
+  `Et pour continuer cette sélection, ${artist} avec ${title}.`
+ ];
+ const solo=[
+  `Dans un instant, place à ${title}. Bonne écoute !`,
+  `On poursuit avec ${title}. Montez le son !`,
+  `La suite arrive avec ${title}. Profitez bien !`,
+  `Et maintenant, ${title}. C'est parti !`,
+  `Je vous laisse avec ${title}. Très bonne écoute !`,
+  `La musique continue avec ${title}.`,
+  `Encore un titre pour vous : ${title}. Bonne écoute !`,
+  `Jaya avec vous. Dans un instant, ${title}.`,
+  `On continue sans attendre avec ${title}.`,
+  `À suivre, ${title}. Je vous laisse profiter du son !`
+ ];
+ const pool=artist?withArtist:solo;
  return pool[seed%pool.length];
 }
 export default async function handler(req,res){
