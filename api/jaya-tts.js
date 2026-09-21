@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   const text = typeof req.body?.text === "string" ? req.body.text.trim() : "";
   if (!text) return res.status(400).json({ ok:false, error:"Missing text" });
-  if (text !== "Bonjour, ici Jaya sur Technorizon.") return res.status(403).json({ ok:false, error:"Test phrase only" });
+  const allowed = new Set(["Bonjour, ici Jaya sur Technorizon.","Bonjour à toutes et à tous ! Ici Jaya sur Technorizon.fr. Je suis très heureuse de vous rejoindre pour cette toute première intervention à l’antenne. Et ce n’est que le début… Très bonne écoute à tous sur Technorizon !"]);\n  if (!allowed.has(text)) return res.status(403).json({ ok:false, error:"Approved test phrases only" });
 
   try {
     const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + JAYA_VOICE_ID, {
