@@ -18,6 +18,8 @@ function songFromRow(x){
  if(String(title).toLowerCase().includes("jaya"))return null;
  return {artist:String(artist).trim(),title:String(title).trim()};
 }
+function daypart(){const h=new Date().getUTCHours()+2;const x=h%24;return x<6?"nuit":x<12?"matin":x<18?"journee":"soiree"}
+function generic(slot){const p=daypart(),pool={matin:["Bonjour à toutes et à tous ! Jaya avec vous sur Technorizon.fr. Très bonne matinée en musique !","Technorizon.fr vous accompagne ce matin. Ici Jaya, et on continue en musique !"],journee:["Jaya avec vous sur Technorizon.fr. Merci de nous accompagner, et place à la musique !","Vous êtes bien sur Technorizon.fr. Ici Jaya, très bonne écoute à toutes et à tous !"],soiree:["Bonsoir à toutes et à tous ! Ici Jaya sur Technorizon.fr. Profitez bien de votre soirée en musique !","Jaya avec vous ce soir sur Technorizon.fr. Montez le son, la musique continue !"],nuit:["Vous êtes toujours avec Technorizon.fr. Ici Jaya, très bonne écoute à tous les noctambules !","Jaya vous accompagne dans la nuit sur Technorizon.fr. La musique continue !"]};return pool[p][hash(String(slot)+p)%pool[p].length]}
 function announcement(song){
  if(!song)return null;
  const choices=song.artist?[
@@ -54,7 +56,7 @@ export default async function handler(req,res){
   if(rows.some(x=>JSON.stringify(x).toLowerCase().includes("jaya")))return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
   const nextSong=rows.map(songFromRow).filter(Boolean)[0]||null;
   const slot=Math.floor(now.getTime()/(15*60*1000));
-  const text=announcement(nextSong)||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length],file="jaya-auto-"+slot+".mp3";
+  const mode=hash(String(slot)+"mode")%3,text=(mode<2&&nextSong?announcement(nextSong):generic(slot))||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length],file="jaya-auto-"+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.92}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
@@ -62,6 +64,6 @@ export default async function handler(req,res){
   if(!up.ok)return res.status(502).json({ok:false,error:"Upload failed",status:up.status});
   const path="Jaya/Auto/"+file,q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[]})});
   if(!q.ok)return res.status(502).json({ok:false,error:"Queue failed",status:q.status});
-  console.log("JAYA_AUTO_QUEUED",path,nextSong||"generic");return res.status(200).json({ok:true,action:"queued",file:path,announced:nextSong,text});
+  console.log("JAYA_AUTO_QUEUED",path,nextSong||"generic");return res.status(200).json({ok:true,action:"queued",file:path,announced:mode<2?nextSong:null,mode:mode<2?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable"})}
 }
