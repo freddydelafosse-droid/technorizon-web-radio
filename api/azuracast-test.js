@@ -1,4 +1,4 @@
-const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1,GUARD=7;
+const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1,GUARD=6;
 const MESSAGES=[
  "Vous écoutez Technorizon.fr, la musique sans frontières. Ici Jaya, très bonne écoute à toutes et à tous !",
  "Ici Jaya sur Technorizon.fr. Je reste avec vous pour le meilleur de l'électro, de l'Eurodance et de la House. Très bonne écoute !",
