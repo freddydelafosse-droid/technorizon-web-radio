@@ -13,13 +13,21 @@ function queueRows(data){return Array.isArray(data)?data:(data?.rows||[])}
 function cleanMeta(v){
  return String(v||"").replace(/https?:\/\/\S+|www\.\S+|\b(?:vk|facebook|instagram|youtube|youtu\.be)\.com\/\S+/gi,"").replace(/\.(?:mp3|wav|flac|m4a|aac|ogg)\b/gi,"").replace(/\s+/g," ").replace(/^[\s\-–—_;:|]+|[\s\-–—_;:|]+$/g,"").trim();
 }
+function looksLikeFilenameGarbage(v){
+ const s=String(v||"").trim();
+ if(!s)return true;
+ return /^(?:audio|track|piste|song|file|recording|enregistrement|mix|music|musique|unknown|untitled)[\s._-]*\d{2,}/i.test(s)
+  || /\b(?:audio|track|file)[\s._-]*\d{3,}\b/i.test(s)
+  || /\b\d{4,}[._-](?:mix|audio|track|mp3|wav)\b/i.test(s)
+  || /^[a-z_-]*\d{5,}[a-z0-9_.-]*$/i.test(s);
+}
 function songFromRow(x){
  const s=x?.song||x?.media?.song||x?.media||x||{};
  const artist=cleanMeta(s.artist||s.artist_name||s?.custom_fields?.artist||"");
  let title=cleanMeta(s.title||s.name||s.song_title||s?.custom_fields?.title||"");
- if(!title||title.toLowerCase().includes("jaya"))return null;
+ if(!title||title.toLowerCase().includes("jaya")||looksLikeFilenameGarbage(title))return null;
  const parts=title.split(";").map(cleanMeta).filter(Boolean); if(parts.length>1&&parts[0].toLowerCase()===parts[1].toLowerCase())title=parts[0];
- if(title.length>100||/[<>]|(?:https?|www\.|\.com\b)/i.test(title))return null;
+ if(title.length>100||/[<>]|(?:https?|www\.|\.com\b)/i.test(title)||looksLikeFilenameGarbage(artist))return null;
  return {artist,title};
 }
 function parisHour(){return Number(new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",hourCycle:"h23"}).format(new Date()))}
