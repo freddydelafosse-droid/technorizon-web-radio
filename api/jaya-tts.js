@@ -1,15 +1,16 @@
+const JAYA_VOICE_ID = "bkBb0X46TbX2PU8PC5vY";
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") return res.status(405).json({ ok:false, error:"POST only" });
   if (!process.env.ELEVENLABS_API_KEY) return res.status(500).json({ ok:false, error:"ELEVENLABS_API_KEY is not configured" });
 
   const text = typeof req.body?.text === "string" ? req.body.text.trim() : "";
-  const voiceId = typeof req.body?.voiceId === "string" ? req.body.voiceId.trim() : "";
-  if (!text || !voiceId) return res.status(400).json({ ok:false, error:"Missing text or voiceId" });
+  if (!text) return res.status(400).json({ ok:false, error:"Missing text" });
   if (text.length > 1200) return res.status(400).json({ ok:false, error:"Text too long" });
 
   try {
-    const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + encodeURIComponent(voiceId), {
+    const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + JAYA_VOICE_ID, {
       method:"POST",
       headers:{"xi-api-key":process.env.ELEVENLABS_API_KEY,"Content-Type":"application/json","Accept":"audio/mpeg"},
       body:JSON.stringify({text,model_id:"eleven_multilingual_v2"})
