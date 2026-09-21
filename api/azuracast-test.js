@@ -73,18 +73,24 @@ async function verifyWithBrain(song){
   return {artist:cleanMeta(match.primary_artist)||song.artist,title:cleanMeta(match.title)||song.title,brain:true,rotation:match.rotation_group||null};
  }catch(e){console.error("JAYA_BRAIN_VERIFY",e?.message||e);return null}
 }
-function announcement(song){
+function announcement(song,slot){
  if(!song)return null;
- const artist=speechMeta(song.artist),title=speechMeta(song.title);
- const choices=artist?[
-  `Dans quelques instants sur Technorizon.fr … ${artist}, avec ${title}. Très bonne écoute !`,
-  `La musique continue sur Technorizon.fr. Et maintenant … ${artist}, avec ${title} !`,
-  `Ici Jaya sur Technorizon.fr. On enchaîne avec ${artist}, et ${title}. Montez le son !`
- ]:[
-  `Dans quelques instants sur Technorizon.fr … ${title}. Très bonne écoute !`,
-  `Ici Jaya sur Technorizon.fr. Et maintenant … place à ${title} !`
- ];
- return choices[hash(song.artist+"|"+song.title)%choices.length];
+ const artist=speechMeta(song.artist),title=speechMeta(song.title),seed=hash(song.artist+"|"+song.title+"|"+slot),lengthMode=seed%3;
+ if(!artist){
+  const solo=[
+   `Dans quelques instants sur Technorizon.fr … ${title}. Très bonne écoute !`,
+   `Ici Jaya sur Technorizon.fr. Et maintenant … place à ${title} !`,
+   `Vous êtes bien sur Technorizon.fr, la musique sans frontières. Je reste avec vous, et dans un instant on poursuit avec ${title}. Montez le son et très bonne écoute !`
+  ];
+  return solo[lengthMode];
+ }
+ const short=[`Dans quelques instants sur Technorizon.fr … ${artist}, avec ${title}. Très bonne écoute !`,`La musique continue sur Technorizon.fr. Et maintenant … ${artist}, avec ${title} !`];
+ const medium=[`Ici Jaya sur Technorizon.fr. Je reste avec vous pour la suite de notre programmation électro, Eurodance et House. Dans quelques instants, retrouvez ${artist} avec ${title}. Montez le son et très bonne écoute !`,`Vous êtes bien sur Technorizon.fr, la musique sans frontières. On poursuit ensemble avec ${artist}, et le titre ${title}. Merci d'être avec nous et profitez bien de la musique !`];
+ const enriched=[];
+ if(song.rotation)enriched.push(`Ici Jaya sur Technorizon.fr. On continue avec un titre bien présent dans l'univers musical Technorizon : ${artist}, avec ${title}. Il est actuellement référencé dans notre rotation ${speechMeta(song.rotation)}. Restez avec moi, la musique continue sur Technorizon.fr !`);
+ enriched.push(`Toujours avec vous sur Technorizon.fr ! Dans quelques instants, place à ${artist} avec ${title}. Un titre que The Brain, le cerveau musical Technorizon, a bien identifié dans notre bibliothèque. Je vous laisse profiter du son, et on se retrouve très vite sur Technorizon.fr !`);
+ const pools=[short,medium,enriched],pool=pools[lengthMode];
+ return pool[seed%pool.length];
 }
 export default async function handler(req,res){
  res.setHeader("Cache-Control","no-store");
@@ -113,7 +119,7 @@ export default async function handler(req,res){
   const nextSong=await verifyWithBrain(rawNextSong);
   const slot=Math.floor(now.getTime()/(10*60*1000));
   const local=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now).reduce((a,p)=>(a[p.type]=p.value,a),{}),lh=Number(local.hour),lm=Number(local.minute),isWeather=lh>=6&&lh<=12&&lm>=23&&lm<=33;
-  const mode=isWeather?3:hash(String(slot)+"mode")%3,text=radioPause(isWeather?await weatherBulletin():((mode<2&&nextSong?announcement(nextSong):generic(slot))||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length])),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
+  const mode=isWeather?3:hash(String(slot)+"mode")%3,text=radioPause(isWeather?await weatherBulletin():((mode<2&&nextSong?announcement(nextSong,slot):generic(slot))||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length])),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.87:0.90,stability:isWeather?0.36:0.32,similarity_boost:0.78,style:isWeather?0.28:0.36,use_speaker_boost:true}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
