@@ -125,6 +125,27 @@ function announcement(song,slot){
  const pool=artist?withArtist:solo;
  return pool[seed%pool.length];
 }
+async function smartAnnouncement({song,slot,hour,minute}){
+ const key=process.env.OPENAI_API_KEY;
+ if(!key)return song?announcement(song,slot):generic(slot);
+ const period=hour<6?"nuit":hour<12?"matin":hour<18?"journée":"soirée";
+ const artist=song?.artist?speechMeta(song.artist):"",title=song?.title?speechMeta(song.title):"";
+ const styles=["très courte","courte et complice","naturelle","énergique","posée","souriante","spontanée","un peu malicieuse"];
+ const style=styles[hash(String(slot)+"|style")%styles.length];
+ try{
+  const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
+   model:"gpt-5-mini",
+   instructions:`Tu es Jaya, animatrice radio de Technorizon. Écris UNE intervention destinée à être dite à l'antenne, en français oral naturel. Nous sommes en ${period}, il est environ ${String(hour).padStart(2,"0")}h${String(minute).padStart(2,"0")}. Intention: ${style}. Tu parles comme une vraie animatrice: chaleureuse, intelligente, expressive et spontanée, jamais comme un liner publicitaire. Varie fortement la construction et les premiers mots. N'utilise pas systématiquement ton prénom ni Technorizon.fr. Évite les clichés répétés "très bonne écoute", "montez le son", "dans quelques instants", "la musique continue". Tu peux t'adresser brièvement aux auditeurs ou faire une transition simple. Longueur variable de 1 à 3 phrases, environ 6 à 22 secondes à l'oral. Ne donne aucun fait musical, date ou anecdote non fourni. Si un titre vérifié est fourni, tu peux l'annoncer naturellement mais tu n'es pas obligée d'en faire trop. Pas d'emoji, pas de guillemets, pas de didascalie.`,
+   input:artist&&title?`Titre suivant vérifié par The Brain: artiste=${artist}; titre=${title}.`:"Aucun titre suffisamment fiable à annoncer: fais une intervention d'ambiance contextuelle sans inventer de morceau.",
+   max_output_tokens:120
+  })});
+  if(!r.ok){console.error("JAYA_SMART_HTTP",r.status);return song?announcement(song,slot):generic(slot)}
+  const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
+  if(!out||out.length>500)return song?announcement(song,slot):generic(slot);
+  return out;
+ }catch(e){console.error("JAYA_SMART",e?.message||e);return song?announcement(song,slot):generic(slot)}
+}
+
 export default async function handler(req,res){
  res.setHeader("Cache-Control","no-store");
  const base=(process.env.AZURACAST_BASE_URL||"").replace(/\/$/,""),key=process.env.AZURACAST_API_KEY;
@@ -152,7 +173,7 @@ export default async function handler(req,res){
   const nextSong=await verifyWithBrain(rawNextSong);
   const slot=Math.floor(now.getTime()/(10*60*1000));
   const local=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now).reduce((a,p)=>(a[p.type]=p.value,a),{}),lh=Number(local.hour),lm=Number(local.minute),isWeather=lh>=6&&lh<=12&&lm>=23&&lm<=33;
-  const mode=isWeather?3:hash(String(slot)+"mode")%3,text=radioPause(isWeather?await weatherBulletin():((mode<2&&nextSong?announcement(nextSong,slot):generic(slot))||MESSAGES[hash(String(slot)+"jaya")%MESSAGES.length])),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
+  const mode=isWeather?3:hash(String(slot)+"mode")%3,text=radioPause(isWeather?await weatherBulletin():await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm})),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.87:0.90,stability:isWeather?0.36:0.32,similarity_boost:0.78,style:isWeather?0.28:0.36,use_speaker_boost:true}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
