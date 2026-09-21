@@ -63,7 +63,7 @@
   ],
   "crons": [
     {
-      "path": "/api/jaya-autonomous",
+      "path": "/api/azuracast-test",
       "schedule": "*/20 * * * *"
     }
   ]
