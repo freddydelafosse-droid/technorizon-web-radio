@@ -60,11 +60,5 @@
         }
       ]
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/azuracast-test",
-      "schedule": "8,28,48 * * * *"
-    }
   ]
 }
