@@ -35,7 +35,8 @@ jobs:
           fi
 
           AUTO_NEWS=false
-          if [ "$EVENT_NAME" = "schedule" ] && [ "$PARIS_HOUR" -ge 4 ] && [ "$PARIS_HOUR" -le 19 ] && [ "$PARIS_MINUTE" -ge 57 ]; then
+          # TEST TEMPORAIRE : forcer le prochain passage planifié en flash complet.
+          if [ "$EVENT_NAME" = "schedule" ]; then
             AUTO_NEWS=true
           fi
 
