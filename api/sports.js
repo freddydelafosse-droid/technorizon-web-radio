@@ -9,7 +9,6 @@ function eventOut(e){
 const leagueMap={ligue1:'4334',ligue2:'4401',premierleague:'4328',laliga:'4335',bundesliga:'4331',seriea:'4332',primeiraliga:'4344',eredivisie:'4337',proleague:'4338',brasileirao:'4351',argentina:'4406',mls:'4346'};
 const discoverMap={national:'French National', 'coupe-france':'Coupe de France','champions-league':'UEFA Champions League','europa-league':'UEFA Europa League','conference-league':'UEFA Conference League'};
 const competitionCatalog={
- fr:{football:[{id:'ligue1',label:'Ligue 1',type:'league'},{id:'ligue2',label:'Ligue 2',type:'league'},{id:'national',label:'National',type:'discover'},{id:'coupe-france',label:'Coupe de France',type:'discover'},{id:'champions-league',label:'Ligue des champions',type:'discover'},{id:'europa-league',label:'Ligue Europa',type:'discover'},{id:'conference-league',label:'Ligue Conférence',type:'discover'},{id:'france-team',label:'Équipe de France',type:'team'}]},
  gb:{football:[{id:'premierleague',label:'Premier League',type:'league'}]},
  es:{football:[{id:'laliga',label:'LaLiga',type:'league'}]},
  de:{football:[{id:'bundesliga',label:'Bundesliga',type:'league'}]},
@@ -17,6 +16,7 @@ const competitionCatalog={
  pt:{football:[{id:'primeiraliga',label:'Primeira Liga',type:'league'}]},
  nl:{football:[{id:'eredivisie',label:'Eredivisie',type:'league'}]},
  be:{football:[{id:'proleague',label:'Pro League',type:'league'}]},
+ fr:{football:[{id:'ligue1',label:'Ligue 1',type:'league'},{id:'ligue2',label:'Ligue 2',type:'league'},{id:'national',label:'National',type:'discover'},{id:'coupe-france',label:'Coupe de France',type:'discover'},{id:'champions-league',label:'Ligue des champions',type:'discover'},{id:'europa-league',label:'Ligue Europa',type:'discover'},{id:'conference-league',label:'Ligue Conférence',type:'discover'},{id:'france-team',label:'Équipe de France',type:'team'}],basketball:[{id:'generic',label:'Basketball France',type:'generic'}],rugby:[{id:'generic',label:'Rugby France',type:'generic'}],tennis:[{id:'generic',label:'Tennis',type:'generic'}],handball:[{id:'generic',label:'Handball France',type:'generic'}]},
  br:{football:[{id:'brasileirao',label:'Brasileirão Série A',type:'league'}]},
  ar:{football:[{id:'argentina',label:'Liga Profesional',type:'league'}]},
  us:{football:[{id:'mls',label:'Major League Soccer',type:'league'}]}
