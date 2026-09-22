@@ -44,10 +44,19 @@ jobs:
               6:57|8:57|10:57|12:27) AUTO_WEATHER=true ;;
             esac
 
-            # Les déclencheurs :57/:27 sont réservés aux rendez-vous éditoriaux.
-            if [ "$PARIS_MINUTE" = "13" ] || [ "$PARIS_MINUTE" = "33" ] || [ "$PARIS_MINUTE" = "53" ]; then
-              H=$((10#$PARIS_HOUR))
-              M=$((10#$PARIS_MINUTE))
+            # GitHub Actions peut lancer un cron avec plusieurs minutes de retard.
+            # On rattache l'exécution au créneau H24 attendu (:13/:33/:53)
+            # dans une fenêtre de 15 minutes, sans chevaucher le créneau suivant.
+            H=$((10#$PARIS_HOUR))
+            ACTUAL_M=$((10#$PARIS_MINUTE))
+            M=-1
+            if   [ "$ACTUAL_M" -ge 13 ] && [ "$ACTUAL_M" -le 27 ]; then M=13
+            elif [ "$ACTUAL_M" -ge 33 ] && [ "$ACTUAL_M" -le 47 ]; then M=33
+            elif [ "$ACTUAL_M" -ge 53 ]; then M=53
+            fi
+
+            # :27 et :57 restent réservés aux rendez-vous éditoriaux exacts.
+            if [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
 
               # Lundi-vendredi
               if [ "$PARIS_DOW" -ge 1 ] && [ "$PARIS_DOW" -le 5 ]; then
