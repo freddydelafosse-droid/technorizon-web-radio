@@ -2,7 +2,7 @@ name: Jaya H24
 
 on:
   schedule:
-    - cron: '3,13,27,33,43,53 * * * *'
+    - cron: '3,13,27,33,43,53,57 * * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -35,7 +35,7 @@ jobs:
           fi
 
           AUTO_NEWS=false
-          if [ "$EVENT_NAME" = "schedule" ] && [ "$PARIS_MINUTE" = "43" ]; then
+          if [ "$EVENT_NAME" = "schedule" ] && [ "$PARIS_MINUTE" = "57" ]; then
             AUTO_NEWS=true
           fi
 
