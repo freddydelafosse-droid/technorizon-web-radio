@@ -162,16 +162,18 @@ export default async function handler(req,res){
  const base=(process.env.AZURACAST_BASE_URL||"").replace(/\/$/,""),key=process.env.AZURACAST_API_KEY;
  if(!base||!key)return res.status(500).json({ok:false,error:"Configuration missing"});
  try{
-  if(req.method==="POST"){
+  const secret=process.env.CRON_SECRET;
+  const authorized=!!secret&&req.headers.authorization==="Bearer "+secret;
+  const forceWeather=req.method==="POST"&&req.body?.action==="weather-now";
+  if(req.method==="POST"&&!forceWeather){
    if(req.body?.action!=="inspect")return res.status(403).json({ok:false,error:"Test mutations disabled"});
    const q=await az(base,key,"/queue"),raw=await q.text();let data=null;try{data=JSON.parse(raw)}catch{}
    if(!q.ok)return res.status(q.status).json({ok:false,error:"Queue inspect failed"});
    const rows=queueRows(data);
    return res.status(200).json({ok:true,count:rows.length,jaya:rows.filter(x=>JSON.stringify(x).toLowerCase().includes("jaya")).slice(0,10),next:rows.map(songFromRow).filter(Boolean).slice(0,3)});
   }
-  if(req.method!=="GET")return res.status(405).json({ok:false,error:"GET or POST only"});
-  const secret=process.env.CRON_SECRET;
-  if(!secret||req.headers.authorization!=="Bearer "+secret)return res.status(401).json({ok:false,error:"Unauthorized"});
+  if(req.method!=="GET"&&req.method!=="POST")return res.status(405).json({ok:false,error:"GET or POST only"});
+  if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
   const el=process.env.ELEVENLABS_API_KEY;if(!el)return res.status(500).json({ok:false,error:"TTS configuration missing"});
   const now=new Date();
   const qr=await az(base,key,"/queue"),qraw=await qr.text();let qdata=null;try{qdata=JSON.parse(qraw)}catch{}
@@ -180,7 +182,7 @@ export default async function handler(req,res){
   const local=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now).reduce((a,p)=>(a[p.type]=p.value,a),{}),lh=Number(local.hour),lm=Number(local.minute);
   // Rendez-vous météo prioritaire : préparé à :23 pour passer autour de :30.
   // Il ne doit jamais être bloqué par une intervention H24 déjà en attente.
-  const isWeather=lh>=6&&lh<=12&&lm>=20&&lm<=29;
+  const isWeather=forceWeather||(lh>=6&&lh<=12&&lm>=20&&lm<=29);
   const pendingWeather=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-meteo")||raw.includes("jaya/meteo"))&&!played});
   const pendingJaya=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
   if(isWeather&&pendingWeather)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued"});
