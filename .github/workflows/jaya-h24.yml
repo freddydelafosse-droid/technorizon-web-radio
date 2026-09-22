@@ -2,7 +2,7 @@ name: Jaya H24
 
 on:
   schedule:
-    - cron: '13,33,53 * * * *'\n    - cron: '57 5,7,9 * * * *'\n    - cron: '27 10 * * * *'
+    - cron: '13,33,53 3-20 * * *'\n    - cron: '57 5,7,9 * * * *'\n    - cron: '27 10 * * * *'
   workflow_dispatch:
     inputs:
       weather_now:
