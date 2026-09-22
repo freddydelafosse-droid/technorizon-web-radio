@@ -241,18 +241,27 @@ export default async function handler(req,res){
   const rawNextSong=songs[1]||null;
   const nextSong=await verifyWithBrain(rawNextSong);
   const slot=Math.floor(now.getTime()/(10*60*1000));
-  const mode=isWeather?3:isNews?4:hash(String(slot)+"mode")%3,text=radioPause(enforceDaypart(isWeather?await weatherBulletin():isNews?await newsBulletin():await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isWeather?"jaya-meteo-":isNews?"jaya-infos-":"jaya-auto-")+slot+".mp3";
-  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.87:isNews?0.89:0.90,stability:isWeather?0.36:isNews?0.38:0.32,similarity_boost:0.78,style:isWeather?0.28:isNews?0.24:0.36,use_speaker_boost:true}})});
+  const isEditorial=isWeather||isNews;
+  const mode=isEditorial?5:hash(String(slot)+"mode")%3;
+  let editorialText="";
+  if(isEditorial){
+   let news="";
+   try{news=await newsBulletin()}catch(e){console.error("JAYA_NEWS",e?.message||e)}
+   const weather=await weatherBulletin();
+   editorialText=(news?news+" Et maintenant, on enchaîne avec la météo. ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"");
+  }
+  const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isEditorial?"jaya-flash-":"jaya-auto-")+slot+".mp3";
+  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isEditorial?0.88:0.90,stability:isEditorial?0.37:0.32,similarity_boost:0.78,style:isEditorial?0.26:0.36,use_speaker_boost:true}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
-  const uploadDir=isWeather?"Jaya/Meteo":isNews?"Jaya/Infos":"Jaya/Auto";
+  const uploadDir=isEditorial?"Jaya/Meteo":"Jaya/Auto";
   const up=await az(base,key,"/files/upload?currentDirectory="+encodeURIComponent(uploadDir),{method:"POST",body:form});
   if(!up.ok)return res.status(502).json({ok:false,error:"Upload failed",status:up.status});
   const path=uploadDir+"/"+file;
   // Les rendez-vous éditoriaux fixes passent en priorité devant la musique déjà en attente.
   // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
-  const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[], ...((isWeather||isNews)?{priority:true}: {})})});
+  const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[], ...(isEditorial?{priority:true}: {})})});
   if(!q.ok)return res.status(502).json({ok:false,error:"Queue failed",status:q.status});
-  console.log("JAYA_AUTO_QUEUED",path,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isWeather?"weather":isNews?"news":mode<2&&nextSong?"next-title":"general",text});
+  console.log("JAYA_AUTO_QUEUED",path,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable"})}
 }
