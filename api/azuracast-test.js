@@ -229,10 +229,10 @@ export default async function handler(req,res){
   const local=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now).reduce((a,p)=>(a[p.type]=p.value,a),{}),lh=Number(local.hour),lm=Number(local.minute);
   // Rendez-vous météo prioritaire : préparé à :23 pour passer autour de :30.
   // Il ne doit jamais être bloqué par une intervention H24 déjà en attente.
-  const isWeather=forceWeather||(lh>=6&&lh<=12&&lm>=20&&lm<=29);
-  const isNews=forceNews||(lm>=55&&lm<=59);
+  const isWeather=forceWeather;
+  const isNews=forceNews||(lh>=5&&lh<=20&&(lm>=55||lm<=4));
   const pendingWeather=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-meteo")||raw.includes("jaya/meteo"))&&!played});
-  const pendingNews=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-infos")||raw.includes("jaya/infos"))&&!played});
+  const pendingNews=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-infos")||raw.includes("jaya/infos")||raw.includes("jaya-flash"))&&!played});
   const pendingJaya=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
   if(isNews&&pendingNews)return res.status(200).json({ok:true,action:"skip",reason:"news-already-queued"});
   if(isWeather&&pendingWeather)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued"});
@@ -250,8 +250,8 @@ export default async function handler(req,res){
    const weather=await weatherBulletin();
    const nextFlashHour=lh===20?5:(lh+1)%24;
    const nextFlashText=lh===20
-    ?["Prochain flash complet demain à partir de 5 heures 30.","On se retrouve demain dès 5 heures 30 pour le prochain flash complet.","Pour le prochain point complet, rendez-vous demain à partir de 5 heures 30."][hash(String(slot)+"last")%3]
-    :["Prochain flash complet à "+nextFlashHour+" heures 30.","On se retrouve à "+nextFlashHour+" heures 30 pour le prochain flash complet.","Rendez-vous à "+nextFlashHour+" heures 30 pour notre prochain point complet."][hash(String(slot)+"next")%3];
+    ?["Prochain flash complet demain à partir de 5 heures.","On se retrouve demain dès 5 heures pour le prochain flash complet.","Pour le prochain point complet, rendez-vous demain à partir de 5 heures."][hash(String(slot)+"last")%3]
+    :["Prochain flash complet à "+nextFlashHour+" heures.","On se retrouve à "+nextFlashHour+" heures pour le prochain flash complet.","Rendez-vous à "+nextFlashHour+" heures pour notre prochain point complet."][hash(String(slot)+"next")%3];
    editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"")+" "+nextFlashText;
   }
   const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isEditorial?"jaya-flash-":"jaya-auto-")+slot+".mp3";
