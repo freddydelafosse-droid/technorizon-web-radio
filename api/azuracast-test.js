@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1;
 const MESSAGES=[
  "Vous écoutez Technorizon.fr, la musique sans frontières. Ici Jaya, très bonne écoute à toutes et à tous !",
@@ -247,7 +249,8 @@ export default async function handler(req,res){
   if(isEditorial){
    let news="";
    try{news=await newsBulletin()}catch(e){console.error("JAYA_NEWS",e?.message||e)}
-   const weather=await weatherBulletin();
+   let weather="";
+   try{weather=await weatherBulletin()}catch(e){console.error("JAYA_WEATHER",e?.message||e);weather="Pour la météo détaillée, rendez-vous sur Technorizon.fr, rubrique Météo."}
    const nextFlashHour=lh===20?5:(lh+1)%24;
    const nextFlashText=lh===20
     ?"Prochain rendez-vous infos, demain à partir de 5 heures."
@@ -256,16 +259,16 @@ export default async function handler(req,res){
   }
   const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isEditorial?"jaya-flash-":"jaya-auto-")+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isEditorial?0.93:0.92,stability:isEditorial?0.34:0.30,similarity_boost:0.78,style:isEditorial?0.28:0.38,use_speaker_boost:true}})});
-  if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
+  if(!t.ok){const detail=await t.text().catch(()=>""),msg="TTS failed";console.error("JAYA_TTS",t.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:t.status,stage:"tts"})}
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
   const uploadDir=isEditorial?"Jaya/Meteo":"Jaya/Auto";
   const up=await az(base,key,"/files/upload?currentDirectory="+encodeURIComponent(uploadDir),{method:"POST",body:form});
-  if(!up.ok)return res.status(502).json({ok:false,error:"Upload failed",status:up.status});
+  if(!up.ok){const detail=await up.text().catch(()=>""),msg="Upload failed";console.error("JAYA_UPLOAD",up.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:up.status,stage:"upload"})}
   const path=uploadDir+"/"+file;
   // Les rendez-vous éditoriaux fixes passent en priorité devant la musique déjà en attente.
   // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[], ...(isEditorial?{priority:true}: {})})});
-  if(!q.ok)return res.status(502).json({ok:false,error:"Queue failed",status:q.status});
+  if(!q.ok){const detail=await q.text().catch(()=>""),msg="Queue failed";console.error("JAYA_QUEUE",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:q.status,stage:"queue"})}
   console.log("JAYA_AUTO_QUEUED",path,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
- }catch(e){console.error("AzuraCast/Jaya",e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable"})}
+ }catch(e){console.error("AzuraCast/Jaya",e?.stack||e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable",stage:"exception",detail:String(e?.message||e).slice(0,300)})}
 }
