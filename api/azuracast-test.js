@@ -250,7 +250,7 @@ export default async function handler(req,res){
    const weather=await weatherBulletin();
    const nextFlashHour=lh===20?5:(lh+1)%24;
    const nextFlashText=lh===20
-    ?["Prochain flash complet demain à partir de 5 heures.","On se retrouve demain dès 5 heures pour le prochain flash complet.","Pour le prochain point complet, rendez-vous demain à partir de 5 heures."][hash(String(slot)+"last")%3]
+    ?"Prochain rendez-vous infos, demain à partir de 5 heures."
     :["Prochain flash complet à "+nextFlashHour+" heures.","On se retrouve à "+nextFlashHour+" heures pour le prochain flash complet.","Rendez-vous à "+nextFlashHour+" heures pour notre prochain point complet."][hash(String(slot)+"next")%3];
    editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"")+" "+nextFlashText;
   }
