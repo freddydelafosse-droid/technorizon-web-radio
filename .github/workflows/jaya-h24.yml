@@ -2,7 +2,7 @@ name: Jaya H24
 
 on:
   schedule:
-    - cron: '13,33,53 3-20 * * *'
+    - cron: '3,13,33,53 3-20 * * *'
     - cron: '57 5,7,9 * * * *'
     - cron: '27 10 * * * *' # 12h27 Paris en heure d'été (préparation du flash 12h30)
   workflow_dispatch:
