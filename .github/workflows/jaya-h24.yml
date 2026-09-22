@@ -10,6 +10,11 @@ on:
         required: false
         default: false
         type: boolean
+      news_now:
+        description: 'Forcer Jaya infos maintenant'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   jaya:
@@ -19,6 +24,7 @@ jobs:
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           WEATHER_NOW: ${{ inputs.weather_now }}
+          NEWS_NOW: ${{ inputs.news_now }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
@@ -28,7 +34,21 @@ jobs:
             AUTO_WEATHER=true
           fi
 
-          if [ "$WEATHER_NOW" = "true" ] || [ "$AUTO_WEATHER" = "true" ]; then
+          AUTO_NEWS=false
+          if [ "$EVENT_NAME" = "schedule" ] && [ "$PARIS_MINUTE" = "43" ]; then
+            AUTO_NEWS=true
+          fi
+
+          if [ "$NEWS_NOW" = "true" ] || [ "$AUTO_NEWS" = "true" ]; then
+            echo "Déclenchement infos Jaya"
+            curl --fail --silent --show-error \
+              --retry 2 \
+              -X POST \
+              -H "Authorization: Bearer $CRON_SECRET" \
+              -H "Content-Type: application/json" \
+              --data '{"action":"news-now"}' \
+              "https://www.technorizon.fr/api/azuracast-test"
+          elif [ "$WEATHER_NOW" = "true" ] || [ "$AUTO_WEATHER" = "true" ]; then
             echo "Déclenchement manuel météo Jaya"
             curl --fail --silent --show-error \
               --retry 2 \
