@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '3,13,23,28,33,38,43,48,53 * * * *'
   workflow_dispatch:
+    inputs:
+      weather_now:
+        description: 'Forcer Jaya météo maintenant'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   jaya:
@@ -12,8 +18,21 @@ jobs:
       - name: Declencher Jaya
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          WEATHER_NOW: ${{ inputs.weather_now }}
         run: |
-          curl --fail --silent --show-error \
-            --retry 2 \
-            -H "Authorization: Bearer $CRON_SECRET" \
-            "https://www.technorizon.fr/api/azuracast-test"
+          if [ "$WEATHER_NOW" = "true" ]; then
+            echo "Déclenchement manuel météo Jaya"
+            curl --fail --silent --show-error \
+              --retry 2 \
+              -X POST \
+              -H "Authorization: Bearer $CRON_SECRET" \
+              -H "Content-Type: application/json" \
+              --data '{"action":"weather-now"}' \
+              "https://www.technorizon.fr/api/azuracast-test"
+          else
+            echo "Déclenchement automatique Jaya"
+            curl --fail --silent --show-error \
+              --retry 2 \
+              -H "Authorization: Bearer $CRON_SECRET" \
+              "https://www.technorizon.fr/api/azuracast-test"
+          fi
