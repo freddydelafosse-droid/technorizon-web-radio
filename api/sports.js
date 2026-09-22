@@ -11,7 +11,10 @@ function tableRow(t){return {rank:Number(t.intRank||0),team:t.strTeam||'—',bad
 export default async function handler(req,res){
  res.setHeader('Cache-Control','s-maxage=180, stale-while-revalidate=300');
  const tableLeague=leagueMap[String(req.query.league||'').toLowerCase()];
- if(tableLeague){try{const base='https://www.thesportsdb.com/api/v1/json/123/';const r=await fetch(base+'lookuptable.php?l='+encodeURIComponent(tableLeague));if(!r.ok)throw Error('provider');const d=await r.json();const table=(d.table||[]).map(tableRow).sort((a,b)=>a.rank-b.rank);return res.status(200).json({league:req.query.league,table})}catch(e){return res.status(502).json({table:[],error:'sports_provider_unavailable'})}}
+ const leagueView=String(req.query.view||'').toLowerCase();
+ if(tableLeague){try{const base='https://www.thesportsdb.com/api/v1/json/123/';
+  if(leagueView==='results'||leagueView==='upcoming'){const endpoint=leagueView==='results'?'eventspastleague.php?id=':'eventsnextleague.php?id=';const r=await fetch(base+endpoint+encodeURIComponent(tableLeague));if(!r.ok)throw Error('provider');const d=await r.json();let events=(d.events||[]).map(eventOut);events.sort((a,b)=>leagueView==='results'?String(b.time).localeCompare(String(a.time)):String(a.time).localeCompare(String(b.time)));return res.status(200).json({league:req.query.league,view:leagueView,events:events.slice(0,12)})}
+  const r=await fetch(base+'lookuptable.php?l='+encodeURIComponent(tableLeague));if(!r.ok)throw Error('provider');const d=await r.json();const table=(d.table||[]).map(tableRow).sort((a,b)=>a.rank-b.rank);return res.status(200).json({league:req.query.league,table})}catch(e){return res.status(502).json({table:[],events:[],error:'sports_provider_unavailable'})}}
  const c=countryNames[String(req.query.country||'fr').toLowerCase()]||'France';
  const s=sportNames[String(req.query.sport||'football').toLowerCase()]||'Soccer';
  try{
