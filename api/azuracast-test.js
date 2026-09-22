@@ -248,7 +248,11 @@ export default async function handler(req,res){
    let news="";
    try{news=await newsBulletin()}catch(e){console.error("JAYA_NEWS",e?.message||e)}
    const weather=await weatherBulletin();
-   editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"");
+   const nextFlashHour=lh===20?5:(lh+1)%24;
+   const nextFlashText=lh===20
+    ?["Prochain flash complet demain à partir de 5 heures 30.","On se retrouve demain dès 5 heures 30 pour le prochain flash complet.","Pour le prochain point complet, rendez-vous demain à partir de 5 heures 30."][hash(String(slot)+"last")%3]
+    :["Prochain flash complet à "+nextFlashHour+" heures 30.","On se retrouve à "+nextFlashHour+" heures 30 pour le prochain flash complet.","Rendez-vous à "+nextFlashHour+" heures 30 pour notre prochain point complet."][hash(String(slot)+"next")%3];
+   editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"")+" "+nextFlashText;
   }
   const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isEditorial?"jaya-flash-":"jaya-auto-")+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isEditorial?0.93:0.92,stability:isEditorial?0.34:0.30,similarity_boost:0.78,style:isEditorial?0.28:0.38,use_speaker_boost:true}})});
