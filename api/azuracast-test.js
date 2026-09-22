@@ -203,7 +203,7 @@ async function smartAnnouncement({song,slot,hour,minute}){
  }catch(e){console.error("JAYA_SMART",e?.message||e);return song?announcement(song,slot):generic(slot)}
 }
 
-export default async function handler(req,res){
+async function handler(req,res){
  res.setHeader("Cache-Control","no-store");
  const base=(process.env.AZURACAST_BASE_URL||"").replace(/\/$/,""),key=process.env.AZURACAST_API_KEY;
  if(!base||!key)return res.status(500).json({ok:false,error:"Configuration missing"});
@@ -273,3 +273,5 @@ export default async function handler(req,res){
   console.log("JAYA_AUTO_QUEUED",path,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.stack||e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable",stage:"exception",detail:String(e?.message||e).slice(0,300)})}
 }
+
+module.exports = handler;
