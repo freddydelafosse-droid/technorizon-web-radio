@@ -288,6 +288,20 @@ async function handler(req,res){
   const up=await az(base,key,"/files/upload?currentDirectory="+encodeURIComponent(uploadDir),{method:"POST",body:form});
   if(!up.ok){const detail=await up.text().catch(()=>""),msg="Upload failed";console.error("JAYA_UPLOAD",up.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:up.status,stage:"upload"})}
   const path=uploadDir+"/"+file;
+  // Range automatiquement chaque nouvelle intervention dans la playlist de stockage "Banque Jaya".
+  // La playlist peut rester désactivée : la mise en file directe ci-dessous continue de gérer le passage antenne.
+  try{
+   const pr=await az(base,key,"/playlists"),praw=await pr.text();let pdata=null;try{pdata=JSON.parse(praw)}catch{}
+   if(pr.ok){
+    const playlists=Array.isArray(pdata)?pdata:(pdata?.rows||[]);
+    const bank=playlists.find(p=>String(p?.name||"").trim().toLowerCase()==="banque jaya");
+    if(bank?.id){
+     const assign=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"playlist",playlists:[String(bank.id)],files:[path],dirs:[]})});
+     if(!assign.ok){const detail=await assign.text().catch(()=>"");console.error("JAYA_BANK_ASSIGN",assign.status,detail.slice(0,500))}
+     else console.log("JAYA_BANK_ASSIGNED",path,bank.id);
+    }else console.error("JAYA_BANK_ASSIGN","Playlist Banque Jaya introuvable");
+   }else console.error("JAYA_BANK_PLAYLISTS",pr.status,praw.slice(0,500));
+  }catch(e){console.error("JAYA_BANK_ASSIGN",e?.message||e)}
   // Les rendez-vous éditoriaux fixes passent en priorité devant la musique déjà en attente.
   // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[], ...(isEditorial?{priority:true}: {})})});
