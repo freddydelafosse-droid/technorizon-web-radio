@@ -2,7 +2,7 @@ name: Jaya H24
 
 on:
   schedule:
-    - cron: '3,13,33,43,53 * * * *'
+    - cron: '3,13,27,33,43,53 * * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -19,8 +19,16 @@ jobs:
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           WEATHER_NOW: ${{ inputs.weather_now }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "$WEATHER_NOW" = "true" ]; then
+          PARIS_HOUR=$(TZ=Europe/Paris date +%H)
+          PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
+          AUTO_WEATHER=false
+          if [ "$EVENT_NAME" = "schedule" ] && [ "$PARIS_MINUTE" = "27" ] && [ "$PARIS_HOUR" -ge 6 ] && [ "$PARIS_HOUR" -le 12 ]; then
+            AUTO_WEATHER=true
+          fi
+
+          if [ "$WEATHER_NOW" = "true" ] || [ "$AUTO_WEATHER" = "true" ]; then
             echo "Déclenchement manuel météo Jaya"
             curl --fail --silent --show-error \
               --retry 2 \
