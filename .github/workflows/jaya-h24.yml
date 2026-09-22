@@ -30,12 +30,12 @@ jobs:
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
           PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
           AUTO_WEATHER=false
-          if [ "$EVENT_NAME" = "schedule" ] && [ "$PARIS_MINUTE" = "27" ] && [ "$PARIS_HOUR" -ge 6 ] && [ "$PARIS_HOUR" -le 12 ]; then
+          if [ "$EVENT_NAME" = "schedule" ] && [ "$PARIS_HOUR" -ge 6 ] && [ "$PARIS_HOUR" -le 12 ] && [ "$PARIS_MINUTE" -ge 27 ] && [ "$PARIS_MINUTE" -le 31 ]; then
             AUTO_WEATHER=true
           fi
 
           AUTO_NEWS=false
-          if [ "$EVENT_NAME" = "schedule" ] && [ "$PARIS_MINUTE" = "57" ]; then
+          if [ "$EVENT_NAME" = "schedule" ] && { [ "$PARIS_MINUTE" -ge 57 ] || [ "$PARIS_MINUTE" -le 1 ]; }; then
             AUTO_NEWS=true
           fi
 
