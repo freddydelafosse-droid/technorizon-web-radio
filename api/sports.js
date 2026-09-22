@@ -6,7 +6,7 @@ function eventOut(e){
  const time=[e.dateEvent,e.strTime].filter(Boolean).join(' ');
  return {home:e.strHomeTeam||e.strEvent?.split(' vs ')[0]||'—',away:e.strAwayTeam||e.strEvent?.split(' vs ')[1]||'—',score:played?(hs+' - '+as):'VS',competition:e.strLeague||'',time,live:String(e.strStatus||'').toLowerCase().includes('live')};
 }
-const leagueMap={ligue1:'4334',ligue2:'4401',premierleague:'4328',laliga:'4335',bundesliga:'4331',seriea:'4332',primeiraliga:'4344',eredivisie:'4337'};
+const leagueMap={ligue1:'4334',ligue2:'4401',premierleague:'4328',laliga:'4335',bundesliga:'4331',seriea:'4332',primeiraliga:'4344',eredivisie:'4337',proleague:'4338'};
 const discoverMap={national:'French National', 'coupe-france':'Coupe de France','champions-league':'UEFA Champions League','europa-league':'UEFA Europa League','conference-league':'UEFA Conference League'};
 const competitionCatalog={
  fr:{football:[{id:'ligue1',label:'Ligue 1',type:'league'},{id:'ligue2',label:'Ligue 2',type:'league'},{id:'national',label:'National',type:'discover'},{id:'coupe-france',label:'Coupe de France',type:'discover'},{id:'champions-league',label:'Ligue des champions',type:'discover'},{id:'europa-league',label:'Ligue Europa',type:'discover'},{id:'conference-league',label:'Ligue Conférence',type:'discover'},{id:'france-team',label:'Équipe de France',type:'team'}]},
@@ -15,7 +15,8 @@ const competitionCatalog={
  de:{football:[{id:'bundesliga',label:'Bundesliga',type:'league'}]},
  it:{football:[{id:'seriea',label:'Serie A',type:'league'}]},
  pt:{football:[{id:'primeiraliga',label:'Primeira Liga',type:'league'}]},
- nl:{football:[{id:'eredivisie',label:'Eredivisie',type:'league'}]}
+ nl:{football:[{id:'eredivisie',label:'Eredivisie',type:'league'}]},
+ be:{football:[{id:'proleague',label:'Pro League',type:'league'}]}
 };
 function tableRow(t){return {rank:Number(t.intRank||0),team:t.strTeam||'—',badge:t.strBadge||'',played:Number(t.intPlayed||0),win:Number(t.intWin||0),draw:Number(t.intDraw||0),loss:Number(t.intLoss||0),gf:Number(t.intGoalsFor||0),ga:Number(t.intGoalsAgainst||0),gd:Number(t.intGoalDifference??((t.intGoalsFor||0)-(t.intGoalsAgainst||0))),points:Number(t.intPoints||0)}}
 export default async function handler(req,res){
@@ -27,6 +28,7 @@ export default async function handler(req,res){
 
  const leagueView=String(req.query.view||'').toLowerCase();
  if(tableLeague){try{const base='https://www.thesportsdb.com/api/v1/json/123/';
+  const meta=await fetch(base+'lookupleague.php?id='+encodeURIComponent(tableLeague)).then(r=>r.ok?r.json():({})).catch(()=>({}));const providerLeague=meta.leagues?.[0];if(providerLeague&&String(providerLeague.idLeague)!==String(tableLeague))throw Error('league_mismatch');
   if(leagueView==='results'||leagueView==='upcoming'){const endpoint=leagueView==='results'?'eventspastleague.php?id=':'eventsnextleague.php?id=';const r=await fetch(base+endpoint+encodeURIComponent(tableLeague));if(!r.ok)throw Error('provider');const d=await r.json();let events=(d.events||[]).map(eventOut);events.sort((a,b)=>leagueView==='results'?String(b.time).localeCompare(String(a.time)):String(a.time).localeCompare(String(b.time)));return res.status(200).json({league:req.query.league,view:leagueView,events:events.slice(0,12)})}
   const r=await fetch(base+'lookuptable.php?l='+encodeURIComponent(tableLeague));if(!r.ok)throw Error('provider');const d=await r.json();const table=(d.table||[]).map(tableRow).sort((a,b)=>a.rank-b.rank);return res.status(200).json({league:req.query.league,table})}catch(e){return res.status(502).json({table:[],events:[],error:'sports_provider_unavailable'})}}
  const c=countryNames[String(req.query.country||'fr').toLowerCase()]||'France';
