@@ -2,9 +2,12 @@ name: Jaya H24
 
 on:
   schedule:
-    - cron: '3,13,33,53 3-20 * * *'
-    - cron: '57 5,7,9 * * * *'
-    - cron: '27 10 * * * *' # 12h27 Paris en heure d'été (préparation du flash 12h30)
+    # GitHub cron est en UTC. En heure d'été française (UTC+2):
+    # H24: 05h13/33/53 à 22h13/33/53.
+    - cron: '13,33,53 3-20 * * *'
+    # Préparation Infos + Météo: 06h57, 08h57, 10h57 et 12h27 heure de Paris.
+    - cron: '57 4,6,8 * * *'
+    - cron: '27 10 * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -31,44 +34,34 @@ jobs:
         run: |
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
           PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
+
           AUTO_WEATHER=false
-          # Prépare le flash Infos + Météo environ 3 minutes avant les rendez-vous
-          # 07h00, 09h00, 11h00 et 12h30 (heure de Paris).
           if [ "$EVENT_NAME" = "schedule" ]; then
             case "$PARIS_HOUR:$PARIS_MINUTE" in
               6:57|8:57|10:57|12:27) AUTO_WEATHER=true ;;
             esac
           fi
 
-          AUTO_NEWS=false
-          # TEST UNIQUE : force le prochain passage planifié en flash Infos + Météo.
-          # À retirer immédiatement après validation.
-          if [ "$EVENT_NAME" = "schedule" ]; then
-            AUTO_NEWS=true
-          fi
-
-          if [ "$NEWS_NOW" = "true" ] || [ "$AUTO_NEWS" = "true" ]; then
+          if [ "$NEWS_NOW" = "true" ]; then
             echo "Déclenchement infos Jaya"
-            curl --fail --silent --show-error \
-              --retry 2 \
-              -X POST \
-              -H "Authorization: Bearer $CRON_SECRET" \
-              -H "Content-Type: application/json" \
-              --data '{"action":"news-now"}' \
-              "https://www.technorizon.fr/api/azuracast-test"
+            ACTION="news-now"
           elif [ "$WEATHER_NOW" = "true" ] || [ "$AUTO_WEATHER" = "true" ]; then
-            echo "Déclenchement manuel météo Jaya"
-            curl --fail --silent --show-error \
-              --retry 2 \
-              -X POST \
-              -H "Authorization: Bearer $CRON_SECRET" \
-              -H "Content-Type: application/json" \
-              --data '{"action":"weather-now"}' \
-              "https://www.technorizon.fr/api/azuracast-test"
+            echo "Déclenchement Infos + Météo Jaya"
+            ACTION="weather-now"
           else
             echo "Déclenchement automatique Jaya"
-            curl --fail --silent --show-error \
-              --retry 2 \
+            ACTION=""
+          fi
+
+          if [ -n "$ACTION" ]; then
+            curl --fail --silent --show-error --retry 2 \
+              -X POST \
+              -H "Authorization: Bearer $CRON_SECRET" \
+              -H "Content-Type: application/json" \
+              --data "{\"action\":\"$ACTION\"}" \
+              "https://www.technorizon.fr/api/azuracast-test"
+          else
+            curl --fail --silent --show-error --retry 2 \
               -H "Authorization: Bearer $CRON_SECRET" \
               "https://www.technorizon.fr/api/azuracast-test"
           fi
