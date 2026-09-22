@@ -39,6 +39,11 @@ jobs:
           fi
 
           AUTO_NEWS=false
+          # TEST UNIQUE : force le prochain passage planifié en flash Infos + Météo.
+          # À retirer immédiatement après validation.
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            AUTO_NEWS=true
+          fi
 
           if [ "$NEWS_NOW" = "true" ] || [ "$AUTO_NEWS" = "true" ]; then
             echo "Déclenchement infos Jaya"
