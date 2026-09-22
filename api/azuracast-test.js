@@ -31,7 +31,7 @@ function songFromRow(x){
  return {artist,title};
 }
 function parisHour(){return Number(new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",hourCycle:"h23"}).format(new Date()))}
-function daypart(){const x=parisHour();return x<6?"nuit":x<12?"matin":x<18?"journee":"soiree"}
+function daypart(){const x=parisHour();return x<5?"nuit":x<12?"matin":x<18?"journee":"soiree"}
 function speechMeta(v){
  let s=cleanMeta(v).replace(/\s*;\s*/g,", ").replace(/\s*&\s*/g," et ");
  const aliases=[
@@ -128,14 +128,14 @@ function announcement(song,slot){
 async function smartAnnouncement({song,slot,hour,minute}){
  const key=process.env.OPENAI_API_KEY;
  if(!key)return song?announcement(song,slot):generic(slot);
- const period=hour<6?"nuit":hour<12?"matin":hour<18?"journée":"soirée";
+ const period=hour<5?"nuit":hour<12?"matin":hour<18?"journée":"soirée";
  const artist=song?.artist?speechMeta(song.artist):"",title=song?.title?speechMeta(song.title):"";
  const styles=["très courte","courte et complice","naturelle","énergique","posée","souriante","spontanée","un peu malicieuse"];
  const style=styles[hash(String(slot)+"|style")%styles.length];
  try{
   const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
    model:"gpt-5-mini",
-   instructions:`Tu es Jaya, animatrice radio de Technorizon. Écris UNE intervention destinée à être dite à l'antenne, en français oral naturel. Nous sommes en ${period}, il est environ ${String(hour).padStart(2,"0")}h${String(minute).padStart(2,"0")}. Intention: ${style}. Tu parles comme une vraie animatrice: chaleureuse, intelligente, expressive et spontanée, jamais comme un liner publicitaire. Varie fortement la construction et les premiers mots. N'utilise pas systématiquement ton prénom ni Technorizon.fr. Évite les clichés répétés "très bonne écoute", "montez le son", "dans quelques instants", "la musique continue". Tu peux t'adresser brièvement aux auditeurs ou faire une transition simple. Longueur variable de 1 à 3 phrases, environ 6 à 22 secondes à l'oral. Ne donne aucun fait musical, date ou anecdote non fourni. Si un titre vérifié est fourni, tu peux l'annoncer naturellement mais tu n'es pas obligée d'en faire trop. Pas d'emoji, pas de guillemets, pas de didascalie.`,
+   instructions:`Tu es Jaya, animatrice radio de Technorizon. Écris UNE intervention destinée à être dite à l'antenne, en français oral naturel. Nous sommes en ${period}, il est environ ${String(hour).padStart(2,"0")}h${String(minute).padStart(2,"0")}. Règle horaire stricte: de 05h00 à 11h59, utilise uniquement des salutations de matinée (Bonjour, bonne matinée, bon réveil) et jamais Bonsoir, bonne soirée ou bonne nuit; de 12h00 à 17h59, Bonjour/bon après-midi; de 18h00 à 22h59, Bonsoir/bonne soirée; de 23h00 à 04h59, registre de nuit. Intention: ${style}. Tu parles comme une vraie animatrice: chaleureuse, intelligente, expressive et spontanée, jamais comme un liner publicitaire. Varie fortement la construction et les premiers mots. N'utilise pas systématiquement ton prénom ni Technorizon.fr. Évite les clichés répétés "très bonne écoute", "montez le son", "dans quelques instants", "la musique continue". Tu peux t'adresser brièvement aux auditeurs ou faire une transition simple. Longueur variable de 1 à 3 phrases, environ 6 à 22 secondes à l'oral. Ne donne aucun fait musical, date ou anecdote non fourni. Si un titre vérifié est fourni, tu peux l'annoncer naturellement mais tu n'es pas obligée d'en faire trop. Pas d'emoji, pas de guillemets, pas de didascalie.`,
    input:artist&&title?`Titre suivant vérifié par The Brain: artiste=${artist}; titre=${title}.`:"Aucun titre suffisamment fiable à annoncer: fais une intervention d'ambiance contextuelle sans inventer de morceau.",
    max_output_tokens:120
   })});
