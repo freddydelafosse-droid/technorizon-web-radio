@@ -2,12 +2,12 @@ name: Jaya H24
 
 on:
   schedule:
-    # GitHub cron est en UTC. En heure d'été française (UTC+2):
-    # H24: 05h13/33/53 à 22h13/33/53.
-    - cron: '13,33,53 3-20 * * *'
-    # Préparation Infos + Météo: 06h57, 08h57, 10h57 et 12h27 heure de Paris.
-    - cron: '57 4,6,8 * * *'
-    - cron: '27 10 * * *'
+    # Déclencheurs larges en UTC; les règles ci-dessous utilisent Europe/Paris.
+    # Cela reste correct automatiquement lors des changements heure été/hiver.
+    - cron: '13,33,53 * * * *'
+    # Préparation des rendez-vous Infos + Météo.
+    - cron: '57 * * * *'
+    - cron: '27 * * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -35,11 +35,46 @@ jobs:
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
           PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
 
+          PARIS_DOW=$(TZ=Europe/Paris date +%u)
           AUTO_WEATHER=false
+          ALLOW_H24=false
+
           if [ "$EVENT_NAME" = "schedule" ]; then
             case "$PARIS_HOUR:$PARIS_MINUTE" in
               6:57|8:57|10:57|12:27) AUTO_WEATHER=true ;;
             esac
+
+            # Les déclencheurs :57/:27 sont réservés aux rendez-vous éditoriaux.
+            if [ "$PARIS_MINUTE" = "13" ] || [ "$PARIS_MINUTE" = "33" ] || [ "$PARIS_MINUTE" = "53" ]; then
+              H=$((10#$PARIS_HOUR))
+              M=$((10#$PARIS_MINUTE))
+
+              # Lundi-vendredi
+              if [ "$PARIS_DOW" -ge 1 ] && [ "$PARIS_DOW" -le 5 ]; then
+                if   [ "$H" -eq 5 ]  && [ "$M" -eq 13 ]; then ALLOW_H24=true
+                elif [ "$H" -ge 6 ]  && [ "$H" -lt 13 ]; then ALLOW_H24=true
+                elif [ "$H" -ge 13 ] && [ "$H" -lt 16 ] && { [ "$M" -eq 13 ] || [ "$M" -eq 33 ]; }; then ALLOW_H24=true
+                elif [ "$H" -ge 16 ] && [ "$H" -lt 20 ]; then ALLOW_H24=true
+                elif [ "$H" -ge 20 ] && [ "$H" -lt 22 ] && { [ "$M" -eq 13 ] || [ "$M" -eq 33 ]; }; then ALLOW_H24=true
+                elif [ "$H" -eq 22 ] && [ "$M" -eq 13 ]; then ALLOW_H24=true
+                fi
+              # Samedi
+              elif [ "$PARIS_DOW" -eq 6 ]; then
+                if   [ "$H" -eq 8 ]  && [ "$M" -eq 13 ]; then ALLOW_H24=true
+                elif [ "$H" -ge 9 ]  && [ "$H" -lt 13 ]; then ALLOW_H24=true
+                elif [ "$H" -ge 13 ] && [ "$H" -lt 17 ] && [ "$M" -eq 13 ]; then ALLOW_H24=true
+                elif [ "$H" -ge 17 ] && [ "$H" -lt 23 ]; then ALLOW_H24=true
+                fi
+              # Dimanche
+              elif [ "$PARIS_DOW" -eq 7 ]; then
+                if [ "$H" -ge 9 ] && [ "$H" -lt 21 ] && [ "$M" -eq 13 ]; then ALLOW_H24=true; fi
+              fi
+            fi
+
+            if [ "$AUTO_WEATHER" != "true" ] && [ "$ALLOW_H24" != "true" ]; then
+              echo "Aucun passage Jaya prévu à cet horaire de Paris."
+              exit 0
+            fi
           fi
 
           if [ "$NEWS_NOW" = "true" ]; then
