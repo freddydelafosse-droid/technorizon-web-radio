@@ -182,7 +182,7 @@ export default async function handler(req,res){
   const local=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now).reduce((a,p)=>(a[p.type]=p.value,a),{}),lh=Number(local.hour),lm=Number(local.minute);
   // Rendez-vous météo prioritaire : préparé à :23 pour passer autour de :30.
   // Il ne doit jamais être bloqué par une intervention H24 déjà en attente.
-  const isWeather=forceWeather||(lh>=6&&lh<=12&&lm>=20&&lm<=29)||(lh===7&&lm>=38&&lm<=48);
+  const isWeather=forceWeather||(lh>=6&&lh<=12&&lm>=20&&lm<=29);
   const pendingWeather=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-meteo")||raw.includes("jaya/meteo"))&&!played});
   const pendingJaya=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
   if(isWeather&&pendingWeather)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued"});
