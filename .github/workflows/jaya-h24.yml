@@ -53,15 +53,28 @@ jobs:
             ACTION=""
           fi
 
+          RESPONSE_FILE=$(mktemp)
           if [ -n "$ACTION" ]; then
-            curl --fail --silent --show-error --retry 2 \
+            HTTP_CODE=$(curl --silent --show-error --retry 2 \
+              -o "$RESPONSE_FILE" -w "%{http_code}" \
               -X POST \
               -H "Authorization: Bearer $CRON_SECRET" \
               -H "Content-Type: application/json" \
               --data "{\"action\":\"$ACTION\"}" \
-              "https://www.technorizon.fr/api/azuracast-test"
+              "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
           else
-            curl --fail --silent --show-error --retry 2 \
+            HTTP_CODE=$(curl --silent --show-error --retry 2 \
+              -o "$RESPONSE_FILE" -w "%{http_code}" \
               -H "Authorization: Bearer $CRON_SECRET" \
-              "https://www.technorizon.fr/api/azuracast-test"
+              "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
+          fi
+
+          echo "Jaya API HTTP: ${HTTP_CODE:-000}"
+          echo "Jaya API response:"
+          cat "$RESPONSE_FILE"
+          echo
+
+          if [ -n "${CURL_EXIT:-}" ] || [ "${HTTP_CODE:-000}" -ge 400 ]; then
+            echo "::error::Jaya API failed - HTTP ${HTTP_CODE:-000}, curl exit ${CURL_EXIT:-0}"
+            exit 1
           fi
