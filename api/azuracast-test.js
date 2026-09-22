@@ -1,5 +1,3 @@
-export const maxDuration = 60;
-
 const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1;
 const MESSAGES=[
  "Vous écoutez Technorizon.fr, la musique sans frontières. Ici Jaya, très bonne écoute à toutes et à tous !",
