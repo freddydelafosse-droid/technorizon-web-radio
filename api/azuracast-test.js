@@ -251,7 +251,7 @@ export default async function handler(req,res){
    editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"");
   }
   const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isEditorial?"jaya-flash-":"jaya-auto-")+slot+".mp3";
-  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isEditorial?0.88:0.90,stability:isEditorial?0.37:0.32,similarity_boost:0.78,style:isEditorial?0.26:0.36,use_speaker_boost:true}})});
+  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isEditorial?0.93:0.92,stability:isEditorial?0.34:0.30,similarity_boost:0.78,style:isEditorial?0.28:0.38,use_speaker_boost:true}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
   const uploadDir=isEditorial?"Jaya/Meteo":"Jaya/Auto";
