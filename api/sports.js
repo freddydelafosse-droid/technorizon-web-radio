@@ -6,18 +6,17 @@ function eventOut(e){
  const time=[e.dateEvent,e.strTime].filter(Boolean).join(' ');
  return {home:e.strHomeTeam||e.strEvent?.split(' vs ')[0]||'—',away:e.strAwayTeam||e.strEvent?.split(' vs ')[1]||'—',score:played?(hs+' - '+as):'VS',competition:e.strLeague||'',time,live:String(e.strStatus||'').toLowerCase().includes('live')};
 }
-const leagueMap={ligue1:'4334',ligue2:'4401'};
+const leagueMap={ligue1:'4334',ligue2:'4401',premierleague:'4328',laliga:'4335',bundesliga:'4331',seriea:'4332',primeiraliga:'4344',eredivisie:'4337'};
 const discoverMap={national:'French National', 'coupe-france':'Coupe de France','champions-league':'UEFA Champions League','europa-league':'UEFA Europa League','conference-league':'UEFA Conference League'};
-const competitionCatalog={fr:{football:[
- {id:'ligue1',label:'Ligue 1',type:'league'},
- {id:'ligue2',label:'Ligue 2',type:'league'},
- {id:'national',label:'National',type:'discover'},
- {id:'coupe-france',label:'Coupe de France',type:'discover'},
- {id:'champions-league',label:'Ligue des champions',type:'discover'},
- {id:'europa-league',label:'Ligue Europa',type:'discover'},
- {id:'conference-league',label:'Ligue Conférence',type:'discover'},
- {id:'france-team',label:'Équipe de France',type:'discover'}
-]}};
+const competitionCatalog={
+ fr:{football:[{id:'ligue1',label:'Ligue 1',type:'league'},{id:'ligue2',label:'Ligue 2',type:'league'},{id:'national',label:'National',type:'discover'},{id:'coupe-france',label:'Coupe de France',type:'discover'},{id:'champions-league',label:'Ligue des champions',type:'discover'},{id:'europa-league',label:'Ligue Europa',type:'discover'},{id:'conference-league',label:'Ligue Conférence',type:'discover'},{id:'france-team',label:'Équipe de France',type:'team'}]},
+ gb:{football:[{id:'premierleague',label:'Premier League',type:'league'}]},
+ es:{football:[{id:'laliga',label:'LaLiga',type:'league'}]},
+ de:{football:[{id:'bundesliga',label:'Bundesliga',type:'league'}]},
+ it:{football:[{id:'seriea',label:'Serie A',type:'league'}]},
+ pt:{football:[{id:'primeiraliga',label:'Primeira Liga',type:'league'}]},
+ nl:{football:[{id:'eredivisie',label:'Eredivisie',type:'league'}]}
+};
 function tableRow(t){return {rank:Number(t.intRank||0),team:t.strTeam||'—',badge:t.strBadge||'',played:Number(t.intPlayed||0),win:Number(t.intWin||0),draw:Number(t.intDraw||0),loss:Number(t.intLoss||0),gf:Number(t.intGoalsFor||0),ga:Number(t.intGoalsAgainst||0),gd:Number(t.intGoalDifference??((t.intGoalsFor||0)-(t.intGoalsAgainst||0))),points:Number(t.intPoints||0)}}
 export default async function handler(req,res){
  res.setHeader('Cache-Control','s-maxage=180, stale-while-revalidate=300');
