@@ -7,9 +7,20 @@ function eventOut(e){
  return {home:e.strHomeTeam||e.strEvent?.split(' vs ')[0]||'—',away:e.strAwayTeam||e.strEvent?.split(' vs ')[1]||'—',score:played?(hs+' - '+as):'VS',competition:e.strLeague||'',time,live:String(e.strStatus||'').toLowerCase().includes('live')};
 }
 const leagueMap={ligue1:'4334',ligue2:'4401'};
+const competitionCatalog={fr:{football:[
+ {id:'ligue1',label:'Ligue 1',type:'league'},
+ {id:'ligue2',label:'Ligue 2',type:'league'},
+ {id:'national',label:'National',type:'discover'},
+ {id:'coupe-france',label:'Coupe de France',type:'discover'},
+ {id:'champions-league',label:'Ligue des champions',type:'discover'},
+ {id:'europa-league',label:'Ligue Europa',type:'discover'},
+ {id:'conference-league',label:'Ligue Conférence',type:'discover'},
+ {id:'france-team',label:'Équipe de France',type:'discover'}
+]}};
 function tableRow(t){return {rank:Number(t.intRank||0),team:t.strTeam||'—',badge:t.strBadge||'',played:Number(t.intPlayed||0),win:Number(t.intWin||0),draw:Number(t.intDraw||0),loss:Number(t.intLoss||0),gf:Number(t.intGoalsFor||0),ga:Number(t.intGoalsAgainst||0),gd:Number(t.intGoalDifference??((t.intGoalsFor||0)-(t.intGoalsAgainst||0))),points:Number(t.intPoints||0)}}
 export default async function handler(req,res){
  res.setHeader('Cache-Control','s-maxage=180, stale-while-revalidate=300');
+ if(String(req.query.catalog||'')==='1'){const cc=String(req.query.country||'fr').toLowerCase(),ss=String(req.query.sport||'football').toLowerCase();return res.status(200).json({competitions:competitionCatalog[cc]?.[ss]||[]})}
  const tableLeague=leagueMap[String(req.query.league||'').toLowerCase()];
  const leagueView=String(req.query.view||'').toLowerCase();
  if(tableLeague){try{const base='https://www.thesportsdb.com/api/v1/json/123/';
