@@ -72,7 +72,8 @@ async function newsBulletin(){
  if(!key)throw new Error("News AI configuration missing");
  const feeds=[
   "https://www.franceinfo.fr/titres.rss",
-  "https://www.france24.com/fr/rss"
+  "https://www.france24.com/fr/rss",
+  "https://www.lemonde.fr/rss/une.xml"
  ];
  let items=[];
  for(const feed of feeds){
@@ -84,7 +85,7 @@ async function newsBulletin(){
    for(const x of chunks.slice(0,12)){
     const val=t=>{const m=x.match(new RegExp("<"+t+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/"+t+">","i"));return m?m[1].replace(/<!\[CDATA\[|\]\]>/g,"").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/\s+/g," ").trim():""};
     const title=val("title"),description=val("description"),pubDate=val("pubDate");
-    if(title)items.push({title,description,pubDate,source:feed.includes("franceinfo")?"Franceinfo":"France 24"});
+    if(title)items.push({title,description,pubDate,source:feed.includes("franceinfo")?"Franceinfo":feed.includes("france24")?"France 24":"Le Monde"});
    }
   }catch(e){console.error("JAYA_NEWS_FEED",feed,e?.message||e)}
  }
@@ -97,9 +98,18 @@ async function newsBulletin(){
   input:JSON.stringify(items),
   max_output_tokens:220
  })});
- if(!r.ok)throw new Error("News AI "+r.status);
+ if(!r.ok){
+  console.error("JAYA_NEWS_AI_HTTP",r.status);
+  const h=items.slice(0,3).map(x=>cleanMeta(x.title)).filter(Boolean);
+  if(!h.length)throw new Error("News AI "+r.status);
+  return "Bonjour, voici l'essentiel de l'actualité sur Technorizon. "+h.map((x,i)=>(i===0?"D'abord, ":i===1?"Ensuite, ":"Et enfin, ")+x+".").join(" ")+" Retrouvez aussi les infos sur Technorizon.fr, rubrique Infos. Et maintenant, retour à la musique.";
+ }
  const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
- if(!out)throw new Error("Empty news bulletin");
+ if(!out){
+  const h=items.slice(0,3).map(x=>cleanMeta(x.title)).filter(Boolean);
+  if(!h.length)throw new Error("Empty news bulletin");
+  return "Bonjour, voici l'essentiel de l'actualité sur Technorizon. "+h.map((x,i)=>(i===0?"D'abord, ":i===1?"Ensuite, ":"Et enfin, ")+x+".").join(" ")+" Retrouvez aussi les infos sur Technorizon.fr, rubrique Infos. Et maintenant, retour à la musique.";
+ }
  return out;
 }
 
