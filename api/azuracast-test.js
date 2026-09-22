@@ -198,7 +198,10 @@ export default async function handler(req,res){
   const uploadDir=isWeather?"Jaya/Meteo":"Jaya/Auto";
   const up=await az(base,key,"/files/upload?currentDirectory="+encodeURIComponent(uploadDir),{method:"POST",body:form});
   if(!up.ok)return res.status(502).json({ok:false,error:"Upload failed",status:up.status});
-  const path=uploadDir+"/"+file,q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[]})});
+  const path=uploadDir+"/"+file;
+  // Les rendez-vous éditoriaux fixes passent en priorité devant la musique déjà en attente.
+  // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
+  const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[], ...(isWeather?{priority:true}: {})})});
   if(!q.ok)return res.status(502).json({ok:false,error:"Queue failed",status:q.status});
   console.log("JAYA_AUTO_QUEUED",path,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isWeather?"weather":mode<2&&nextSong?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable"})}
