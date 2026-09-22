@@ -94,21 +94,21 @@ async function newsBulletin(){
  items=items.filter(x=>{const d=Date.parse(x.pubDate);return !Number.isFinite(d)||now-d<12*60*60*1000}).slice(0,18);
  const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
   model:"gpt-5-mini",
-  instructions:"Tu es Jaya, animatrice radio de Technorizon. Prépare un flash d'actualité nationale et internationale en français oral naturel, factuel et neutre, de 45 à 60 secondes. Sélectionne 3 ou 4 informations importantes uniquement dans les éléments fournis. N'invente aucun fait, chiffre, nom, contexte ou évolution. Si deux sources se contredisent, n'utilise pas l'information. Ne donne pas d'opinion. Commence par une courte accroche de flash infos et termine par: Retrouvez aussi les infos sur Technorizon.fr, rubrique Infos. Puis une transition très courte vers la musique. Ton chaleureux, souriant et professionnel, mais plus posé que les interventions musicales. Règle absolue d'antenne: ne prononce jamais le prénom Willy. Si tu veux parler de lui ou de sa fonction, dis uniquement « le DJ ». Pas d'emoji, pas de guillemets, pas de didascalie.",
+  instructions:"Tu es Jaya, animatrice radio de Technorizon. Prépare un flash d'actualité nationale et internationale en français oral naturel, factuel et neutre, d'environ 1 minute 30 à 2 minutes. Sélectionne 6 à 8 informations importantes uniquement dans les éléments fournis, en variant si possible actualité française, internationale, économie/société, sciences/technologies ou culture selon ce qui est réellement présent dans les sources. Donne un peu plus de contexte utile pour chaque information sans inventer ni extrapoler. N'invente aucun fait, chiffre, nom, contexte ou évolution. Si deux sources se contredisent, n'utilise pas l'information. Ne donne pas d'opinion. Commence par une courte accroche de flash infos. À la fin du flash, ne parle surtout PAS de retour à la musique, de titre à venir, de bonne écoute ou de fin de rendez-vous: la météo arrive immédiatement après. Termine simplement le flash par une phrase naturelle comme « Voilà pour l'essentiel de l'actualité, on passe maintenant à la météo. » Ton chaleureux, souriant et professionnel, mais plus posé que les interventions musicales. Règle absolue d'antenne: ne prononce jamais le prénom Willy. Si tu veux parler de lui ou de sa fonction, dis uniquement « le DJ ». Pas d'emoji, pas de guillemets, pas de didascalie.",
   input:JSON.stringify(items),
-  max_output_tokens:220
+  max_output_tokens:480
  })});
  if(!r.ok){
   console.error("JAYA_NEWS_AI_HTTP",r.status);
   const h=items.slice(0,3).map(x=>cleanMeta(x.title)).filter(Boolean);
   if(!h.length)throw new Error("News AI "+r.status);
-  return "Bonjour, voici l'essentiel de l'actualité sur Technorizon. "+h.map((x,i)=>(i===0?"D'abord, ":i===1?"Ensuite, ":"Et enfin, ")+x+".").join(" ")+" Retrouvez aussi les infos sur Technorizon.fr, rubrique Infos. Et maintenant, retour à la musique.";
+  return "Bonjour, voici l'essentiel de l'actualité sur Technorizon. "+h.map((x,i)=>(i===0?"D'abord, ":i===1?"Ensuite, ":"Et enfin, ")+x+".").join(" ")+" Voilà pour l'essentiel de l'actualité, on passe maintenant à la météo.";
  }
  const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
  if(!out){
   const h=items.slice(0,3).map(x=>cleanMeta(x.title)).filter(Boolean);
   if(!h.length)throw new Error("Empty news bulletin");
-  return "Bonjour, voici l'essentiel de l'actualité sur Technorizon. "+h.map((x,i)=>(i===0?"D'abord, ":i===1?"Ensuite, ":"Et enfin, ")+x+".").join(" ")+" Retrouvez aussi les infos sur Technorizon.fr, rubrique Infos. Et maintenant, retour à la musique.";
+  return "Bonjour, voici l'essentiel de l'actualité sur Technorizon. "+h.map((x,i)=>(i===0?"D'abord, ":i===1?"Ensuite, ":"Et enfin, ")+x+".").join(" ")+" Voilà pour l'essentiel de l'actualité, on passe maintenant à la météo.";
  }
  return out;
 }
@@ -248,7 +248,7 @@ export default async function handler(req,res){
    let news="";
    try{news=await newsBulletin()}catch(e){console.error("JAYA_NEWS",e?.message||e)}
    const weather=await weatherBulletin();
-   editorialText=(news?news+" Et maintenant, on enchaîne avec la météo. ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"");
+   editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"");
   }
   const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isEditorial?"jaya-flash-":"jaya-auto-")+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isEditorial?0.88:0.90,stability:isEditorial?0.37:0.32,similarity_boost:0.78,style:isEditorial?0.26:0.36,use_speaker_boost:true}})});
