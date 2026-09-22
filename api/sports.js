@@ -7,6 +7,7 @@ function eventOut(e){
  return {home:e.strHomeTeam||e.strEvent?.split(' vs ')[0]||'—',away:e.strAwayTeam||e.strEvent?.split(' vs ')[1]||'—',score:played?(hs+' - '+as):'VS',competition:e.strLeague||'',time,live:String(e.strStatus||'').toLowerCase().includes('live')};
 }
 const leagueMap={ligue1:'4334',ligue2:'4401'};
+const discoverMap={national:'French National', 'coupe-france':'Coupe de France','champions-league':'UEFA Champions League','europa-league':'UEFA Europa League','conference-league':'UEFA Conference League'};
 const competitionCatalog={fr:{football:[
  {id:'ligue1',label:'Ligue 1',type:'league'},
  {id:'ligue2',label:'Ligue 2',type:'league'},
@@ -21,7 +22,10 @@ function tableRow(t){return {rank:Number(t.intRank||0),team:t.strTeam||'—',bad
 export default async function handler(req,res){
  res.setHeader('Cache-Control','s-maxage=180, stale-while-revalidate=300');
  if(String(req.query.catalog||'')==='1'){const cc=String(req.query.country||'fr').toLowerCase(),ss=String(req.query.sport||'football').toLowerCase();return res.status(200).json({competitions:competitionCatalog[cc]?.[ss]||[]})}
- const tableLeague=leagueMap[String(req.query.league||'').toLowerCase()];
+ const leagueKey=String(req.query.league||'').toLowerCase();
+ let tableLeague=leagueMap[leagueKey];
+ if(!tableLeague&&discoverMap[leagueKey]){try{const base='https://www.thesportsdb.com/api/v1/json/123/';const r=await fetch(base+'search_all_leagues.php?c='+encodeURIComponent(leagueKey==='national'||leagueKey==='coupe-france'?'France':'')+'&s=Soccer');const d=await r.json();const wanted=discoverMap[leagueKey].toLowerCase();const hit=(d.countries||[]).find(x=>String(x.strLeague||'').toLowerCase().includes(wanted)||wanted.includes(String(x.strLeague||'').toLowerCase()));if(hit?.idLeague)tableLeague=String(hit.idLeague)}catch(e){}}
+
  const leagueView=String(req.query.view||'').toLowerCase();
  if(tableLeague){try{const base='https://www.thesportsdb.com/api/v1/json/123/';
   if(leagueView==='results'||leagueView==='upcoming'){const endpoint=leagueView==='results'?'eventspastleague.php?id=':'eventsnextleague.php?id=';const r=await fetch(base+endpoint+encodeURIComponent(tableLeague));if(!r.ok)throw Error('provider');const d=await r.json();let events=(d.events||[]).map(eventOut);events.sort((a,b)=>leagueView==='results'?String(b.time).localeCompare(String(a.time)):String(a.time).localeCompare(String(b.time)));return res.status(200).json({league:req.query.league,view:leagueView,events:events.slice(0,12)})}
