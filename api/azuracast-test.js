@@ -10,6 +10,8 @@ const JAYA_BANNED_GENERIC=[
 function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
 function jayaTooGeneric(text){
  const n=normJaya(text);
+ // "énergie" était devenu un tic de langage : blocage dur avant TTS.
+ if(/\\benergie\\b/.test(n))return true;
  if(JAYA_BANNED_GENERIC.some(x=>n.includes(x)))return true;
  return jayaRecent.some(old=>{const a=new Set(normJaya(old).split(" ").filter(x=>x.length>3)),b=normJaya(text).split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.72});
 }
