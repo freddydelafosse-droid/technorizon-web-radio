@@ -1,6 +1,17 @@
 const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1;
 const JAYA_RECENT_MAX=15;
 let jayaRecent=[];
+const JAYA_BANNED_GENERIC=[
+ "tres bonne ecoute","on garde l energie","je vous accompagne encore un moment",
+ "j espere que votre soiree se passe bien","la musique continue","on continue",
+ "je reste avec vous","la suite arrive","montez le son"
+];
+function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
+function jayaTooGeneric(text){
+ const n=normJaya(text);
+ if(JAYA_BANNED_GENERIC.some(x=>n.includes(x)))return true;
+ return jayaRecent.some(old=>{const a=new Set(normJaya(old).split(" ").filter(x=>x.length>3)),b=normJaya(text).split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.72});
+}
 function rememberJaya(text){const s=String(text||"").trim();if(!s)return;jayaRecent.push(s);if(jayaRecent.length>JAYA_RECENT_MAX)jayaRecent=jayaRecent.slice(-JAYA_RECENT_MAX)}
 const MESSAGES=[
  "Vous écoutez Technorizon.fr, la musique sans frontières. Ici Jaya, très bonne écoute à toutes et à tous !",
@@ -219,6 +230,20 @@ async function smartAnnouncement({song,slot,hour,minute}){
   if(!r.ok){console.error("JAYA_SMART_HTTP",r.status);return song?announcement(song,slot):generic(slot)}
   const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
   if(!out||out.length>500)return song?announcement(song,slot):generic(slot);
+  if(jayaTooGeneric(out)){
+   console.error("JAYA_REPEAT_REJECTED",out);
+   const fallbackAngles=[
+    "Bon, petite question : qui a décidé qu'on devait rester sage à cette heure-ci ? Moi, certainement pas.",
+    "Alors là… je crois que la régie essaie encore de me faire tenir tranquille. Mauvais calcul, on repart !",
+    "Vous savez ce petit moment où le pied commence à suivre le rythme tout seul ? Voilà. Ne luttez pas.",
+    "J'avais prévu de rester raisonnable… puis j'ai entendu ce qui tourne ici. Plan annulé, évidemment.",
+    "Eh bien, si vous venez d'arriver, vous tombez pile au bon moment. Installez-vous, le son fait le reste.",
+    "Petit sourire en régie… ça veut généralement dire qu'on prépare quelque chose. Je dis ça, je ne dis rien."
+   ];
+   const safe=fallbackAngles[hash(String(slot)+"|safe")%fallbackAngles.length];
+   rememberJaya(safe);
+   return safe;
+  }
   rememberJaya(out);
   return out;
  }catch(e){console.error("JAYA_SMART",e?.message||e);return song?announcement(song,slot):generic(slot)}
