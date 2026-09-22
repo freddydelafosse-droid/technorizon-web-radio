@@ -166,13 +166,18 @@ export default async function handler(req,res){
   const qr=await az(base,key,"/queue"),qraw=await qr.text();let qdata=null;try{qdata=JSON.parse(qraw)}catch{}
   if(!qr.ok)return res.status(502).json({ok:false,error:"Queue check failed"});
   const rows=queueRows(qdata);
+  const local=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now).reduce((a,p)=>(a[p.type]=p.value,a),{}),lh=Number(local.hour),lm=Number(local.minute);
+  // Rendez-vous météo prioritaire : préparé à :23 pour passer autour de :30.
+  // Il ne doit jamais être bloqué par une intervention H24 déjà en attente.
+  const isWeather=lh>=6&&lh<=12&&lm>=20&&lm<=29;
+  const pendingWeather=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-meteo")||raw.includes("jaya/meteo"))&&!played});
   const pendingJaya=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
-  if(pendingJaya)return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
+  if(isWeather&&pendingWeather)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued"});
+  if(!isWeather&&pendingJaya)return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
   const songs=rows.map(songFromRow).filter(Boolean);
   const rawNextSong=songs[1]||null;
   const nextSong=await verifyWithBrain(rawNextSong);
   const slot=Math.floor(now.getTime()/(10*60*1000));
-  const local=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now).reduce((a,p)=>(a[p.type]=p.value,a),{}),lh=Number(local.hour),lm=Number(local.minute),isWeather=lh>=6&&lh<=12&&lm>=23&&lm<=33;
   const mode=isWeather?3:hash(String(slot)+"mode")%3,text=radioPause(isWeather?await weatherBulletin():await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm})),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.87:0.90,stability:isWeather?0.36:0.32,similarity_boost:0.78,style:isWeather?0.28:0.36,use_speaker_boost:true}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
