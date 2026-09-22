@@ -35,7 +35,7 @@ jobs:
           fi
 
           AUTO_NEWS=false
-          if [ "$EVENT_NAME" = "schedule" ]; then
+          if [ "$EVENT_NAME" = "schedule" ] && { [ "$PARIS_MINUTE" -ge 57 ] || [ "$PARIS_MINUTE" -le 1 ]; }; then
             AUTO_NEWS=true
           fi
 
