@@ -232,7 +232,7 @@ export default async function handler(req,res){
   // Rendez-vous météo prioritaire : préparé à :23 pour passer autour de :30.
   // Il ne doit jamais être bloqué par une intervention H24 déjà en attente.
   const isWeather=forceWeather;
-  const scheduledEditorial=((lh===6||lh===8||lh===10||lh===17)&&lm>=55)||((lh===7||lh===9||lh===11||lh===18)&&lm<=4);\n  const isNews=forceNews||scheduledEditorial;
+  const scheduledEditorial=((lh===6||lh===8||lh===10)&&lm>=55)||((lh===7||lh===9||lh===11)&&lm<=4)||(lh===12&&lm>=25&&lm<=34);\n  const isNews=forceNews||scheduledEditorial;
   const pendingWeather=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-meteo")||raw.includes("jaya/meteo"))&&!played});
   const pendingNews=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-infos")||raw.includes("jaya/infos")||raw.includes("jaya-flash"))&&!played});
   const pendingJaya=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
