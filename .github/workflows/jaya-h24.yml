@@ -35,10 +35,6 @@ jobs:
           fi
 
           AUTO_NEWS=false
-          # TEST TEMPORAIRE : forcer le prochain passage planifié en flash complet.
-          if [ "$EVENT_NAME" = "schedule" ]; then
-            AUTO_NEWS=true
-          fi
 
           if [ "$NEWS_NOW" = "true" ] || [ "$AUTO_NEWS" = "true" ]; then
             echo "Déclenchement infos Jaya"
