@@ -45,6 +45,17 @@ function speechMeta(v){
  return s.replace(/,\s*([^,]+)$/," et $1").replace(/\s+/g," ").trim();
 }
 function radioPause(s){return String(s).replace(/\.\.\./g,"…").replace(/([.!?])\s+/g,"$1 ").replace(/,\s+/g,", ").replace(/\s*…\s*/g," … ").trim()}
+function enforceDaypart(text,hour){
+ let s=String(text||"");
+ if(hour>=5&&hour<12){
+  s=s.replace(/\bbonsoir\b/gi,"bonjour").replace(/\bbonne soirée\b/gi,"bonne matinée").replace(/\bbonne nuit\b/gi,"bonne matinée").replace(/\bce soir\b/gi,"ce matin").replace(/\bvotre soirée\b/gi,"votre matinée").replace(/\bla soirée\b/gi,"la matinée");
+ }else if(hour>=12&&hour<18){
+  s=s.replace(/\bbonsoir\b/gi,"bonjour").replace(/\bbonne soirée\b/gi,"bon après-midi").replace(/\bbonne nuit\b/gi,"bonne journée").replace(/\bce soir\b/gi,"cet après-midi").replace(/\bvotre soirée\b/gi,"votre après-midi");
+ }else if(hour>=18&&hour<23){
+  s=s.replace(/\bbonne matinée\b/gi,"bonne soirée").replace(/\bbon réveil\b/gi,"bonne soirée").replace(/\bce matin\b/gi,"ce soir");
+ }
+ return s;
+}
 function generic(slot){
  const p=daypart(),pool={
   matin:["Bonjour ! Jaya avec vous pour démarrer la journée en musique.","Très bonne matinée à toutes et à tous. On continue ensemble !","J'espère que votre matinée se passe bien. Je reste avec vous en musique !","Un petit coucou de Jaya pour accompagner votre matinée. Bonne écoute !","On garde le rythme ce matin. Merci d'être avec nous !","Réveil en musique avec Jaya. Très bonne écoute !"],
@@ -178,7 +189,7 @@ export default async function handler(req,res){
   const rawNextSong=songs[1]||null;
   const nextSong=await verifyWithBrain(rawNextSong);
   const slot=Math.floor(now.getTime()/(10*60*1000));
-  const mode=isWeather?3:hash(String(slot)+"mode")%3,text=radioPause(isWeather?await weatherBulletin():await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm})),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
+  const mode=isWeather?3:hash(String(slot)+"mode")%3,text=radioPause(enforceDaypart(isWeather?await weatherBulletin():await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.87:0.90,stability:isWeather?0.36:0.32,similarity_boost:0.78,style:isWeather?0.28:0.36,use_speaker_boost:true}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
