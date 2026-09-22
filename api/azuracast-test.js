@@ -16,6 +16,31 @@ function jayaTooGeneric(text){
  return jayaRecent.some(old=>{const a=new Set(normJaya(old).split(" ").filter(x=>x.length>3)),b=normJaya(text).split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.72});
 }
 function rememberJaya(text){const s=String(text||"").trim();if(!s)return;jayaRecent.push(s);if(jayaRecent.length>JAYA_RECENT_MAX)jayaRecent=jayaRecent.slice(-JAYA_RECENT_MAX)}
+function jayaMemoryConfig(){
+ const url=process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL;
+ const key=process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+ return url&&key?{url,key}:null;
+}
+async function loadJayaMemory(){
+ const cfg=jayaMemoryConfig(); if(!cfg)return;
+ try{
+  const u=new URL(cfg.url+"/rest/v1/jaya_antenna_memory");
+  u.searchParams.set("select","text");
+  u.searchParams.set("order","created_at.desc");
+  u.searchParams.set("limit",String(JAYA_RECENT_MAX));
+  const r=await fetch(u,{headers:{apikey:cfg.key,Authorization:"Bearer "+cfg.key,Accept:"application/json"}});
+  if(!r.ok){console.error("JAYA_MEMORY_LOAD_HTTP",r.status);return}
+  const rows=await r.json();
+  jayaRecent=rows.map(x=>String(x.text||"").trim()).filter(Boolean).reverse().slice(-JAYA_RECENT_MAX);
+ }catch(e){console.error("JAYA_MEMORY_LOAD",e?.message||e)}
+}
+async function persistJayaMemory(text){
+ const s=String(text||"").trim(),cfg=jayaMemoryConfig(); if(!s||!cfg)return;
+ try{
+  const r=await fetch(cfg.url+"/rest/v1/jaya_antenna_memory",{method:"POST",headers:{apikey:cfg.key,Authorization:"Bearer "+cfg.key,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({text:s})});
+  if(!r.ok)console.error("JAYA_MEMORY_SAVE_HTTP",r.status);
+ }catch(e){console.error("JAYA_MEMORY_SAVE",e?.message||e)}
+}
 const MESSAGES=[
  "Vous écoutez Technorizon.fr, la musique sans frontières. Ici Jaya, très bonne écoute à toutes et à tous !",
  "Ici Jaya sur Technorizon.fr. Je reste avec vous pour le meilleur de l'électro, de l'Eurodance et de la House. Très bonne écoute !",
@@ -245,9 +270,11 @@ async function smartAnnouncement({song,slot,hour,minute}){
    ];
    const safe=fallbackAngles[hash(String(slot)+"|safe")%fallbackAngles.length];
    rememberJaya(safe);
+   await persistJayaMemory(safe);
    return safe;
   }
   rememberJaya(out);
+  await persistJayaMemory(out);
   return out;
  }catch(e){console.error("JAYA_SMART",e?.message||e);return song?announcement(song,slot):generic(slot)}
 }
@@ -287,6 +314,7 @@ async function handler(req,res){
   if(isNews&&pendingNews)return res.status(200).json({ok:true,action:"skip",reason:"news-already-queued"});
   if(isWeather&&pendingWeather)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued"});
   if(!isWeather&&!isNews&&pendingJaya)return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
+  await loadJayaMemory();
   const songs=rows.map(songFromRow).filter(Boolean);
   const rawNextSong=songs[1]||null;
   const nextSong=await verifyWithBrain(rawNextSong);
