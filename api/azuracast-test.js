@@ -232,7 +232,7 @@ export default async function handler(req,res){
   // Rendez-vous météo prioritaire : préparé à :23 pour passer autour de :30.
   // Il ne doit jamais être bloqué par une intervention H24 déjà en attente.
   const isWeather=forceWeather;
-  const isNews=forceNews||(lh>=5&&lh<=20&&(lm>=55||lm<=4));
+  const scheduledEditorial=((lh===6||lh===8||lh===10||lh===17)&&lm>=55)||((lh===7||lh===9||lh===11||lh===18)&&lm<=4);\n  const isNews=forceNews||scheduledEditorial;
   const pendingWeather=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-meteo")||raw.includes("jaya/meteo"))&&!played});
   const pendingNews=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-infos")||raw.includes("jaya/infos")||raw.includes("jaya-flash"))&&!played});
   const pendingJaya=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
@@ -251,10 +251,12 @@ export default async function handler(req,res){
    try{news=await newsBulletin()}catch(e){console.error("JAYA_NEWS",e?.message||e)}
    let weather="";
    try{weather=await weatherBulletin()}catch(e){console.error("JAYA_WEATHER",e?.message||e);weather="Pour la météo détaillée, rendez-vous sur Technorizon.fr, rubrique Météo."}
-   const nextFlashHour=lh===20?5:(lh+1)%24;
-   const nextFlashText=lh===20
-    ?"Prochain rendez-vous infos, demain à partir de 5 heures."
-    :["Prochain flash complet à "+nextFlashHour+" heures.","On se retrouve à "+nextFlashHour+" heures pour le prochain flash complet.","Rendez-vous à "+nextFlashHour+" heures pour notre prochain point complet."][hash(String(slot)+"next")%3];
+   const rendezVous=[7,9,11,18];
+   const currentFlashHour=lm>=55?(lh+1)%24:lh;
+   const nextFlashHour=rendezVous.find(h=>h>currentFlashHour);
+   const nextFlashText=nextFlashHour
+    ?["Prochain flash complet à "+nextFlashHour+" heures.","On se retrouve à "+nextFlashHour+" heures pour le prochain flash complet.","Rendez-vous à "+nextFlashHour+" heures pour notre prochain point complet."][hash(String(slot)+"next")%3]
+    :"Prochain rendez-vous infos et météo, demain à 7 heures.";
    editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"")+" "+nextFlashText;
   }
   const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isEditorial?"jaya-flash-":"jaya-auto-")+slot+".mp3";
