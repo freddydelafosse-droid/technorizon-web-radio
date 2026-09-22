@@ -67,6 +67,42 @@ function generic(slot){
 }
 function weatherSky(code){if(code===0)return "un ciel bien dégagé";if(code<=3)return "un ciel partagé entre éclaircies et nuages";if(code===45||code===48)return "des brouillards par endroits";if(code>=51&&code<=67)return "des pluies ou averses";if(code>=71&&code<=77)return "quelques chutes de neige";if(code>=80&&code<=82)return "des averses";if(code>=95)return "un risque d'orages";return "un temps variable"}
 async function weatherBulletin(){const cities=[["Lille",50.6292,3.0573],["Paris",48.8566,2.3522],["Strasbourg",48.5734,7.7521],["Nantes",47.2184,-1.5536],["Bordeaux",44.8378,-0.5792],["Lyon",45.764,4.8357],["Marseille",43.2965,5.3698]];const data=await Promise.all(cities.map(async([city,latitude,longitude])=>{const u=new URL("https://api.open-meteo.com/v1/forecast");u.searchParams.set("latitude",latitude);u.searchParams.set("longitude",longitude);u.searchParams.set("daily","weather_code,temperature_2m_max,precipitation_probability_max");u.searchParams.set("timezone","Europe/Paris");u.searchParams.set("forecast_days","1");const r=await fetch(u);if(!r.ok)throw new Error("Weather "+city);const j=await r.json();return{city,max:Math.round(j.daily.temperature_2m_max[0]),rain:Math.round(j.daily.precipitation_probability_max[0]||0),code:Number(j.daily.weather_code[0]||0)}}));const get=n=>data.find(x=>x.city===n),wet=data.filter(x=>x.rain>=50).map(x=>x.city);return "Bonjour, ici Jaya avec votre météo nationale sur Technorizon.fr. Aujourd'hui, comptez environ "+get("Lille").max+" degrés à Lille, "+get("Paris").max+" à Paris, "+get("Strasbourg").max+" à Strasbourg, "+get("Nantes").max+" à Nantes, "+get("Bordeaux").max+" à Bordeaux, "+get("Lyon").max+" à Lyon et "+get("Marseille").max+" à Marseille. Côté ciel, "+weatherSky(get("Paris").code)+" sur la région parisienne, "+weatherSky(get("Nantes").code)+" dans l'Ouest et "+weatherSky(get("Marseille").code)+" près de la Méditerranée. "+(wet.length?"Le risque de pluie est plus marqué vers "+wet.slice(0,3).join(", ")+".":"Le risque de pluie reste globalement limité sur les villes suivies.")+" Et pour retrouver la météo détaillée de votre ville, rendez-vous sur Technorizon.fr, rubrique Météo. Très bonne écoute !"}
+async function newsBulletin(){
+ const key=process.env.OPENAI_API_KEY;
+ if(!key)throw new Error("News AI configuration missing");
+ const feeds=[
+  "https://www.franceinfo.fr/titres.rss",
+  "https://www.france24.com/fr/rss"
+ ];
+ let items=[];
+ for(const feed of feeds){
+  try{
+   const r=await fetch(feed,{headers:{"User-Agent":"Technorizon-Jaya/1.0"}});
+   if(!r.ok)continue;
+   const xml=await r.text();
+   const chunks=xml.match(/<item[\s\S]*?<\/item>/gi)||[];
+   for(const x of chunks.slice(0,12)){
+    const val=t=>{const m=x.match(new RegExp("<"+t+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/"+t+">","i"));return m?m[1].replace(/<!\[CDATA\[|\]\]>/g,"").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/\s+/g," ").trim():""};
+    const title=val("title"),description=val("description"),pubDate=val("pubDate");
+    if(title)items.push({title,description,pubDate,source:feed.includes("franceinfo")?"Franceinfo":"France 24"});
+   }
+  }catch(e){console.error("JAYA_NEWS_FEED",feed,e?.message||e)}
+ }
+ if(!items.length)throw new Error("No fresh news available");
+ const now=Date.now();
+ items=items.filter(x=>{const d=Date.parse(x.pubDate);return !Number.isFinite(d)||now-d<12*60*60*1000}).slice(0,18);
+ const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
+  model:"gpt-5-mini",
+  instructions:"Tu es Jaya, animatrice radio de Technorizon. Prépare un flash d'actualité nationale et internationale en français oral naturel, factuel et neutre, de 45 à 60 secondes. Sélectionne 3 ou 4 informations importantes uniquement dans les éléments fournis. N'invente aucun fait, chiffre, nom, contexte ou évolution. Si deux sources se contredisent, n'utilise pas l'information. Ne donne pas d'opinion. Commence par une courte accroche de flash infos et termine par: Retrouvez aussi les infos sur Technorizon.fr, rubrique Infos. Puis une transition très courte vers la musique. Ton chaleureux, souriant et professionnel, mais plus posé que les interventions musicales. Pas d'emoji, pas de guillemets, pas de didascalie.",
+  input:JSON.stringify(items),
+  max_output_tokens:220
+ })});
+ if(!r.ok)throw new Error("News AI "+r.status);
+ const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
+ if(!out)throw new Error("Empty news bulletin");
+ return out;
+}
+
 function normBrain(v){return cleanMeta(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
 async function verifyWithBrain(song){
  if(!song)return null;
@@ -165,7 +201,8 @@ export default async function handler(req,res){
   const secret=process.env.CRON_SECRET;
   const authorized=!!secret&&req.headers.authorization==="Bearer "+secret;
   const forceWeather=req.method==="POST"&&req.body?.action==="weather-now";
-  if(req.method==="POST"&&!forceWeather){
+  const forceNews=req.method==="POST"&&req.body?.action==="news-now";
+  if(req.method==="POST"&&!forceWeather&&!forceNews){
    if(req.body?.action!=="inspect")return res.status(403).json({ok:false,error:"Test mutations disabled"});
    const q=await az(base,key,"/queue"),raw=await q.text();let data=null;try{data=JSON.parse(raw)}catch{}
    if(!q.ok)return res.status(q.status).json({ok:false,error:"Queue inspect failed"});
@@ -183,26 +220,29 @@ export default async function handler(req,res){
   // Rendez-vous météo prioritaire : préparé à :23 pour passer autour de :30.
   // Il ne doit jamais être bloqué par une intervention H24 déjà en attente.
   const isWeather=forceWeather||(lh>=6&&lh<=12&&lm>=20&&lm<=29);
+  const isNews=forceNews||(lm>=40&&lm<=44);
   const pendingWeather=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-meteo")||raw.includes("jaya/meteo"))&&!played});
+  const pendingNews=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-infos")||raw.includes("jaya/infos"))&&!played});
   const pendingJaya=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
+  if(isNews&&pendingNews)return res.status(200).json({ok:true,action:"skip",reason:"news-already-queued"});
   if(isWeather&&pendingWeather)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued"});
-  if(!isWeather&&pendingJaya)return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
+  if(!isWeather&&!isNews&&pendingJaya)return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
   const songs=rows.map(songFromRow).filter(Boolean);
   const rawNextSong=songs[1]||null;
   const nextSong=await verifyWithBrain(rawNextSong);
   const slot=Math.floor(now.getTime()/(10*60*1000));
-  const mode=isWeather?3:hash(String(slot)+"mode")%3,text=radioPause(enforceDaypart(isWeather?await weatherBulletin():await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isWeather?"jaya-meteo-":"jaya-auto-")+slot+".mp3";
-  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.87:0.90,stability:isWeather?0.36:0.32,similarity_boost:0.78,style:isWeather?0.28:0.36,use_speaker_boost:true}})});
+  const mode=isWeather?3:isNews?4:hash(String(slot)+"mode")%3,text=radioPause(enforceDaypart(isWeather?await weatherBulletin():isNews?await newsBulletin():await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isWeather?"jaya-meteo-":isNews?"jaya-infos-":"jaya-auto-")+slot+".mp3";
+  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text,model_id:"eleven_multilingual_v2",voice_settings:{speed:isWeather?0.87:isNews?0.89:0.90,stability:isWeather?0.36:isNews?0.38:0.32,similarity_boost:0.78,style:isWeather?0.28:isNews?0.24:0.36,use_speaker_boost:true}})});
   if(!t.ok)return res.status(502).json({ok:false,error:"TTS failed",status:t.status});
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
-  const uploadDir=isWeather?"Jaya/Meteo":"Jaya/Auto";
+  const uploadDir=isWeather?"Jaya/Meteo":isNews?"Jaya/Infos":"Jaya/Auto";
   const up=await az(base,key,"/files/upload?currentDirectory="+encodeURIComponent(uploadDir),{method:"POST",body:form});
   if(!up.ok)return res.status(502).json({ok:false,error:"Upload failed",status:up.status});
   const path=uploadDir+"/"+file;
   // Les rendez-vous éditoriaux fixes passent en priorité devant la musique déjà en attente.
   // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
-  const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[], ...(isWeather?{priority:true}: {})})});
+  const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[], ...((isWeather||isNews)?{priority:true}: {})})});
   if(!q.ok)return res.status(502).json({ok:false,error:"Queue failed",status:q.status});
-  console.log("JAYA_AUTO_QUEUED",path,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isWeather?"weather":mode<2&&nextSong?"next-title":"general",text});
+  console.log("JAYA_AUTO_QUEUED",path,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isWeather?"weather":isNews?"news":mode<2&&nextSong?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable"})}
 }
