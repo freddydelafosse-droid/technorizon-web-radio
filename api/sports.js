@@ -50,28 +50,7 @@ module.exports=async function handler(req,res){
   }
   const base='https://www.thesportsdb.com/api/v1/json/123/';
   // Tennis — Live Tennis API. La clé reste exclusivement côté serveur.
-  if(String(q.sport||'').toLowerCase()==='tennis'&&String(q.catalog||'')!=='1'){
-   const key=process.env.LIVE_TENNIS_API_KEY;
-   if(!key)return res.status(503).json({country:'International',sport:'Tennis',events:[],message:'Service tennis momentanément indisponible.'});
-   const view=String(q.view||'results').toLowerCase();
-   // Le plan FREE fournit le direct et les rencontres à venir. L'historique terminé exige BASIC.
-   const statuses=view==='results'?['live','upcoming']:['upcoming','live'];
-   const rows=[];
-   for(const status of statuses){
-    const r=await fetch('https://api.livetennisapi.com/api/public/v1/matches?status='+status+'&limit=100',{headers:{'X-API-Key':key}});
-    if(!r.ok){const body=await r.text();console.error('TENNIS_API',r.status,body.slice(0,300));continue}
-    const j=await r.json();
-    for(const m of j.data||[]){
-     const p1=m.players?.p1?.name||m.player1?.name||m.player1_name||'—';
-     const p2=m.players?.p2?.name||m.player2?.name||m.player2_name||'—';
-     const sets=Array.isArray(m.sets)?m.sets:null;
-     const score=sets&&sets.length>=2?String(sets[0])+' - '+String(sets[1]):'VS';
-     rows.push({home:p1,away:p2,score,competition:m.tournament?.name||m.tournament_name||m.event_name||m.tour||'Tennis',time:m.start_time||m.scheduled_at||m.start_at||m.date||'',live:status==='live'});
-    }
-   }
-   const seen=new Set(),events=rows.filter(x=>{const k=x.home+'|'+x.away+'|'+x.time;if(seen.has(k))return false;seen.add(k);return true}).slice(0,30);
-   return res.status(200).json({country:'International',sport:'Tennis',view,events,source:'live-tennis-api',message:events.length?undefined:'Aucune rencontre disponible actuellement.'});
-  }
+
   if(String(q.sport||'').toLowerCase()==='tennis'&&String(q.catalog||'')!=='1'){
    const view=String(q.view||'results').toLowerCase(),now=Date.now(),day=86400000;
    const fmt=d=>{const z=new Date(d);return z.getUTCFullYear()+String(z.getUTCMonth()+1).padStart(2,'0')+String(z.getUTCDate()).padStart(2,'0')};
