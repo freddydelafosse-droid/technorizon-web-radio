@@ -1,5 +1,5 @@
 const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1;
-const JAYA_RECENT_MAX=60;
+const JAYA_RECENT_MAX=120;
 let jayaRecent=[];
 const JAYA_BANNED_GENERIC=[
  "tres bonne ecoute","on garde l energie","je vous accompagne encore un moment",
@@ -13,7 +13,7 @@ function jayaTooGeneric(text){
  // "énergie" était devenu un tic de langage : blocage dur avant TTS.
  if(/\benergie\b/.test(n))return true;
  if(JAYA_BANNED_GENERIC.some(x=>n.includes(x)))return true;
- return jayaRecent.some(old=>{const a=new Set(normJaya(old).split(" ").filter(x=>x.length>3)),b=normJaya(text).split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.58});
+ return jayaRecent.some(old=>{const a=new Set(normJaya(old).split(" ").filter(x=>x.length>3)),b=normJaya(text).split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.48});
 }
 function rememberJaya(text){const s=String(text||"").trim();if(!s)return;jayaRecent.push(s);if(jayaRecent.length>JAYA_RECENT_MAX)jayaRecent=jayaRecent.slice(-JAYA_RECENT_MAX)}
 function jayaMemoryConfig(){
@@ -282,6 +282,8 @@ async function smartAnnouncement({song,slot,hour,minute}){
   "sois totalement minimaliste: une pensée spontanée, une relance, puis laisse repartir la musique"
  ];
  const angle=angles[Math.abs(Number(slot))%angles.length];
+ // Recharge la mémoire persistante à CHAQUE génération: les fonctions serverless ne partagent pas toujours leur RAM.
+ await loadJayaMemory();
  const recent=jayaRecent.slice(-JAYA_RECENT_MAX);
  const antiRepeat=recent.length?"\nMEMOIRE ANTENNE: voici tes interventions recentes. La nouvelle doit etre reellement differente: ne reprends ni la meme accroche, ni le meme sujet, ni la meme structure, ni la meme chute, ni une formulation reconnaissable. Si une idee leur ressemble, pars ailleurs.\n"+recent.map((x,i)=>(i+1)+". "+x).join("\n"):"";
  try{
