@@ -49,6 +49,20 @@ module.exports=async function handler(req,res){
    return res.status(200).json({sport:'motogp',view:'results',event:ev.sponsored_name||ev.name,items:(Array.isArray(rows)?rows:[]).map(x=>({position:x.position,points:x.points,driver:x.rider?.full_name||'',team:x.team_name||x.team?.name||'',constructor:x.constructor?.name||'',gap:x.time||x.gap||''}))});
   }
   const base='https://www.thesportsdb.com/api/v1/json/123/';
+  if(String(q.sport||'').toLowerCase()==='cycling'){
+   const cc=String(q.country||'fr').toLowerCase(),countryName=countryNames[cc]||'France';
+   try{
+    const ld=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(countryName)+'&s=Cycling');
+    const leagues=(ld.countries||[]).slice(0,8);
+    const batches=await Promise.all(leagues.flatMap(l=>[
+     fetchJSON(base+'eventspastleague.php?id='+encodeURIComponent(l.idLeague)).catch(()=>({events:[]})),
+     fetchJSON(base+'eventsnextleague.php?id='+encodeURIComponent(l.idLeague)).catch(()=>({events:[]}))
+    ]));
+    let events=batches.flatMap(x=>x.events||[]).map(e=>({home:e.strEvent||e.strHomeTeam||'Épreuve cycliste',away:e.strVenue||e.strCity||'',score:'',competition:e.strLeague||'Cyclisme',time:[e.dateEvent,e.strTime].filter(Boolean).join(' '),live:String(e.strStatus||'').toLowerCase().includes('live')}));
+    const seen=new Set();events=events.filter(x=>{const k=x.home+'|'+x.time;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>String(b.time).localeCompare(String(a.time)));
+    return res.status(200).json({country:countryName,sport:'Cycling',events:events.slice(0,20)});
+   }catch{return res.status(200).json({country:countryName,sport:'Cycling',events:[]})}
+  }
   if(String(q.catalog||'')==='1'){
    const cc=String(q.country||'fr').toLowerCase(),ss=String(q.sport||'football').toLowerCase(),preset=competitionCatalog[cc]?.[ss]||[];
    if(preset.length&&!preset.every(x=>x.id==='generic'))return res.status(200).json({competitions:preset});
