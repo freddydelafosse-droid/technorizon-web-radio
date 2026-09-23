@@ -71,14 +71,10 @@ module.exports=async function handler(req,res){
   }
   const leagueKey=String(q.league||'').toLowerCase(),view=String(q.view||'').toLowerCase();
   if(leagueKey.startsWith('rugby-')){
-   const wantedMap={'rugby-top14':['top 14','top14'],'rugby-prod2':['pro d2','prod2'],'rugby-nationale':['french nationale','nationale'],'rugby-champions-cup':['champions cup','european rugby champions'],'rugby-challenge-cup':['challenge cup','european rugby challenge'],'rugby-six-nations':['six nations']},wanted=wantedMap[leagueKey]||[];
-   let leagues=[];try{const d=await fetchJSON(base+'all_leagues.php');leagues=(d.leagues||[]).filter(x=>String(x.strSport||'').toLowerCase()==='rugby')}catch{}
-   if(!leagues.length){const searches=['France','England'];for(const country of searches){try{const d=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(country)+'&s=Rugby');leagues.push(...(d.countries||[]))}catch{}}}
-   const hit=leagues.find(x=>{const n=String(x.strLeague||'').toLowerCase();return wanted.some(w=>n.includes(w))});
-   if(!hit?.idLeague)return res.status(200).json(view==='standings'?{league:leagueKey,view,table:[]}:{league:leagueKey,view,events:[]});
-   const id=String(hit.idLeague);
-   if(view==='results'||view==='upcoming'){const ep=view==='results'?'eventspastleague.php?id=':'eventsnextleague.php?id=',d=await fetchJSON(base+ep+encodeURIComponent(id)).catch(()=>({events:[]}));let events=(d.events||[]).map(eventOut);events.sort((a,b)=>view==='results'?String(b.time).localeCompare(String(a.time)):String(a.time).localeCompare(String(b.time)));return res.status(200).json({league:leagueKey,view,events:events.slice(0,12)})}
-   const d=await fetchJSON(base+'lookuptable.php?l='+encodeURIComponent(id)).catch(()=>({table:[]}));return res.status(200).json({league:leagueKey,view,table:(d.table||[]).map(tableRow).sort((a,b)=>a.rank-b.rank)});
+   const rugbyIds={'rugby-top14':'4430','rugby-prod2':'5172','rugby-six-nations':'4714'},id=rugbyIds[leagueKey];
+   if(!id)return res.status(200).json(view==='standings'?{league:leagueKey,view,table:[]}:{league:leagueKey,view,events:[]});
+   if(view==='results'||view==='upcoming'){const ep=view==='results'?'eventspastleague.php?id=':'eventsnextleague.php?id=',d=await fetchJSON(base+ep+id).catch(()=>({events:[]}));let events=(d.events||[]).map(eventOut);events.sort((a,b)=>view==='results'?String(b.time).localeCompare(String(a.time)):String(a.time).localeCompare(String(b.time)));return res.status(200).json({league:leagueKey,view,events:events.slice(0,12)})}
+   const d=await fetchJSON(base+'lookuptable.php?l='+id).catch(()=>({table:[]}));return res.status(200).json({league:leagueKey,view,table:(d.table||[]).map(tableRow).sort((a,b)=>a.rank-b.rank)});
   }
   let tableLeague=leagueKey.startsWith('provider-')?leagueKey.slice(9):leagueMap[leagueKey];
   if(!tableLeague&&discoverMap[leagueKey]){try{const d=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(['national','coupe-france'].includes(leagueKey)?'France':'')+'&s=Soccer');const wanted=discoverMap[leagueKey].toLowerCase(),hit=(d.countries||[]).find(x=>String(x.strLeague||'').toLowerCase().includes(wanted)||wanted.includes(String(x.strLeague||'').toLowerCase()));if(hit?.idLeague)tableLeague=String(hit.idLeague)}catch{}}
