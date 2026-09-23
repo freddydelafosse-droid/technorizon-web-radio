@@ -104,7 +104,7 @@ module.exports=async function handler(req,res){
   const c=countryNames[String(q.country||'fr').toLowerCase()]||'France',s=sportNames[String(q.sport||'football').toLowerCase()]||'Soccer';
   const ld=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(c)+'&s='+encodeURIComponent(s)),leagues=(ld.countries||[]).slice(0,3);
   const batches=await Promise.all(leagues.flatMap(l=>[fetchJSON(base+'eventspastleague.php?id='+encodeURIComponent(l.idLeague)).catch(()=>({})),fetchJSON(base+'eventsnextleague.php?id='+encodeURIComponent(l.idLeague)).catch(()=>({}))]));
-  let events=batches.flatMap(x=>x.events||[]).map(eventOut);const seen=new Set();events=events.filter(x=>{const k=x.competition+'|'+x.home+'|'+x.away+'|'+x.time;if(seen.has(k))return false;seen.add(k);return true});events.sort((a,b)=>String(b.time).localeCompare(String(a.time)));
-  return res.status(200).json({country:c,sport:s,events:events.slice(0,12)});
+  let events=batches.flatMap(x=>x.events||[]).map(eventOut);const seen=new Set();events=events.filter(x=>{const k=x.competition+'|'+x.home+'|'+x.away+'|'+x.time;if(seen.has(k))return false;seen.add(k);return true});const now=Date.now(),toMs=x=>{const v=Date.parse(String(x.time||'').replace(' ','T'));return Number.isFinite(v)?v:0},past=events.filter(x=>toMs(x)&&toMs(x)<now).sort((a,b)=>toMs(b)-toMs(a)),future=events.filter(x=>toMs(x)>=now).sort((a,b)=>toMs(a)-toMs(b)),unknown=events.filter(x=>!toMs(x));events=[...past.slice(0,6),...future.slice(0,6),...unknown].slice(0,12);
+  return res.status(200).json({country:c,sport:s,events});
  }catch(e){return res.status(502).json({table:[],events:[],items:[],error:'sports_provider_unavailable'})}
 };
