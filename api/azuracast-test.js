@@ -7,7 +7,7 @@ const JAYA_BANNED_GENERIC=[
  "on garde cette energie","garder l energie","plein d energie",
  "je reste avec vous","la suite arrive","montez le son",
  "la regie me fait signe","la regie me dit de faire court","faire court","vous laisser ecouter",
- "vous venez d arriver","vous etiez deja la"
+ "vous venez d arriver","vous etiez deja la",
   "bon la soiree est lancee",
   "je ne vais pas casser le rythme avec un grand discours",
   "pas besoin d un grand discours",
