@@ -72,8 +72,8 @@ module.exports=async function handler(req,res){
   const leagueKey=String(q.league||'').toLowerCase(),view=String(q.view||'').toLowerCase();
   if(leagueKey.startsWith('rugby-')){
    const wantedMap={'rugby-top14':['top 14','top14'],'rugby-prod2':['pro d2','prod2'],'rugby-nationale':['french nationale','nationale'],'rugby-champions-cup':['champions cup','european rugby champions'],'rugby-challenge-cup':['challenge cup','european rugby challenge'],'rugby-six-nations':['six nations']},wanted=wantedMap[leagueKey]||[];
-   const searches=leagueKey==='rugby-six-nations'||leagueKey.includes('cup')?['France','England']:['France'];let leagues=[];
-   for(const country of searches){try{const d=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(country)+'&s=Rugby');leagues.push(...(d.countries||[]))}catch{}}
+   let leagues=[];try{const d=await fetchJSON(base+'all_leagues.php');leagues=(d.leagues||[]).filter(x=>String(x.strSport||'').toLowerCase()==='rugby')}catch{}
+   if(!leagues.length){const searches=['France','England'];for(const country of searches){try{const d=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(country)+'&s=Rugby');leagues.push(...(d.countries||[]))}catch{}}}
    const hit=leagues.find(x=>{const n=String(x.strLeague||'').toLowerCase();return wanted.some(w=>n.includes(w))});
    if(!hit?.idLeague)return res.status(200).json(view==='standings'?{league:leagueKey,view,table:[]}:{league:leagueKey,view,events:[]});
    const id=String(hit.idLeague);
