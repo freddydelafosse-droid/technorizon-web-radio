@@ -52,7 +52,7 @@ module.exports=async function handler(req,res){
   if(String(q.sport||'').toLowerCase()==='cycling'){
    const cc=String(q.country||'fr').toLowerCase(),countryName=countryNames[cc]||'France';
    try{
-    const api='https://api.sportspuff.net',now=new Date(),dates=[];
+    const api='https://api.sportspuff.net/api/v1',now=new Date(),dates=[];
     for(let n=-14;n<=45;n++){const d=new Date(now);d.setUTCDate(d.getUTCDate()+n);dates.push(d.toISOString().slice(0,10))}
     const chunks=[];
     for(let i=0;i<dates.length;i+=10){
@@ -65,10 +65,10 @@ module.exports=async function handler(req,res){
       return {date,schedule,scores};
      })));
     }
-    const pick=o=>Array.isArray(o)?o:(o.events||o.games||o.scores||o.schedule||o.items||o.data||[]);
+    const pick=o=>{if(Array.isArray(o))return o;if(Array.isArray(o.events))return o.events;if(Array.isArray(o.games))return o.games;if(Array.isArray(o.scores))return o.scores;if(Array.isArray(o.schedule))return o.schedule;if(Array.isArray(o.items))return o.items;if(Array.isArray(o.data))return o.data;return[]};
     const rows=chunks.flatMap(x=>[...pick(x.schedule),...pick(x.scores)].map(r=>({...r,_date:x.date})));
-    const norm=x=>({home:x.race||x.event||x.name||x.title||x.stage||x.stage_name||'Épreuve cycliste',away:x.location||x.city||x.country||x.venue||x.route||'',score:x.winner||x.stage_winner||x.result||x.gc_leader||'',competition:x.competition||x.tour||x.league||x.series||x.race_name||'UCI World Tour',time:x.start_time||x.datetime||x.date||x.start||x._date||'',live:Boolean(x.live||String(x.status||'').toLowerCase().includes('live'))});
-    let events=rows.map(norm).filter(x=>x.home!=='Épreuve cycliste'||x.time),seen=new Set();
+    const norm=x=>{const race=x.race_name||x.race||x.tour_name||x.tour||x.event_name||x.event||x.name||x.title||'';const stage=x.stage_name||x.stage||x.stage_title||'';return {home:[race,stage&&stage!==race?stage:''].filter(Boolean).join(' — '),away:x.location||x.city||x.country||x.venue||x.route||x.start_location||x.finish_location||'',score:x.stage_winner||x.winner||x.result||x.gc_leader||'',competition:x.competition||x.series||x.category||race||'Cyclisme',time:x.start_time||x.datetime||x.date||x.start||x._date||'',live:Boolean(x.live||String(x.status||'').toLowerCase().includes('live'))}};
+    let events=rows.map(norm).filter(x=>x.home),seen=new Set();
     events=events.filter(x=>{const k=x.home+'|'+x.time+'|'+x.competition;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>String(a.time).localeCompare(String(b.time)));
     if(events.length)return res.status(200).json({country:countryName,sport:'Cycling',events:events.slice(0,40),source:'sportspuff-range'});
     return res.status(200).json({country:countryName,sport:'Cycling',events:[],source:'sportspuff-range'});
