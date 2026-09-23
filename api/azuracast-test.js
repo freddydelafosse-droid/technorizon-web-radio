@@ -11,7 +11,7 @@ function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u03
 function jayaTooGeneric(text){
  const n=normJaya(text);
  // "énergie" était devenu un tic de langage : blocage dur avant TTS.
- if(/\\benergie\\b/.test(n))return true;
+ if(/\benergie\b/.test(n))return true;
  if(JAYA_BANNED_GENERIC.some(x=>n.includes(x)))return true;
  return jayaRecent.some(old=>{const a=new Set(normJaya(old).split(" ").filter(x=>x.length>3)),b=normJaya(text).split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.72});
 }
@@ -100,12 +100,48 @@ function enforceDaypart(text,hour){
 }
 function generic(slot){
  const p=daypart(),pool={
-  matin:["Bonjour ! Jaya avec vous pour démarrer la journée en musique.","Très bonne matinée à toutes et à tous. On continue ensemble !","J'espère que votre matinée se passe bien. Je reste avec vous en musique !","Un petit coucou de Jaya pour accompagner votre matinée. Bonne écoute !","On garde le rythme ce matin. Merci d'être avec nous !","Réveil en musique avec Jaya. Très bonne écoute !"],
-  journee:["Jaya avec vous. Merci de nous accompagner, et place à la musique !","Très bonne journée à toutes et à tous. On continue ensemble !","Un petit passage de Jaya entre deux titres. Profitez bien de la musique !","Je reste avec vous pour la suite. Bonne écoute !","On poursuit cette journée en musique. Merci d'être là !","Toujours en votre compagnie. Et maintenant, retour à la musique !"],
-  soiree:["Bonsoir à toutes et à tous ! Profitez bien de votre soirée en musique.","Jaya avec vous ce soir. Montez le son, la musique continue !","Très bonne soirée à l'écoute de Technorizon.fr. On poursuit en musique !","Je passe vous faire un petit coucou avant la suite. Bonne soirée !","On garde l'énergie pour la soirée. Très bonne écoute !","Votre soirée continue en musique, et je reste avec vous !"],
-  nuit:["Très bonne écoute à tous les noctambules. Jaya reste avec vous !","Je vous accompagne dans la nuit. La musique continue !","Encore réveillés ? Alors on continue ensemble en musique !","Pour celles et ceux qui ne dorment pas encore, je reste avec vous.","La nuit continue, et la musique aussi. Bonne écoute !","Petit passage de Jaya avant de repartir en musique. Bonne nuit aux couche-tard !"]
+  matin:[
+   "Bonjour ! Jaya passe au micro, juste le temps de vous souhaiter un réveil tout en musique.",
+   "Le café est peut-être déjà servi… moi, j'apporte le son. Allez, on repart !",
+   "Petit coucou du matin depuis Technorizon.fr. Je vous laisse reprendre le fil de la musique.",
+   "Vous êtes déjà debout ? Alors autant commencer avec du bon son. Jaya vous accompagne ce matin.",
+   "Bon, la journée démarre… et côté musique, pas question de traîner. C'est reparti !",
+   "Si le réveil a été difficile, j'ai peut-être ce qu'il faut pour arranger ça. Place au son !",
+   "Jaya au micro ce matin, juste entre nous quelques secondes… et je rends déjà la place à la musique.",
+   "Un œil ouvert, puis le deuxième… voilà, maintenant on peut remettre un peu de son."
+  ],
+  journee:[
+   "Jaya passe vous faire un petit signe entre deux titres. Et hop, retour à la musique !",
+   "Bon… je ne vais pas monopoliser le micro. Je vous laisse avec le son.",
+   "Petite parenthèse avec Jaya, juste comme ça, puis on repart immédiatement en musique.",
+   "Vous êtes toujours là ? Parfait, moi aussi. Allez, je rends l'antenne à la musique.",
+   "Un passage éclair au micro et je disparais déjà… enfin, jusqu'à la prochaine fois.",
+   "La régie me fait signe de faire court. Pour une fois, je vais être sage… musique !",
+   "Quelques secondes ensemble, ça me suffisait pour venir vous dire bonjour. On repart.",
+   "Je passais simplement voir si tout allait bien de votre côté. Maintenant, place au son."
+  ],
+  soiree:[
+   "Bonsoir ! Jaya passe quelques secondes au micro, puis je vous rends immédiatement la musique.",
+   "Bon… la soirée est lancée. Je ne vais pas casser le rythme avec un grand discours, on repart !",
+   "Petit passage de Jaya entre deux titres. Installez-vous, je m'occupe juste de remettre le son.",
+   "La régie me dit de faire court… ça tombe bien, j'avais surtout envie de vous laisser écouter.",
+   "Vous venez d'arriver ? Bienvenue. Vous étiez déjà là ? Alors vous connaissez la suite : musique !",
+   "Je passe, je vous fais un petit signe, et je repars. Oui, parfois je sais être raisonnable.",
+   "Quelques secondes au micro, juste pour le plaisir d'être avec vous. Allez, retour au son.",
+   "Jaya par ici… et promis, pas de long discours. La soirée appartient à la musique."
+  ],
+  nuit:[
+   "Jaya passe doucement au micro pour les noctambules. Je vous laisse reprendre la musique.",
+   "Encore réveillés ? D'accord, je ne pose pas de questions… on remet du son.",
+   "Petit passage dans la nuit, sans faire trop de bruit… enfin, sauf côté musique.",
+   "Si vous êtes toujours là à cette heure-ci, je crois qu'on peut se comprendre. On repart.",
+   "Quelques mots de Jaya dans la nuit, puis je vous rends immédiatement le son.",
+   "Je passe vérifier que les noctambules tiennent le coup. Visiblement oui, alors musique !",
+   "Pas besoin d'un grand discours à cette heure-ci. Jaya est là, et le son aussi.",
+   "Une petite parenthèse au micro avant de replonger dans la musique. C'est reparti."
+  ]
  };
- const base=pool[p][hash(String(slot)+"|generic|"+p)%pool[p].length]; const extra=p==="matin"?" On prend le temps de se réveiller ensemble, avec une belle dose de son pour lancer la journée. Restez avec moi, la suite arrive tout de suite !":p==="journee"?" J'espère que tout se passe bien de votre côté. On garde le rythme ensemble et je vous accompagne encore un moment !":p==="soiree"?" J'espère que votre soirée se passe bien. On garde cette énergie ensemble et je vous accompagne encore un moment !":" Si vous êtes encore debout, vous êtes au bon endroit. On traverse la nuit ensemble, tranquillement mais toujours en musique !"; return base+extra;
+ return pool[p][hash(String(slot)+"|generic|"+p)%pool[p].length];
 }
 function weatherSky(code){if(code===0)return "un ciel bien dégagé";if(code<=3)return "un ciel partagé entre éclaircies et nuages";if(code===45||code===48)return "des brouillards par endroits";if(code>=51&&code<=67)return "des pluies ou averses";if(code>=71&&code<=77)return "quelques chutes de neige";if(code>=80&&code<=82)return "des averses";if(code>=95)return "un risque d'orages";return "un temps variable"}
 async function weatherBulletin(){const cities=[["Lille",50.6292,3.0573],["Paris",48.8566,2.3522],["Strasbourg",48.5734,7.7521],["Nantes",47.2184,-1.5536],["Bordeaux",44.8378,-0.5792],["Lyon",45.764,4.8357],["Marseille",43.2965,5.3698]];const settled=await Promise.allSettled(cities.map(async([city,latitude,longitude])=>{const u=new URL("https://api.open-meteo.com/v1/forecast");u.searchParams.set("latitude",latitude);u.searchParams.set("longitude",longitude);u.searchParams.set("daily","weather_code,temperature_2m_max,precipitation_probability_max");u.searchParams.set("timezone","Europe/Paris");u.searchParams.set("forecast_days","1");const r=await fetch(u);if(!r.ok)throw new Error("Weather "+city);const j=await r.json();return{city,max:Math.round(j.daily.temperature_2m_max[0]),rain:Math.round(j.daily.precipitation_probability_max[0]||0),code:Number(j.daily.weather_code[0]||0)}}));const data=settled.filter(x=>x.status==="fulfilled").map(x=>x.value);if(data.length<4)throw new Error("Weather data insufficient");const get=n=>data.find(x=>x.city===n)||data[0],wet=data.filter(x=>x.rain>=50).map(x=>x.city);return "Bonjour, ici Jaya avec votre météo nationale sur Technorizon.fr. Aujourd'hui, comptez environ "+get("Lille").max+" degrés à Lille, "+get("Paris").max+" à Paris, "+get("Strasbourg").max+" à Strasbourg, "+get("Nantes").max+" à Nantes, "+get("Bordeaux").max+" à Bordeaux, "+get("Lyon").max+" à Lyon et "+get("Marseille").max+" à Marseille. Côté ciel, "+weatherSky(get("Paris").code)+" sur la région parisienne, "+weatherSky(get("Nantes").code)+" dans l'Ouest et "+weatherSky(get("Marseille").code)+" près de la Méditerranée. "+(wet.length?"Le risque de pluie est plus marqué vers "+wet.slice(0,3).join(", ")+".":"Le risque de pluie reste globalement limité sur les villes suivies.")+" Et pour retrouver la météo détaillée de votre ville, rendez-vous sur Technorizon.fr, rubrique Météo. Très bonne écoute !"}
