@@ -49,6 +49,12 @@ module.exports=async function handler(req,res){
    return res.status(200).json({sport:'motogp',view:'results',event:ev.sponsored_name||ev.name,eventDate:ev.date_end||ev.date_start||ev.date||'',items:(Array.isArray(rows)?rows:[]).map(x=>({position:x.position,points:x.points,driver:x.rider?.full_name||'',team:x.team_name||x.team?.name||'',constructor:x.constructor?.name||'',gap:x.time||x.gap||''}))});
   }
   const base='https://www.thesportsdb.com/api/v1/json/123/';
+  // Handball StarLigue: module interne, sans nouvelle fonction Vercel.
+  if(String(q.sport||'').toLowerCase()==='handball'&&String(q.view||'').toLowerCase()==='standings'&&String(q.catalog||'')!=='1'){
+   const hb=require('../lib/sports/handball');
+   const table=await hb.standings(fetchJSON,base);
+   if(table.length)return res.status(200).json({country:'France',sport:'Handball',league:hb.league,view:'standings',table,source:'provider-isolated'});
+  }
   // Tennis — Live Tennis API. La clé reste exclusivement côté serveur.
   if(String(q.sport||'').toLowerCase()==='tennis'&&String(q.catalog||'')!=='1'){
    const key=process.env.LIVE_TENNIS_API_KEY;
