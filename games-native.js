@@ -12,6 +12,7 @@
     'contact.html': { page: 'contact', scripts: ['/content-pages-i18n.js?v=1'] },
     'technoroscope.html': { page: 'technoroscope', scripts: ['/technoroscope-i18n.js?v=9'] },
     'dedicaces.html': { page: 'dedicaces', inlineScripts: true },
+    'sports.html': { page: 'sports', inlineScripts: true },
   };
   let layer = null;
   let opening = false;
