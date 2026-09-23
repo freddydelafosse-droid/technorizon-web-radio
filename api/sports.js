@@ -49,6 +49,31 @@ module.exports=async function handler(req,res){
    return res.status(200).json({sport:'motogp',view:'results',event:ev.sponsored_name||ev.name,eventDate:ev.date_end||ev.date_start||ev.date||'',items:(Array.isArray(rows)?rows:[]).map(x=>({position:x.position,points:x.points,driver:x.rider?.full_name||'',team:x.team_name||x.team?.name||'',constructor:x.constructor?.name||'',gap:x.time||x.gap||''}))});
   }
   const base='https://www.thesportsdb.com/api/v1/json/123/';
+  // Tennis: TheSportsDB ne fournit pas un calendrier exploitable ici.
+  // ESPN expose séparément ATP et WTA; on fusionne les deux tableaux pour Technorizon.
+  if(String(q.sport||'').toLowerCase()==='tennis'&&String(q.catalog||'')!=='1'){
+   const view=String(q.view||'results').toLowerCase(),now=Date.now(),day=86400000;
+   const fmt=d=>{const z=new Date(d);return z.getUTCFullYear()+String(z.getUTCMonth()+1).padStart(2,'0')+String(z.getUTCDate()).padStart(2,'0')};
+   const ranges=view==='results'?[[fmt(now-7*day),fmt(now)]]:[[fmt(now),fmt(now+14*day)]];
+   const boards=[];
+   for(const tour of ['atp','wta'])for(const [a,b] of ranges){
+    const url='https://site.api.espn.com/apis/site/v2/sports/tennis/'+tour+'/scoreboard?dates='+a+'-'+b+'&limit=200';
+    boards.push(fetchJSON(url).catch(()=>({events:[]})));
+   }
+   const data=await Promise.all(boards),out=[];
+   for(const d of data)for(const e of d.events||[]){
+    const comp=e.competitions?.[0]||{},cs=comp.competitors||[];
+    if(cs.length<2)continue;
+    const p1=cs[0],p2=cs[1],t=Date.parse(e.date||''),completed=!!e.status?.type?.completed;
+    if(view==='results'&&!completed)continue;
+    if(view==='upcoming'&&(completed||!Number.isFinite(t)||t<now-30*60000))continue;
+    const name=x=>x.athlete?.displayName||x.team?.displayName||x.displayName||'—';
+    const score=x=>String(x.score??'').trim();
+    out.push({home:name(p1),away:name(p2),score:completed&&score(p1)!==''&&score(p2)!==''?(score(p1)+' - '+score(p2)):'VS',competition:e.name||e.shortName||e.season?.name||'Tennis',time:e.date||'',live:String(e.status?.type?.state||'').toLowerCase()==='in'});
+   }
+   const seen=new Set(),events=out.filter(x=>{const k=x.home+'|'+x.away+'|'+x.time;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>view==='results'?Date.parse(b.time)-Date.parse(a.time):Date.parse(a.time)-Date.parse(b.time)).slice(0,20);
+   return res.status(200).json({country:'International',sport:'Tennis',view,events,source:'espn-atp-wta'});
+  }
   if(String(q.sport||'').toLowerCase()==='cycling'&&String(q.catalog||'')!=='1'){
    const cc=String(q.country||'fr').toLowerCase(),countryName=countryNames[cc]||'France',now=new Date();
    const races=[
