@@ -49,7 +49,7 @@ module.exports=async function handler(req,res){
    return res.status(200).json({sport:'motogp',view:'results',event:ev.sponsored_name||ev.name,eventDate:ev.date_end||ev.date_start||ev.date||'',items:(Array.isArray(rows)?rows:[]).map(x=>({position:x.position,points:x.points,driver:x.rider?.full_name||'',team:x.team_name||x.team?.name||'',constructor:x.constructor?.name||'',gap:x.time||x.gap||''}))});
   }
   const base='https://www.thesportsdb.com/api/v1/json/123/';
-  if(String(q.sport||'').toLowerCase()==='cycling'){
+  if(String(q.sport||'').toLowerCase()==='cycling'&&String(q.catalog||'')!=='1'){
    const cc=String(q.country||'fr').toLowerCase(),countryName=countryNames[cc]||'France',now=new Date();
    const races=[
     {start:'2026-09-11',end:'2026-09-11',name:'Grand Prix Cycliste de Québec',place:'Canada',series:'UCI WorldTour',winner:'Remco Evenepoel',podium:'1. Remco Evenepoel • 2. Giulio Ciccone • 3. Anthon Charmig'},
