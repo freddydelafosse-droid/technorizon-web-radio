@@ -1,0 +1,44 @@
+name: Build Large Jaya Music Staging Batches
+
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "Ligne de départ du catalogue"
+        default: "1"
+      count:
+        description: "Nombre d'artistes (max 50 par exécution)"
+        default: "50"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: jaya-brain-enrichment-safe
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Generate controlled batch
+        shell: bash
+        run: |
+          START="${{ inputs.start }}"
+          COUNT="${{ inputs.count }}"
+          if [ "$COUNT" -gt 50 ]; then COUNT=50; fi
+          mapfile -t ARTISTS < <(tail -n +"$START" brain-enrichment/catalog/large-artist-catalog.txt | head -n "$COUNT" | sed '/^[[:space:]]*$/d')
+          node brain-enrichment/generate-music-seeds.mjs "${ARTISTS[@]}"
+          FILE=$(ls -t brain-enrichment/generated/music-*.json | head -1)
+          node brain-enrichment/dry-run.mjs "$FILE"
+      - name: Commit staging batch
+        shell: bash
+        run: |
+          git config user.name "technorizon-brain-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add brain-enrichment/generated/
+          git diff --cached --quiet && exit 0
+          git commit -m "Generate large Jaya music staging batch"
+          git push origin HEAD:jaya-brain-enrichment-safe
