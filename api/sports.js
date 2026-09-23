@@ -50,29 +50,26 @@ module.exports=async function handler(req,res){
   }
   const base='https://www.thesportsdb.com/api/v1/json/123/';
   // Tennis — Live Tennis API. La clé reste exclusivement côté serveur.
-
   if(String(q.sport||'').toLowerCase()==='tennis'&&String(q.catalog||'')!=='1'){
-   const view=String(q.view||'results').toLowerCase(),now=Date.now(),day=86400000;
-   const fmt=d=>{const z=new Date(d);return z.getUTCFullYear()+String(z.getUTCMonth()+1).padStart(2,'0')+String(z.getUTCDate()).padStart(2,'0')};
-   const ranges=view==='results'?[[fmt(now-7*day),fmt(now)]]:[[fmt(now),fmt(now+14*day)]];
-   const boards=[];
-   for(const tour of ['atp','wta'])for(const [a,b] of ranges){
-    const url='https://site.api.espn.com/apis/site/v2/sports/tennis/'+tour+'/scoreboard?dates='+a+'-'+b+'&limit=200';
-    boards.push(fetchJSON(url).catch(()=>({events:[]})));
+   const key=process.env.LIVE_TENNIS_API_KEY;
+   if(!key)return res.status(503).json({country:'International',sport:'Tennis',events:[],message:'Service tennis momentanément indisponible.'});
+   const view=String(q.view||'results').toLowerCase();
+   const statuses=view==='results'?['live']:['upcoming','live'],rows=[];
+   for(const status of statuses){
+    const r=await fetch('https://api.livetennisapi.com/api/public/v1/matches?status='+status+'&limit=100',{headers:{'X-API-Key':key}});
+    if(!r.ok){console.error('TENNIS_API',r.status,(await r.text()).slice(0,300));continue}
+    const j=await r.json();
+    for(const m of j.data||[]){
+     const p1=m.players?.p1?.name||m.player1?.name||m.player1_name||'—',p2=m.players?.p2?.name||m.player2?.name||m.player2_name||'—';
+     const sets=Array.isArray(m.sets)?m.sets:null;
+     const score=sets&&Array.isArray(sets[0])&&Array.isArray(sets[1])?sets[0].map((v,i)=>String(v)+'-'+String(sets[1][i]??0)).join(' '):(sets&&sets.length===2&&!Array.isArray(sets[0])?String(sets[0])+' - '+String(sets[1]):'VS');
+     const tournament=typeof m.tournament==='string'?m.tournament:(m.tournament?.name||m.tournament_name||m.event_name||'Tennis'),tour=String(m.tour||'').toLowerCase();
+     rows.push({home:p1,away:p2,score,competition:(tour?tour.toUpperCase()+' · ':'')+tournament,time:m.scheduled_start||m.start_time||m.scheduled_at||m.start_at||m.date||'',live:status==='live',tour});
+    }
    }
-   const data=await Promise.all(boards),out=[];
-   for(const d of data)for(const e of d.events||[]){
-    const comp=e.competitions?.[0]||{},cs=comp.competitors||[];
-    if(cs.length<2)continue;
-    const p1=cs[0],p2=cs[1],t=Date.parse(e.date||''),completed=!!e.status?.type?.completed;
-    if(view==='results'&&!completed)continue;
-    if(view==='upcoming'&&(completed||!Number.isFinite(t)||t<now-30*60000))continue;
-    const name=x=>x.athlete?.displayName||x.team?.displayName||x.displayName||'—';
-    const score=x=>String(x.score??'').trim();
-    out.push({home:name(p1),away:name(p2),score:completed&&score(p1)!==''&&score(p2)!==''?(score(p1)+' - '+score(p2)):'VS',competition:e.name||e.shortName||e.season?.name||'Tennis',time:e.date||'',live:String(e.status?.type?.state||'').toLowerCase()==='in'});
-   }
-   const seen=new Set(),events=out.filter(x=>{const k=x.home+'|'+x.away+'|'+x.time;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>view==='results'?Date.parse(b.time)-Date.parse(a.time):Date.parse(a.time)-Date.parse(b.time)).slice(0,20);
-   return res.status(200).json({country:'International',sport:'Tennis',view,events,source:'espn-atp-wta'});
+   const priority={atp:0,wta:1,challenger:2,itf:3,juniors:4},seen=new Set();
+   const events=rows.filter(x=>{const k=x.home+'|'+x.away+'|'+x.time;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>(priority[a.tour]??9)-(priority[b.tour]??9)||(Date.parse(a.time)||9e15)-(Date.parse(b.time)||9e15)).slice(0,30).map(({tour,...x})=>x);
+   return res.status(200).json({country:'International',sport:'Tennis',view,events,source:'live-tennis-api',message:events.length?undefined:(view==='results'?'Aucun match en direct actuellement.':'Aucune rencontre à venir actuellement.')});
   }
   if(String(q.sport||'').toLowerCase()==='cycling'&&String(q.catalog||'')!=='1'){
    const cc=String(q.country||'fr').toLowerCase(),countryName=countryNames[cc]||'France',now=new Date();
