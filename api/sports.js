@@ -22,7 +22,7 @@ const competitionCatalog={
  us:{football:[{id:'mls',label:'Major League Soccer',type:'league'}]}
 };
 function tableRow(t){return {rank:Number(t.intRank||0),team:t.strTeam||'—',badge:t.strBadge||'',played:Number(t.intPlayed||0),win:Number(t.intWin||0),draw:Number(t.intDraw||0),loss:Number(t.intLoss||0),gf:Number(t.intGoalsFor||0),ga:Number(t.intGoalsAgainst||0),gd:Number(t.intGoalDifference??((t.intGoalsFor||0)-(t.intGoalsAgainst||0))),points:Number(t.intPoints||0)}}
-export default async function handler(req,res){
+module.exports=async function handler(req,res){
  res.setHeader('Cache-Control','s-maxage=180, stale-while-revalidate=300');
  if(String(req.query.motorsport||'')==='f1'){try{const base='https://api.openf1.org/v1/';const view=String(req.query.view||'calendar');const year=new Date().getUTCFullYear();
   if(view==='calendar'){const meetings=await fetch(base+'meetings?year='+year).then(r=>r.json());return res.status(200).json({sport:'f1',view,items:(meetings||[]).filter(x=>!x.is_cancelled).map(x=>({name:x.meeting_name,circuit:x.circuit_short_name,country:x.country_name,start:x.date_start,end:x.date_end,flag:x.country_flag,circuitImage:x.circuit_image}))})}
