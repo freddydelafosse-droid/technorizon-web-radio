@@ -49,11 +49,14 @@ module.exports=async function handler(req,res){
    return res.status(200).json({sport:'motogp',view:'results',event:ev.sponsored_name||ev.name,eventDate:ev.date_end||ev.date_start||ev.date||'',items:(Array.isArray(rows)?rows:[]).map(x=>({position:x.position,points:x.points,driver:x.rider?.full_name||'',team:x.team_name||x.team?.name||'',constructor:x.constructor?.name||'',gap:x.time||x.gap||''}))});
   }
   const base='https://www.thesportsdb.com/api/v1/json/123/';
-  // Handball StarLigue: module interne, sans nouvelle fonction Vercel.
+  // Handball: ne jamais laisser une source externe indisponible faire tomber l'API Sports.
   if(String(q.sport||'').toLowerCase()==='handball'&&String(q.view||'').toLowerCase()==='standings'&&String(q.catalog||'')!=='1'){
-   const hb=require('../lib/sports/handball');
-   const table=await hb.standings(fetchJSON,base);
-   if(table.length)return res.status(200).json({country:'France',sport:'Handball',league:hb.league,view:'standings',table,source:'provider-isolated'});
+   try{
+    const hb=require('../lib/sports/handball');
+    const table=await hb.standings(fetchJSON,base);
+    if(table.length)return res.status(200).json({country:'France',sport:'Handball',league:hb.league,view:'standings',table,source:hb.source||'handball'});
+   }catch(e){console.error('HANDBALL_STANDINGS',String(e?.message||e));}
+   return res.status(200).json({country:'France',sport:'Handball',league:'starligue',view:'standings',table:[],message:'Classement temporairement indisponible.'});
   }
   // Tennis — Live Tennis API. La clé reste exclusivement côté serveur.
   if(String(q.sport||'').toLowerCase()==='tennis'&&String(q.catalog||'')!=='1'){
