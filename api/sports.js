@@ -50,29 +50,15 @@ module.exports=async function handler(req,res){
   }
   const base='https://www.thesportsdb.com/api/v1/json/123/';
   if(String(q.sport||'').toLowerCase()==='cycling'){
-   const cc=String(q.country||'fr').toLowerCase(),countryName=countryNames[cc]||'France';
-   try{
-    const api='https://api.sportspuff.net/api/v1',now=new Date(),dates=[];
-    for(let n=-14;n<=45;n++){const d=new Date(now);d.setUTCDate(d.getUTCDate()+n);dates.push(d.toISOString().slice(0,10))}
-    const chunks=[];
-    for(let i=0;i<dates.length;i+=10){
-     const part=dates.slice(i,i+10);
-     chunks.push(...await Promise.all(part.map(async date=>{
-      const [schedule,scores]=await Promise.all([
-       fetchJSON(api+'/v1/schedule/cycling/'+date,5000).catch(()=>({})),
-       date<=now.toISOString().slice(0,10)?fetchJSON(api+'/v1/scores/cycling/'+date,5000).catch(()=>({})) : Promise.resolve({})
-      ]);
-      return {date,schedule,scores};
-     })));
-    }
-    const pick=o=>{if(Array.isArray(o))return o;if(Array.isArray(o.events))return o.events;if(Array.isArray(o.games))return o.games;if(Array.isArray(o.scores))return o.scores;if(Array.isArray(o.schedule))return o.schedule;if(Array.isArray(o.items))return o.items;if(Array.isArray(o.data))return o.data;return[]};
-    const rows=chunks.flatMap(x=>[...pick(x.schedule),...pick(x.scores)].map(r=>({...r,_date:x.date})));
-    const norm=x=>{const race=x.race_name||x.race||x.tour_name||x.tour||x.event_name||x.event||x.name||x.title||'';const stage=x.stage_name||x.stage||x.stage_title||'';return {home:[race,stage&&stage!==race?stage:''].filter(Boolean).join(' — '),away:x.location||x.city||x.country||x.venue||x.route||x.start_location||x.finish_location||'',score:x.stage_winner||x.winner||x.result||x.gc_leader||'',competition:x.competition||x.series||x.category||race||'Cyclisme',time:x.start_time||x.datetime||x.date||x.start||x._date||'',live:Boolean(x.live||String(x.status||'').toLowerCase().includes('live'))}};
-    let events=rows.map(norm).filter(x=>x.home),seen=new Set();
-    events=events.filter(x=>{const k=x.home+'|'+x.time+'|'+x.competition;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>String(a.time).localeCompare(String(b.time)));
-    if(events.length)return res.status(200).json({country:countryName,sport:'Cycling',events:events.slice(0,40),source:'sportspuff-range'});
-    return res.status(200).json({country:countryName,sport:'Cycling',events:[],source:'sportspuff-range'});
-   }catch{return res.status(200).json({country:countryName,sport:'Cycling',events:[]})}
+   const cc=String(q.country||'fr').toLowerCase(),countryName=countryNames[cc]||'France',now=new Date();
+   const races=[
+    ['2026-09-11','2026-09-11','Grand Prix Cycliste de Québec','Canada'],
+    ['2026-09-13','2026-09-13','Grand Prix Cycliste de Montréal','Canada'],
+    ['2026-10-10','2026-10-10','Il Lombardia','Italie'],
+    ['2026-10-13','2026-10-18','Tour of Guangxi','Chine']
+   ];
+   const events=races.filter(r=>new Date(r[1]+'T23:59:59Z')>=new Date(now.getTime()-14*86400000)).map(r=>({home:r[2],away:r[3],score:'',competition:'UCI WorldTour',time:r[0]===r[1]?r[0]:(r[0]+' → '+r[1]),live:false}));
+   return res.status(200).json({country:countryName,sport:'Cycling',events,source:'uci-2026-calendar'});
   }
   if(String(q.catalog||'')==='1'){
    const cc=String(q.country||'fr').toLowerCase(),ss=String(q.sport||'football').toLowerCase(),preset=competitionCatalog[cc]?.[ss]||[];
