@@ -121,6 +121,10 @@ module.exports=async function handler(req,res){
   }
   // Pour les sports hors football, une compétition fournisseur doit retourner une liste complète,
   // pas seulement le premier élément des endpoints past/next.
+  if(leagueKey==='provider-4423'&&view==='standings'&&String(q.sport||'').toLowerCase()==='basketball'){
+   // Betclic ELITE 2026-2027 : la saison régulière débute fin septembre ; éviter d'afficher un classement vide comme une erreur.
+   return res.status(200).json({league:leagueKey,view,table:[],message:'Le classement Betclic ÉLITE sera disponible dès les premiers matchs de la saison régulière.'});
+  }
   if(leagueKey.startsWith('provider-')&&view!=='standings'&&String(q.sport||'').toLowerCase()!=='football'){
    const id=leagueKey.slice(9),season='2026-2027';
    const sd=await fetchJSON(base+'eventsseason.php?id='+encodeURIComponent(id)+'&s='+encodeURIComponent(season),10000).catch(()=>({events:[]}));
