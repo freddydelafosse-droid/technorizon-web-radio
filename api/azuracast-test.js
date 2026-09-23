@@ -195,6 +195,21 @@ async function newsBulletin(){
  return out;
 }
 
+async function horoscopeBulletin(){
+ const key=process.env.OPENAI_API_KEY;if(!key)throw new Error("Horoscope AI configuration missing");
+ const signs=["Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge","Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"];
+ const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
+  model:"gpt-5-mini",
+  instructions:"Tu es Jaya, animatrice de Technorizon. Écris le Technoroscope du matin en français oral naturel, chaleureux, souriant et complice. Fais les 12 signes dans l'ordre fourni, avec une prévision légère et divertissante de 1 à 2 phrases très courtes par signe. Ne présente jamais l'astrologie comme une certitude, un fait scientifique, un diagnostic ou un conseil médical, juridique ou financier. Évite les prédictions graves ou anxiogènes. Vise 1 min 30 à 2 min maximum à l'oral. Commence par une accroche très courte annonçant le Technoroscope et termine en rappelant que le Technoroscope est aussi disponible sur Technorizon.fr. Même personnalité que Jaya à l'antenne: naturelle, élégante, légèrement malicieuse, sans ton publicitaire. Pas d'emoji, pas de guillemets, pas de didascalie.",
+  input:"Signes à traiter aujourd'hui : "+signs.join(", ")+".",
+  max_output_tokens:500
+ })});
+ if(!r.ok)throw new Error("Horoscope AI "+r.status);
+ const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
+ if(!out)throw new Error("Empty horoscope");
+ return out;
+}
+
 function normBrain(v){return cleanMeta(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
 async function verifyWithBrain(song){
  if(!song)return null;
@@ -332,7 +347,9 @@ async function handler(req,res){
   const authorized=!!secret&&req.headers.authorization==="Bearer "+secret;
   const forceWeather=req.method==="POST"&&req.body?.action==="weather-now";
   const forceNews=req.method==="POST"&&req.body?.action==="news-now";
-  if(req.method==="POST"&&!forceWeather&&!forceNews){
+  const horoscopeGenerate=req.method==="POST"&&req.body?.action==="horoscope-generate";
+  const horoscopeReplay=req.method==="POST"&&req.body?.action==="horoscope-replay";
+  if(req.method==="POST"&&!forceWeather&&!forceNews&&!horoscopeGenerate&&!horoscopeReplay){
    if(req.body?.action!=="inspect")return res.status(403).json({ok:false,error:"Test mutations disabled"});
    const q=await az(base,key,"/queue"),raw=await q.text();let data=null;try{data=JSON.parse(raw)}catch{}
    if(!q.ok)return res.status(q.status).json({ok:false,error:"Queue inspect failed"});
@@ -342,7 +359,30 @@ async function handler(req,res){
   if(req.method!=="GET"&&req.method!=="POST")return res.status(405).json({ok:false,error:"GET or POST only"});
   if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
   const el=process.env.ELEVENLABS_API_KEY;if(!el)return res.status(500).json({ok:false,error:"TTS configuration missing"});
+  if(horoscopeReplay){
+   const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+   const path="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
+   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
+   if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_HOROSCOPE_REPLAY",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Horoscope replay queue failed",stage:"queue"})}
+   return res.status(200).json({ok:true,action:"horoscope-replay",file:path,tts_generated:false});
+  }
   const now=new Date();
+  if(horoscopeGenerate){
+   const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+   const text=radioPause(enforceDaypart(await horoscopeBulletin(),7));
+   const ttsText=text.replace(/Technorizon\.fr/gi,"Techno Rizon point F R").replace(/Technorizon/gi,"Techno Rizon");
+   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
+   if(!t.ok)return res.status(502).json({ok:false,error:"Horoscope TTS failed",status:t.status,stage:"tts"});
+   const file="jaya-horoscope-"+day+".mp3",form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
+   const up=await az(base,key,"/files/upload?currentDirectory="+encodeURIComponent("Jaya/Horoscope"),{method:"POST",body:form});
+   const raw=await up.text();let data=null;try{data=JSON.parse(raw)}catch{}
+   if(!up.ok)return res.status(502).json({ok:false,error:"Horoscope upload failed",status:up.status,stage:"upload"});
+   const path="Jaya/Horoscope/"+file,mediaId=data?.id;
+   if(mediaId)await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:3}})});
+   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
+   if(!q.ok)return res.status(502).json({ok:false,error:"Horoscope queue failed",stage:"queue"});
+   return res.status(200).json({ok:true,action:"horoscope-generate",file:path,tts_generated:true,text});
+  }
   const qr=await az(base,key,"/queue"),qraw=await qr.text();let qdata=null;try{qdata=JSON.parse(qraw)}catch{}
   if(!qr.ok)return res.status(502).json({ok:false,error:"Queue check failed"});
   const rows=queueRows(qdata);
