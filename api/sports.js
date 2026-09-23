@@ -67,3 +67,4 @@ module.exports=async function handler(req,res){
   res.status(200).json({country:c,sport:s,events:events.slice(0,12)});
  }catch(e){res.status(502).json({events:[],error:'sports_provider_unavailable'})}
 }
+};
