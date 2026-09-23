@@ -1,0 +1,40 @@
+name: Enrich Jaya Artist Details
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_file:
+        description: "Fichier generated/multigenre-....json"
+        required: true
+      count:
+        description: "Artistes à enrichir (max 50)"
+        default: "25"
+
+permissions:
+  contents: write
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: jaya-brain-enrichment-safe
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: node brain-enrichment/enrich-artist-details.mjs "brain-enrichment/generated/${{ inputs.source_file }}" "${{ inputs.count }}"
+      - name: Validate output
+        shell: bash
+        run: |
+          FILE=$(ls -t brain-enrichment/generated/artist-details-*.json | head -1)
+          node brain-enrichment/dry-run.mjs "$FILE"
+      - name: Commit staging only
+        shell: bash
+        run: |
+          git config user.name "technorizon-brain-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add brain-enrichment/generated/
+          git diff --cached --quiet && exit 0
+          git commit -m "Enrich Jaya artist detail staging data"
+          git push origin HEAD:jaya-brain-enrichment-safe
