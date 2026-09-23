@@ -1,0 +1,24 @@
+name: Jaya Brain Enrichment Dry Run
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-pilot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout safe branch
+        uses: actions/checkout@v4
+        with:
+          ref: jaya-brain-enrichment-safe
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate pilot without external writes
+        run: node brain-enrichment/dry-run.mjs brain-enrichment/batches/pilot-001.json
