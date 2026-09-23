@@ -1,5 +1,5 @@
 const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1;
-const JAYA_RECENT_MAX=15;
+const JAYA_RECENT_MAX=60;
 let jayaRecent=[];
 const JAYA_BANNED_GENERIC=[
  "tres bonne ecoute","on garde l energie","je vous accompagne encore un moment",
@@ -13,7 +13,7 @@ function jayaTooGeneric(text){
  // "énergie" était devenu un tic de langage : blocage dur avant TTS.
  if(/\benergie\b/.test(n))return true;
  if(JAYA_BANNED_GENERIC.some(x=>n.includes(x)))return true;
- return jayaRecent.some(old=>{const a=new Set(normJaya(old).split(" ").filter(x=>x.length>3)),b=normJaya(text).split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.72});
+ return jayaRecent.some(old=>{const a=new Set(normJaya(old).split(" ").filter(x=>x.length>3)),b=normJaya(text).split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.58});
 }
 function rememberJaya(text){const s=String(text||"").trim();if(!s)return;jayaRecent.push(s);if(jayaRecent.length>JAYA_RECENT_MAX)jayaRecent=jayaRecent.slice(-JAYA_RECENT_MAX)}
 function jayaMemoryConfig(){
@@ -304,7 +304,9 @@ async function smartAnnouncement({song,slot,hour,minute}){
     "Eh bien, si vous venez d'arriver, vous tombez pile au bon moment. Installez-vous, le son fait le reste.",
     "Petit sourire en régie… ça veut généralement dire qu'on prépare quelque chose. Je dis ça, je ne dis rien."
    ];
-   const safe=fallbackAngles[hash(String(slot)+"|safe")%fallbackAngles.length];
+   const safePool=fallbackAngles.filter(x=>!jayaTooGeneric(x));
+   if(!safePool.length){console.error("JAYA_REPEAT_NO_SAFE_FALLBACK");return null}
+   const safe=safePool[hash(String(slot)+"|safe")%safePool.length];
    rememberJaya(safe);
    await persistJayaMemory(safe);
    return safe;
