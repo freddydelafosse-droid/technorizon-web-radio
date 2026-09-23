@@ -69,6 +69,9 @@ module.exports=async function handler(req,res){
    if(preset.length&&!preset.every(x=>x.id==='generic'))return res.status(200).json({competitions:preset});
    try{const d=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(countryNames[cc]||'France')+'&s='+encodeURIComponent(sportNames[ss]||ss));const competitions=(d.countries||[]).slice(0,8).map(x=>({id:'provider-'+x.idLeague,label:x.strLeague||x.strLeagueAlternate||ss,type:'provider',providerId:String(x.idLeague)}));return res.status(200).json({competitions:competitions.length?competitions:preset})}catch{return res.status(200).json({competitions:preset})}
   }
+  if(String(q.country||'fr').toLowerCase()==='fr'&&String(q.sport||'').toLowerCase()==='volleyball'&&String(q.catalog||'')!=='1'){
+   const now=Date.now();if(now<Date.parse('2026-10-17T00:00:00+02:00'))return res.status(200).json({country:'France',sport:'Volleyball',events:[],message:'La D1 Masculine 2026-2027 débute le 17 octobre.'});
+  }
   if(String(q.country||'fr').toLowerCase()==='fr'&&String(q.sport||'').toLowerCase()==='basketball'&&String(q.catalog||'')!=='1'){
    const now=Date.now();if(now<Date.parse('2026-09-25T00:00:00+02:00'))return res.status(200).json({country:'France',sport:'Basketball',events:[],message:'La Betclic ÉLITE 2026-2027 débute le 25 septembre.'});
   }
