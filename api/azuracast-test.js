@@ -363,11 +363,12 @@ async function handler(req,res){
    try{news=await newsBulletin()}catch(e){console.error("JAYA_NEWS",e?.message||e)}
    let weather="";
    try{weather=await weatherBulletin()}catch(e){console.error("JAYA_WEATHER",e?.message||e);weather="Pour la météo détaillée, rendez-vous sur Technorizon.fr, rubrique Météo."}
-   const rendezVous=[7,9,11,18];
-   const currentFlashHour=lm>=55?(lh+1)%24:lh;
-   const nextFlashHour=rendezVous.find(h=>h>currentFlashHour);
-   const nextFlashText=nextFlashHour
-    ?["Prochain flash complet à "+nextFlashHour+" heures.","On se retrouve à "+nextFlashHour+" heures pour le prochain flash complet.","Rendez-vous à "+nextFlashHour+" heures pour notre prochain point complet."][hash(String(slot)+"next")%3]
+   const rendezVous=[{h:7,m:0},{h:9,m:0},{h:11,m:0},{h:12,m:30},{h:18,m:0}];
+   const currentMinutes=lh*60+lm;
+   const nextFlash=rendezVous.find(x=>x.h*60+x.m>currentMinutes+5);
+   const flashLabel=x=>x.m?x.h+" heures "+String(x.m).padStart(2,"0"):x.h+" heures";
+   const nextFlashText=nextFlash
+    ?["Prochain flash complet à "+flashLabel(nextFlash)+".","On se retrouve à "+flashLabel(nextFlash)+" pour le prochain flash complet.","Rendez-vous à "+flashLabel(nextFlash)+" pour notre prochain point complet."][hash(String(slot)+"next")%3]
     :"Prochain rendez-vous infos et météo, demain à 7 heures.";
    editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"")+" "+nextFlashText;
   }
