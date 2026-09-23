@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "mode": "safe-staging",
+  "production_write": false,
+  "human_approval_required": true,
+  "domains": [
+    "music_artists","music_tracks","music_albums","music_genres","music_history",
+    "technorizon","radio_audio","geography","science_technology",
+    "cinema_tv_popculture","languages","general_culture"
+  ],
+  "dynamic_data_excluded_from_permanent_facts": ["news","weather","sports_results","prices"],
+  "required_fields": ["domain","canonical_name","source_name","fingerprint","batch_id"],
+  "default_review_status": "pending",
+  "default_active": false
+}
