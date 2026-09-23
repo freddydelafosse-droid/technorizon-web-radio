@@ -110,22 +110,6 @@ module.exports=async function handler(req,res){
    if(view==='results'||view==='upcoming'){const ep=view==='results'?'eventspastleague.php?id=':'eventsnextleague.php?id=',d=await fetchJSON(base+ep+id).catch(()=>({events:[]}));let events=(d.events||[]).map(eventOut);events.sort((a,b)=>view==='results'?String(b.time).localeCompare(String(a.time)):String(a.time).localeCompare(String(b.time)));return res.status(200).json({league:leagueKey,view,events:events.slice(0,12)})}
    const d=await fetchJSON(base+'lookuptable.php?l='+id).catch(()=>({table:[]}));const table=(d.table||[]).map(tableRow).sort((a,b)=>a.rank-b.rank);return res.status(200).json({league:leagueKey,view,table,source:table.length?'provider':'unavailable',message:table.length?undefined:'Classement momentanément indisponible.'});
   }
-  // Daikin StarLigue 2026-2027 — tentative de lecture officielle LNH sans jamais bloquer les autres sports.
-  if(leagueKey==='provider-4536'&&view==='standings'&&String(q.sport||'').toLowerCase()==='handball'){
-   try{
-    const rr=await fetch('https://www.lnh.fr/daikin-starligue/equipes/hbc-nantes',{signal:AbortSignal.timeout(8000),headers:{'user-agent':'Mozilla/5.0'}});
-    if(rr.ok){
-     const html=await rr.text(),plain=html.replace(/<[^>]*>/g,' ').replace(/&nbsp;|&#160;/g,' ').replace(/&amp;/g,'&').replace(/\s+/g,' ');
-     // La source officielle reste prioritaire, mais si son HTML change on retombe proprement sur le fournisseur existant.
-     console.log('LNH_STANDINGS_SOURCE',plain.toLowerCase().includes('classement')?'available':'unavailable');
-    }
-   }catch(e){console.error('LNH_STANDINGS',e?.message||e)}
-  }
-  let tableLeague=leagueKey.startsWith('provider-')?leagueKey.slice(9):leagueMap[leagueKey];')+'\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(-?\\d+)','i'),m=section.match(re);if(!m)continue;table.push({rank:0,team,badge:'',points:Number(m[2]),played:Number(m[3]),win:Number(m[4]),loss:Number(m[5]),draw:Number(m[6]),gf:Number(m[7]),ga:Number(m[8]),gd:Number(m[9])})}
-    table.sort((a,b)=>b.points-a.points||b.gd-a.gd||b.gf-a.gf).forEach((x,i)=>x.rank=i+1);
-    if(table.length>=14)return res.status(200).json({league:leagueKey,view,table,source:'lnh-official'});
-   }catch(e){console.error('LNH_STANDINGS',e?.message||e)}
-  }
   let tableLeague=leagueKey.startsWith('provider-')?leagueKey.slice(9):leagueMap[leagueKey];
   if(!tableLeague&&discoverMap[leagueKey]){try{const d=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(leagueKey==='coupe-france'?'France':'')+'&s=Soccer');const wanted=discoverMap[leagueKey].toLowerCase(),hit=(d.countries||[]).find(x=>String(x.strLeague||'').toLowerCase().includes(wanted)||wanted.includes(String(x.strLeague||'').toLowerCase()));if(hit?.idLeague)tableLeague=String(hit.idLeague)}catch{}}
   if(leagueKey==='coupe-france'){
