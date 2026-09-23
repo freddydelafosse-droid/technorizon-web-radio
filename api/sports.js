@@ -119,6 +119,16 @@ module.exports=async function handler(req,res){
    if(view==='results'||view==='upcoming'){const ep=view==='results'?'eventspastleague.php?id=':'eventsnextleague.php?id=',d=await fetchJSON(base+ep+id).catch(()=>({events:[]}));let events=(d.events||[]).map(eventOut);events.sort((a,b)=>view==='results'?String(b.time).localeCompare(String(a.time)):String(a.time).localeCompare(String(b.time)));return res.status(200).json({league:leagueKey,view,events:events.slice(0,12)})}
    const d=await fetchJSON(base+'lookuptable.php?l='+id).catch(()=>({table:[]}));const table=(d.table||[]).map(tableRow).sort((a,b)=>a.rank-b.rank);return res.status(200).json({league:leagueKey,view,table,source:table.length?'provider':'unavailable',message:table.length?undefined:'Classement momentanément indisponible.'});
   }
+  // Pour les sports hors football, une compétition fournisseur doit retourner une liste complète,
+  // pas seulement le premier élément des endpoints past/next.
+  if(leagueKey.startsWith('provider-')&&view!=='standings'&&String(q.sport||'').toLowerCase()!=='football'){
+   const id=leagueKey.slice(9),season='2026-2027';
+   const sd=await fetchJSON(base+'eventsseason.php?id='+encodeURIComponent(id)+'&s='+encodeURIComponent(season),10000).catch(()=>({events:[]}));
+   const now=Date.now(),toMs=e=>Date.parse(String([e.dateEvent,e.strTime].filter(Boolean).join(' ')).replace(' ','T'))||0;
+   let raw=(sd.events||[]).filter(e=>{const t=toMs(e),played=e.intHomeScore!==null&&e.intHomeScore!==undefined&&e.intHomeScore!=='';return view==='results'?played&&(!t||t<=now):!played&&(!t||t>=now)});
+   raw.sort((a,b)=>view==='results'?toMs(b)-toMs(a):toMs(a)-toMs(b));
+   if(raw.length)return res.status(200).json({league:leagueKey,view,events:raw.slice(0,24).map(eventOut),source:'season'});
+  }
   let tableLeague=leagueKey.startsWith('provider-')?leagueKey.slice(9):leagueMap[leagueKey];
   if(!tableLeague&&discoverMap[leagueKey]){try{const d=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(leagueKey==='coupe-france'?'France':'')+'&s=Soccer');const wanted=discoverMap[leagueKey].toLowerCase(),hit=(d.countries||[]).find(x=>String(x.strLeague||'').toLowerCase().includes(wanted)||wanted.includes(String(x.strLeague||'').toLowerCase()));if(hit?.idLeague)tableLeague=String(hit.idLeague)}catch{}}
   if(leagueKey==='coupe-france'){
