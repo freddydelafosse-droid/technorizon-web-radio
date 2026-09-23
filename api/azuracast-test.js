@@ -5,7 +5,8 @@ const JAYA_BANNED_GENERIC=[
  "tres bonne ecoute","on garde l energie","je vous accompagne encore un moment",
  "j espere que votre soiree se passe bien","la musique continue","on continue",
  "on garde cette energie","garder l energie","plein d energie",
- "je reste avec vous","la suite arrive","montez le son"
+ "je reste avec vous","la suite arrive","montez le son",
+ "la regie me fait signe","la regie me dit de faire court","faire court","vous laisser ecouter"
 ];
 function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
 function jayaTooGeneric(text){
@@ -116,7 +117,7 @@ function generic(slot){
    "Petite parenthèse avec Jaya, juste comme ça, puis on repart immédiatement en musique.",
    "Vous êtes toujours là ? Parfait, moi aussi. Allez, je rends l'antenne à la musique.",
    "Un passage éclair au micro et je disparais déjà… enfin, jusqu'à la prochaine fois.",
-   "La régie me fait signe de faire court. Pour une fois, je vais être sage… musique !",
+   "Une petite parenthèse avec vous, et je rends déjà la place au prochain titre.",
    "Quelques secondes ensemble, ça me suffisait pour venir vous dire bonjour. On repart.",
    "Je passais simplement voir si tout allait bien de votre côté. Maintenant, place au son."
   ],
@@ -124,7 +125,7 @@ function generic(slot){
    "Bonsoir ! Jaya passe quelques secondes au micro, puis je vous rends immédiatement la musique.",
    "Bon… la soirée est lancée. Je ne vais pas casser le rythme avec un grand discours, on repart !",
    "Petit passage de Jaya entre deux titres. Installez-vous, je m'occupe juste de remettre le son.",
-   "La régie me dit de faire court… ça tombe bien, j'avais surtout envie de vous laisser écouter.",
+   "Je passe juste quelques secondes vous tenir compagnie… et le prochain titre prend déjà le relais.",
    "Vous venez d'arriver ? Bienvenue. Vous étiez déjà là ? Alors vous connaissez la suite : musique !",
    "Je passe, je vous fais un petit signe, et je repars. Oui, parfois je sais être raisonnable.",
    "Quelques secondes au micro, juste pour le plaisir d'être avec vous. Allez, retour au son.",
@@ -300,7 +301,7 @@ async function smartAnnouncement({song,slot,hour,minute}){
    console.error("JAYA_REPEAT_REJECTED",out);
    const fallbackAngles=[
     "Bon, petite question : qui a décidé qu'on devait rester sage à cette heure-ci ? Moi, certainement pas.",
-    "Alors là… je crois que la régie essaie encore de me faire tenir tranquille. Mauvais calcul, on repart !",
+    "Bon… j'avais une remarque à faire, mais le prochain titre mérite clairement la priorité.",
     "Vous savez ce petit moment où le pied commence à suivre le rythme tout seul ? Voilà. Ne luttez pas.",
     "J'avais prévu de rester raisonnable… puis j'ai entendu ce qui tourne ici. Plan annulé, évidemment.",
     "Eh bien, si vous venez d'arriver, vous tombez pile au bon moment. Installez-vous, le son fait le reste.",
