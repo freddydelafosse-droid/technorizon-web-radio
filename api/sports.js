@@ -68,3 +68,4 @@ module.exports=async function handler(req,res){
  }catch(e){res.status(502).json({events:[],error:'sports_provider_unavailable'})}
 }
 };
+}
