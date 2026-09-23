@@ -52,22 +52,26 @@ module.exports=async function handler(req,res){
   if(String(q.sport||'').toLowerCase()==='cycling'){
    const cc=String(q.country||'fr').toLowerCase(),countryName=countryNames[cc]||'France';
    try{
-    const api='https://api.sportspuff.net';
-    const [scores,schedule]=await Promise.all([
-     fetchJSON(api+'/v1/scores/cycling/today',7000).catch(()=>({})),
-     fetchJSON(api+'/v1/schedule/cycling/today',7000).catch(()=>({}))
-    ]);
+    const api='https://api.sportspuff.net',now=new Date(),dates=[];
+    for(let n=-14;n<=45;n++){const d=new Date(now);d.setUTCDate(d.getUTCDate()+n);dates.push(d.toISOString().slice(0,10))}
+    const chunks=[];
+    for(let i=0;i<dates.length;i+=10){
+     const part=dates.slice(i,i+10);
+     chunks.push(...await Promise.all(part.map(async date=>{
+      const [schedule,scores]=await Promise.all([
+       fetchJSON(api+'/v1/schedule/cycling/'+date,5000).catch(()=>({})),
+       date<=now.toISOString().slice(0,10)?fetchJSON(api+'/v1/scores/cycling/'+date,5000).catch(()=>({})) : Promise.resolve({})
+      ]);
+      return {date,schedule,scores};
+     })));
+    }
     const pick=o=>Array.isArray(o)?o:(o.events||o.games||o.scores||o.schedule||o.items||o.data||[]);
-    let rows=[...pick(scores),...pick(schedule)];
-    const norm=x=>({home:x.race||x.event||x.name||x.title||x.stage||'Épreuve cycliste',away:x.location||x.city||x.country||x.venue||'',score:x.winner||x.stage_winner||x.result||'',competition:x.competition||x.tour||x.league||x.series||'UCI World Tour',time:x.start_time||x.datetime||x.date||x.start||'',live:Boolean(x.live||String(x.status||'').toLowerCase().includes('live'))});
-    let events=rows.map(norm).filter(x=>x.home!=='Épreuve cycliste'||x.time);
-    const seen=new Set();events=events.filter(x=>{const k=x.home+'|'+x.time;if(seen.has(k))return false;seen.add(k);return true});
-    if(events.length)return res.status(200).json({country:countryName,sport:'Cycling',events:events.slice(0,20),source:'sportspuff'});
-    const ld=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(countryName)+'&s=Cycling').catch(()=>({countries:[]}));
-    const leagues=(ld.countries||[]).slice(0,8);
-    const batches=await Promise.all(leagues.flatMap(l=>[fetchJSON(base+'eventspastleague.php?id='+encodeURIComponent(l.idLeague)).catch(()=>({events:[]})),fetchJSON(base+'eventsnextleague.php?id='+encodeURIComponent(l.idLeague)).catch(()=>({events:[]}))]));
-    events=batches.flatMap(x=>x.events||[]).map(e=>({home:e.strEvent||e.strHomeTeam||'Épreuve cycliste',away:e.strVenue||e.strCity||'',score:'',competition:e.strLeague||'Cyclisme',time:[e.dateEvent,e.strTime].filter(Boolean).join(' '),live:String(e.strStatus||'').toLowerCase().includes('live')}));
-    return res.status(200).json({country:countryName,sport:'Cycling',events:events.slice(0,20),source:'thesportsdb-fallback'});
+    const rows=chunks.flatMap(x=>[...pick(x.schedule),...pick(x.scores)].map(r=>({...r,_date:x.date})));
+    const norm=x=>({home:x.race||x.event||x.name||x.title||x.stage||x.stage_name||'Épreuve cycliste',away:x.location||x.city||x.country||x.venue||x.route||'',score:x.winner||x.stage_winner||x.result||x.gc_leader||'',competition:x.competition||x.tour||x.league||x.series||x.race_name||'UCI World Tour',time:x.start_time||x.datetime||x.date||x.start||x._date||'',live:Boolean(x.live||String(x.status||'').toLowerCase().includes('live'))});
+    let events=rows.map(norm).filter(x=>x.home!=='Épreuve cycliste'||x.time),seen=new Set();
+    events=events.filter(x=>{const k=x.home+'|'+x.time+'|'+x.competition;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>String(a.time).localeCompare(String(b.time)));
+    if(events.length)return res.status(200).json({country:countryName,sport:'Cycling',events:events.slice(0,40),source:'sportspuff-range'});
+    return res.status(200).json({country:countryName,sport:'Cycling',events:[],source:'sportspuff-range'});
    }catch{return res.status(200).json({country:countryName,sport:'Cycling',events:[]})}
   }
   if(String(q.catalog||'')==='1'){
