@@ -380,8 +380,17 @@ async function handler(req,res){
   const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
   const uploadDir=isEditorial?"Jaya/Meteo":"Jaya/Auto";
   const up=await az(base,key,"/files/upload?currentDirectory="+encodeURIComponent(uploadDir),{method:"POST",body:form});
-  if(!up.ok){const detail=await up.text().catch(()=>""),msg="Upload failed";console.error("JAYA_UPLOAD",up.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:up.status,stage:"upload"})}
+  const upRaw=await up.text();let upData=null;try{upData=JSON.parse(upRaw)}catch{}
+  if(!up.ok){const msg="Upload failed";console.error("JAYA_UPLOAD",up.status,upRaw.slice(0,500));return res.status(502).json({ok:false,error:msg,status:up.status,stage:"upload"})}
   const path=uploadDir+"/"+file;
+  // Jaya uniquement : +3 dB via la métadonnée native Liquidsoap d'AzuraCast.
+  // Aucun changement du TTS, du timbre, de la fluidité ou du niveau des musiques.
+  const mediaId=upData?.id;
+  if(mediaId){
+   const gain=await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:3}})});
+   if(!gain.ok){const detail=await gain.text().catch(()=>"");console.error("JAYA_GAIN",gain.status,detail.slice(0,500))}
+   else console.log("JAYA_GAIN","+3 dB",mediaId);
+  }else console.error("JAYA_GAIN","Media ID absent après upload");
   // Range automatiquement chaque nouvelle intervention dans la playlist de stockage "Banque Jaya".
   // La playlist peut rester désactivée : la mise en file directe ci-dessous continue de gérer le passage antenne.
   try{
