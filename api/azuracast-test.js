@@ -6,7 +6,8 @@ const JAYA_BANNED_GENERIC=[
  "j espere que votre soiree se passe bien","la musique continue","on continue",
  "on garde cette energie","garder l energie","plein d energie",
  "je reste avec vous","la suite arrive","montez le son",
- "la regie me fait signe","la regie me dit de faire court","faire court","vous laisser ecouter"
+ "la regie me fait signe","la regie me dit de faire court","faire court","vous laisser ecouter",
+ "vous venez d arriver","vous etiez deja la"
 ];
 function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
 function jayaTooGeneric(text){
@@ -126,7 +127,7 @@ function generic(slot){
    "Bon… la soirée est lancée. Je ne vais pas casser le rythme avec un grand discours, on repart !",
    "Petit passage de Jaya entre deux titres. Installez-vous, je m'occupe juste de remettre le son.",
    "Je passe juste quelques secondes vous tenir compagnie… et le prochain titre prend déjà le relais.",
-   "Vous venez d'arriver ? Bienvenue. Vous étiez déjà là ? Alors vous connaissez la suite : musique !",
+   "Un petit passage au micro, juste histoire de mettre mon grain de sel… et je rends déjà la place au son.",
    "Je passe, je vous fais un petit signe, et je repars. Oui, parfois je sais être raisonnable.",
    "Quelques secondes au micro, juste pour le plaisir d'être avec vous. Allez, retour au son.",
    "Jaya par ici… et promis, pas de long discours. La soirée appartient à la musique."
@@ -304,7 +305,7 @@ async function smartAnnouncement({song,slot,hour,minute}){
     "Bon… j'avais une remarque à faire, mais le prochain titre mérite clairement la priorité.",
     "Vous savez ce petit moment où le pied commence à suivre le rythme tout seul ? Voilà. Ne luttez pas.",
     "J'avais prévu de rester raisonnable… puis j'ai entendu ce qui tourne ici. Plan annulé, évidemment.",
-    "Eh bien, si vous venez d'arriver, vous tombez pile au bon moment. Installez-vous, le son fait le reste.",
+    "Alors là… pas besoin d’en faire des tonnes : le rythme parle très bien tout seul. Je lui rends la main.",
     "Petit sourire en régie… ça veut généralement dire qu'on prépare quelque chose. Je dis ça, je ne dis rien."
    ];
    const safePool=fallbackAngles.filter(x=>!jayaTooGeneric(x));
