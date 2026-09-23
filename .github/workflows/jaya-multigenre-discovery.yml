@@ -1,0 +1,37 @@
+name: Build Jaya Multi-Genre Artist Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      artists_per_genre:
+        description: "Résultats MusicBrainz par genre (5-100)"
+        default: "50"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: jaya-brain-enrichment-safe
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: node brain-enrichment/discover-multigenre-artists.mjs "${{ inputs.artists_per_genre }}"
+      - name: Validate
+        shell: bash
+        run: |
+          FILE=$(ls -t brain-enrichment/generated/multigenre-*.json | head -1)
+          node brain-enrichment/dry-run.mjs "$FILE"
+      - name: Commit staging only
+        shell: bash
+        run: |
+          git config user.name "technorizon-brain-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add brain-enrichment/generated/
+          git diff --cached --quiet && exit 0
+          git commit -m "Generate Jaya multi-genre artist staging dataset"
+          git push origin HEAD:jaya-brain-enrichment-safe
