@@ -1,0 +1,43 @@
+name: Generate Jaya Music Knowledge Batch
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Nombre maximum d'artistes du catalogue"
+        required: false
+        default: "30"
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: jaya-brain-enrichment-safe
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Generate sourced artist batch
+        shell: bash
+        run: |
+          LIMIT="${{ inputs.limit }}"
+          mapfile -t ARTISTS < <(head -n "$LIMIT" brain-enrichment/catalog/priority-artists.txt | sed '/^[[:space:]]*$/d')
+          node brain-enrichment/generate-music-seeds.mjs "${ARTISTS[@]}"
+      - name: Dry-run generated batch
+        shell: bash
+        run: |
+          FILE=$(ls -t brain-enrichment/generated/music-*.json | head -1)
+          node brain-enrichment/dry-run.mjs "$FILE"
+      - name: Commit generated staging data only
+        shell: bash
+        run: |
+          git config user.name "technorizon-brain-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add brain-enrichment/generated/
+          git diff --cached --quiet && exit 0
+          git commit -m "Generate reviewed-source Jaya music staging batch"
+          git push origin HEAD:jaya-brain-enrichment-safe
