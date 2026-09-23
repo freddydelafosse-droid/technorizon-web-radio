@@ -52,13 +52,17 @@ module.exports=async function handler(req,res){
   if(String(q.sport||'').toLowerCase()==='cycling'){
    const cc=String(q.country||'fr').toLowerCase(),countryName=countryNames[cc]||'France',now=new Date();
    const races=[
-    ['2026-09-11','2026-09-11','Grand Prix Cycliste de Québec','Canada'],
-    ['2026-09-13','2026-09-13','Grand Prix Cycliste de Montréal','Canada'],
-    ['2026-10-10','2026-10-10','Il Lombardia','Italie'],
-    ['2026-10-13','2026-10-18','Tour of Guangxi','Chine']
+    {start:'2026-09-11',end:'2026-09-11',name:'Grand Prix Cycliste de Québec',place:'Canada',series:'UCI WorldTour',winner:'Remco Evenepoel',podium:'1. Remco Evenepoel • 2. Giulio Ciccone • 3. Anthon Charmig'},
+    {start:'2026-09-13',end:'2026-09-13',name:'Grand Prix Cycliste de Montréal',place:'Canada',series:'UCI WorldTour',winner:'Isaac Del Toro',podium:'1. Isaac Del Toro • 2. Paul Seixas • 3. Brandon McNulty'},
+    {start:'2026-09-20',end:'2026-09-27',name:'Championnats du Monde Route UCI',place:'Montréal, Canada',series:'UCI',winner:'En cours',podium:''},
+    {start:'2026-10-10',end:'2026-10-10',name:'Il Lombardia',place:'Italie',series:'UCI WorldTour',winner:'À venir',podium:''},
+    {start:'2026-10-13',end:'2026-10-18',name:'Tour of Guangxi',place:'Chine',series:'UCI WorldTour',winner:'À venir',podium:''}
    ];
-   const events=races.filter(r=>new Date(r[1]+'T23:59:59Z')>=new Date(now.getTime()-14*86400000)).map(r=>({home:r[2],away:r[3],score:'',competition:'UCI WorldTour',time:r[0]===r[1]?r[0]:(r[0]+' → '+r[1]),live:false}));
-   return res.status(200).json({country:countryName,sport:'Cycling',events,source:'uci-2026-calendar'});
+   const events=races.filter(r=>new Date(r.end+'T23:59:59Z')>=new Date(now.getTime()-14*86400000)).map(r=>{
+    const finished=new Date(r.end+'T23:59:59Z')<now,started=new Date(r.start+'T00:00:00Z')<=now&&!finished;
+    return {home:r.name,away:r.place,score:finished?('🏆 '+r.winner):(started?'EN COURS':'À VENIR'),competition:(finished?'Résultat • ':'')+r.series+(r.podium?' • '+r.podium:''),time:r.start===r.end?r.start:(r.start+' → '+r.end),live:started};
+   });
+   return res.status(200).json({country:countryName,sport:'Cycling',events,source:'verified-uci-calendar'});
   }
   if(String(q.catalog||'')==='1'){
    const cc=String(q.country||'fr').toLowerCase(),ss=String(q.sport||'football').toLowerCase(),preset=competitionCatalog[cc]?.[ss]||[];
