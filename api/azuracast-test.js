@@ -371,7 +371,7 @@ async function handler(req,res){
     ?["Prochain flash complet à "+flashLabel(nextFlash)+".","On se retrouve à "+flashLabel(nextFlash)+" pour le prochain flash complet.","Rendez-vous à "+flashLabel(nextFlash)+" pour notre prochain point complet."][hash(String(slot)+"next")%3]
     :"Prochain rendez-vous infos et météo, demain à 7 heures.";
    const weatherBody=weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"").replace(/\s*Très bonne écoute\s*!?\s*$/i,"").trim();
-   editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weatherBody+" Très bonne écoute ! "+nextFlashText;
+   editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weatherBody+" "+nextFlashText+" Très bonne écoute !";
   }
   const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isEditorial?"jaya-flash-":"jaya-auto-")+slot+".mp3";
   const ttsText=text.replace(/Technorizon\.fr/gi,"Techno Rizon point F R").replace(/Technorizon/gi,"Techno Rizon");
