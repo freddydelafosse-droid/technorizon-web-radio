@@ -52,15 +52,22 @@ module.exports=async function handler(req,res){
   if(String(q.sport||'').toLowerCase()==='cycling'){
    const cc=String(q.country||'fr').toLowerCase(),countryName=countryNames[cc]||'France';
    try{
-    const ld=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(countryName)+'&s=Cycling');
+    const api='https://api.sportspuff.net';
+    const [scores,schedule]=await Promise.all([
+     fetchJSON(api+'/v1/scores/cycling/today',7000).catch(()=>({})),
+     fetchJSON(api+'/v1/schedule/cycling/today',7000).catch(()=>({}))
+    ]);
+    const pick=o=>Array.isArray(o)?o:(o.events||o.games||o.scores||o.schedule||o.items||o.data||[]);
+    let rows=[...pick(scores),...pick(schedule)];
+    const norm=x=>({home:x.race||x.event||x.name||x.title||x.stage||'Épreuve cycliste',away:x.location||x.city||x.country||x.venue||'',score:x.winner||x.stage_winner||x.result||'',competition:x.competition||x.tour||x.league||x.series||'UCI World Tour',time:x.start_time||x.datetime||x.date||x.start||'',live:Boolean(x.live||String(x.status||'').toLowerCase().includes('live'))});
+    let events=rows.map(norm).filter(x=>x.home!=='Épreuve cycliste'||x.time);
+    const seen=new Set();events=events.filter(x=>{const k=x.home+'|'+x.time;if(seen.has(k))return false;seen.add(k);return true});
+    if(events.length)return res.status(200).json({country:countryName,sport:'Cycling',events:events.slice(0,20),source:'sportspuff'});
+    const ld=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(countryName)+'&s=Cycling').catch(()=>({countries:[]}));
     const leagues=(ld.countries||[]).slice(0,8);
-    const batches=await Promise.all(leagues.flatMap(l=>[
-     fetchJSON(base+'eventspastleague.php?id='+encodeURIComponent(l.idLeague)).catch(()=>({events:[]})),
-     fetchJSON(base+'eventsnextleague.php?id='+encodeURIComponent(l.idLeague)).catch(()=>({events:[]}))
-    ]));
-    let events=batches.flatMap(x=>x.events||[]).map(e=>({home:e.strEvent||e.strHomeTeam||'Épreuve cycliste',away:e.strVenue||e.strCity||'',score:'',competition:e.strLeague||'Cyclisme',time:[e.dateEvent,e.strTime].filter(Boolean).join(' '),live:String(e.strStatus||'').toLowerCase().includes('live')}));
-    const seen=new Set();events=events.filter(x=>{const k=x.home+'|'+x.time;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>String(b.time).localeCompare(String(a.time)));
-    return res.status(200).json({country:countryName,sport:'Cycling',events:events.slice(0,20)});
+    const batches=await Promise.all(leagues.flatMap(l=>[fetchJSON(base+'eventspastleague.php?id='+encodeURIComponent(l.idLeague)).catch(()=>({events:[]})),fetchJSON(base+'eventsnextleague.php?id='+encodeURIComponent(l.idLeague)).catch(()=>({events:[]}))]));
+    events=batches.flatMap(x=>x.events||[]).map(e=>({home:e.strEvent||e.strHomeTeam||'Épreuve cycliste',away:e.strVenue||e.strCity||'',score:'',competition:e.strLeague||'Cyclisme',time:[e.dateEvent,e.strTime].filter(Boolean).join(' '),live:String(e.strStatus||'').toLowerCase().includes('live')}));
+    return res.status(200).json({country:countryName,sport:'Cycling',events:events.slice(0,20),source:'thesportsdb-fallback'});
    }catch{return res.status(200).json({country:countryName,sport:'Cycling',events:[]})}
   }
   if(String(q.catalog||'')==='1'){
