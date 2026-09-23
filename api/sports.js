@@ -110,6 +110,25 @@ module.exports=async function handler(req,res){
    if(view==='results'||view==='upcoming'){const ep=view==='results'?'eventspastleague.php?id=':'eventsnextleague.php?id=',d=await fetchJSON(base+ep+id).catch(()=>({events:[]}));let events=(d.events||[]).map(eventOut);events.sort((a,b)=>view==='results'?String(b.time).localeCompare(String(a.time)):String(a.time).localeCompare(String(b.time)));return res.status(200).json({league:leagueKey,view,events:events.slice(0,12)})}
    const d=await fetchJSON(base+'lookuptable.php?l='+id).catch(()=>({table:[]}));const table=(d.table||[]).map(tableRow).sort((a,b)=>a.rank-b.rank);return res.status(200).json({league:leagueKey,view,table,source:table.length?'provider':'unavailable',message:table.length?undefined:'Classement momentanément indisponible.'});
   }
+  // Sources officielles prioritaires pour les classements français.
+  if(view==='standings'&&String(q.sport||'').toLowerCase()==='handball'&&leagueKey==='provider-4536'){
+   try{
+    const r=await fetch('https://www.lnh.fr/daikin-starligue/equipes/paris-saint-germain-handball',{headers:{'user-agent':'Mozilla/5.0'},signal:AbortSignal.timeout(9000)});
+    const h=await r.text(),plain=h.replace(/<script[\\s\\S]*?<\\/script>/gi,' ').replace(/<style[\\s\\S]*?<\\/style>/gi,' ');
+    const rows=[...plain.matchAll(/<tr[^>]*>([\\s\\S]*?)<\\/tr>/gi)].map(m=>[...m[1].matchAll(/<t[dh][^>]*>([\\s\\S]*?)<\\/t[dh]>/gi)].map(x=>x[1].replace(/<[^>]+>/g,' ').replace(/&nbsp;|&#160;/gi,' ').replace(/&amp;/gi,'&').replace(/\\s+/g,' ').trim())).filter(a=>a.length>=9&&/^\\d+$/.test(a[0]));
+    const table=rows.map(a=>({rank:Number(a[0]),team:a[1],badge:'',points:Number(a[2])||0,played:Number(a[3])||0,win:Number(a[4])||0,loss:Number(a[5])||0,draw:Number(a[6])||0,gf:Number(a[7])||0,ga:Number(a[8])||0,gd:Number(a[9])||0})).filter(x=>x.team);
+    if(table.length>=10)return res.status(200).json({league:leagueKey,view,table,source:'lnh-official'});
+   }catch(e){console.error('LNH_STANDINGS',e?.message||e)}
+  }
+  if(view==='standings'&&String(q.sport||'').toLowerCase()==='hockey'&&(leagueKey==='provider-4927'||leagueKey==='generic')){
+   try{
+    const r=await fetch('https://liguemagnus.com/saison-reguliere/classement/?saison=240',{headers:{'user-agent':'Mozilla/5.0'},signal:AbortSignal.timeout(9000)});
+    const h=await r.text();
+    const rows=[...h.matchAll(/<tr[^>]*>([\\s\\S]*?)<\\/tr>/gi)].map(m=>[...m[1].matchAll(/<t[dh][^>]*>([\\s\\S]*?)<\\/t[dh]>/gi)].map(x=>x[1].replace(/<[^>]+>/g,' ').replace(/&nbsp;|&#160;/gi,' ').replace(/&amp;/gi,'&').replace(/\\s+/g,' ').trim())).filter(a=>a.length>=10&&/^\\d+$/.test(a[0]));
+    const table=rows.map(a=>({rank:Number(a[0]),team:a[1],badge:'',points:Number(a[2])||0,played:Number(a[3])||0,win:(Number(a[4])||0)+(Number(a[5])||0),draw:Number(a[6])||0,loss:(Number(a[6])||0)+(Number(a[7])||0),gf:Number(a[8])||0,ga:Number(a[9])||0,gd:(Number(a[8])||0)-(Number(a[9])||0)})).filter(x=>x.team);
+    if(table.length>=10)return res.status(200).json({league:leagueKey,view,table,source:'liguemagnus-official'});
+   }catch(e){console.error('MAGNUS_STANDINGS',e?.message||e)}
+  }
   let tableLeague=leagueKey.startsWith('provider-')?leagueKey.slice(9):leagueMap[leagueKey];
   if(!tableLeague&&discoverMap[leagueKey]){try{const d=await fetchJSON(base+'search_all_leagues.php?c='+encodeURIComponent(leagueKey==='coupe-france'?'France':'')+'&s=Soccer');const wanted=discoverMap[leagueKey].toLowerCase(),hit=(d.countries||[]).find(x=>String(x.strLeague||'').toLowerCase().includes(wanted)||wanted.includes(String(x.strLeague||'').toLowerCase()));if(hit?.idLeague)tableLeague=String(hit.idLeague)}catch{}}
   if(leagueKey==='coupe-france'){
