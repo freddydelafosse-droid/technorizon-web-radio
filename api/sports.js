@@ -94,9 +94,8 @@ module.exports=async function handler(req,res){
   if(String(q.country||'fr').toLowerCase()==='fr'&&String(q.sport||'').toLowerCase()==='volleyball'&&String(q.catalog||'')!=='1'){
    const now=Date.now();if(now<Date.parse('2026-10-17T00:00:00+02:00'))return res.status(200).json({country:'France',sport:'Volleyball',events:[],message:'La D1 Masculine 2026-2027 débute le 17 octobre.'});
   }
-  if(String(q.country||'fr').toLowerCase()==='fr'&&String(q.sport||'').toLowerCase()==='basketball'&&String(q.catalog||'')!=='1'){
-   const now=Date.now();if(now<Date.parse('2026-09-25T00:00:00+02:00'))return res.status(200).json({country:'France',sport:'Basketball',events:[],message:'La Betclic ÉLITE 2026-2027 débute le 25 septembre.'});
-  }
+  // Basketball: ne pas court-circuiter les compétitions fournisseur avant le début de la Betclic ÉLITE.
+  // Coupe de France, ÉLITE 2/NM1 et féminin ont leur propre calendrier.
   const leagueKey=String(q.league||'').toLowerCase(),view=String(q.view||'').toLowerCase();
   if(leagueKey.startsWith('rugby-')){
    const rugbyIds={'rugby-top14':'4430','rugby-prod2':'5172','rugby-six-nations':'4714'},id=rugbyIds[leagueKey];
