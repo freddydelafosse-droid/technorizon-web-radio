@@ -1,0 +1,45 @@
+electronic
+house
+techno
+trance
+eurodance
+disco
+funk
+pop
+rock
+alternative rock
+indie rock
+hard rock
+heavy metal
+punk
+hip hop
+rap
+r&b
+soul
+reggae
+ska
+jazz
+blues
+country
+folk
+gospel
+latin
+salsa
+reggaeton
+afrobeat
+afrobeats
+dancehall
+k-pop
+j-pop
+chanson
+classical
+opera
+ambient
+drum and bass
+dubstep
+garage
+grime
+new wave
+synthpop
+industrial
+world music
