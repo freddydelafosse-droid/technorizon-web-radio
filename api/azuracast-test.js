@@ -454,7 +454,11 @@ async function handler(req,res){
   }
   const editorialPeriod=isEditorial?(lh<9?"07":"11"):"";
   const editorialDay=isEditorial?new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now):"";
-  const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
+  const generatedText=isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm});
+  // Filet de sécurité H24 : si l’IA/anti-répétition ne renvoie rien, Jaya utilise
+  // une intervention locale déterministe au lieu de rester silencieuse.
+  const safeText=(!isEditorial&&(!generatedText||String(generatedText).trim().length<12))?generic(slot):generatedText;
+  const text=radioPause(enforceDaypart(safeText,lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
   // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
   if(!text||text.trim().length<12){
    console.error("JAYA_EMPTY_TEXT_BLOCKED",{isEditorial,mode,slot,nextSong:!!nextSong});
