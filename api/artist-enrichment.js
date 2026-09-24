@@ -134,8 +134,12 @@ export default async function handler(req, res) {
     // et fragiles avec les noms contenant &, +, apostrophes, parenthèses, etc.
     const existingResponse = await supabaseFetchWithRetry(
       `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id,artist_name&limit=5000`,
-      { headers: dbHeaders }
+      { headers: { ...dbHeaders, Range: "0-4999" } }
     );
+    // NOTE: keep the complete queue visible for deduplication even when PostgREST defaults to 1000 rows.
+    /*,
+      { headers: dbHeaders }
+    );*/
     if (!existingResponse.ok) {
       const details = await existingResponse.text();
       throw new Error(`Lecture queue impossible : ${details}`);
