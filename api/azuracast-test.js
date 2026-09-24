@@ -400,11 +400,22 @@ async function handler(req,res){
      const bank=playlists.find(p=>String(p?.name||"").trim().toLowerCase()==="banque jaya");
      if(bank?.id){
       const assign=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"playlist",playlists:[String(bank.id)],files:[path],dirs:[]})});
-      if(!assign.ok){const detail=await assign.text().catch(()=>"");console.error("JAYA_HOROSCOPE_BANK_ASSIGN",assign.status,detail.slice(0,500))}
-      else console.log("JAYA_HOROSCOPE_BANK_ASSIGNED",path,bank.id);
-     }else console.error("JAYA_HOROSCOPE_BANK_ASSIGN","Playlist Banque Jaya introuvable");
-    }else console.error("JAYA_HOROSCOPE_BANK_PLAYLISTS",pr.status,praw.slice(0,500));
-   }catch(e){console.error("JAYA_HOROSCOPE_BANK_ASSIGN",e?.message||e)}
+      if(!assign.ok){
+       const detail=await assign.text().catch(()=>"");console.error("JAYA_HOROSCOPE_BANK_ASSIGN",assign.status,detail.slice(0,500));
+       return res.status(502).json({ok:false,error:"Horoscope Banque Jaya assignment failed",status:assign.status,stage:"bank-assign",file:path});
+      } else console.log("JAYA_HOROSCOPE_BANK_ASSIGNED",path,bank.id);
+     }else{
+      console.error("JAYA_HOROSCOPE_BANK_ASSIGN","Playlist Banque Jaya introuvable");
+      return res.status(502).json({ok:false,error:"Playlist Banque Jaya introuvable",stage:"bank-playlist",file:path});
+     }
+    }else{
+     console.error("JAYA_HOROSCOPE_BANK_PLAYLISTS",pr.status,praw.slice(0,500));
+     return res.status(502).json({ok:false,error:"Impossible de verifier Banque Jaya",status:pr.status,stage:"bank-playlists",file:path});
+    }
+   }catch(e){
+    console.error("JAYA_HOROSCOPE_BANK_ASSIGN",e?.message||e);
+    return res.status(502).json({ok:false,error:"Horoscope Banque Jaya assignment exception",stage:"bank-assign",file:path});
+   }
    const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
    if(!q.ok)return res.status(502).json({ok:false,error:"Horoscope queue failed",stage:"queue"});
    return res.status(200).json({ok:true,action:"horoscope-generate",file:path,tts_generated:true,text});
