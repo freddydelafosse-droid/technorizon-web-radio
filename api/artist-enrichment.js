@@ -133,20 +133,25 @@ export default async function handler(req, res) {
     // puis faire la différence côté serveur. Cela évite les URLs PostgREST géantes
     // et fragiles avec les noms contenant &, +, apostrophes, parenthèses, etc.
     const existingResponse = await supabaseFetchWithRetry(
-      `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_name&limit=5000`,
+      `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id,artist_name&limit=5000`,
       { headers: dbHeaders }
     );
     if (!existingResponse.ok) {
       const details = await existingResponse.text();
       throw new Error(`Lecture queue impossible : ${details}`);
     }
-    const existing = new Set(
-      (await existingResponse.json())
-        .map((row) => String(row.artist_name || "").trim().toLowerCase())
-        .filter(Boolean)
+    const existingRows = await existingResponse.json();
+    const existingIds = new Set(
+      existingRows.map((row) => String(row.artist_id || "").trim()).filter(Boolean)
+    );
+    const existingNames = new Set(
+      existingRows.map((row) => String(row.artist_name || "").trim().toLowerCase()).filter(Boolean)
     );
     const rows = artists
-      .filter((artist) => !existing.has(artist.name.toLowerCase()))
+      .filter((artist) =>
+        !existingIds.has(String(artist.id)) &&
+        !existingNames.has(artist.name.toLowerCase())
+      )
       .map((artist) => ({
         artist_id: artist.id,
         artist_name: artist.name,
