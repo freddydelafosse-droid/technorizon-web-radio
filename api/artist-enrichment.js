@@ -117,7 +117,7 @@ export default async function handler(req, res) {
   // On ne modifie jamais artists ici : on crée uniquement des éléments de travail à valider.
   async function seedQueueFromArtists() {
     const artistsResponse = await supabaseFetchWithRetry(
-      `${supabaseUrl}/rest/v1/artists?select=name&status=eq.active&order=name.asc&limit=${SEED_BATCH_SIZE}`,
+      `${supabaseUrl}/rest/v1/artists?select=id,name&status=eq.active&order=name.asc&limit=${SEED_BATCH_SIZE}`,
       { headers: dbHeaders }
     );
     if (!artistsResponse.ok) {
@@ -125,8 +125,8 @@ export default async function handler(req, res) {
       throw new Error(`Lecture artists impossible : ${details}`);
     }
     const artists = (await artistsResponse.json())
-      .map((row) => String(row?.name || "").trim())
-      .filter(Boolean);
+      .map((row) => ({ id: row?.id, name: String(row?.name || "").trim() }))
+      .filter((row) => row.id != null && row.name);
     if (!artists.length) return { scanned: 0, inserted: 0 };
 
     // Requête volontairement simple : récupérer les noms déjà connus de la queue,
@@ -146,8 +146,13 @@ export default async function handler(req, res) {
         .filter(Boolean)
     );
     const rows = artists
-      .filter((name) => !existing.has(name.toLowerCase()))
-      .map((artist_name) => ({ artist_name, status: "pending", updated_at: new Date().toISOString() }));
+      .filter((artist) => !existing.has(artist.name.toLowerCase()))
+      .map((artist) => ({
+        artist_id: artist.id,
+        artist_name: artist.name,
+        status: "pending",
+        updated_at: new Date().toISOString()
+      }));
     if (!rows.length) return { scanned: artists.length, inserted: 0 };
 
     // Petits lots pour éviter une requête trop volumineuse et faciliter le diagnostic.
