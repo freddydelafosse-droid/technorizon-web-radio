@@ -33,6 +33,11 @@ on:
         required: false
         default: false
         type: boolean
+      horoscope_replay_now:
+        description: 'Forcer la rediffusion du Technoroscope existant'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   jaya:
@@ -46,6 +51,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_SCHEDULE: ${{ github.event.schedule }}
           HOROSCOPE_NOW: ${{ inputs.horoscope_now }}
+          HOROSCOPE_REPLAY_NOW: ${{ inputs.horoscope_replay_now }}
         run: |
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
           PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
