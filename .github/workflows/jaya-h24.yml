@@ -57,13 +57,22 @@ jobs:
           if [ "$EVENT_NAME" = "schedule" ]; then
             # Identifier les rendez-vous éditoriaux par le cron d'origine : GitHub Actions
             # peut démarrer plusieurs minutes en retard.
+            # Retrouver l'heure locale réellement visée par le cron, même si GitHub
+            # démarre après le changement d'heure (ex. 10:55 lancé à 11:02).
+            H=$((10#$PARIS_HOUR))
+            ACTUAL_M=$((10#$PARIS_MINUTE))
             if [ "$EVENT_SCHEDULE" = "55 * * * *" ]; then
-              case "$PARIS_HOUR" in
-                7|11) AUTO_WEATHER=true ;;
-                9) AUTO_FLASH_REPLAY="07" ;;
+              SCHEDULED_H=$H
+              if [ "$ACTUAL_M" -lt 55 ]; then SCHEDULED_H=$(( (H + 23) % 24 )); fi
+              case "$SCHEDULED_H" in
+                6) AUTO_WEATHER=true ;;
+                8) AUTO_FLASH_REPLAY="07" ;;
+                10) AUTO_WEATHER=true ;;
               esac
-            elif [ "$EVENT_SCHEDULE" = "25 * * * *" ] && [ "$PARIS_HOUR" -eq 12 ]; then
-              AUTO_FLASH_REPLAY="11"
+            elif [ "$EVENT_SCHEDULE" = "25 * * * *" ]; then
+              SCHEDULED_H=$H
+              if [ "$ACTUAL_M" -lt 25 ]; then SCHEDULED_H=$(( (H + 23) % 24 )); fi
+              if [ "$SCHEDULED_H" -eq 12 ]; then AUTO_FLASH_REPLAY="11"; fi
             fi
 
             # Le cron Horoscope est identifié par sa règle d'origine et non par
