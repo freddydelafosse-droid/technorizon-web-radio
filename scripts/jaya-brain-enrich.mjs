@@ -1,7 +1,7 @@
 const SUPABASE_URL=process.env.SUPABASE_URL;
-const KEY=process.env.SUPABASE_SERVICE_ROLE_KEY;
+const KEY=process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const LIMIT=Math.max(1,Math.min(Number(process.env.LIMIT||50),250));
-if(!SUPABASE_URL||!KEY) throw new Error("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY manquants");
+if(!SUPABASE_URL||!KEY) throw new Error("Configuration Supabase manquante");
 const H={apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const get=async path=>{const r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{headers:H});if(!r.ok)throw new Error(path+" "+r.status+" "+await r.text());return r.json()};
