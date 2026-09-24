@@ -50,6 +50,7 @@ jobs:
 
           PARIS_DOW=$(TZ=Europe/Paris date +%u)
           AUTO_WEATHER=false
+          AUTO_FLASH_REPLAY=""
           AUTO_HOROSCOPE=""
           ALLOW_H24=false
 
@@ -58,10 +59,11 @@ jobs:
             # peut démarrer plusieurs minutes en retard.
             if [ "$EVENT_SCHEDULE" = "55 * * * *" ]; then
               case "$PARIS_HOUR" in
-                7|9|11) AUTO_WEATHER=true ;;
+                7|11) AUTO_WEATHER=true ;;
+                9) AUTO_FLASH_REPLAY="07" ;;
               esac
             elif [ "$EVENT_SCHEDULE" = "25 * * * *" ] && [ "$PARIS_HOUR" -eq 12 ]; then
-              AUTO_WEATHER=true
+              AUTO_FLASH_REPLAY="11"
             fi
 
             # Le cron Horoscope est identifié par sa règle d'origine et non par
@@ -108,7 +110,7 @@ jobs:
               fi
             fi
 
-            if [ "$AUTO_WEATHER" != "true" ] && [ -z "$AUTO_HOROSCOPE" ] && [ "$ALLOW_H24" != "true" ]; then
+            if [ "$AUTO_WEATHER" != "true" ] && [ -z "$AUTO_FLASH_REPLAY" ] && [ -z "$AUTO_HOROSCOPE" ] && [ "$ALLOW_H24" != "true" ]; then
               echo "Aucun passage Jaya prévu à cet horaire de Paris."
               exit 0
             fi
@@ -129,6 +131,9 @@ jobs:
           elif [ "$NEWS_NOW" = "true" ]; then
             echo "Déclenchement infos Jaya"
             ACTION="news-now"
+          elif [ -n "$AUTO_FLASH_REPLAY" ]; then
+            echo "Réutilisation du flash Jaya de ${AUTO_FLASH_REPLAY}h"
+            ACTION="flash-replay"
           elif [ "$WEATHER_NOW" = "true" ] || [ "$AUTO_WEATHER" = "true" ]; then
             echo "Déclenchement Infos + Météo Jaya"
             ACTION="weather-now"
@@ -144,7 +149,7 @@ jobs:
               -X POST \
               -H "Authorization: Bearer $CRON_SECRET" \
               -H "Content-Type: application/json" \
-              --data "{\"action\":\"$ACTION\"}" \
+              --data "$(if [ "$ACTION" = "flash-replay" ]; then printf '{\"action\":\"flash-replay\",\"period\":\"%s\"}' "$AUTO_FLASH_REPLAY"; else printf '{\"action\":\"%s\"}' "$ACTION"; fi)" \
               "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
           else
             HTTP_CODE=$(curl --silent --show-error --retry 2 \
