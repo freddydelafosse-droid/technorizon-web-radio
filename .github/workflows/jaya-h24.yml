@@ -54,9 +54,15 @@ jobs:
           ALLOW_H24=false
 
           if [ "$EVENT_NAME" = "schedule" ]; then
-            case "$PARIS_HOUR:$PARIS_MINUTE" in
-              6:57|8:57|10:57|12:27) AUTO_WEATHER=true ;;
-            esac
+            # Identifier les rendez-vous éditoriaux par le cron d'origine : GitHub Actions
+            # peut démarrer plusieurs minutes en retard.
+            if [ "$EVENT_SCHEDULE" = "57 * * * *" ]; then
+              case "$PARIS_HOUR" in
+                7|9|11) AUTO_WEATHER=true ;;
+              esac
+            elif [ "$EVENT_SCHEDULE" = "27 * * * *" ] && [ "$PARIS_HOUR" -eq 12 ]; then
+              AUTO_WEATHER=true
+            fi
 
             # Le cron Horoscope est identifié par sa règle d'origine et non par
             # l'heure réelle d'exécution : GitHub Actions peut démarrer en retard.
