@@ -1,4 +1,5 @@
 const BATCH_SIZE = 10;
+const SEED_BATCH_SIZE = 250;
 
 const sleep = (ms) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -112,6 +113,53 @@ export default async function handler(req, res) {
     Prefer: "return=representation"
   };
 
+  // Si la file pending est vide, l'alimenter automatiquement depuis la table artists.
+  // On ne modifie jamais artists ici : on crée uniquement des éléments de travail à valider.
+  async function seedQueueFromArtists() {
+    const artistsResponse = await supabaseFetchWithRetry(
+      `${supabaseUrl}/rest/v1/artists?select=name&status=eq.active&order=name.asc&limit=${SEED_BATCH_SIZE}`,
+      { headers: dbHeaders }
+    );
+    if (!artistsResponse.ok) {
+      const details = await artistsResponse.text();
+      throw new Error(`Lecture artists impossible : ${details}`);
+    }
+    const artists = (await artistsResponse.json())
+      .map((row) => String(row?.name || "").trim())
+      .filter(Boolean);
+    if (!artists.length) return { scanned: 0, inserted: 0 };
+
+    const names = artists.map((name) => `"${name.replace(/"/g, '\\"')}"`).join(",");
+    const existingResponse = await supabaseFetchWithRetry(
+      `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_name&artist_name=in.(${encodeURIComponent(names)})`,
+      { headers: dbHeaders }
+    );
+    if (!existingResponse.ok) {
+      const details = await existingResponse.text();
+      throw new Error(`Lecture queue impossible : ${details}`);
+    }
+    const existing = new Set((await existingResponse.json()).map((row) => String(row.artist_name || "").trim().toLowerCase()));
+    const rows = artists
+      .filter((name) => !existing.has(name.toLowerCase()))
+      .map((artist_name) => ({ artist_name, status: "pending", updated_at: new Date().toISOString() }));
+    if (!rows.length) return { scanned: artists.length, inserted: 0 };
+
+    const seedResponse = await supabaseFetchWithRetry(
+      `${supabaseUrl}/rest/v1/artist_enrichment_queue`,
+      {
+        method: "POST",
+        headers: { ...dbHeaders, Prefer: "return=representation,resolution=ignore-duplicates" },
+        body: JSON.stringify(rows)
+      }
+    );
+    if (!seedResponse.ok) {
+      const details = await seedResponse.text();
+      throw new Error(`Alimentation queue impossible : ${details}`);
+    }
+    const inserted = await seedResponse.json();
+    return { scanned: artists.length, inserted: Array.isArray(inserted) ? inserted.length : rows.length };
+  }
+
  const pendingResponse = await supabaseFetchWithRetry(
   `${supabaseUrl}/rest/v1/artist_enrichment_queue` +
   `?select=artist_name` +
@@ -132,7 +180,28 @@ if (!pendingResponse.ok) {
   });
 }
 
-const pendingArtists = await pendingResponse.json();
+let pendingArtists = await pendingResponse.json();
+let seeded = { scanned: 0, inserted: 0 };
+
+if (!pendingArtists.length) {
+  try {
+    seeded = await seedQueueFromArtists();
+    if (seeded.inserted > 0) {
+      const retryPendingResponse = await supabaseFetchWithRetry(
+        `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_name&status=eq.pending&order=artist_name.asc&limit=${BATCH_SIZE}`,
+        { headers: dbHeaders }
+      );
+      if (!retryPendingResponse.ok) {
+        const details = await retryPendingResponse.text();
+        throw new Error(`Relecture pending impossible : ${details}`);
+      }
+      pendingArtists = await retryPendingResponse.json();
+    }
+  } catch (error) {
+    console.error("Artist enrichment seed:", error);
+    return res.status(500).json({ error: "Impossible d'alimenter la file d'enrichissement", details: error.message });
+  }
+}
 
 const TEST_ARTISTS = pendingArtists.map(
   (row) => row.artist_name
@@ -337,6 +406,7 @@ const confidence =
       mode: "FIRST_BATCH_WRITE_TO_QUEUE",
       artists_table_modified: false,
       queue_modified: true,
+      seeded,
       tested: results.length,
       results
     });
