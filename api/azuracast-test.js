@@ -186,7 +186,7 @@ async function newsBulletin(){
   if(!h.length)throw new Error("News AI "+r.status);
   return "Bonjour, voici l'essentiel de l'actualité sur Technorizon. "+h.map((x,i)=>(i===0?"D'abord, ":i===1?"Ensuite, ":"Et enfin, ")+x+".").join(" ")+" Voilà pour l'essentiel de l'actualité, on passe maintenant à la météo.";
  }
- const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
+ const j=await r.json(),out=(j.output_text||"").trim()||(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text"||x.type==="text").map(x=>x.text||x.value||"").join(" ").trim();
  if(!out){
   const h=items.slice(0,3).map(x=>cleanMeta(x.title)).filter(Boolean);
   if(!h.length)throw new Error("Empty news bulletin");
