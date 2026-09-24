@@ -1,0 +1,26 @@
+name: Jaya Brain Enrichment Safe
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Nombre maximum d'artistes a enrichir"
+        required: false
+        default: "50"
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: jaya-brain-enrichment-safe
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Enrichir le Brain en staging
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          LIMIT: ${{ inputs.limit }}
+        run: node scripts/jaya-brain-enrich.mjs
