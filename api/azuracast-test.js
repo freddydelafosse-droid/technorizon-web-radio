@@ -455,10 +455,28 @@ async function handler(req,res){
   const editorialPeriod=isEditorial?(lh<9?"07":"11"):"";
   const editorialDay=isEditorial?new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now):"";
   const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
+  // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
+  if(!text||text.trim().length<12){
+   console.error("JAYA_EMPTY_TEXT_BLOCKED",{isEditorial,mode,slot,nextSong:!!nextSong});
+   return res.status(200).json({ok:true,action:"skip",reason:"empty-or-too-short-text",queued:false});
+  }
   const ttsText=text.replace(/Technorizon\.fr/gi,"Techno Rizon point F R").replace(/Technorizon/gi,"Techno Rizon");
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
   if(!t.ok){const detail=await t.text().catch(()=>""),msg="TTS failed";console.error("JAYA_TTS",t.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:t.status,stage:"tts"})}
-  const form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
+  const audio=await t.arrayBuffer();
+  const contentType=String(t.headers.get("content-type")||"").toLowerCase();
+  // Un MP3 Jaya normal fait plusieurs Ko. Un corps minuscule/non audio est bloqué avant AzuraCast.
+  if(audio.byteLength<4096||(!contentType.includes("audio")&&!contentType.includes("mpeg"))){
+   console.error("JAYA_INVALID_AUDIO_BLOCKED",{bytes:audio.byteLength,contentType});
+   return res.status(502).json({ok:false,error:"Invalid TTS audio blocked",stage:"tts-validation",bytes:audio.byteLength,content_type:contentType});
+  }
+  const head=new Uint8Array(audio.slice(0,3));
+  const looksMp3=(head[0]===0x49&&head[1]===0x44&&head[2]===0x33)||(head[0]===0xff&&(head[1]&0xe0)===0xe0);
+  if(!looksMp3){
+   console.error("JAYA_INVALID_MP3_BLOCKED",{bytes:audio.byteLength,head:Array.from(head)});
+   return res.status(502).json({ok:false,error:"Invalid MP3 blocked",stage:"tts-validation",bytes:audio.byteLength});
+  }
+  const form=new FormData();form.append("file",new Blob([audio],{type:"audio/mpeg"}),file);
   const uploadDir=isEditorial?"Jaya/Meteo":"Jaya/Auto";
   const up=await az(base,key,"/files/upload?currentDirectory="+encodeURIComponent(uploadDir),{method:"POST",body:form});
   const upRaw=await up.text();let upData=null;try{upData=JSON.parse(upRaw)}catch{}
