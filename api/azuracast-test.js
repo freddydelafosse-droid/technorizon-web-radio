@@ -349,7 +349,8 @@ async function handler(req,res){
   const forceNews=req.method==="POST"&&req.body?.action==="news-now";
   const horoscopeGenerate=req.method==="POST"&&req.body?.action==="horoscope-generate";
   const horoscopeReplay=req.method==="POST"&&req.body?.action==="horoscope-replay";
-  if(req.method==="POST"&&!forceWeather&&!forceNews&&!horoscopeGenerate&&!horoscopeReplay){
+  const flashReplay=req.method==="POST"&&req.body?.action==="flash-replay";
+  if(req.method==="POST"&&!forceWeather&&!forceNews&&!horoscopeGenerate&&!horoscopeReplay&&!flashReplay){
    if(req.body?.action!=="inspect")return res.status(403).json({ok:false,error:"Test mutations disabled"});
    const q=await az(base,key,"/queue"),raw=await q.text();let data=null;try{data=JSON.parse(raw)}catch{}
    if(!q.ok)return res.status(q.status).json({ok:false,error:"Queue inspect failed"});
@@ -358,7 +359,18 @@ async function handler(req,res){
   }
   if(req.method!=="GET"&&req.method!=="POST")return res.status(405).json({ok:false,error:"GET or POST only"});
   if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
-  const el=process.env.ELEVENLABS_API_KEY;if(!el)return res.status(500).json({ok:false,error:"TTS configuration missing"});
+  const el=process.env.ELEVENLABS_API_KEY;
+  if(!el&&!flashReplay&&!horoscopeReplay)return res.status(500).json({ok:false,error:"TTS configuration missing"});
+  if(flashReplay){
+   const period=String(req.body?.period||"").trim();
+   if(!["07","11"].includes(period))return res.status(400).json({ok:false,error:"Invalid flash replay period"});
+   const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+   const path="Jaya/Meteo/jaya-flash-"+day+"-"+period+".mp3";
+   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
+   if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_FLASH_REPLAY",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Flash replay queue failed",stage:"queue",file:path})}
+   console.log("JAYA_FLASH_REPLAY_QUEUED",path);
+   return res.status(200).json({ok:true,action:"flash-replay",file:path,tts_generated:false,period});
+  }
   if(horoscopeReplay){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
@@ -425,17 +437,13 @@ async function handler(req,res){
    try{news=await newsBulletin()}catch(e){console.error("JAYA_NEWS",e?.message||e)}
    let weather="";
    try{weather=await weatherBulletin()}catch(e){console.error("JAYA_WEATHER",e?.message||e);weather="Pour la météo détaillée, rendez-vous sur Technorizon.fr, rubrique Météo."}
-   const rendezVous=[{h:7,m:0},{h:9,m:0},{h:11,m:0},{h:12,m:30},{h:18,m:0}];
-   const currentMinutes=lh*60+lm;
-   const nextFlash=rendezVous.find(x=>x.h*60+x.m>currentMinutes+5);
-   const flashLabel=x=>x.m?x.h+" heures "+String(x.m).padStart(2,"0"):x.h+" heures";
-   const nextFlashText=nextFlash
-    ?["Prochain flash complet à "+flashLabel(nextFlash)+".","On se retrouve à "+flashLabel(nextFlash)+" pour le prochain flash complet.","Rendez-vous à "+flashLabel(nextFlash)+" pour notre prochain point complet."][hash(String(slot)+"next")%3]
-    :"Prochain rendez-vous infos et météo, demain à 7 heures.";
+   const nextFlashText=["Retrouvez les rendez-vous infos et météo tout au long de la journée sur Technorizon.","Pour rester informés, gardez Technorizon avec vous tout au long de la journée.","Infos et météo reviennent dans la journée sur Technorizon."][hash(String(slot)+"next")%3];
    const weatherBody=weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"").replace(/\s*Très bonne écoute\s*!?\s*$/i,"").trim();
    editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weatherBody+" "+nextFlashText+" Très bonne écoute !";
   }
-  const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=(isEditorial?"jaya-flash-":"jaya-auto-")+slot+".mp3";
+  const editorialPeriod=isEditorial?(lh<9?"07":"11"):"";
+  const editorialDay=isEditorial?new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now):"";
+  const text=radioPause(enforceDaypart(isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm}),lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
   const ttsText=text.replace(/Technorizon\.fr/gi,"Techno Rizon point F R").replace(/Technorizon/gi,"Techno Rizon");
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
   if(!t.ok){const detail=await t.text().catch(()=>""),msg="TTS failed";console.error("JAYA_TTS",t.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:t.status,stage:"tts"})}
@@ -462,11 +470,22 @@ async function handler(req,res){
     const bank=playlists.find(p=>String(p?.name||"").trim().toLowerCase()==="banque jaya");
     if(bank?.id){
      const assign=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"playlist",playlists:[String(bank.id)],files:[path],dirs:[]})});
-     if(!assign.ok){const detail=await assign.text().catch(()=>"");console.error("JAYA_BANK_ASSIGN",assign.status,detail.slice(0,500))}
-     else console.log("JAYA_BANK_ASSIGNED",path,bank.id);
-    }else console.error("JAYA_BANK_ASSIGN","Playlist Banque Jaya introuvable");
-   }else console.error("JAYA_BANK_PLAYLISTS",pr.status,praw.slice(0,500));
-  }catch(e){console.error("JAYA_BANK_ASSIGN",e?.message||e)}
+     if(!assign.ok){
+      const detail=await assign.text().catch(()=>"");console.error("JAYA_BANK_ASSIGN",assign.status,detail.slice(0,500));
+      if(isEditorial)return res.status(502).json({ok:false,error:"Banque Jaya assignment failed",status:assign.status,stage:"bank-assign",file:path});
+     } else console.log("JAYA_BANK_ASSIGNED",path,bank.id);
+    }else{
+     console.error("JAYA_BANK_ASSIGN","Playlist Banque Jaya introuvable");
+     if(isEditorial)return res.status(502).json({ok:false,error:"Playlist Banque Jaya introuvable",stage:"bank-playlist",file:path});
+    }
+   }else{
+    console.error("JAYA_BANK_PLAYLISTS",pr.status,praw.slice(0,500));
+    if(isEditorial)return res.status(502).json({ok:false,error:"Impossible de verifier Banque Jaya",status:pr.status,stage:"bank-playlists",file:path});
+   }
+  }catch(e){
+   console.error("JAYA_BANK_ASSIGN",e?.message||e);
+   if(isEditorial)return res.status(502).json({ok:false,error:"Banque Jaya assignment exception",stage:"bank-assign",file:path});
+  }
   // Les rendez-vous éditoriaux fixes passent en priorité devant la musique déjà en attente.
   // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[], ...(isEditorial?{priority:true}: {})})});
