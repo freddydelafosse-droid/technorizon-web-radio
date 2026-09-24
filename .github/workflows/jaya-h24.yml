@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - '.github/jaya-horoscope-kick'
-      - '.github/jaya-horoscope-replay-kick'
   schedule:
     # Déclencheurs larges en UTC; les règles ci-dessous utilisent Europe/Paris.
     # Cela reste correct automatiquement lors des changements heure été/hiver.
@@ -15,8 +14,6 @@ on:
     - cron: '27 * * * *'
     # Technoroscope : une génération quotidienne, puis réutilisation du même MP3.
     - cron: '10 5,6 * * *'
-    # Filet de sécurité 08h15 : GitHub peut fortement retarder un cron planifié.
-    - cron: '20 6 * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -39,10 +36,6 @@ jobs:
   jaya:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout minimal pour identifier un forçage replay
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
       - name: Declencher Jaya
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
@@ -51,7 +44,6 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_SCHEDULE: ${{ github.event.schedule }}
           HOROSCOPE_NOW: ${{ inputs.horoscope_now }}
-          GITHUB_SHA: ${{ github.sha }}
         run: |
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
           PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
@@ -72,8 +64,6 @@ jobs:
               if [ "$PARIS_HOUR" -eq 7 ]; then AUTO_HOROSCOPE="generate"
               elif [ "$PARIS_HOUR" -eq 8 ]; then AUTO_HOROSCOPE="replay"
               fi
-            elif [ "$EVENT_SCHEDULE" = "20 6 * * *" ] && [ "$PARIS_HOUR" -eq 8 ]; then
-              AUTO_HOROSCOPE="replay"
             fi
 
             # GitHub Actions peut lancer un cron avec plusieurs minutes de retard.
