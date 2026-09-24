@@ -379,6 +379,20 @@ async function handler(req,res){
    if(!up.ok)return res.status(502).json({ok:false,error:"Horoscope upload failed",status:up.status,stage:"upload"});
    const path="Jaya/Horoscope/"+file,mediaId=data?.id;
    if(mediaId)await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:3}})});
+   // Affecte aussi le Technoroscope à la playlist de stockage "Banque Jaya",
+   // comme les autres interventions de Jaya, afin qu'il ne reste pas non assigné.
+   try{
+    const pr=await az(base,key,"/playlists"),praw=await pr.text();let pdata=null;try{pdata=JSON.parse(praw)}catch{}
+    if(pr.ok){
+     const playlists=Array.isArray(pdata)?pdata:(pdata?.rows||[]);
+     const bank=playlists.find(p=>String(p?.name||"").trim().toLowerCase()==="banque jaya");
+     if(bank?.id){
+      const assign=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"playlist",playlists:[String(bank.id)],files:[path],dirs:[]})});
+      if(!assign.ok){const detail=await assign.text().catch(()=>"");console.error("JAYA_HOROSCOPE_BANK_ASSIGN",assign.status,detail.slice(0,500))}
+      else console.log("JAYA_HOROSCOPE_BANK_ASSIGNED",path,bank.id);
+     }else console.error("JAYA_HOROSCOPE_BANK_ASSIGN","Playlist Banque Jaya introuvable");
+    }else console.error("JAYA_HOROSCOPE_BANK_PLAYLISTS",pr.status,praw.slice(0,500));
+   }catch(e){console.error("JAYA_HOROSCOPE_BANK_ASSIGN",e?.message||e)}
    const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
    if(!q.ok)return res.status(502).json({ok:false,error:"Horoscope queue failed",stage:"queue"});
    return res.status(200).json({ok:true,action:"horoscope-generate",file:path,tts_generated:true,text});
