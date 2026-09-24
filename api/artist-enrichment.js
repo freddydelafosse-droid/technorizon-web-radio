@@ -127,52 +127,26 @@ export default async function handler(req, res) {
     const artists = (await artistsResponse.json())
       .map((row) => ({ id: row?.id, name: String(row?.name || "").trim() }))
       .filter((row) => row.id != null && row.name);
-    if (!artists.length) return { scanned: 0, inserted: 0 };
+    if (!artists.length) return { scanned: 0, inserted: 0, already_present: 0 };
 
-    // Requête volontairement simple : récupérer les noms déjà connus de la queue,
-    // puis faire la différence côté serveur. Cela évite les URLs PostgREST géantes
-    // et fragiles avec les noms contenant &, +, apostrophes, parenthèses, etc.
-    const existingResponse = await supabaseFetchWithRetry(
-      `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id,artist_name&limit=5000`,
-      { headers: { ...dbHeaders, Range: "0-4999" } }
-    );
-    // NOTE: keep the complete queue visible for deduplication even when PostgREST defaults to 1000 rows.
-    /*,
-      { headers: dbHeaders }
-    );*/
-    if (!existingResponse.ok) {
-      const details = await existingResponse.text();
-      throw new Error(`Lecture queue impossible : ${details}`);
-    }
-    const existingRows = await existingResponse.json();
-    const existingIds = new Set(
-      existingRows.map((row) => String(row.artist_id || "").trim()).filter(Boolean)
-    );
-    const existingNames = new Set(
-      existingRows.map((row) => String(row.artist_name || "").trim().toLowerCase()).filter(Boolean)
-    );
-    const rows = artists
-      .filter((artist) =>
-        !existingIds.has(String(artist.id)) &&
-        !existingNames.has(artist.name.toLowerCase())
-      )
-      .map((artist) => ({
+    // Upsert idempotent : la contrainte UNIQUE artist_id devient notre protection
+    // anti-doublon. Les artistes déjà présents restent inchangés.
+    let insertedCount = 0;
+    for (let i = 0; i < artists.length; i += 25) {
+      const chunk = artists.slice(i, i + 25).map((artist) => ({
         artist_id: artist.id,
         artist_name: artist.name,
         status: "pending",
         updated_at: new Date().toISOString()
       }));
-    if (!rows.length) return { scanned: artists.length, inserted: 0 };
-
-    // Petits lots pour éviter une requête trop volumineuse et faciliter le diagnostic.
-    let insertedCount = 0;
-    for (let i = 0; i < rows.length; i += 50) {
-      const chunk = rows.slice(i, i + 50);
       const seedResponse = await supabaseFetchWithRetry(
-        `${supabaseUrl}/rest/v1/artist_enrichment_queue`,
+        `${supabaseUrl}/rest/v1/artist_enrichment_queue?on_conflict=artist_id`,
         {
           method: "POST",
-          headers: { ...dbHeaders, Prefer: "return=representation,resolution=ignore-duplicates" },
+          headers: {
+            ...dbHeaders,
+            Prefer: "return=representation,resolution=ignore-duplicates"
+          },
           body: JSON.stringify(chunk)
         }
       );
@@ -181,9 +155,13 @@ export default async function handler(req, res) {
         throw new Error(`Alimentation queue impossible : ${details}`);
       }
       const inserted = await seedResponse.json();
-      insertedCount += Array.isArray(inserted) ? inserted.length : chunk.length;
+      insertedCount += Array.isArray(inserted) ? inserted.length : 0;
     }
-    return { scanned: artists.length, inserted: insertedCount };
+    return {
+      scanned: artists.length,
+      inserted: insertedCount,
+      already_present: artists.length - insertedCount
+    };
   }
 
  const pendingResponse = await supabaseFetchWithRetry(
