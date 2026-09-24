@@ -34,11 +34,6 @@ on:
         required: false
         default: false
         type: boolean
-      horoscope_replay_now:
-        description: 'Forcer la rediffusion du Technoroscope existant'
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   jaya:
@@ -56,7 +51,6 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_SCHEDULE: ${{ github.event.schedule }}
           HOROSCOPE_NOW: ${{ inputs.horoscope_now }}
-          HOROSCOPE_REPLAY_NOW: ${{ inputs.horoscope_replay_now }}
           GITHUB_SHA: ${{ github.sha }}
         run: |
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
@@ -178,9 +172,6 @@ jobs:
               echo "Déclenchement ponctuel du Technoroscope Jaya"
               ACTION="horoscope-generate"
             fi
-          elif [ "$HOROSCOPE_REPLAY_NOW" = "true" ]; then
-            echo "Rediffusion immédiate du Technoroscope Jaya existant"
-            ACTION="horoscope-replay"
           elif [ "$HOROSCOPE_NOW" = "true" ]; then
             echo "Génération immédiate du Technoroscope Jaya"
             ACTION="horoscope-generate"
