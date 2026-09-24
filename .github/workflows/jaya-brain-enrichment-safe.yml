@@ -4,26 +4,47 @@ on:
   workflow_dispatch:
     inputs:
       limit:
-        description: "Nombre maximum d'artistes a enrichir"
+        description: "Nombre maximum d'artistes a traiter (par lots serveur de 10)"
         required: false
         default: "50"
+
+permissions:
+  contents: read
 
 jobs:
   enrich:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: jaya-brain-enrichment-safe
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Enrichir le Brain en staging
+      - name: Enrichir le Brain via API protegee
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          ARTIST_ENRICHMENT_SECRET: ${{ secrets.ARTIST_ENRICHMENT_SECRET }}
           LIMIT: ${{ inputs.limit }}
-        run: node scripts/jaya-brain-enrich.mjs
+        run: |
+          if [ -z "$ARTIST_ENRICHMENT_SECRET" ]; then
+            echo "::error::ARTIST_ENRICHMENT_SECRET manquant"
+            exit 1
+          fi
+
+          limit="${LIMIT:-50}"
+          if ! [[ "$limit" =~ ^[0-9]+$ ]]; then limit=50; fi
+          if [ "$limit" -lt 1 ]; then limit=1; fi
+          if [ "$limit" -gt 250 ]; then limit=250; fi
+          batches=$(( (limit + 9) / 10 ))
+
+          echo "Traitement demande: jusqu'a $limit artistes, $batches lots maximum."
+          for ((i=1; i<=batches; i++)); do
+            echo "=== Lot $i/$batches ==="
+            response=$(curl --location --fail-with-body --silent --show-error \
+              --retry 3 --retry-all-errors --retry-delay 5 \
+              --connect-timeout 15 --max-time 180 \
+              -H "x-enrichment-secret: ${ARTIST_ENRICHMENT_SECRET}" \
+              "https://www.technorizon.fr/api/artist-enrichment")
+            echo "$response"
+
+            tested=$(printf '%s' "$response" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);process.stdout.write(String(Number(j.tested)||0))}catch{process.stdout.write("0")}})')
+            if [ "$tested" -eq 0 ]; then
+              echo "Plus aucun artiste pending a traiter."
+              break
+            fi
+          done
