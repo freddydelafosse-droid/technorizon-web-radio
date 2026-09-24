@@ -10,10 +10,10 @@ on:
     # Cela reste correct automatiquement lors des changements heure été/hiver.
     - cron: '13,33,53 * * * *'
     # Préparation des rendez-vous Infos + Météo.
-    - cron: '57 * * * *'
-    - cron: '27 * * * *'
+    - cron: '55 * * * *'
+    - cron: '25 * * * *'
     # Technoroscope : une génération quotidienne, puis réutilisation du même MP3.
-    - cron: '10 5,6 * * *'
+    - cron: '8 5,6 * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -56,17 +56,17 @@ jobs:
           if [ "$EVENT_NAME" = "schedule" ]; then
             # Identifier les rendez-vous éditoriaux par le cron d'origine : GitHub Actions
             # peut démarrer plusieurs minutes en retard.
-            if [ "$EVENT_SCHEDULE" = "57 * * * *" ]; then
+            if [ "$EVENT_SCHEDULE" = "55 * * * *" ]; then
               case "$PARIS_HOUR" in
                 7|9|11) AUTO_WEATHER=true ;;
               esac
-            elif [ "$EVENT_SCHEDULE" = "27 * * * *" ] && [ "$PARIS_HOUR" -eq 12 ]; then
+            elif [ "$EVENT_SCHEDULE" = "25 * * * *" ] && [ "$PARIS_HOUR" -eq 12 ]; then
               AUTO_WEATHER=true
             fi
 
             # Le cron Horoscope est identifié par sa règle d'origine et non par
             # l'heure réelle d'exécution : GitHub Actions peut démarrer en retard.
-            if [ "$EVENT_SCHEDULE" = "10 5,6 * * *" ]; then
+            if [ "$EVENT_SCHEDULE" = "8 5,6 * * *" ]; then
               if [ "$PARIS_HOUR" -eq 7 ]; then AUTO_HOROSCOPE="generate"
               elif [ "$PARIS_HOUR" -eq 8 ]; then AUTO_HOROSCOPE="replay"
               fi
@@ -83,7 +83,7 @@ jobs:
             elif [ "$ACTUAL_M" -ge 53 ]; then M=53
             fi
 
-            # :27 et :57 restent réservés aux rendez-vous éditoriaux exacts.
+            # :25 et :55 restent réservés à la préparation anticipée des rendez-vous éditoriaux.
             if [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
 
               # Lundi-vendredi
