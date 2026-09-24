@@ -109,59 +109,8 @@ jobs:
           fi
 
           if [ "$EVENT_NAME" = "push" ]; then
-            CHANGED=$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" 2>/dev/null || true)
-            if echo "$CHANGED" | grep -q '^.github/jaya-horoscope-replay-kick
-            echo "Génération immédiate du Technoroscope Jaya"
+            echo "Déclenchement ponctuel du Technoroscope Jaya"
             ACTION="horoscope-generate"
-          elif [ "$AUTO_HOROSCOPE" = "generate" ]; then
-            echo "Génération unique du Technoroscope Jaya pour 07h15"
-            ACTION="horoscope-generate"
-          elif [ "$AUTO_HOROSCOPE" = "replay" ]; then
-            echo "Réutilisation du Technoroscope Jaya pour 08h15"
-            ACTION="horoscope-replay"
-          elif [ "$NEWS_NOW" = "true" ]; then
-            echo "Déclenchement infos Jaya"
-            ACTION="news-now"
-          elif [ "$WEATHER_NOW" = "true" ] || [ "$AUTO_WEATHER" = "true" ]; then
-            echo "Déclenchement Infos + Météo Jaya"
-            ACTION="weather-now"
-          else
-            echo "Déclenchement automatique Jaya"
-            ACTION=""
-          fi
-
-          RESPONSE_FILE=$(mktemp)
-          if [ -n "$ACTION" ]; then
-            HTTP_CODE=$(curl --silent --show-error --retry 2 \
-              -o "$RESPONSE_FILE" -w "%{http_code}" \
-              -X POST \
-              -H "Authorization: Bearer $CRON_SECRET" \
-              -H "Content-Type: application/json" \
-              --data "{\"action\":\"$ACTION\"}" \
-              "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
-          else
-            HTTP_CODE=$(curl --silent --show-error --retry 2 \
-              -o "$RESPONSE_FILE" -w "%{http_code}" \
-              -H "Authorization: Bearer $CRON_SECRET" \
-              "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
-          fi
-
-          echo "Jaya API HTTP: ${HTTP_CODE:-000}"
-          echo "Jaya API response:"
-          cat "$RESPONSE_FILE"
-          echo
-
-          if [ -n "${CURL_EXIT:-}" ] || [ "${HTTP_CODE:-000}" -ge 400 ]; then
-            echo "::error::Jaya API failed - HTTP ${HTTP_CODE:-000}, curl exit ${CURL_EXIT:-0}"
-            exit 1
-          fi
-; then
-              echo "Rediffusion immédiate du Technoroscope Jaya existant"
-              ACTION="horoscope-replay"
-            else
-              echo "Déclenchement ponctuel du Technoroscope Jaya"
-              ACTION="horoscope-generate"
-            fi
           elif [ "$HOROSCOPE_NOW" = "true" ]; then
             echo "Génération immédiate du Technoroscope Jaya"
             ACTION="horoscope-generate"
