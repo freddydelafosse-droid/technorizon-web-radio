@@ -129,35 +129,47 @@ export default async function handler(req, res) {
       .filter(Boolean);
     if (!artists.length) return { scanned: 0, inserted: 0 };
 
-    const names = artists.map((name) => `"${name.replace(/"/g, '\\"')}"`).join(",");
+    // Requête volontairement simple : récupérer les noms déjà connus de la queue,
+    // puis faire la différence côté serveur. Cela évite les URLs PostgREST géantes
+    // et fragiles avec les noms contenant &, +, apostrophes, parenthèses, etc.
     const existingResponse = await supabaseFetchWithRetry(
-      `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_name&artist_name=in.(${encodeURIComponent(names)})`,
+      `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_name&limit=5000`,
       { headers: dbHeaders }
     );
     if (!existingResponse.ok) {
       const details = await existingResponse.text();
       throw new Error(`Lecture queue impossible : ${details}`);
     }
-    const existing = new Set((await existingResponse.json()).map((row) => String(row.artist_name || "").trim().toLowerCase()));
+    const existing = new Set(
+      (await existingResponse.json())
+        .map((row) => String(row.artist_name || "").trim().toLowerCase())
+        .filter(Boolean)
+    );
     const rows = artists
       .filter((name) => !existing.has(name.toLowerCase()))
       .map((artist_name) => ({ artist_name, status: "pending", updated_at: new Date().toISOString() }));
     if (!rows.length) return { scanned: artists.length, inserted: 0 };
 
-    const seedResponse = await supabaseFetchWithRetry(
-      `${supabaseUrl}/rest/v1/artist_enrichment_queue`,
-      {
-        method: "POST",
-        headers: { ...dbHeaders, Prefer: "return=representation,resolution=ignore-duplicates" },
-        body: JSON.stringify(rows)
+    // Petits lots pour éviter une requête trop volumineuse et faciliter le diagnostic.
+    let insertedCount = 0;
+    for (let i = 0; i < rows.length; i += 50) {
+      const chunk = rows.slice(i, i + 50);
+      const seedResponse = await supabaseFetchWithRetry(
+        `${supabaseUrl}/rest/v1/artist_enrichment_queue`,
+        {
+          method: "POST",
+          headers: { ...dbHeaders, Prefer: "return=representation,resolution=ignore-duplicates" },
+          body: JSON.stringify(chunk)
+        }
+      );
+      if (!seedResponse.ok) {
+        const details = await seedResponse.text();
+        throw new Error(`Alimentation queue impossible : ${details}`);
       }
-    );
-    if (!seedResponse.ok) {
-      const details = await seedResponse.text();
-      throw new Error(`Alimentation queue impossible : ${details}`);
+      const inserted = await seedResponse.json();
+      insertedCount += Array.isArray(inserted) ? inserted.length : chunk.length;
     }
-    const inserted = await seedResponse.json();
-    return { scanned: artists.length, inserted: Array.isArray(inserted) ? inserted.length : rows.length };
+    return { scanned: artists.length, inserted: insertedCount };
   }
 
  const pendingResponse = await supabaseFetchWithRetry(
