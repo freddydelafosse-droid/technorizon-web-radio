@@ -129,39 +129,50 @@ export default async function handler(req, res) {
       .filter((row) => row.id != null && row.name);
     if (!artists.length) return { scanned: 0, inserted: 0, already_present: 0 };
 
-    // Upsert idempotent : la contrainte UNIQUE artist_id devient notre protection
-    // anti-doublon. Les artistes déjà présents restent inchangés.
+    // Méthode la plus robuste : vérifier chaque artist_id directement auprès de
+    // PostgREST avant insertion. Aucun UPSERT ambigu, aucune lecture paginée globale.
     let insertedCount = 0;
-    for (let i = 0; i < artists.length; i += 25) {
-      const chunk = artists.slice(i, i + 25).map((artist) => ({
-        artist_id: artist.id,
-        artist_name: artist.name,
-        status: "pending",
-        updated_at: new Date().toISOString()
-      }));
+    let alreadyPresent = 0;
+    for (const artist of artists) {
+      const existsResponse = await supabaseFetchWithRetry(
+        `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id&artist_id=eq.${encodeURIComponent(artist.id)}&limit=1`,
+        { headers: dbHeaders }
+      );
+      if (!existsResponse.ok) {
+        const details = await existsResponse.text();
+        throw new Error(`Vérification artist_id impossible : ${details}`);
+      }
+      const exists = await existsResponse.json();
+      if (Array.isArray(exists) && exists.length) {
+        alreadyPresent++;
+        continue;
+      }
+
       const seedResponse = await supabaseFetchWithRetry(
-        `${supabaseUrl}/rest/v1/artist_enrichment_queue?on_conflict=artist_id`,
+        `${supabaseUrl}/rest/v1/artist_enrichment_queue`,
         {
           method: "POST",
-          headers: {
-            ...dbHeaders,
-            Prefer: "return=representation,resolution=ignore-duplicates"
-          },
-          body: JSON.stringify(chunk)
+          headers: dbHeaders,
+          body: JSON.stringify({
+            artist_id: artist.id,
+            artist_name: artist.name,
+            status: "pending",
+            updated_at: new Date().toISOString()
+          })
         }
       );
       if (!seedResponse.ok) {
         const details = await seedResponse.text();
+        // Une course concurrente peut avoir inséré l'artiste entre SELECT et POST.
+        if (seedResponse.status === 409 && details.includes("23505")) {
+          alreadyPresent++;
+          continue;
+        }
         throw new Error(`Alimentation queue impossible : ${details}`);
       }
-      const inserted = await seedResponse.json();
-      insertedCount += Array.isArray(inserted) ? inserted.length : 0;
+      insertedCount++;
     }
-    return {
-      scanned: artists.length,
-      inserted: insertedCount,
-      already_present: artists.length - insertedCount
-    };
+    return { scanned: artists.length, inserted: insertedCount, already_present: alreadyPresent };
   }
 
  const pendingResponse = await supabaseFetchWithRetry(
