@@ -1,6 +1,10 @@
 name: Jaya H24
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/jaya-horoscope-kick'
   schedule:
     # Déclencheurs larges en UTC; les règles ci-dessous utilisent Europe/Paris.
     # Cela reste correct automatiquement lors des changements heure été/hiver.
@@ -104,7 +108,10 @@ jobs:
             fi
           fi
 
-          if [ "$HOROSCOPE_NOW" = "true" ]; then
+          if [ "$EVENT_NAME" = "push" ]; then
+            echo "Déclenchement ponctuel du Technoroscope Jaya"
+            ACTION="horoscope-generate"
+          elif [ "$HOROSCOPE_NOW" = "true" ]; then
             echo "Génération immédiate du Technoroscope Jaya"
             ACTION="horoscope-generate"
           elif [ "$AUTO_HOROSCOPE" = "generate" ]; then
