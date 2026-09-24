@@ -89,7 +89,8 @@ jobs:
             H=$((10#$PARIS_HOUR))
             ACTUAL_M=$((10#$PARIS_MINUTE))
             M=-1
-            if   [ "$ACTUAL_M" -ge 13 ] && [ "$ACTUAL_M" -le 27 ]; then M=13
+            if   [ "$ACTUAL_M" -le 7 ]; then H=$(( (H + 23) % 24 )); M=53
+            elif [ "$ACTUAL_M" -ge 13 ] && [ "$ACTUAL_M" -le 27 ]; then M=13
             elif [ "$ACTUAL_M" -ge 33 ] && [ "$ACTUAL_M" -le 47 ]; then M=33
             elif [ "$ACTUAL_M" -ge 53 ]; then M=53
             fi
