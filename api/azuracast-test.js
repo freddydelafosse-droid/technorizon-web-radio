@@ -312,9 +312,9 @@ async function smartAnnouncement({song,slot,hour,minute}){
    input:artist&&title?`Titre suivant vérifié par The Brain: artiste=${artist}; titre=${title}.`:"Aucun titre suffisamment fiable à annoncer: fais une intervention d'ambiance contextuelle sans inventer de morceau.",
    max_output_tokens:85
   })});
-  if(!r.ok){console.error("JAYA_SMART_HTTP",r.status);return song?announcement(song,slot):generic(slot)}
+  if(!r.ok){console.error("JAYA_SMART_HTTP",r.status);return null}
   const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
-  if(!out||out.length>500)return song?announcement(song,slot):generic(slot);
+  if(!out||out.length>500)return null;
   if(jayaTooGeneric(out)){
    console.error("JAYA_REPEAT_REJECTED",out);
    const fallbackAngles=[
@@ -335,7 +335,7 @@ async function smartAnnouncement({song,slot,hour,minute}){
   rememberJaya(out);
   await persistJayaMemory(out);
   return out;
- }catch(e){console.error("JAYA_SMART",e?.message||e);return song?announcement(song,slot):generic(slot)}
+ }catch(e){console.error("JAYA_SMART",e?.message||e);return null}
 }
 
 async function handler(req,res){
