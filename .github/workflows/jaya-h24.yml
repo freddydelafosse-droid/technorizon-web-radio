@@ -22,6 +22,11 @@ on:
         required: false
         default: false
         type: boolean
+      horoscope_now:
+        description: 'Forcer le Technoroscope maintenant'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   jaya:
@@ -33,6 +38,8 @@ jobs:
           WEATHER_NOW: ${{ inputs.weather_now }}
           NEWS_NOW: ${{ inputs.news_now }}
           EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+          HOROSCOPE_NOW: ${{ inputs.horoscope_now }}
         run: |
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
           PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
@@ -45,9 +52,15 @@ jobs:
           if [ "$EVENT_NAME" = "schedule" ]; then
             case "$PARIS_HOUR:$PARIS_MINUTE" in
               6:57|8:57|10:57|12:27) AUTO_WEATHER=true ;;
-              7:10) AUTO_HOROSCOPE="generate" ;;
-              8:10) AUTO_HOROSCOPE="replay" ;;
             esac
+
+            # Le cron Horoscope est identifié par sa règle d'origine et non par
+            # l'heure réelle d'exécution : GitHub Actions peut démarrer en retard.
+            if [ "$EVENT_SCHEDULE" = "10 5,6 * * *" ]; then
+              if [ "$PARIS_HOUR" -eq 7 ]; then AUTO_HOROSCOPE="generate"
+              elif [ "$PARIS_HOUR" -eq 8 ]; then AUTO_HOROSCOPE="replay"
+              fi
+            fi
 
             # GitHub Actions peut lancer un cron avec plusieurs minutes de retard.
             # On rattache l'exécution au créneau H24 attendu (:13/:33/:53)
@@ -91,7 +104,10 @@ jobs:
             fi
           fi
 
-          if [ "$AUTO_HOROSCOPE" = "generate" ]; then
+          if [ "$HOROSCOPE_NOW" = "true" ]; then
+            echo "Génération immédiate du Technoroscope Jaya"
+            ACTION="horoscope-generate"
+          elif [ "$AUTO_HOROSCOPE" = "generate" ]; then
             echo "Génération unique du Technoroscope Jaya pour 07h15"
             ACTION="horoscope-generate"
           elif [ "$AUTO_HOROSCOPE" = "replay" ]; then
