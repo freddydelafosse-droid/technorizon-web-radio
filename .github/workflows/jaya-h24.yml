@@ -64,8 +64,10 @@ jobs:
             H=$((10#$PARIS_HOUR))
             ACTUAL_M=$((10#$PARIS_MINUTE))
             if [ "$EVENT_SCHEDULE" = "50 * * * *" ]; then
-              SCHEDULED_H=$H
-              if [ "$ACTUAL_M" -lt 50 ]; then SCHEDULED_H=$(( (H + 23) % 24 )); fi
+              # Utiliser directement l heure de Paris : H et ACTUAL_M sont initialises plus bas pour H24.
+              SCHEDULED_H=$((10#$PARIS_HOUR))
+              SCHEDULED_M=$((10#$PARIS_MINUTE))
+              if [ "$SCHEDULED_M" -lt 50 ]; then SCHEDULED_H=$(( (SCHEDULED_H + 23) % 24 )); fi
               case "$SCHEDULED_H" in
                 6) AUTO_WEATHER=true ;;
                 8) AUTO_FLASH_REPLAY="07" ;;
