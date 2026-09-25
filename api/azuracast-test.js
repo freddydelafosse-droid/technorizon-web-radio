@@ -11,7 +11,8 @@ const JAYA_BANNED_GENERIC=[
   "bon la soiree est lancee",
   "je ne vais pas casser le rythme avec un grand discours",
   "pas besoin d un grand discours",
-  "on repart",
+  "on repart","pas de long discours","la matinee appartient a la musique","jaya par ici",
+ "petit passage de jaya","jaya passe au micro","je rends deja la place","je vous laisse reprendre","retour a la musique","place au son",
 ];
 function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
 function jayaTooGeneric(text){
@@ -19,7 +20,7 @@ function jayaTooGeneric(text){
  // "énergie" était devenu un tic de langage : blocage dur avant TTS.
  if(/\benergie\b/.test(n))return true;
  if(JAYA_BANNED_GENERIC.some(x=>n.includes(x)))return true;
- return jayaRecent.some(old=>{const a=new Set(normJaya(old).split(" ").filter(x=>x.length>3)),b=normJaya(text).split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.48});
+ return jayaRecent.slice(-40).some(old=>{const na=normJaya(old),nb=normJaya(text);if(na===nb)return true;const a=new Set(na.split(" ").filter(x=>x.length>3)),b=nb.split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.34});
 }
 function rememberJaya(text){const s=String(text||"").trim();if(!s)return;jayaRecent.push(s);if(jayaRecent.length>JAYA_RECENT_MAX)jayaRecent=jayaRecent.slice(-JAYA_RECENT_MAX)}
 function jayaMemoryConfig(){
@@ -457,7 +458,11 @@ async function handler(req,res){
   const generatedText=isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm});
   // Filet de sécurité H24 : si l’IA/anti-répétition ne renvoie rien, Jaya utilise
   // une intervention locale déterministe au lieu de rester silencieuse.
-  const safeText=(!isEditorial&&(!generatedText||String(generatedText).trim().length<12))?generic(slot):generatedText;
+  let safeText=generatedText;
+  if(!isEditorial&&(!safeText||String(safeText).trim().length<12||jayaTooGeneric(safeText))){
+   const candidates=Array.from({length:24},(_,i)=>generic(slot+i));
+   safeText=candidates.find(x=>!jayaTooGeneric(x))||"Une petite pensée pour celles et ceux qui nous écoutent ce matin. Je vous laisse profiter de ce qui arrive.";
+  }
   const text=radioPause(enforceDaypart(safeText,lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
   // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
   if(!text||text.trim().length<12){
