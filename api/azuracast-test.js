@@ -409,7 +409,7 @@ async function handler(req,res){
     return res.status(200).json({ok:true,action:"skip",reason:"horoscope-already-generated-or-queued",file:existingPath,tts_generated:false});
    }
    const text=radioPause(enforceDaypart(await horoscopeBulletin(),7));
-   const ttsText=text.replace(/Technorizon\.fr/gi,"Tèque-no-ri-zon point F R").replace(/Technorizon/gi,"Tèque-no-ri-zon");
+   if(!isEditorial){ rememberJaya(text); await persistJayaMemory(text); }\n  const ttsText=text.replace(/Technorizon\.fr/gi,"Tèque-no-ri-zon point F R").replace(/Technorizon/gi,"Tèque-no-ri-zon");
    const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
    if(!t.ok)return res.status(502).json({ok:false,error:"Horoscope TTS failed",status:t.status,stage:"tts"});
    const file="jaya-horoscope-"+day+".mp3",form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
@@ -462,9 +462,14 @@ async function handler(req,res){
   if(isNews&&pendingNews)return res.status(200).json({ok:true,action:"skip",reason:"news-already-queued"});
   if(isWeather&&pendingWeather)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued"});
   if(!isWeather&&!isNews&&pendingJaya)return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
-  // Sécurité antenne : H24 générique suspendu temporairement après détection de passages identiques en rafale.
-  // Les rendez-vous éditoriaux prioritaires restent actifs.
-  if(!isWeather&&!isNews&&req.method!=="POST")return res.status(200).json({ok:true,action:"skip",reason:"h24-safety-freeze",queued:false});
+  // Anti-doublon H24 fort : un seul Jaya Auto non joué peut exister dans la file.
+  // On bloque aussi si plusieurs entrées Jaya sont déjà en attente, afin de ne jamais créer une rafale.
+  const pendingJayaRows=rows.filter(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
+  const pendingAutoRows=pendingJayaRows.filter(x=>JSON.stringify(x).toLowerCase().includes("jaya-auto"));
+  if(!isWeather&&!isNews&&(pendingAutoRows.length>0||pendingJayaRows.length>0)){
+   console.log("JAYA_H24_STRONG_DEDUP",JSON.stringify({pendingJaya:pendingJayaRows.length,pendingAuto:pendingAutoRows.length}));
+   return res.status(200).json({ok:true,action:"skip",reason:"strong-jaya-dedup",queued:false,pending_jaya:pendingJayaRows.length,pending_auto:pendingAutoRows.length});
+  }
   await loadJayaMemory();
   const songs=rows.map(songFromRow).filter(Boolean);
   const rawNextSong=songs[1]||null;
