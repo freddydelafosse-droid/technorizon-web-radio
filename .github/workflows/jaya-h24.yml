@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/jaya-horoscope-kick'
+      - '.github/jaya-flash-kick'
   schedule:
     # Déclencheurs larges en UTC; les règles ci-dessous utilisent Europe/Paris.
     # Cela reste correct automatiquement lors des changements heure été/hiver.
@@ -46,6 +47,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_SCHEDULE: ${{ github.event.schedule }}
           HOROSCOPE_NOW: ${{ inputs.horoscope_now }}
+          FLASH_KICK: ${{ github.event_name == 'push' && github.event.head_commit.message == 'Jaya: force infos weather now' }}
         run: |
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
           PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
