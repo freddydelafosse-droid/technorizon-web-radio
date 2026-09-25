@@ -1,5 +1,5 @@
 const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1;
-const JAYA_RECENT_MAX=120;
+const JAYA_RECENT_MAX=300;
 let jayaRecent=[];
 const JAYA_BANNED_GENERIC=[
  "tres bonne ecoute","on garde l energie","je vous accompagne encore un moment",
@@ -13,6 +13,8 @@ const JAYA_BANNED_GENERIC=[
   "pas besoin d un grand discours",
   "on repart","pas de long discours","la matinee appartient a la musique","jaya par ici",
  "petit passage de jaya","jaya passe au micro","je rends deja la place","je vous laisse reprendre","retour a la musique","place au son",
+ "petit coucou","petit signe","grain de sel","je passe je vous fais","je repars","parfois je sais etre raisonnable",
+ "d abord","ensuite","et enfin","technorizone",
 ];
 function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
 function jayaTooGeneric(text){
@@ -25,7 +27,7 @@ function jayaTooGeneric(text){
 function rememberJaya(text){const s=String(text||"").trim();if(!s)return;jayaRecent.push(s);if(jayaRecent.length>JAYA_RECENT_MAX)jayaRecent=jayaRecent.slice(-JAYA_RECENT_MAX)}
 function jayaMemoryConfig(){
  const url=process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL;
- const key=process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+ const key=process.env.SUPABASE_SERVICE_ROLE_KEY;
  return url&&key?{url,key}:null;
 }
 async function loadJayaMemory(){
@@ -41,10 +43,20 @@ async function loadJayaMemory(){
   jayaRecent=rows.map(x=>String(x.text||"").trim()).filter(Boolean).reverse().slice(-JAYA_RECENT_MAX);
  }catch(e){console.error("JAYA_MEMORY_LOAD",e?.message||e)}
 }
-async function persistJayaMemory(text){
+async function recentEditorial(kind){
+ const cfg=jayaMemoryConfig();if(!cfg)return [];
+ try{
+  const u=new URL(cfg.url+"/rest/v1/jaya_antenna_memory");
+  u.searchParams.set("select","text");u.searchParams.set("kind","eq."+kind);
+  u.searchParams.set("order","created_at.desc");u.searchParams.set("limit","4");
+  const r=await fetch(u,{headers:{apikey:cfg.key,Authorization:"Bearer "+cfg.key,Accept:"application/json"}});
+  return r.ok?(await r.json()).map(x=>String(x.text||"").slice(0,1400)):[];
+ }catch{return []}
+}
+async function persistJayaMemory(text,kind="h24",slot=null){
  const s=String(text||"").trim(),cfg=jayaMemoryConfig(); if(!s||!cfg)return;
  try{
-  const r=await fetch(cfg.url+"/rest/v1/jaya_antenna_memory",{method:"POST",headers:{apikey:cfg.key,Authorization:"Bearer "+cfg.key,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({text:s})});
+  const r=await fetch(cfg.url+"/rest/v1/jaya_antenna_memory",{method:"POST",headers:{apikey:cfg.key,Authorization:"Bearer "+cfg.key,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({text:s,kind,slot})});
   if(!r.ok)console.error("JAYA_MEMORY_SAVE_HTTP",r.status);
  }catch(e){console.error("JAYA_MEMORY_SAVE",e?.message||e)}
 }
@@ -221,10 +233,11 @@ async function newsBulletin(){
  if(!items.length)throw new Error("No fresh news available");
  const now=Date.now();
  items=items.filter(x=>{const d=Date.parse(x.pubDate);return !Number.isFinite(d)||now-d<12*60*60*1000}).slice(0,18);
+ const recent=await recentEditorial("news_weather");
  const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
   model:"gpt-5-mini",
   instructions:"Tu es Jaya, animatrice radio de Technorizon. Prépare un flash d'actualité nationale et internationale en français oral naturel, factuel et neutre, d'environ 1 minute 30 à 2 minutes. Sélectionne 6 à 8 informations importantes uniquement dans les éléments fournis, en variant si possible actualité française, internationale, économie/société, sciences/technologies ou culture selon ce qui est réellement présent dans les sources. Donne un peu plus de contexte utile pour chaque information sans inventer ni extrapoler. N'invente aucun fait, chiffre, nom, contexte ou évolution. Si deux sources se contredisent, n'utilise pas l'information. Ne donne pas d'opinion. Commence par une courte accroche de flash infos. Enchaîne les informations comme une vraie animatrice radio, avec des transitions naturelles et variées. Évite explicitement la structure répétitive « D'abord / Ensuite / Et enfin » et n'utilise jamais ces trois marqueurs comme trame du bulletin. À la fin du flash, ne parle surtout PAS de retour à la musique, de titre à venir, de bonne écoute ou de fin de rendez-vous: la météo arrive immédiatement après. Termine simplement le flash par une phrase naturelle comme « Voilà pour l'essentiel de l'actualité, on passe maintenant à la météo. » Ton chaleureux, souriant et professionnel, mais plus posé que les interventions musicales. Règle absolue d'antenne: ne prononce jamais le prénom Willy. Si tu veux parler de lui ou de sa fonction, dis uniquement « le DJ ». Pas d'emoji, pas de guillemets, pas de didascalie.",
-  input:JSON.stringify(items),
+  input:JSON.stringify({sources:items,recent_antenna_texts:recent,editorial_note:"Varie l'accroche et les transitions par rapport aux textes récents. Une information encore importante peut revenir, sans reprendre la même formulation. Évite D'abord, Ensuite, Et enfin."}),
   max_output_tokens:480
  })});
  if(!r.ok){
@@ -245,12 +258,13 @@ async function newsBulletin(){
 async function horoscopeBulletin(){
  const key=process.env.OPENAI_API_KEY;if(!key)throw new Error("Horoscope AI configuration missing");
  const signs=["Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge","Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"];
+ const recent=await recentEditorial("horoscope");
  const instructions="Tu es Jaya, animatrice de Technorizon. Écris le Technoroscope du matin en français oral naturel, chaleureux, souriant et complice. Fais OBLIGATOIREMENT les 12 signes dans l'ordre fourni, avec UNE phrase courte par signe. Ne t'arrête jamais avant Poissons. Ne présente jamais l'astrologie comme une certitude, un fait scientifique, un diagnostic ou un conseil médical, juridique ou financier. Évite les prédictions graves ou anxiogènes. Vise environ 1 min 30 à l'oral. Commence par une accroche très courte annonçant le Technoroscope. Termine OBLIGATOIREMENT par : Prochain horoscope à 08h30 sur Technorizon, ou retrouvez votre horoscope complet sur Technorizon.fr. Même personnalité que Jaya à l'antenne : naturelle, élégante, légèrement malicieuse. Pas d'emoji, pas de guillemets, pas de didascalie.";
  for(let attempt=1;attempt<=2;attempt++){
   const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
    model:"gpt-5-mini",
    instructions,
-   input:"Signes à traiter aujourd'hui : "+signs.join(", ")+". Le texte doit contenir les 12 signes, de Bélier à Poissons, puis l'annonce finale.",
+   input:"Signes à traiter aujourd'hui : "+signs.join(", ")+". Le texte doit contenir les 12 signes, de Bélier à Poissons, puis l'annonce finale. Évite de recycler les accroches et les images des horoscopes précédents : "+JSON.stringify(recent),
    max_output_tokens:3000
   })});
   if(!r.ok)throw new Error("Horoscope AI "+r.status);
@@ -356,7 +370,7 @@ async function smartAnnouncement({song,slot,hour,minute}){
  const angle=angles[Math.abs(Number(slot))%angles.length];
  // Recharge la mémoire persistante à CHAQUE génération: les fonctions serverless ne partagent pas toujours leur RAM.
  await loadJayaMemory();
- const recent=jayaRecent.slice(-JAYA_RECENT_MAX);
+ const recent=jayaRecent.slice(-24);
  const antiRepeat=recent.length?"\nMEMOIRE ANTENNE: voici tes interventions recentes. La nouvelle doit etre reellement differente: ne reprends ni la meme accroche, ni le meme sujet, ni la meme structure, ni la meme chute, ni une formulation reconnaissable. Si une idee leur ressemble, pars ailleurs.\n"+recent.map((x,i)=>(i+1)+". "+x).join("\n"):"";
  try{
   const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
@@ -381,12 +395,8 @@ async function smartAnnouncement({song,slot,hour,minute}){
    const safePool=fallbackAngles.filter(x=>!jayaTooGeneric(x));
    if(!safePool.length){console.error("JAYA_REPEAT_NO_SAFE_FALLBACK");return null}
    const safe=safePool[hash(String(slot)+"|safe")%safePool.length];
-   rememberJaya(safe);
-   await persistJayaMemory(safe);
-   return safe;
+  return safe;
   }
-  rememberJaya(out);
-  await persistJayaMemory(out);
   return out;
  }catch(e){console.error("JAYA_SMART",e?.message||e);return null}
 }
@@ -495,6 +505,7 @@ async function handler(req,res){
    }
    const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
    if(!q.ok)return res.status(502).json({ok:false,error:"Horoscope queue failed",stage:"queue"});
+   await persistJayaMemory(text,"horoscope",day+"-07:30");
    return res.status(200).json({ok:true,action:"horoscope-generate",file:path,tts_generated:true,text});
   }
   const qr=await az(base,key,"/queue"),qraw=await qr.text();let qdata=null;try{qdata=JSON.parse(qraw)}catch{}
@@ -552,7 +563,7 @@ async function handler(req,res){
   let safeText=generatedText;
   if(!isEditorial&&(!safeText||String(safeText).trim().length<12||jayaTooGeneric(safeText))){
    const candidates=Array.from({length:24},(_,i)=>generic(slot+i));
-   safeText=candidates.find(x=>!jayaTooGeneric(x))||"Une petite pensée pour celles et ceux qui nous écoutent ce matin. Je vous laisse profiter de ce qui arrive.";
+   safeText=candidates.find(x=>!jayaTooGeneric(x))||null;
   }
   const text=radioPause(enforceDaypart(safeText,lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
   // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
@@ -619,6 +630,8 @@ async function handler(req,res){
   // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
   const qv=await queueVerified(base,key,path,isEditorial);
   if(!qv.ok)return res.status(502).json({ok:false,error:"Queue insertion not verified",stage:"queue-verify",file:path,reason:qv.reason||"unknown"});
+  if(!isEditorial){rememberJaya(text);await persistJayaMemory(text,"h24",String(slot))}
+  else await persistJayaMemory(text,"news_weather",editorialDay+"-"+editorialPeriod);
   console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",queued:true,queue_verified:qv.verified!==false,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.stack||e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable",stage:"exception",detail:String(e?.message||e).slice(0,300)})}
 }
