@@ -104,17 +104,16 @@ async function queueVerified(base,key,path,priority=false){
  const queueOnce=()=>az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],...(priority?{priority:true}:{})})});
  const q=await queueOnce();
  if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_QUEUE",q.status,detail.slice(0,500));return {ok:false,status:q.status,reason:"queue-http"};}
- for(let attempt=1;attempt<=3;attempt++){
-  await new Promise(r=>setTimeout(r,1200));
+ for(let attempt=1;attempt<=6;attempt++){
+  await new Promise(r=>setTimeout(r,2000));
   const check=await az(base,key,"/queue"),raw=await check.text();let data=null;try{data=JSON.parse(raw)}catch{}
   if(check.ok){const rows=queueRows(data);const needle=path.toLowerCase();const index=rows.findIndex(x=>JSON.stringify(x).toLowerCase().includes(needle));if(index>=0){console.log("JAYA_QUEUE_VERIFIED",path,"index",index,"attempt",attempt);return {ok:true,index,count:rows.length}}}
   console.error("JAYA_QUEUE_NOT_VERIFIED",path,"attempt",attempt);
  }
- // AzuraCast peut retirer immédiatement le titre de la file visible pour le
- // précharger dans Liquidsoap. Le PUT a réussi : ne jamais signaler 502 et
- // provoquer un nouvel envoi du même MP3 dans ce cas.
- console.warn("JAYA_QUEUE_ACCEPTED_NOT_VISIBLE",path);
- return {ok:true,index:null,verified:false,reason:"accepted-not-visible"};
+ // Pour un rendez-vous éditorial, HTTP 200 ne suffit pas : la présence réelle
+ // dans la file doit être confirmée. Sinon le workflow doit voir un échec.
+ console.error("JAYA_QUEUE_NOT_CONFIRMED",path);
+ return {ok:false,index:null,verified:false,reason:"not-confirmed"};
 }
 
 function cleanMeta(v){
