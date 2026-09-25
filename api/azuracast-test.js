@@ -437,6 +437,14 @@ async function handler(req,res){
    const path="Jaya/Meteo/jaya-flash-"+day+"-"+period+".mp3";
    const bounds=period==="07"?[8*60+45,9*60+15]:[12*60+20,12*60+50];
    if(await alreadyBroadcast(base,key,"jaya-flash-"+day+"-"+period,...bounds))return res.status(200).json({ok:true,action:"skip",reason:"flash-already-broadcast"});
+   // Ne jamais empiler une rediffusion si le premier passage du meme fichier
+   // n'est pas encore confirme dans l'historique. Une insertion AzuraCast peut
+   // disparaitre de la file visible avant de passer reellement a l'antenne.
+   const sourceBounds=period==="07"?[6*60+45,8*60+44]:[10*60+45,12*60+19];
+   if(!await alreadyBroadcast(base,key,"jaya-flash-"+day+"-"+period,...sourceBounds)){
+    console.warn("JAYA_FLASH_REPLAY_SOURCE_NOT_BROADCAST",path,period);
+    return res.status(200).json({ok:true,action:"skip",reason:"source-flash-not-yet-broadcast",file:path,period});
+   }
    const existing=await az(base,key,"/queue");
    if(!existing.ok)throw new Error("Queue check failed: "+existing.status);
    if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return res.status(200).json({ok:true,action:"skip",reason:"flash-already-queued"});
@@ -449,6 +457,12 @@ async function handler(req,res){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
    if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,8*60+15,8*60+50))return res.status(200).json({ok:true,action:"skip",reason:"horoscope-second-slot-already-broadcast"});
+   // Meme verrou pour le Technoroscope : pas de seconde copie tant que le
+   // passage de 07h30 n'est pas confirme par l'historique.
+   if(!await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+15,8*60+14)){
+    console.warn("JAYA_HOROSCOPE_REPLAY_SOURCE_NOT_BROADCAST",path);
+    return res.status(200).json({ok:true,action:"skip",reason:"source-horoscope-not-yet-broadcast",file:path});
+   }
    const existing=await az(base,key,"/queue");
    if(!existing.ok)throw new Error("Queue check failed: "+existing.status);
    if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return res.status(200).json({ok:true,action:"skip",reason:"horoscope-already-queued"});
