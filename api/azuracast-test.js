@@ -59,6 +59,19 @@ const MESSAGES=[
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 async function az(base,key,path,opts={}){return fetch(base+"/api/station/"+SID+path,{...opts,headers:{"X-API-Key":key,"Accept":"application/json",...(opts.headers||{})}})}
 function queueRows(data){return Array.isArray(data)?data:(data?.rows||[])}
+async function queueVerified(base,key,path,priority=false){
+ const queueOnce=()=>az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],...(priority?{priority:true}:{})})});
+ for(let attempt=1;attempt<=2;attempt++){
+  const q=await queueOnce();
+  if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_QUEUE",q.status,detail.slice(0,500));if(attempt===2)return {ok:false,status:q.status,reason:"queue-http"};continue}
+  await new Promise(r=>setTimeout(r,1200));
+  const check=await az(base,key,"/queue"),raw=await check.text();let data=null;try{data=JSON.parse(raw)}catch{}
+  if(check.ok){const rows=queueRows(data);const needle=path.toLowerCase();const index=rows.findIndex(x=>JSON.stringify(x).toLowerCase().includes(needle));if(index>=0){console.log("JAYA_QUEUE_VERIFIED",path,"index",index,"attempt",attempt);return {ok:true,index,count:rows.length}}}
+  console.error("JAYA_QUEUE_NOT_VERIFIED",path,"attempt",attempt);
+ }
+ return {ok:false,reason:"queue-not-visible"};
+}
+
 function cleanMeta(v){
  return String(v||"").replace(/https?:\/\/\S+|www\.\S+|\b(?:vk|facebook|instagram|youtube|youtu\.be)\.com\/\S+/gi,"").replace(/\.(?:mp3|wav|flac|m4a|aac|ogg)\b/gi,"").replace(/\s+/g," ").replace(/^[\s\-–—_;:|]+|[\s\-–—_;:|]+$/g,"").trim();
 }
@@ -539,9 +552,9 @@ async function handler(req,res){
   }
   // Les rendez-vous éditoriaux fixes passent en priorité devant la musique déjà en attente.
   // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
-  const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[], ...(isEditorial?{priority:true}: {})})});
-  if(!q.ok){const detail=await q.text().catch(()=>""),msg="Queue failed";console.error("JAYA_QUEUE",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:q.status,stage:"queue"})}
-  console.log("JAYA_AUTO_QUEUED",path,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
+  const qv=await queueVerified(base,key,path,isEditorial);
+  if(!qv.ok)return res.status(502).json({ok:false,error:"Queue insertion not verified",stage:"queue-verify",file:path,reason:qv.reason||"unknown"});
+  console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",queued:true,queue_verified:true,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.stack||e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable",stage:"exception",detail:String(e?.message||e).slice(0,300)})}
 }
 
