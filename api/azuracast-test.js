@@ -59,6 +59,35 @@ const MESSAGES=[
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 async function az(base,key,path,opts={}){return fetch(base+"/api/station/"+SID+path,{...opts,headers:{"X-API-Key":key,"Accept":"application/json",...(opts.headers||{})}})}
 function queueRows(data){return Array.isArray(data)?data:(data?.rows||[])}
+function parisClock(date=new Date()){
+ const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(date);
+ const values=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+ return Number(values.hour)*60+Number(values.minute);
+}
+function editorialSlot(action,period,minute){
+ const slots={"horoscope-generate":[7*60+20,7*60+43],"horoscope-replay":[8*60+20,8*60+43],
+  "flash-replay":period==="07"?[8*60+50,9*60+10]:[12*60+25,12*60+45],
+  "news-now":[[6*60+50,7*60+10],[10*60+50,11*60+10]],
+  "weather-now":[[6*60+50,7*60+10],[10*60+50,11*60+10]]};
+ const windows=slots[action];
+ return !!windows&&(Array.isArray(windows[0])?windows:[windows]).some(([start,end])=>minute>=start&&minute<=end);
+}
+async function alreadyBroadcast(base,key,title,startMinute,endMinute){
+ const now=new Date(),start=new Date(now.getTime()-4*60*60*1000);
+ const response=await az(base,key,"/history?start="+encodeURIComponent(start.toISOString())+"&end="+encodeURIComponent(now.toISOString())+"&rowCount=250");
+ if(!response.ok)throw new Error("History check failed: "+response.status);
+ const entries=queueRows(await response.json());
+ const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+ return entries.some(entry=>{
+  const name=String(entry?.song?.title||entry?.media?.title||entry?.song?.text||"").toLowerCase();
+  const played=entry?.played_at||entry?.timestamp||entry?.date;
+  const date=typeof played==="number"?new Date(played<1e12?played*1000:played):new Date(played);
+  if(!Number.isFinite(date.getTime())||!name.includes(title.toLowerCase()))return false;
+  const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(date);
+  const minute=parisClock(date);
+  return day===today&&minute>=startMinute&&minute<=endMinute;
+ });
+}
 async function queueVerified(base,key,path,priority=false){
  const queueOnce=()=>az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],...(priority?{priority:true}:{})})});
  const q=await queueOnce();
@@ -379,6 +408,13 @@ async function handler(req,res){
   }
   if(req.method!=="GET"&&req.method!=="POST")return res.status(405).json({ok:false,error:"GET or POST only"});
   if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
+  const action=String(req.body?.action||"");
+  const minute=parisClock();
+  if(["horoscope-generate","horoscope-replay","flash-replay","news-now","weather-now"].includes(action)
+    && !editorialSlot(action,String(req.body?.period||""),minute)
+    && req.headers["x-jaya-manual-override"]!==secret){
+   return res.status(200).json({ok:true,action:"skip",reason:"outside-editorial-slot",minute});
+  }
   const el=process.env.ELEVENLABS_API_KEY;
   if(!el&&!flashReplay&&!horoscopeReplay)return res.status(500).json({ok:false,error:"TTS configuration missing"});
   if(flashReplay){
@@ -386,6 +422,11 @@ async function handler(req,res){
    if(!["07","11"].includes(period))return res.status(400).json({ok:false,error:"Invalid flash replay period"});
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Meteo/jaya-flash-"+day+"-"+period+".mp3";
+   const bounds=period==="07"?[8*60+45,9*60+15]:[12*60+20,12*60+50];
+   if(await alreadyBroadcast(base,key,"jaya-flash-"+day+"-"+period,...bounds))return res.status(200).json({ok:true,action:"skip",reason:"flash-already-broadcast"});
+   const existing=await az(base,key,"/queue");
+   if(!existing.ok)throw new Error("Queue check failed: "+existing.status);
+   if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return res.status(200).json({ok:true,action:"skip",reason:"flash-already-queued"});
    const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
    if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_FLASH_REPLAY",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Flash replay queue failed",stage:"queue",file:path})}
    console.log("JAYA_FLASH_REPLAY_QUEUED",path);
@@ -394,6 +435,10 @@ async function handler(req,res){
   if(horoscopeReplay){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
+   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,8*60+15,8*60+50))return res.status(200).json({ok:true,action:"skip",reason:"horoscope-second-slot-already-broadcast"});
+   const existing=await az(base,key,"/queue");
+   if(!existing.ok)throw new Error("Queue check failed: "+existing.status);
+   if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return res.status(200).json({ok:true,action:"skip",reason:"horoscope-already-queued"});
    const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
    if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_HOROSCOPE_REPLAY",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Horoscope replay queue failed",stage:"queue"})}
    return res.status(200).json({ok:true,action:"horoscope-replay",file:path,tts_generated:false});
@@ -402,6 +447,7 @@ async function handler(req,res){
   if(horoscopeGenerate){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
    const existingPath="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
+   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+15,7*60+55))return res.status(200).json({ok:true,action:"skip",reason:"horoscope-first-slot-already-broadcast"});
    // Verrou quotidien : si le Technoroscope du jour est deja en file, aucune seconde generation ne peut l ecraser.
    const existingQueue=await az(base,key,"/queue"),existingRaw=await existingQueue.text();let existingData=null;try{existingData=JSON.parse(existingRaw)}catch{}
    if(existingQueue.ok&&queueRows(existingData).some(x=>JSON.stringify(x).toLowerCase().includes(existingPath.toLowerCase()))){
@@ -456,6 +502,13 @@ async function handler(req,res){
   const isWeather=forceWeather;
   const scheduledEditorial=((lh===6||lh===8||lh===10)&&lm>=55)||((lh===7||lh===9||lh===11)&&lm<=4)||(lh===12&&lm>=25&&lm<=34);
   const isNews=forceNews||scheduledEditorial;
+  if(isNews||isWeather){
+   const date=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+   const period=lh<9?"07":"11";
+   const start=period==="07"?6*60+45:10*60+45;
+   if(await alreadyBroadcast(base,key,"jaya-flash-"+date+"-"+period,start,start+40))
+    return res.status(200).json({ok:true,action:"skip",reason:"flash-already-broadcast"});
+  }
   const pendingWeather=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-meteo")||raw.includes("jaya/meteo"))&&!played});
   const pendingNews=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-infos")||raw.includes("jaya/infos")||raw.includes("jaya-flash")||raw.includes("jaya/meteo"))&&!played});
   const pendingJaya=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
