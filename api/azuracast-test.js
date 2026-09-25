@@ -77,7 +77,7 @@ function parisClock(date=new Date()){
  return Number(values.hour)*60+Number(values.minute);
 }
 function editorialSlot(action,period,minute){
- const slots={"horoscope-generate":[7*60+20,7*60+43],"horoscope-replay":[8*60+20,8*60+43],
+ const slots={"horoscope-generate":[7*60+5,7*60+28],"horoscope-replay":[8*60+5,8*60+28],
   "flash-replay":period==="07"?[8*60+50,9*60+10]:[12*60+25,12*60+45],
   "news-now":[[6*60+50,7*60+10],[10*60+50,11*60+10]],
   "weather-now":[[6*60+50,7*60+10],[10*60+50,11*60+10]]};
@@ -264,7 +264,7 @@ async function horoscopeBulletin(){
  const key=process.env.OPENAI_API_KEY;if(!key)throw new Error("Horoscope AI configuration missing");
  const signs=["Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge","Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"];
  const recent=await recentEditorial("horoscope");
- const instructions="Tu es Jaya, animatrice de Technorizon. Écris le Technoroscope du matin en français oral naturel, chaleureux, souriant et complice. Fais OBLIGATOIREMENT les 12 signes dans l'ordre fourni, avec UNE phrase courte par signe. Ne t'arrête jamais avant Poissons. Ne présente jamais l'astrologie comme une certitude, un fait scientifique, un diagnostic ou un conseil médical, juridique ou financier. Évite les prédictions graves ou anxiogènes. Vise environ 1 min 30 à l'oral. Commence par une accroche très courte annonçant le Technoroscope. Termine OBLIGATOIREMENT par : Prochain horoscope à 08h30 sur Technorizon, ou retrouvez votre horoscope complet sur Technorizon.fr. Même personnalité que Jaya à l'antenne : naturelle, élégante, légèrement malicieuse. Pas d'emoji, pas de guillemets, pas de didascalie.";
+ const instructions="Tu es Jaya, animatrice de Technorizon. Écris le Technoroscope du matin en français oral naturel, chaleureux, souriant et complice. Fais OBLIGATOIREMENT les 12 signes dans l'ordre fourni, avec UNE phrase courte par signe. Ne t'arrête jamais avant Poissons. Ne présente jamais l'astrologie comme une certitude, un fait scientifique, un diagnostic ou un conseil médical, juridique ou financier. Évite les prédictions graves ou anxiogènes. Vise environ 1 min 30 à l'oral. Commence par une accroche très courte annonçant le Technoroscope. Termine OBLIGATOIREMENT par : Prochain horoscope à 08h15 sur Technorizon, ou retrouvez votre horoscope complet sur Technorizon.fr. Même personnalité que Jaya à l'antenne : naturelle, élégante, légèrement malicieuse. Pas d'emoji, pas de guillemets, pas de didascalie.";
  for(let attempt=1;attempt<=2;attempt++){
   const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
    model:"gpt-5-mini",
@@ -275,7 +275,7 @@ async function horoscopeBulletin(){
   if(!r.ok)throw new Error("Horoscope AI "+r.status);
   const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
   const normalized=(out||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-  const complete=!!out&&signs.every(sign=>normalized.includes(sign.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()))&&normalized.includes("08h30")&&normalized.includes("technorizon.fr");
+  const complete=!!out&&signs.every(sign=>normalized.includes(sign.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()))&&normalized.includes("08h15")&&normalized.includes("technorizon.fr");
   if(complete)return out;
   console.error("HOROSCOPE_INCOMPLETE","attempt",attempt,"length",out?.length||0);
  }
@@ -464,7 +464,7 @@ async function handler(req,res){
    const path="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
    if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,8*60+15,8*60+50))return res.status(200).json({ok:true,action:"skip",reason:"horoscope-second-slot-already-broadcast"});
    // Meme verrou pour le Technoroscope : pas de seconde copie tant que le
-   // passage de 07h30 n'est pas confirme par l'historique.
+   // passage de 07h15 n'est pas confirme par l'historique.
    if(!await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+15,8*60+14)){
     console.warn("JAYA_HOROSCOPE_REPLAY_SOURCE_NOT_BROADCAST",path);
     return res.status(200).json({ok:true,action:"skip",reason:"source-horoscope-not-yet-broadcast",file:path});
@@ -524,7 +524,7 @@ async function handler(req,res){
    }
    const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
    if(!q.ok)return res.status(502).json({ok:false,error:"Horoscope queue failed",stage:"queue"});
-   await persistJayaMemory(text,"horoscope",day+"-07:30");
+   await persistJayaMemory(text,"horoscope",day+"-07:15");
    return res.status(200).json({ok:true,action:"horoscope-generate",file:path,tts_generated:true,text});
   }
   const qr=await az(base,key,"/queue"),qraw=await qr.text();let qdata=null;try{qdata=JSON.parse(qraw)}catch{}
