@@ -96,7 +96,7 @@ jobs:
             fi
 
             # :25 et :50 restent réservés à la préparation anticipée des rendez-vous éditoriaux.
-            if [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
+            if [ "$EVENT_SCHEDULE" = "13,33,53 * * * *" ] && [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
 
               # Lundi-vendredi
               if [ "$PARIS_DOW" -ge 1 ] && [ "$PARIS_DOW" -le 5 ]; then
