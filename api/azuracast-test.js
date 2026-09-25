@@ -177,7 +177,7 @@ async function newsBulletin(){
  items=items.filter(x=>{const d=Date.parse(x.pubDate);return !Number.isFinite(d)||now-d<12*60*60*1000}).slice(0,18);
  const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
   model:"gpt-5-mini",
-  instructions:"Tu es Jaya, animatrice radio de Technorizon. Prépare un flash d'actualité nationale et internationale en français oral naturel, factuel et neutre, d'environ 1 minute 30 à 2 minutes. Sélectionne 6 à 8 informations importantes uniquement dans les éléments fournis, en variant si possible actualité française, internationale, économie/société, sciences/technologies ou culture selon ce qui est réellement présent dans les sources. Donne un peu plus de contexte utile pour chaque information sans inventer ni extrapoler. N'invente aucun fait, chiffre, nom, contexte ou évolution. Si deux sources se contredisent, n'utilise pas l'information. Ne donne pas d'opinion. Commence par une courte accroche de flash infos. À la fin du flash, ne parle surtout PAS de retour à la musique, de titre à venir, de bonne écoute ou de fin de rendez-vous: la météo arrive immédiatement après. Termine simplement le flash par une phrase naturelle comme « Voilà pour l'essentiel de l'actualité, on passe maintenant à la météo. » Ton chaleureux, souriant et professionnel, mais plus posé que les interventions musicales. Règle absolue d'antenne: ne prononce jamais le prénom Willy. Si tu veux parler de lui ou de sa fonction, dis uniquement « le DJ ». Pas d'emoji, pas de guillemets, pas de didascalie.",
+  instructions:"Tu es Jaya, animatrice radio de Technorizon. Prépare un flash d'actualité nationale et internationale en français oral naturel, factuel et neutre, d'environ 1 minute 30 à 2 minutes. Sélectionne 6 à 8 informations importantes uniquement dans les éléments fournis, en variant si possible actualité française, internationale, économie/société, sciences/technologies ou culture selon ce qui est réellement présent dans les sources. Donne un peu plus de contexte utile pour chaque information sans inventer ni extrapoler. N'invente aucun fait, chiffre, nom, contexte ou évolution. Si deux sources se contredisent, n'utilise pas l'information. Ne donne pas d'opinion. Commence par une courte accroche de flash infos. Enchaîne les informations comme une vraie animatrice radio, avec des transitions naturelles et variées. Évite explicitement la structure répétitive « D'abord / Ensuite / Et enfin » et n'utilise jamais ces trois marqueurs comme trame du bulletin. À la fin du flash, ne parle surtout PAS de retour à la musique, de titre à venir, de bonne écoute ou de fin de rendez-vous: la météo arrive immédiatement après. Termine simplement le flash par une phrase naturelle comme « Voilà pour l'essentiel de l'actualité, on passe maintenant à la météo. » Ton chaleureux, souriant et professionnel, mais plus posé que les interventions musicales. Règle absolue d'antenne: ne prononce jamais le prénom Willy. Si tu veux parler de lui ou de sa fonction, dis uniquement « le DJ ». Pas d'emoji, pas de guillemets, pas de didascalie.",
   input:JSON.stringify(items),
   max_output_tokens:480
  })});
@@ -185,13 +185,13 @@ async function newsBulletin(){
   console.error("JAYA_NEWS_AI_HTTP",r.status);
   const h=items.slice(0,3).map(x=>cleanMeta(x.title)).filter(Boolean);
   if(!h.length)throw new Error("News AI "+r.status);
-  return "Bonjour, voici l'essentiel de l'actualité sur Technorizon. "+h.map((x,i)=>(i===0?"D'abord, ":i===1?"Ensuite, ":"Et enfin, ")+x+".").join(" ")+" Voilà pour l'essentiel de l'actualité, on passe maintenant à la météo.";
+  return "Bonjour, voici l’essentiel de l’actualité sur Technorizon. "+h.map((x,i)=>(i===0?x+".":i===1?" Autre information, "+x+".":" À retenir également, "+x+".")).join("")+" Voilà pour l’essentiel de l’actualité, on passe maintenant à la météo.";
  }
  const j=await r.json(),out=(j.output_text||"").trim()||(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text"||x.type==="text").map(x=>x.text||x.value||"").join(" ").trim();
  if(!out){
   const h=items.slice(0,3).map(x=>cleanMeta(x.title)).filter(Boolean);
   if(!h.length)throw new Error("Empty news bulletin");
-  return "Bonjour, voici l'essentiel de l'actualité sur Technorizon. "+h.map((x,i)=>(i===0?"D'abord, ":i===1?"Ensuite, ":"Et enfin, ")+x+".").join(" ")+" Voilà pour l'essentiel de l'actualité, on passe maintenant à la météo.";
+  return "Bonjour, voici l’essentiel de l’actualité sur Technorizon. "+h.map((x,i)=>(i===0?x+".":i===1?" Autre information, "+x+".":" À retenir également, "+x+".")).join("")+" Voilà pour l’essentiel de l’actualité, on passe maintenant à la météo.";
  }
  return out;
 }
@@ -396,7 +396,7 @@ async function handler(req,res){
     return res.status(200).json({ok:true,action:"skip",reason:"horoscope-already-generated-or-queued",file:existingPath,tts_generated:false});
    }
    const text=radioPause(enforceDaypart(await horoscopeBulletin(),7));
-   const ttsText=text.replace(/Technorizon\.fr/gi,"Ték-no-ri-zon point F R").replace(/Technorizon/gi,"Ték-no-ri-zon");
+   const ttsText=text.replace(/Technorizon\.fr/gi,"Tèk-no-ri-zon point F R").replace(/Technorizon/gi,"Tèk-no-ri-zon");
    const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
    if(!t.ok)return res.status(502).json({ok:false,error:"Horoscope TTS failed",status:t.status,stage:"tts"});
    const file="jaya-horoscope-"+day+".mp3",form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
@@ -482,7 +482,7 @@ async function handler(req,res){
    console.error("JAYA_EMPTY_TEXT_BLOCKED",{isEditorial,mode,slot,nextSong:!!nextSong});
    return res.status(200).json({ok:true,action:"skip",reason:"empty-or-too-short-text",queued:false});
   }
-  const ttsText=text.replace(/Technorizon\.fr/gi,"Ték-no-ri-zon point F R").replace(/Technorizon/gi,"Ték-no-ri-zon");
+  const ttsText=text.replace(/Technorizon\.fr/gi,"Tèk-no-ri-zon point F R").replace(/Technorizon/gi,"Tèk-no-ri-zon");
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
   if(!t.ok){const detail=await t.text().catch(()=>""),msg="TTS failed";console.error("JAYA_TTS",t.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:t.status,stage:"tts"})}
   const audio=await t.arrayBuffer();
