@@ -577,6 +577,11 @@ async function handler(req,res){
   if(!isEditorial&&(!safeText||String(safeText).trim().length<12||jayaTooGeneric(safeText))){
    const candidates=Array.from({length:24},(_,i)=>generic(slot+i));
    safeText=candidates.find(x=>!jayaTooGeneric(x))||null;
+   if(!safeText){
+    const hh=String(lh).padStart(2,"0"),mm=String(lm).padStart(2,"0");
+    safeText="Vous êtes sur Technorizon.fr avec Jaya. Il est "+hh+" heures "+mm+", et la musique continue maintenant.";
+    console.log("JAYA_H24_SAFE_FALLBACK",slot);
+   }
   }
   const text=radioPause(enforceDaypart(safeText,lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
   // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
