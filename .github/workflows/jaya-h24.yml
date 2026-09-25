@@ -14,6 +14,8 @@ on:
     - cron: '25 * * * *'
     # Technoroscope : une génération quotidienne, puis réutilisation du même MP3.
     - cron: '8 5,6 * * *'
+    # Exception du 25/09/2026 : rediffusion réparée vers 08h30 (préparation 08h23 locale).
+    - cron: '23 6 * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -77,10 +79,13 @@ jobs:
 
             # Le cron Horoscope est identifié par sa règle d'origine et non par
             # l'heure réelle d'exécution : GitHub Actions peut démarrer en retard.
+            PARIS_DATE=$(TZ=Europe/Paris date +%F)
             if [ "$EVENT_SCHEDULE" = "8 5,6 * * *" ]; then
               if [ "$PARIS_HOUR" -eq 7 ]; then AUTO_HOROSCOPE="generate"
-              elif [ "$PARIS_HOUR" -eq 8 ]; then AUTO_HOROSCOPE="replay"
+              elif [ "$PARIS_HOUR" -eq 8 ] && [ "$PARIS_DATE" != "2026-09-25" ]; then AUTO_HOROSCOPE="replay"
               fi
+            elif [ "$EVENT_SCHEDULE" = "23 6 * * *" ] && [ "$PARIS_DATE" = "2026-09-25" ]; then
+              AUTO_HOROSCOPE="replay"
             fi
 
             # GitHub Actions peut lancer un cron avec plusieurs minutes de retard.
