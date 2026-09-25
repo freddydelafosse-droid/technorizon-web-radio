@@ -14,7 +14,7 @@ on:
     - cron: '45 * * * *'
     - cron: '25 * * * *'
     # Technoroscope : une génération quotidienne, puis réutilisation du même MP3.
-    - cron: '23 5,6 * * *'
+    - cron: '08 5,6 * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -83,7 +83,7 @@ jobs:
             # Le cron Horoscope est identifié par sa règle d'origine et non par
             # l'heure réelle d'exécution : GitHub Actions peut démarrer en retard.
             PARIS_DATE=$(TZ=Europe/Paris date +%F)
-            if [ "$EVENT_SCHEDULE" = "23 5,6 * * *" ]; then
+            if [ "$EVENT_SCHEDULE" = "08 5,6 * * *" ]; then
               if [ "$PARIS_HOUR" -eq 7 ]; then AUTO_HOROSCOPE="generate"
               elif [ "$PARIS_HOUR" -eq 8 ]; then AUTO_HOROSCOPE="replay"
               fi
@@ -150,10 +150,10 @@ jobs:
             echo "Génération immédiate du Technoroscope Jaya"
             ACTION="horoscope-generate"
           elif [ "$AUTO_HOROSCOPE" = "generate" ]; then
-            echo "Génération unique du Technoroscope Jaya pour 07h30"
+            echo "Génération unique du Technoroscope Jaya pour 07h15"
             ACTION="horoscope-generate"
           elif [ "$AUTO_HOROSCOPE" = "replay" ]; then
-            echo "Réutilisation du Technoroscope Jaya pour 08h30"
+            echo "Réutilisation du Technoroscope Jaya pour 08h15"
             ACTION="horoscope-replay"
           elif [ "$NEWS_NOW" = "true" ]; then
             echo "Déclenchement infos Jaya"
