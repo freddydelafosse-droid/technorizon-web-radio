@@ -212,7 +212,7 @@ async function newsBulletin(){
 async function horoscopeBulletin(){
  const key=process.env.OPENAI_API_KEY;if(!key)throw new Error("Horoscope AI configuration missing");
  const signs=["Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge","Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"];
- const instructions="Tu es Jaya, animatrice de Technorizon. Écris le Technoroscope du matin en français oral naturel, chaleureux, souriant et complice. Fais OBLIGATOIREMENT les 12 signes dans l'ordre fourni, avec UNE phrase courte par signe. Ne t'arrête jamais avant Poissons. Ne présente jamais l'astrologie comme une certitude, un fait scientifique, un diagnostic ou un conseil médical, juridique ou financier. Évite les prédictions graves ou anxiogènes. Vise environ 1 min 30 à l'oral. Commence par une accroche très courte annonçant le Technoroscope. Termine OBLIGATOIREMENT par : Prochain horoscope à 08h15 sur Technorizon, ou retrouvez votre horoscope complet sur Technorizon.fr. Même personnalité que Jaya à l'antenne : naturelle, élégante, légèrement malicieuse. Pas d'emoji, pas de guillemets, pas de didascalie.";
+ const instructions="Tu es Jaya, animatrice de Technorizon. Écris le Technoroscope du matin en français oral naturel, chaleureux, souriant et complice. Fais OBLIGATOIREMENT les 12 signes dans l'ordre fourni, avec UNE phrase courte par signe. Ne t'arrête jamais avant Poissons. Ne présente jamais l'astrologie comme une certitude, un fait scientifique, un diagnostic ou un conseil médical, juridique ou financier. Évite les prédictions graves ou anxiogènes. Vise environ 1 min 30 à l'oral. Commence par une accroche très courte annonçant le Technoroscope. Termine OBLIGATOIREMENT par : Prochain horoscope à 08h30 sur Technorizon, ou retrouvez votre horoscope complet sur Technorizon.fr. Même personnalité que Jaya à l'antenne : naturelle, élégante, légèrement malicieuse. Pas d'emoji, pas de guillemets, pas de didascalie.";
  for(let attempt=1;attempt<=2;attempt++){
   const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
    model:"gpt-5-mini",
@@ -223,7 +223,7 @@ async function horoscopeBulletin(){
   if(!r.ok)throw new Error("Horoscope AI "+r.status);
   const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
   const normalized=(out||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-  const complete=!!out&&signs.every(sign=>normalized.includes(sign.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()))&&normalized.includes("08h15")&&normalized.includes("technorizon.fr");
+  const complete=!!out&&signs.every(sign=>normalized.includes(sign.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()))&&normalized.includes("08h30")&&normalized.includes("technorizon.fr");
   if(complete)return out;
   console.error("HOROSCOPE_INCOMPLETE","attempt",attempt,"length",out?.length||0);
  }
@@ -409,7 +409,7 @@ async function handler(req,res){
     return res.status(200).json({ok:true,action:"skip",reason:"horoscope-already-generated-or-queued",file:existingPath,tts_generated:false});
    }
    const text=radioPause(enforceDaypart(await horoscopeBulletin(),7));
-   const ttsText=text.replace(/Technorizon\.fr/gi,"Tèk-no-ri-zon point F R").replace(/Technorizon/gi,"Tèk-no-ri-zon");
+   const ttsText=text.replace(/Technorizon\.fr/gi,"Tèque-no-ri-zon point F R").replace(/Technorizon/gi,"Tèque-no-ri-zon");
    const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
    if(!t.ok)return res.status(502).json({ok:false,error:"Horoscope TTS failed",status:t.status,stage:"tts"});
    const file="jaya-horoscope-"+day+".mp3",form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
@@ -495,7 +495,7 @@ async function handler(req,res){
    console.error("JAYA_EMPTY_TEXT_BLOCKED",{isEditorial,mode,slot,nextSong:!!nextSong});
    return res.status(200).json({ok:true,action:"skip",reason:"empty-or-too-short-text",queued:false});
   }
-  const ttsText=text.replace(/Technorizon\.fr/gi,"Tèk-no-ri-zon point F R").replace(/Technorizon/gi,"Tèk-no-ri-zon");
+  const ttsText=text.replace(/Technorizon\.fr/gi,"Tèque-no-ri-zon point F R").replace(/Technorizon/gi,"Tèque-no-ri-zon");
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
   if(!t.ok){const detail=await t.text().catch(()=>""),msg="TTS failed";console.error("JAYA_TTS",t.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:t.status,stage:"tts"})}
   const audio=await t.arrayBuffer();
