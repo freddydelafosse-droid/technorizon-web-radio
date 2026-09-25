@@ -201,3 +201,5 @@ jobs:
             echo "::warning::Jaya API indisponible temporairement - HTTP ${HTTP_CODE:-000}, curl exit ${CURL_EXIT:-0}. Le prochain cron retentera automatiquement."
             exit 0
           fi
+
+# Emergency flash kick
