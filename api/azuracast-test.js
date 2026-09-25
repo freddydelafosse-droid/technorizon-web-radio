@@ -585,7 +585,7 @@ async function handler(req,res){
    safeText=candidates.find(x=>!jayaTooGeneric(x))||null;
    if(!safeText){
     const hh=String(lh).padStart(2,"0"),mm=String(lm).padStart(2,"0");
-    safeText="Vous êtes sur Technorizon.fr avec Jaya. Il est "+hh+" heures "+mm+", et la musique continue maintenant.";
+    safeText="Vous êtes sur Technorizon.fr avec Jaya. Il est "+hh+" heures "+mm+". Je vous laisse profiter du prochain son.";
     console.log("JAYA_H24_SAFE_FALLBACK",slot);
    }
   }
@@ -653,10 +653,15 @@ async function handler(req,res){
   // Les rendez-vous éditoriaux fixes passent en priorité devant la musique déjà en attente.
   // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
   const qv=await queueVerified(base,key,path,isEditorial);
-  if(!qv.ok)return res.status(502).json({ok:false,error:"Queue insertion not verified",stage:"queue-verify",file:path,reason:qv.reason||"unknown"});
+  if(!qv.ok){
+    if(isEditorial)return res.status(502).json({ok:false,error:"Queue insertion not verified",stage:"queue-verify",file:path,reason:qv.reason||"unknown"});
+    // H24 : AzuraCast peut accepter le PUT puis précharger immédiatement le titre,
+    // ce qui le fait disparaître de la file visible. Ne pas transformer ce cas en 502.
+    console.warn("JAYA_H24_QUEUE_ACCEPTED_NOT_VISIBLE",path,qv.reason||"unknown");
+   }
   if(!isEditorial){rememberJaya(text);await persistJayaMemory(text,"h24",String(slot))}
   else await persistJayaMemory(text,"news_weather",editorialDay+"-"+editorialPeriod);
-  console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",queued:true,queue_verified:qv.verified!==false,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
+  console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",queued:true,queue_verified:qv.ok&&qv.verified!==false,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.stack||e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable",stage:"exception",detail:String(e?.message||e).slice(0,300)})}
 }
 
