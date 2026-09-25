@@ -15,8 +15,6 @@ on:
     - cron: '25 * * * *'
     # Technoroscope : une génération quotidienne, puis réutilisation du même MP3.
     - cron: '8 5,6 * * *'
-    # Exception du 25/09/2026 : rediffusion réparée vers 08h30 (préparation 08h23 locale).
-    - cron: '23 6 * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -47,7 +45,8 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_SCHEDULE: ${{ github.event.schedule }}
           HOROSCOPE_NOW: ${{ inputs.horoscope_now }}
-          FLASH_KICK: ${{ github.event_name == 'push' }}
+          FLASH_KICK: ${{ github.event_name == 'push' && contains(github.event.head_commit.modified, '.github/jaya-flash-kick') }}
+          HOROSCOPE_KICK: ${{ github.event_name == 'push' && contains(github.event.head_commit.modified, '.github/jaya-horoscope-kick') }}
         run: |
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
           PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
@@ -86,10 +85,8 @@ jobs:
             PARIS_DATE=$(TZ=Europe/Paris date +%F)
             if [ "$EVENT_SCHEDULE" = "8 5,6 * * *" ]; then
               if [ "$PARIS_HOUR" -eq 7 ]; then AUTO_HOROSCOPE="generate"
-              elif [ "$PARIS_HOUR" -eq 8 ] && [ "$PARIS_DATE" != "2026-09-25" ]; then AUTO_HOROSCOPE="replay"
+              elif [ "$PARIS_HOUR" -eq 8 ]; then AUTO_HOROSCOPE="replay"
               fi
-            elif [ "$EVENT_SCHEDULE" = "23 6 * * *" ] && [ "$PARIS_DATE" = "2026-09-25" ]; then
-              AUTO_HOROSCOPE="replay"
             fi
 
             # GitHub Actions peut lancer un cron avec plusieurs minutes de retard.
@@ -138,9 +135,12 @@ jobs:
           if [ "$EVENT_NAME" = "push" ] && [ "$FLASH_KICK" = "true" ]; then
             echo "Déclenchement urgence Infos + Météo Jaya"
             ACTION="news-now"
-          elif [ "$EVENT_NAME" = "push" ]; then
+          elif [ "$EVENT_NAME" = "push" ] && [ "$HOROSCOPE_KICK" = "true" ]; then
             echo "Déclenchement ponctuel du Technoroscope Jaya"
             ACTION="horoscope-generate"
+          elif [ "$EVENT_NAME" = "push" ]; then
+            echo "Push sans kick Jaya reconnu : aucune injection."
+            exit 0
           elif [ "$HOROSCOPE_NOW" = "true" ]; then
             echo "Génération immédiate du Technoroscope Jaya"
             ACTION="horoscope-generate"
@@ -203,8 +203,8 @@ jobs:
           echo
 
           if [ -n "${CURL_EXIT:-}" ] || [ "${HTTP_CODE:-000}" -ge 400 ]; then
-            echo "::warning::Jaya API indisponible temporairement - HTTP ${HTTP_CODE:-000}, curl exit ${CURL_EXIT:-0}. Le prochain cron retentera automatiquement."
-            exit 0
+            echo "::error::Jaya API en échec - HTTP ${HTTP_CODE:-000}, curl exit ${CURL_EXIT:-0}."
+            exit 1
           fi
 
 # Emergency flash kick
