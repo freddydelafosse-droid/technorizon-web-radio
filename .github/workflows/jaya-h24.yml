@@ -126,6 +126,11 @@ jobs:
               fi
             fi
 
+            # Garder une transition libre autour des flashs et du Technoroscope.
+            # Ces créneaux H24 entraient en collision avec les MP3 prioritaires.
+            if { [ "$H" -eq 7 ] || [ "$H" -eq 8 ]; } && { [ "$M" -eq 13 ] || [ "$M" -eq 33 ]; }; then ALLOW_H24=false; fi
+            if { [ "$H" -eq 6 ] || [ "$H" -eq 8 ] || [ "$H" -eq 10 ] || [ "$H" -eq 12 ]; } && [ "$M" -eq 53 ]; then ALLOW_H24=false; fi
+
             if [ "$AUTO_WEATHER" != "true" ] && [ -z "$AUTO_FLASH_REPLAY" ] && [ -z "$AUTO_HOROSCOPE" ] && [ "$ALLOW_H24" != "true" ]; then
               echo "Aucun passage Jaya prévu à cet horaire de Paris."
               exit 0
