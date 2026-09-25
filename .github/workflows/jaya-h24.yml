@@ -174,6 +174,6 @@ jobs:
           echo
 
           if [ -n "${CURL_EXIT:-}" ] || [ "${HTTP_CODE:-000}" -ge 400 ]; then
-            echo "::error::Jaya API failed - HTTP ${HTTP_CODE:-000}, curl exit ${CURL_EXIT:-0}"
-            exit 1
+            echo "::warning::Jaya API indisponible temporairement - HTTP ${HTTP_CODE:-000}, curl exit ${CURL_EXIT:-0}. Le prochain cron retentera automatiquement."
+            exit 0
           fi
