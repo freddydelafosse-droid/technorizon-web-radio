@@ -199,16 +199,22 @@ async function newsBulletin(){
 async function horoscopeBulletin(){
  const key=process.env.OPENAI_API_KEY;if(!key)throw new Error("Horoscope AI configuration missing");
  const signs=["Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge","Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"];
- const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
-  model:"gpt-5-mini",
-  instructions:"Tu es Jaya, animatrice de Technorizon. Écris le Technoroscope du matin en français oral naturel, chaleureux, souriant et complice. Fais les 12 signes dans l'ordre fourni, avec une prévision légère et divertissante de 1 à 2 phrases très courtes par signe. Ne présente jamais l'astrologie comme une certitude, un fait scientifique, un diagnostic ou un conseil médical, juridique ou financier. Évite les prédictions graves ou anxiogènes. Vise 1 min 30 à 2 min maximum à l'oral. Commence par une accroche très courte annonçant le Technoroscope. Pour le passage de 07h15, termine TOUJOURS en annonçant exactement l’idée suivante : « Prochain horoscope à 08h15 sur Technorizon, ou retrouvez votre horoscope complet sur Technorizon.fr. » Tu peux rendre la liaison naturelle mais tu dois impérativement conserver les deux informations : prochain horoscope à 08h15 + horoscope complet sur Technorizon.fr. Même personnalité que Jaya à l'antenne: naturelle, élégante, légèrement malicieuse, sans ton publicitaire. Pas d'emoji, pas de guillemets, pas de didascalie.",
-  input:"Signes à traiter aujourd'hui : "+signs.join(", ")+".",
-  max_output_tokens:1200
- })});
- if(!r.ok)throw new Error("Horoscope AI "+r.status);
- const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
- if(!out)throw new Error("Empty horoscope");
- return out;
+ const instructions="Tu es Jaya, animatrice de Technorizon. Écris le Technoroscope du matin en français oral naturel, chaleureux, souriant et complice. Fais OBLIGATOIREMENT les 12 signes dans l'ordre fourni, avec UNE phrase courte par signe. Ne t'arrête jamais avant Poissons. Ne présente jamais l'astrologie comme une certitude, un fait scientifique, un diagnostic ou un conseil médical, juridique ou financier. Évite les prédictions graves ou anxiogènes. Vise environ 1 min 30 à l'oral. Commence par une accroche très courte annonçant le Technoroscope. Termine OBLIGATOIREMENT par : Prochain horoscope à 08h15 sur Technorizon, ou retrouvez votre horoscope complet sur Technorizon.fr. Même personnalité que Jaya à l'antenne : naturelle, élégante, légèrement malicieuse. Pas d'emoji, pas de guillemets, pas de didascalie.";
+ for(let attempt=1;attempt<=2;attempt++){
+  const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
+   model:"gpt-5-mini",
+   instructions,
+   input:"Signes à traiter aujourd'hui : "+signs.join(", ")+". Le texte doit contenir les 12 signes, de Bélier à Poissons, puis l'annonce finale.",
+   max_output_tokens:3000
+  })});
+  if(!r.ok)throw new Error("Horoscope AI "+r.status);
+  const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
+  const normalized=(out||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+  const complete=!!out&&signs.every(sign=>normalized.includes(sign.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()))&&normalized.includes("08h15")&&normalized.includes("technorizon.fr");
+  if(complete)return out;
+  console.error("HOROSCOPE_INCOMPLETE","attempt",attempt,"length",out?.length||0);
+ }
+ throw new Error("Incomplete horoscope after retry");
 }
 
 function normBrain(v){return cleanMeta(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
