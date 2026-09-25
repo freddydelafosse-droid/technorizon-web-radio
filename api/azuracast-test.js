@@ -388,6 +388,13 @@ async function handler(req,res){
   const now=new Date();
   if(horoscopeGenerate){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+   const existingPath="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
+   // Verrou quotidien : si le Technoroscope du jour est deja en file, aucune seconde generation ne peut l ecraser.
+   const existingQueue=await az(base,key,"/queue"),existingRaw=await existingQueue.text();let existingData=null;try{existingData=JSON.parse(existingRaw)}catch{}
+   if(existingQueue.ok&&queueRows(existingData).some(x=>JSON.stringify(x).toLowerCase().includes(existingPath.toLowerCase()))){
+    console.log("JAYA_HOROSCOPE_GENERATION_LOCKED",existingPath);
+    return res.status(200).json({ok:true,action:"skip",reason:"horoscope-already-generated-or-queued",file:existingPath,tts_generated:false});
+   }
    const text=radioPause(enforceDaypart(await horoscopeBulletin(),7));
    const ttsText=text.replace(/Technorizon\.fr/gi,"Ték-no-ri-zon point F R").replace(/Technorizon/gi,"Ték-no-ri-zon");
    const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
