@@ -98,7 +98,11 @@ async function queueVerified(base,key,path,priority=false){
   if(check.ok){const rows=queueRows(data);const needle=path.toLowerCase();const index=rows.findIndex(x=>JSON.stringify(x).toLowerCase().includes(needle));if(index>=0){console.log("JAYA_QUEUE_VERIFIED",path,"index",index,"attempt",attempt);return {ok:true,index,count:rows.length}}}
   console.error("JAYA_QUEUE_NOT_VERIFIED",path,"attempt",attempt);
  }
- return {ok:false,reason:"queue-not-visible"};
+ // AzuraCast peut retirer immédiatement le titre de la file visible pour le
+ // précharger dans Liquidsoap. Le PUT a réussi : ne jamais signaler 502 et
+ // provoquer un nouvel envoi du même MP3 dans ce cas.
+ console.warn("JAYA_QUEUE_ACCEPTED_NOT_VISIBLE",path);
+ return {ok:true,index:null,verified:false,reason:"accepted-not-visible"};
 }
 
 function cleanMeta(v){
@@ -615,7 +619,7 @@ async function handler(req,res){
   // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
   const qv=await queueVerified(base,key,path,isEditorial);
   if(!qv.ok)return res.status(502).json({ok:false,error:"Queue insertion not verified",stage:"queue-verify",file:path,reason:qv.reason||"unknown"});
-  console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",queued:true,queue_verified:true,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
+  console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",queued:true,queue_verified:qv.verified!==false,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.stack||e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable",stage:"exception",detail:String(e?.message||e).slice(0,300)})}
 }
 
