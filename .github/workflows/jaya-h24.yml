@@ -207,6 +207,26 @@ jobs:
           cat "$RESPONSE_FILE"
           echo
 
+          # Un flash prioritaire ne doit jamais etre considere OK tant que l API
+          # n a pas confirme sa presence dans la file AzuraCast. Une seule relance
+          # controlee est autorisee pour eviter les doublons.
+          if { [ "$ACTION" = "news-now" ] || [ "$ACTION" = "weather-now" ]; } && { [ "${HTTP_CODE:-000}" -ge 400 ] || grep -q '"queued":false\|"queue_verified":false' "$RESPONSE_FILE"; }; then
+            echo "Flash non confirme dans AzuraCast : relance controlee dans 20 secondes."
+            sleep 20
+            : > "$RESPONSE_FILE"
+            unset CURL_EXIT
+            HTTP_CODE=$(curl --silent --show-error \
+              -o "$RESPONSE_FILE" -w "%{http_code}" \
+              -X POST \
+              -H "Authorization: Bearer $CRON_SECRET" \
+              -H "Content-Type: application/json" \
+              --data "$(printf '{\"action\":\"%s\"}' "$ACTION")" \
+              "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
+            echo "Jaya API retry HTTP: ${HTTP_CODE:-000}"
+            cat "$RESPONSE_FILE"
+            echo
+          fi
+
           if [ -n "${CURL_EXIT:-}" ] || [ "${HTTP_CODE:-000}" -ge 400 ]; then
             echo "::error::Jaya API en échec - HTTP ${HTTP_CODE:-000}, curl exit ${CURL_EXIT:-0}."
             exit 1
