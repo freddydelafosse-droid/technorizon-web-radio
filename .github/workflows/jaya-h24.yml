@@ -135,7 +135,10 @@ jobs:
             fi
           fi
 
-          if [ "$EVENT_NAME" = "push" ]; then
+          if [ "$EVENT_NAME" = "push" ] && [ "$FLASH_KICK" = "true" ]; then
+            echo "Déclenchement urgence Infos + Météo Jaya"
+            ACTION="news-now"
+          elif [ "$EVENT_NAME" = "push" ]; then
             echo "Déclenchement ponctuel du Technoroscope Jaya"
             ACTION="horoscope-generate"
           elif [ "$HOROSCOPE_NOW" = "true" ]; then
