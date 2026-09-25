@@ -462,6 +462,9 @@ async function handler(req,res){
   if(isNews&&pendingNews)return res.status(200).json({ok:true,action:"skip",reason:"news-already-queued"});
   if(isWeather&&pendingWeather)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued"});
   if(!isWeather&&!isNews&&pendingJaya)return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
+  // Sécurité antenne : H24 générique suspendu temporairement après détection de passages identiques en rafale.
+  // Les rendez-vous éditoriaux prioritaires restent actifs.
+  if(!isWeather&&!isNews&&req.method!=="POST")return res.status(200).json({ok:true,action:"skip",reason:"h24-safety-freeze",queued:false});
   await loadJayaMemory();
   const songs=rows.map(songFromRow).filter(Boolean);
   const rawNextSong=songs[1]||null;
