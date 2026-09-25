@@ -111,7 +111,13 @@ async function queueVerified(base,key,path,priority=false){
   console.error("JAYA_QUEUE_NOT_VERIFIED",path,"attempt",attempt);
  }
  // Pour un rendez-vous éditorial, HTTP 200 ne suffit pas : la présence réelle
- // dans la file doit être confirmée. Sinon le workflow doit voir un échec.
+ // dans la file doit être confirmée. Pour Jaya H24, AzuraCast peut retirer
+ // immédiatement le titre de la file visible pour le précharger ; le PUT 200
+ // reste alors valide et l'historique antenne confirme ensuite la diffusion.
+ if(!priority){
+  console.warn("JAYA_QUEUE_ACCEPTED_NOT_VISIBLE",path);
+  return {ok:true,index:null,verified:false,reason:"accepted-not-visible"};
+ }
  console.error("JAYA_QUEUE_NOT_CONFIRMED",path);
  return {ok:false,index:null,verified:false,reason:"not-confirmed"};
 }
