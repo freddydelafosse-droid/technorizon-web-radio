@@ -544,10 +544,10 @@ async function handler(req,res){
     console.error("JAYA_HOROSCOPE_BANK_ASSIGN",e?.message||e);
     return res.status(502).json({ok:false,error:"Horoscope Banque Jaya assignment exception",stage:"bank-assign",file:path});
    }
-   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
-   if(!q.ok)return res.status(502).json({ok:false,error:"Horoscope queue failed",stage:"queue"});
+   const q=await queueVerified(base,key,path,true);
+   if(!q.ok)return res.status(502).json({ok:false,error:"Horoscope queue not confirmed",stage:"queue",file:path,queue_verified:false,queue_reason:q.reason||null});
    await persistJayaMemory(text,"horoscope",day+"-07:15");
-   return res.status(200).json({ok:true,action:"horoscope-generate",file:path,tts_generated:true,text});
+   return res.status(200).json({ok:true,action:"horoscope-generate",file:path,tts_generated:true,text,queued:true,queue_verified:true,queue_index:q.index});
   }
   const qr=await az(base,key,"/queue"),qraw=await qr.text();let qdata=null;try{qdata=JSON.parse(qraw)}catch{}
   if(!qr.ok)return res.status(502).json({ok:false,error:"Queue check failed"});
