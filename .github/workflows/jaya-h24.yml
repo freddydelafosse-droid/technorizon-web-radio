@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/jaya-horoscope-kick'
       - '.github/jaya-flash-kick'
+      - '.github/jaya-h24-kick'
   schedule:
     # Déclencheurs larges en UTC; les règles ci-dessous utilisent Europe/Paris.
     # Cela reste correct automatiquement lors des changements heure été/hiver.
@@ -46,6 +47,7 @@ jobs:
           EVENT_SCHEDULE: ${{ github.event.schedule }}
           HOROSCOPE_NOW: ${{ inputs.horoscope_now }}
           FLASH_KICK: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[JAYA_FLASH_KICK]') }}
+          H24_KICK: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[JAYA_H24_KICK]') }}
           HOROSCOPE_KICK: ${{ github.event_name == 'push' && contains(github.event.head_commit.modified, '.github/jaya-horoscope-kick') }}
         run: |
           PARIS_HOUR=$(TZ=Europe/Paris date +%H)
@@ -138,7 +140,10 @@ jobs:
             fi
           fi
 
-          if [ "$EVENT_NAME" = "push" ] && [ "$FLASH_KICK" = "true" ]; then
+          if [ "$EVENT_NAME" = "push" ] && [ "$H24_KICK" = "true" ]; then
+            echo "Déclenchement ponctuel Jaya H24"
+            ACTION=""
+          elif [ "$EVENT_NAME" = "push" ] && [ "$FLASH_KICK" = "true" ]; then
             echo "Déclenchement urgence Infos + Météo Jaya"
             ACTION="news-now"
           elif [ "$EVENT_NAME" = "push" ] && [ "$HOROSCOPE_KICK" = "true" ]; then
