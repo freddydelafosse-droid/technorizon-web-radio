@@ -397,7 +397,7 @@ ADN ANTENNE GABY — exemples authentiques fournis par Gaby. Ils servent uniquem
 13. Oh la la mais que c’est bon ça ! Bon, du coup on n’a plus envie d’arrêter alors casse les programmes et on repart tout de suite… Vous êtes sur Technorizon, bah oui, la meilleure radio.
 14. Eh, là franchement, on vous gâte ! Bon ok, on se fait plaisir en même temps mais c’est tellement bon. Ne bougez surtout pas car la suite arrive et on a envie de tout sauf de se calmer. Bonne écoute sur Technorizon.
 
-Ce qu'il faut apprendre de ces exemples : réaction spontanée au morceau, adresse directe à l'auditeur, complicité, humour et exagération légère, teasing de ce qui arrive, rythme oral, relance courte, identité Technorizon. Apprends aussi ces nouvelles mécaniques : valoriser ou taquiner le DJ et l'équipe sans inventer de fait; assumer le côté différent de Technorizon; utiliser parfois une fausse petite transgression de studio ou du patron comme ressort humoristique; donner l'impression qu'un morceau peut bousculer le programme sur le moment sans prétendre qu'un vrai changement de grille a eu lieu; partager le plaisir musical avec l'auditeur au lieu de lui vendre la programmation; permettre une petite autocorrection, confession ou reprise orale; finir parfois par une chute complice ou autodérisoire plutôt que par une conclusion radio trop propre. Mélange seulement 2 ou 3 de ces mécanismes par intervention. Les expressions « furax », voisins, tympans, « ça percute », « ça va taper fort », « on lâche les chevaux », « casse les programmes », « la meilleure radio » et « montez l'son » sont des épices rares : ne jamais en faire des gimmicks, ne jamais répéter une expression récemment utilisée. Jaya garde sa propre personnalité et invente des formulations nouvelles.
+Ce qu'il faut apprendre de ces exemples : réaction spontanée au morceau, adresse directe à l'auditeur, complicité, humour et exagération légère, teasing de ce qui arrive, rythme oral, relance courte, identité Technorizon. Le MATIN, privilégie régulièrement une présence très réveillée, souriante et complice : saluer franchement les auditeurs, leur demander comment ils vont, dire que toi tu es en forme, et donner l'impression qu'on démarre la journée ensemble en musique. Exemple de mécanique validée par Gaby (inspiration seulement, jamais à réciter ni reproduire mot pour mot) : « Bonjour tout le monde ! J’espère que vous allez bien car moi je suis en forme ! On attaque cette journée ensemble en musique, c’est parti sur Technorizon.fr ». Varie fortement l'accroche, le vocabulaire et la chute à chaque passage. Apprends aussi ces nouvelles mécaniques : valoriser ou taquiner le DJ et l'équipe sans inventer de fait; assumer le côté différent de Technorizon; utiliser parfois une fausse petite transgression de studio ou du patron comme ressort humoristique; donner l'impression qu'un morceau peut bousculer le programme sur le moment sans prétendre qu'un vrai changement de grille a eu lieu; partager le plaisir musical avec l'auditeur au lieu de lui vendre la programmation; permettre une petite autocorrection, confession ou reprise orale; finir parfois par une chute complice ou autodérisoire plutôt que par une conclusion radio trop propre. Mélange seulement 2 ou 3 de ces mécanismes par intervention. Les expressions « furax », voisins, tympans, « ça percute », « ça va taper fort », « on lâche les chevaux », « casse les programmes », « la meilleure radio » et « montez l'son » sont des épices rares : ne jamais en faire des gimmicks, ne jamais répéter une expression récemment utilisée. Jaya garde sa propre personnalité et invente des formulations nouvelles.
 `;
  try{
   const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
@@ -606,14 +606,10 @@ async function handler(req,res){
    const candidates=Array.from({length:24},(_,i)=>generic(slot+i));
    safeText=candidates.find(x=>!jayaTooGeneric(x))||null;
    if(!safeText){
-    safeText=lh<12
-      ?"Bonjour, ici Jaya sur Technorizon.fr. On garde le sourire et je vous rends le son."
-      :lh<18
-        ?"Ici Jaya sur Technorizon.fr. Une petite parenthèse, puis je vous rends le son."
-        :lh<23
-          ?"Bonsoir, ici Jaya sur Technorizon.fr. Je referme la parenthèse et place au son."
-          :"Ici Jaya sur Technorizon.fr avec les noctambules. Je vous rends le son.";
-    console.log("JAYA_H24_SAFE_FALLBACK",slot);
+    // Ne jamais réinjecter une phrase fixe : si toutes les variantes sont trop
+    // proches de la mémoire antenne, on saute ce passage plutôt que de radoter.
+    console.warn("JAYA_H24_NO_UNIQUE_FALLBACK",slot);
+    return res.status(200).json({ok:true,action:"skip",reason:"no-unique-h24-text",queued:false});
    }
   }
   const text=radioPause(enforceDaypart(safeText,lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
