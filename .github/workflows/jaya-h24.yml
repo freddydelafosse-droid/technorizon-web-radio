@@ -71,11 +71,12 @@ jobs:
               SCHEDULED_H=$((10#$PARIS_HOUR))
               SCHEDULED_M=$((10#$PARIS_MINUTE))
               if [ "$SCHEDULED_M" -lt 45 ]; then SCHEDULED_H=$(( (SCHEDULED_H + 23) % 24 )); fi
-              case "$SCHEDULED_H" in
-                6) AUTO_WEATHER=true ;;
-                8) AUTO_FLASH_REPLAY="07" ;;
-                10) AUTO_WEATHER=true ;;
-              esac
+              # Flash Infos + Météo chaque heure de 05h00 à 20h00 :
+              # le cron :45 prépare le rendez-vous de l'heure suivante.
+              TARGET_H=$(( (SCHEDULED_H + 1) % 24 ))
+              if [ "$TARGET_H" -ge 5 ] && [ "$TARGET_H" -le 20 ]; then
+                AUTO_WEATHER=true
+              fi
             elif [ "$EVENT_SCHEDULE" = "25 * * * *" ]; then
               SCHEDULED_H=$H
               if [ "$ACTUAL_M" -lt 25 ]; then SCHEDULED_H=$(( (H + 23) % 24 )); fi
