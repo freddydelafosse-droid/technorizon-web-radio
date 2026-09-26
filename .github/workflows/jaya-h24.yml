@@ -15,7 +15,7 @@ on:
     - cron: '45 * * * *'
     - cron: '15 * * * *'
     # Technoroscope : une génération quotidienne, puis réutilisation du même MP3.
-    - cron: '08 5,6 * * *'
+    - cron: '55 4,5 * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -88,9 +88,14 @@ jobs:
             # Le cron Horoscope est identifié par sa règle d'origine et non par
             # l'heure réelle d'exécution : GitHub Actions peut démarrer en retard.
             PARIS_DATE=$(TZ=Europe/Paris date +%F)
-            if [ "$EVENT_SCHEDULE" = "08 5,6 * * *" ]; then
-              if [ "$PARIS_HOUR" -eq 7 ]; then AUTO_HOROSCOPE="generate"
-              elif [ "$PARIS_HOUR" -eq 8 ]; then AUTO_HOROSCOPE="replay"
+            if [ "$EVENT_SCHEDULE" = "55 4,5 * * *" ]; then
+              # 06h55 prépare le Technoroscope de 07h15 ; 07h55 prépare sa rediffusion de 08h15.
+              # On raisonne sur l'heure visée même si GitHub démarre quelques minutes en retard.
+              TARGET_H=$((10#$PARIS_HOUR))
+              TARGET_M=$((10#$PARIS_MINUTE))
+              if [ "$TARGET_M" -lt 55 ]; then TARGET_H=$(( (TARGET_H + 23) % 24 )); fi
+              if [ "$TARGET_H" -eq 6 ]; then AUTO_HOROSCOPE="generate"
+              elif [ "$TARGET_H" -eq 7 ]; then AUTO_HOROSCOPE="replay"
               fi
             fi
 
