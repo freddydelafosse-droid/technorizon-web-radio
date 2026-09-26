@@ -60,5 +60,15 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/jeux",
+      "destination": "/jeux.html"
+    },
+    {
+      "source": "/sports",
+      "destination": "/sports.html"
+    }
   ]
 }
