@@ -115,8 +115,9 @@ jobs:
                 fi
               # Samedi
               elif [ "$PARIS_DOW" -eq 6 ]; then
-                if   [ "$H" -eq 8 ]  && [ "$M" -eq 13 ]; then ALLOW_H24=true
-                elif [ "$H" -ge 9 ]  && [ "$H" -lt 13 ]; then ALLOW_H24=true
+                # Samedi : démarrage Jaya dès 05h13, comme la plage matinale habituelle.
+                if   [ "$H" -eq 5 ]  && [ "$M" -eq 13 ]; then ALLOW_H24=true
+                elif [ "$H" -ge 6 ]  && [ "$H" -lt 13 ]; then ALLOW_H24=true
                 elif [ "$H" -ge 13 ] && [ "$H" -lt 17 ] && [ "$M" -eq 13 ]; then ALLOW_H24=true
                 elif [ "$H" -ge 17 ] && [ "$H" -lt 23 ]; then ALLOW_H24=true
                 fi
