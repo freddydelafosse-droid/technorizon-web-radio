@@ -80,7 +80,7 @@ function parisClock(date=new Date()){
  return Number(values.hour)*60+Number(values.minute);
 }
 function editorialSlot(action,period,minute){
- const slots={"horoscope-generate":[7*60+5,7*60+28],"horoscope-replay":[8*60+5,8*60+28],
+ const slots={"horoscope-generate":[6*60+50,7*60+28],"horoscope-replay":[7*60+50,8*60+28],
   "flash-replay":period==="07"?[8*60+40,9*60+5]:[12*60+10,12*60+35],
   "news-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]],
   "weather-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]]};
@@ -110,7 +110,7 @@ async function queueVerified(base,key,path,priority=false){
  for(let attempt=1;attempt<=6;attempt++){
   await new Promise(r=>setTimeout(r,2000));
   const check=await az(base,key,"/queue"),raw=await check.text();let data=null;try{data=JSON.parse(raw)}catch{}
-  if(check.ok){const rows=queueRows(data);const needle=path.toLowerCase();const index=rows.findIndex(x=>JSON.stringify(x).toLowerCase().includes(needle));if(index>=0){console.log("JAYA_QUEUE_VERIFIED",path,"index",index,"attempt",attempt);return {ok:true,index,count:rows.length}}}
+  if(check.ok){const rows=queueRows(data);const needle=path.toLowerCase();const filename=needle.split("/").pop();const title=filename.replace(/\.[^.]+$/,"");const index=rows.findIndex(x=>{const raw=JSON.stringify(x).toLowerCase();return raw.includes(needle)||raw.includes(filename)||raw.includes(title)});if(index>=0){console.log("JAYA_QUEUE_VERIFIED",path,"index",index,"attempt",attempt);return {ok:true,index,count:rows.length}}}
   console.error("JAYA_QUEUE_NOT_VERIFIED",path,"attempt",attempt);
  }
  // Pour un rendez-vous éditorial, HTTP 200 ne suffit pas : la présence réelle
@@ -510,7 +510,7 @@ async function handler(req,res){
     return res.status(200).json({ok:true,action:"skip",reason:"horoscope-already-generated-or-queued",file:existingPath,tts_generated:false});
    }
    const text=radioPause(enforceDaypart(await horoscopeBulletin(),7));
-   const ttsText=text.replace(/Technorizon\.fr/gi,"Tèque-no-ri-zonne, point F R").replace(/Technorizon/gi,"Tèque-no-ri-zonne");
+   const ttsText=text.replace(/Technorizon\.fr/gi,"Tèk-no-ri-zon, point F R").replace(/Technorizon/gi,"Tèk-no-ri-zon");
    const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
    if(!t.ok)return res.status(502).json({ok:false,error:"Horoscope TTS failed",status:t.status,stage:"tts"});
    const file="jaya-horoscope-"+day+".mp3",form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
@@ -618,7 +618,7 @@ async function handler(req,res){
    console.error("JAYA_EMPTY_TEXT_BLOCKED",{isEditorial,mode,slot,nextSong:!!nextSong});
    return res.status(200).json({ok:true,action:"skip",reason:"empty-or-too-short-text",queued:false});
   }
-  const ttsText=text.replace(/Technorizon\.fr/gi,"Tèque-no-ri-zonne, point F R").replace(/Technorizon/gi,"Tèque-no-ri-zonne");
+  const ttsText=text.replace(/Technorizon\.fr/gi,"Tèk-no-ri-zon, point F R").replace(/Technorizon/gi,"Tèk-no-ri-zon");
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
   if(!t.ok){const detail=await t.text().catch(()=>""),msg="TTS failed";console.error("JAYA_TTS",t.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:t.status,stage:"tts"})}
   const audio=await t.arrayBuffer();
