@@ -81,9 +81,9 @@ function parisClock(date=new Date()){
 }
 function editorialSlot(action,period,minute){
  const slots={"horoscope-generate":[7*60+5,7*60+28],"horoscope-replay":[8*60+5,8*60+28],
-  "flash-replay":period==="07"?[8*60+50,9*60+10]:[12*60+25,12*60+45],
-  "news-now":[[6*60+50,7*60+10],[10*60+50,11*60+10]],
-  "weather-now":[[6*60+50,7*60+10],[10*60+50,11*60+10]]};
+  "flash-replay":period==="07"?[8*60+40,9*60+5]:[12*60+10,12*60+35],
+  "news-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]],
+  "weather-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]]};
  const windows=slots[action];
  return !!windows&&(Array.isArray(windows[0])?windows:[windows]).some(([start,end])=>minute>=start&&minute<=end);
 }
@@ -553,11 +553,11 @@ async function handler(req,res){
   if(!qr.ok)return res.status(502).json({ok:false,error:"Queue check failed"});
   const rows=queueRows(qdata);
   const local=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now).reduce((a,p)=>(a[p.type]=p.value,a),{}),lh=Number(local.hour),lm=Number(local.minute);
-  // Rendez-vous météo prioritaire : préparé à :23 pour passer autour de :30.
-  // Il ne doit jamais être bloqué par une intervention H24 déjà en attente.
+  // Rendez-vous éditoriaux : uniquement sur ordre explicite du workflow.
+  // Un GET H24 ne doit JAMAIS se transformer implicitement en flash infos/météo,
+  // même s'il arrive près d'une heure de rendez-vous.
   const isWeather=forceWeather;
-  const scheduledEditorial=((lh===6||lh===8||lh===10)&&lm>=55)||((lh===7||lh===9||lh===11)&&lm<=4)||(lh===12&&lm>=25&&lm<=34);
-  const isNews=forceNews||scheduledEditorial;
+  const isNews=forceNews;
   if(isNews||isWeather){
    const date=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
    const period=lh<9?"07":"11";
