@@ -193,22 +193,7 @@ jobs:
               --data "$(if [ "$ACTION" = "flash-replay" ]; then printf '{\"action\":\"flash-replay\",\"period\":\"%s\"}' "$AUTO_FLASH_REPLAY"; else printf '{\"action\":\"%s\"}' "$ACTION"; fi)" \
               "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
 
-            # Les générations éditoriales peuvent occasionnellement dépasser la fenêtre
-            # de l'API (502). Pour le Technoroscope, on retente automatiquement après
-            # une courte pause afin de ne plus dépendre d'une relance manuelle.
-            if [ "$ACTION" = "horoscope-generate" ] && [ "${HTTP_CODE:-000}" = "502" ]; then
-              echo "Technoroscope: erreur 502 temporaire, nouvelle tentative dans 90 secondes."
-              sleep 90
-              : > "$RESPONSE_FILE"
-              unset CURL_EXIT
-              HTTP_CODE=$(curl --silent --show-error \
-                -o "$RESPONSE_FILE" -w "%{http_code}" \
-                -X POST \
-                -H "Authorization: Bearer $CRON_SECRET" \
-                -H "Content-Type: application/json" \
-                --data '{"action":"horoscope-generate"}' \
-                "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
-            fi
+
           else
             HTTP_CODE=$(curl --silent --show-error \
               -o "$RESPONSE_FILE" -w "%{http_code}" \
@@ -221,24 +206,13 @@ jobs:
           cat "$RESPONSE_FILE"
           echo
 
-          # Un flash prioritaire ne doit jamais etre considere OK tant que l API
-          # n a pas confirme sa presence dans la file AzuraCast. Une seule relance
-          # controlee est autorisee pour eviter les doublons.
-          if { [ "$ACTION" = "news-now" ] || [ "$ACTION" = "weather-now" ]; } && { [ "${HTTP_CODE:-000}" -ge 400 ] || grep -q '"queued":false\|"queue_verified":false' "$RESPONSE_FILE"; }; then
-            echo "Flash non confirme dans AzuraCast : relance controlee dans 20 secondes."
-            sleep 20
-            : > "$RESPONSE_FILE"
-            unset CURL_EXIT
-            HTTP_CODE=$(curl --silent --show-error \
-              -o "$RESPONSE_FILE" -w "%{http_code}" \
-              -X POST \
-              -H "Authorization: Bearer $CRON_SECRET" \
-              -H "Content-Type: application/json" \
-              --data "$(printf '{\"action\":\"%s\"}' "$ACTION")" \
-              "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
-            echo "Jaya API retry HTTP: ${HTTP_CODE:-000}"
-            cat "$RESPONSE_FILE"
-            echo
+          # Une génération éditoriale ne doit jamais être relancée automatiquement :
+          # une erreur tardive peut survenir après le TTS ou l'upload et créer un doublon.
+          # Les réponses HTTP 200 qui refusent silencieusement le créneau prioritaire
+          # sont également transformées en échec visible.
+          if [ -n "$ACTION" ] && grep -q '"reason":"outside-editorial-slot"' "$RESPONSE_FILE"; then
+            echo "::error::Rubrique prioritaire refusée par la fenêtre éditoriale."
+            exit 1
           fi
 
           if [ -n "${CURL_EXIT:-}" ] || [ "${HTTP_CODE:-000}" -ge 400 ]; then
