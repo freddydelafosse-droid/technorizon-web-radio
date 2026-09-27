@@ -10,7 +10,7 @@ on:
   schedule:
     # Déclencheurs larges en UTC; les règles ci-dessous utilisent Europe/Paris.
     # Cela reste correct automatiquement lors des changements heure été/hiver.
-    - cron: '13,33,53 * * * *'
+    - cron: '13,18,33,38,53,58 * * * *'
     # Préparation des rendez-vous Infos + Météo.
     - cron: '45 * * * *'
     - cron: '15 * * * *'
@@ -85,17 +85,25 @@ jobs:
               if [ "$SCHEDULED_H" -eq 12 ]; then AUTO_FLASH_REPLAY="11"; fi
             fi
 
-            # Le cron Horoscope est identifié par sa règle d'origine et non par
-            # l'heure réelle d'exécution : GitHub Actions peut démarrer en retard.
+            # Technoroscope : le cron dédié reste le déclencheur principal.
+            # Les passages H24 réguliers servent aussi de watchdog : si GitHub saute le cron
+            # de :08, l'API rattrape le rendez-vous dans la fenêtre sûre. Les verrous
+            # historique/file côté API empêchent toute double génération ou double diffusion.
             PARIS_DATE=$(TZ=Europe/Paris date +%F)
             if [ "$EVENT_SCHEDULE" = "8 4,5,6,7 * * *" ]; then
-              # 07h08 prépare le Technoroscope de 07h15 ; 08h08 prépare sa rediffusion de 08h15.
-              # On raisonne sur l'heure visée même si GitHub démarre quelques minutes en retard.
               TARGET_H=$((10#$PARIS_HOUR))
               TARGET_M=$((10#$PARIS_MINUTE))
               if [ "$TARGET_M" -lt 8 ]; then TARGET_H=$(( (TARGET_H + 23) % 24 )); fi
               if [ "$TARGET_H" -eq 7 ]; then AUTO_HOROSCOPE="generate"
               elif [ "$TARGET_H" -eq 8 ]; then AUTO_HOROSCOPE="replay"
+              fi
+            elif [ "$EVENT_SCHEDULE" = "13,18,33,38,53,58 * * * *" ]; then
+              WATCH_H=$((10#$PARIS_HOUR))
+              WATCH_M=$((10#$PARIS_MINUTE))
+              if [ "$WATCH_H" -eq 7 ] && [ "$WATCH_M" -ge 13 ] && [ "$WATCH_M" -le 28 ]; then
+                AUTO_HOROSCOPE="generate"
+              elif [ "$WATCH_H" -eq 8 ] && [ "$WATCH_M" -ge 13 ] && [ "$WATCH_M" -le 28 ]; then
+                AUTO_HOROSCOPE="replay"
               fi
             fi
 
@@ -112,7 +120,7 @@ jobs:
             fi
 
             # :15 et :45 restent réservés à la préparation anticipée des rendez-vous éditoriaux.
-            if [ "$EVENT_SCHEDULE" = "13,33,53 * * * *" ] && [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
+            if { [ "$EVENT_SCHEDULE" = "13,18,33,38,53,58 * * * *" ]; } && [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
 
               # Lundi-vendredi
               if [ "$PARIS_DOW" -ge 1 ] && [ "$PARIS_DOW" -le 5 ]; then
