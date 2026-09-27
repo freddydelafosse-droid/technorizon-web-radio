@@ -232,7 +232,7 @@ async function newsBulletin(){
    const xml=await r.text();
    const chunks=xml.match(/<item[\s\S]*?<\/item>/gi)||[];
    for(const x of chunks.slice(0,12)){
-    const val=t=>{const m=x.match(new RegExp("<"+t+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/"+t+">","i"));return m?m[1].replace(/<!\[CDATA\[|\]\]>/g,"").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/\s+/g," ").trim():""};
+    const val=t=>{const m=x.match(new RegExp("<"+t+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/"+t+">","i"));return m?m[1].replace(/<!\[CDATA\[|\]\]>/g,"").replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&#x([0-9a-f]+);/gi,(_,n)=>String.fromCodePoint(parseInt(n,16))).replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n))).replace(/&nbsp;/gi," ").replace(/\s+/g," ").trim():""};
     const title=val("title"),description=val("description"),pubDate=val("pubDate");
     if(title)items.push({title,description,pubDate,source:feed.includes("franceinfo")?"Franceinfo":feed.includes("france24")?"France 24":"Le Monde"});
    }
