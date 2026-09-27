@@ -223,6 +223,21 @@ jobs:
             exit 1
           fi
 
+          # Un rendez-vous prioritaire n'est considéré réussi que si l'API confirme
+          # soit sa présence réelle dans la file, soit qu'il a déjà été diffusé/placé.
+          # Un simple HTTP 200 ne suffit plus.
+          if [ "$ACTION" = "horoscope-generate" ]; then
+            if ! grep -Eq '"queue_verified":true|"reason":"horoscope-first-slot-already-broadcast"|"reason":"horoscope-already-generated-or-queued"' "$RESPONSE_FILE"; then
+              echo "::error::Technoroscope non confirmé dans la file/historique."
+              exit 1
+            fi
+          elif [ "$ACTION" = "horoscope-replay" ]; then
+            if ! grep -Eq '"action":"horoscope-replay"|"reason":"horoscope-second-slot-already-broadcast"|"reason":"horoscope-already-queued"' "$RESPONSE_FILE"; then
+              echo "::error::Rediffusion Technoroscope non confirmée."
+              exit 1
+            fi
+          fi
+
           if [ -n "${CURL_EXIT:-}" ] || [ "${HTTP_CODE:-000}" -ge 400 ]; then
             echo "::error::Jaya API en échec - HTTP ${HTTP_CODE:-000}, curl exit ${CURL_EXIT:-0}."
             exit 1
