@@ -80,7 +80,7 @@ function parisClock(date=new Date()){
  return Number(values.hour)*60+Number(values.minute);
 }
 function editorialSlot(action,period,minute){
- const slots={"horoscope-generate":[6*60+50,7*60+28],"horoscope-replay":[7*60+50,8*60+28],
+ const slots={"horoscope-generate":[6*60+50,8*60+28],"horoscope-replay":[7*60+50,8*60+28],
   "flash-replay":period==="07"?[8*60+40,9*60+5]:[12*60+10,12*60+35],
   "news-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]],
   "weather-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]]};
