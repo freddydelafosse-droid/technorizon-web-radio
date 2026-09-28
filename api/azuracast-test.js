@@ -198,7 +198,9 @@ function enforceDaypart(text,hour){
  return s;
 }
 function ttsForJaya(text){
- // Prononciation française imposée pour la marque : trois groupes courts évitent\n // à ElevenLabs de lire le nom comme un mot anglais ou de finir en "zone".\n return String(text||"").replace(/Technorizon\.fr/gi,"Tèk no ri zon, point F R").replace(/Technorizon/gi,"Tèk no ri zon");
+ // Prononciation française imposée pour la marque.
+ // Les groupes courts évitent la lecture anglaise et la terminaison "zone".
+ return String(text||"").replace(/Technorizon\.fr/gi,"Tèk no ri zon, point F R").replace(/Technorizon/gi,"Tèk no ri zon");
 }
 function generic(slot){
  const p=daypart(),pool={
