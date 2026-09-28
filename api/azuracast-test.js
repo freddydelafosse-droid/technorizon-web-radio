@@ -63,6 +63,16 @@ async function persistJayaMemory(text,kind="h24",slot=null){
   if(!r.ok)console.error("JAYA_MEMORY_SAVE_HTTP",r.status);
  }catch(e){console.error("JAYA_MEMORY_SAVE",e?.message||e)}
 }
+async function editorialSlotRecorded(kind,slot){
+ const cfg=jayaMemoryConfig();if(!cfg)return false;
+ try{
+  const u=new URL(cfg.url+"/rest/v1/jaya_antenna_memory");
+  u.searchParams.set("select","slot");u.searchParams.set("kind","eq."+kind);
+  u.searchParams.set("slot","eq."+slot);u.searchParams.set("limit","1");
+  const r=await fetch(u,{headers:{apikey:cfg.key,Authorization:"Bearer "+cfg.key,Accept:"application/json"}});
+  return r.ok&&(await r.json()).length>0;
+ }catch(e){console.error("JAYA_SLOT_CHECK",e?.message||e);return false}
+}
 const MESSAGES=[
  "Vous écoutez Technorizon.fr, la musique sans frontières. Ici Jaya, très bonne écoute à toutes et à tous !",
  "Ici Jaya sur Technorizon.fr. Je reste avec vous pour le meilleur de l'électro, de l'Eurodance et de la House. Très bonne écoute !",
@@ -499,6 +509,7 @@ async function handler(req,res){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
    if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,8*60+15,8*60+50))return already(res,"horoscope-second-slot-already-broadcast");
+   if(await editorialSlotRecorded("horoscope_replay",day+"-08:15"))return already(res,"horoscope-already-queued");
    // Meme verrou pour le Technoroscope : pas de seconde copie tant que le
    // passage de 07h15 n'est pas confirme par l'historique.
    if(!await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+15,8*60+14)){
@@ -510,6 +521,7 @@ async function handler(req,res){
    if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return already(res,"horoscope-already-queued");
    const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
    if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_HOROSCOPE_REPLAY",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Horoscope replay queue failed",stage:"queue"})}
+   await persistJayaMemory("Technoroscope replay queued","horoscope_replay",day+"-08:15");
    return res.status(200).json({ok:true,state:"QUEUED",action:"horoscope-replay",file:path,tts_generated:false,queued:true});
   }
   const now=new Date();
