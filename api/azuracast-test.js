@@ -127,6 +127,28 @@ async function alreadyBroadcast(base,key,title,startMinute,endMinute){
   return day===today&&minute>=startMinute&&minute<=endMinute;
  });
 }
+async function recentH24Generation(base,key,currentSlot){
+ const dir="Jaya/Auto";
+ const r=await az(base,key,"/files/list?currentDirectory="+encodeURIComponent(dir)+"&rowCount=100&current=1&searchPhrase="+encodeURIComponent("jaya-auto-"));
+ if(!r.ok){
+  console.error("JAYA_H24_RECENT_FILE_CHECK",r.status);
+  return {blocked:true,reason:"recent-file-check-failed",slot:null};
+ }
+ const rows=queueRows(await r.json());
+ let newest=null;
+ for(const row of rows){
+  const matches=JSON.stringify(row).match(/jaya-auto-(\d+)/gi)||[];
+  for(const value of matches){
+   const parsed=Number(value.match(/\d+/)?.[0]);
+   if(Number.isFinite(parsed)&&(newest===null||parsed>newest))newest=parsed;
+  }
+ }
+ // AzuraCast peut précharger un titre et le retirer de /queue avant diffusion.
+ // Le fichier créé constitue donc un verrou durable pour le créneau courant
+ // et le créneau de dix minutes immédiatement précédent.
+ const delta=newest===null?null:currentSlot-newest;
+ return {blocked:delta!==null&&delta>=0&&delta<=1,reason:"recent-h24-file",slot:newest,delta};
+}
 async function queueVerified(base,key,path,priority=false){
  const queueOnce=()=>az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],...(priority?{priority:true}:{})})});
  const q=await queueOnce();
@@ -628,11 +650,18 @@ async function handler(req,res){
    console.log("JAYA_H24_DEDUP",JSON.stringify({pendingJaya:pendingState.all.length,pendingAuto:pendingState.auto.length}));
    return already(res,"jaya-already-queued",{pending_jaya:pendingState.all.length,pending_auto:pendingState.auto.length});
   }
+  const slot=Math.floor(now.getTime()/(10*60*1000));
+  if(!isWeather&&!isNews){
+   const recent=await recentH24Generation(base,key,slot);
+   if(recent.blocked){
+    console.log("JAYA_H24_DURABLE_DEDUP",JSON.stringify(recent));
+    return already(res,recent.reason,{recent_slot:recent.slot,current_slot:slot,slot_delta:recent.delta});
+   }
+  }
   await loadJayaMemory();
   const songs=rows.map(songFromRow).filter(Boolean);
   const rawNextSong=songs[1]||null;
   const nextSong=await verifyWithBrain(rawNextSong);
-  const slot=Math.floor(now.getTime()/(10*60*1000));
   const isEditorial=isWeather||isNews;
   const mode=isEditorial?5:hash(String(slot)+"mode")%3;
   let editorialText="";
