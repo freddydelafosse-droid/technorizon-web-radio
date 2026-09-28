@@ -187,13 +187,18 @@ function radioPause(s){return String(s).replace(/\.\.\./g,"…").replace(/([.!?]
 function enforceDaypart(text,hour){
  let s=String(text||"");
  if(hour>=5&&hour<12){
-  s=s.replace(/\bbonsoir\b/gi,"bonjour").replace(/\bbonne soirée\b/gi,"bonne matinée").replace(/\bbonne nuit\b/gi,"bonne matinée").replace(/\bce soir\b/gi,"ce matin").replace(/\bvotre soirée\b/gi,"votre matinée").replace(/\bla soirée\b/gi,"la matinée");
+  s=s.replace(/\bbonsoir\b/gi,"bonjour").replace(/\bbonne soirée\b/gi,"bonne matinée").replace(/\bbonne nuit\b/gi,"bonne matinée").replace(/\bce soir\b/gi,"ce matin").replace(/\bcet après-midi\b/gi,"ce matin").replace(/\bvotre soirée\b/gi,"votre matinée").replace(/\bvotre après-midi\b/gi,"votre matinée").replace(/\bla soirée\b/gi,"la matinée").replace(/\bl'après-midi\b/gi,"la matinée");
  }else if(hour>=12&&hour<18){
-  s=s.replace(/\bbonsoir\b/gi,"bonjour").replace(/\bbonne soirée\b/gi,"bon après-midi").replace(/\bbonne nuit\b/gi,"bonne journée").replace(/\bce soir\b/gi,"cet après-midi").replace(/\bvotre soirée\b/gi,"votre après-midi");
+  s=s.replace(/\bbonsoir\b/gi,"bonjour").replace(/\bbonne soirée\b/gi,"bon après-midi").replace(/\bbonne matinée\b/gi,"bon après-midi").replace(/\bbonne nuit\b/gi,"bonne journée").replace(/\bce soir\b/gi,"cet après-midi").replace(/\bce matin\b/gi,"cet après-midi").replace(/\bvotre soirée\b/gi,"votre après-midi").replace(/\bvotre matinée\b/gi,"votre après-midi").replace(/\bla matinée\b/gi,"l'après-midi").replace(/\bdu matin\b/gi,"de l'après-midi").replace(/\bau réveil\b/gi,"cet après-midi");
  }else if(hour>=18&&hour<23){
-  s=s.replace(/\bbonne matinée\b/gi,"bonne soirée").replace(/\bbon réveil\b/gi,"bonne soirée").replace(/\bce matin\b/gi,"ce soir");
+  s=s.replace(/\bbonjour\b/gi,"bonsoir").replace(/\bbonne matinée\b/gi,"bonne soirée").replace(/\bbon après-midi\b/gi,"bonne soirée").replace(/\bbon réveil\b/gi,"bonne soirée").replace(/\bce matin\b/gi,"ce soir").replace(/\bcet après-midi\b/gi,"ce soir").replace(/\bvotre matinée\b/gi,"votre soirée").replace(/\bvotre après-midi\b/gi,"votre soirée");
+ }else{
+  s=s.replace(/\bbonjour\b/gi,"bonsoir").replace(/\bbonne matinée\b/gi,"bonne nuit").replace(/\bbon après-midi\b/gi,"bonne nuit").replace(/\bce matin\b/gi,"cette nuit").replace(/\bcet après-midi\b/gi,"cette nuit").replace(/\bce soir\b/gi,"cette nuit");
  }
  return s;
+}
+function ttsForJaya(text){
+ return String(text||"").replace(/Technorizon\.fr/gi,"Techno horizon, point F R").replace(/Technorizon/gi,"Techno horizon");
 }
 function generic(slot){
  const p=daypart(),pool={
@@ -546,7 +551,7 @@ async function handler(req,res){
     return already(res,"horoscope-already-generated-or-queued",{file:existingPath,tts_generated:false});
    }
    const text=radioPause(enforceDaypart(await horoscopeBulletin(),7));
-   const ttsText=text.replace(/Technorizon\.fr/gi,"Techno horizon, point F R").replace(/Technorizon/gi,"Techno horizon");
+   const ttsText=ttsForJaya(text);
    const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
    if(!t.ok)return res.status(502).json({ok:false,error:"Horoscope TTS failed",status:t.status,stage:"tts"});
    const file="jaya-horoscope-"+day+".mp3",form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
@@ -669,7 +674,7 @@ async function handler(req,res){
    console.error("JAYA_EMPTY_TEXT_BLOCKED",{isEditorial,mode,slot,nextSong:!!nextSong});
    return skip(res,"empty-or-too-short-text");
   }
-  const ttsText=text.replace(/Technorizon\.fr/gi,"Techno horizon, point F R").replace(/Technorizon/gi,"Techno horizon");
+  const ttsText=ttsForJaya(text);
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
   if(!t.ok){const detail=await t.text().catch(()=>""),msg="TTS failed";console.error("JAYA_TTS",t.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:t.status,stage:"tts"})}
   const audio=await t.arrayBuffer();
