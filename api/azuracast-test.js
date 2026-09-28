@@ -79,13 +79,27 @@ function parisClock(date=new Date()){
  const values=Object.fromEntries(parts.map(p=>[p.type,p.value]));
  return Number(values.hour)*60+Number(values.minute);
 }
+// Fenêtres éditoriales centralisées. Une seule source de vérité côté API.
+// Les heures de diffusion restent : Infos+Météo 07:00/09:00/11:00/12:30,
+// Technoroscope 07:15/08:15. Ces fenêtres couvrent uniquement leur préparation/rattrapage.
+const EDITORIAL_WINDOWS={
+ "horoscope-generate":[[6*60+50,8*60+28]],
+ "horoscope-replay":[[7*60+50,8*60+28]],
+ "news-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]],
+ "weather-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]]
+};
+function editorialWindows(action,period){
+ if(action==="flash-replay")return period==="07"?[[8*60+40,9*60+5]]:[[12*60+10,12*60+35]];
+ return EDITORIAL_WINDOWS[action]||[];
+}
 function editorialSlot(action,period,minute){
- const slots={"horoscope-generate":[6*60+50,8*60+28],"horoscope-replay":[7*60+50,8*60+28],
-  "flash-replay":period==="07"?[8*60+40,9*60+5]:[12*60+10,12*60+35],
-  "news-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]],
-  "weather-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]]};
- const windows=slots[action];
- return !!windows&&(Array.isArray(windows[0])?windows:[windows]).some(([start,end])=>minute>=start&&minute<=end);
+ return editorialWindows(action,period).some(([start,end])=>minute>=start&&minute<=end);
+}
+function skip(res,reason,extra={}){
+ return res.status(200).json({ok:true,state:"BLOCKED",action:"skip",reason,queued:false,...extra});
+}
+function already(res,reason,extra={}){
+ return res.status(200).json({ok:true,state:reason.includes("broadcast")?"ALREADY_PLAYED":"ALREADY_QUEUED",action:"skip",reason,queued:false,...extra});
 }
 async function alreadyBroadcast(base,key,title,startMinute,endMinute){
  const now=new Date(),start=new Date(now.getTime()-4*60*60*1000);
@@ -454,7 +468,7 @@ async function handler(req,res){
   if(["horoscope-generate","horoscope-replay","flash-replay","news-now","weather-now"].includes(action)
     && !editorialSlot(action,String(req.body?.period||""),minute)
     && req.headers["x-jaya-manual-override"]!==secret){
-   return res.status(200).json({ok:true,action:"skip",reason:"outside-editorial-slot",minute});
+   return skip(res,"outside-editorial-slot",{minute});
   }
   const el=process.env.ELEVENLABS_API_KEY;
   if(!el&&!flashReplay&&!horoscopeReplay)return res.status(500).json({ok:false,error:"TTS configuration missing"});
@@ -464,7 +478,7 @@ async function handler(req,res){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Meteo/jaya-flash-"+day+"-"+period+".mp3";
    const bounds=period==="07"?[8*60+45,9*60+15]:[12*60+20,12*60+50];
-   if(await alreadyBroadcast(base,key,"jaya-flash-"+day+"-"+period,...bounds))return res.status(200).json({ok:true,action:"skip",reason:"flash-already-broadcast"});
+   if(await alreadyBroadcast(base,key,"jaya-flash-"+day+"-"+period,...bounds))return already(res,"flash-already-broadcast");
    // Ne jamais empiler une rediffusion si le premier passage du meme fichier
    // n'est pas encore confirme dans l'historique. Une insertion AzuraCast peut
    // disparaitre de la file visible avant de passer reellement a l'antenne.
@@ -484,7 +498,7 @@ async function handler(req,res){
   if(horoscopeReplay){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
-   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,8*60+15,8*60+50))return res.status(200).json({ok:true,action:"skip",reason:"horoscope-second-slot-already-broadcast"});
+   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,8*60+15,8*60+50))return already(res,"horoscope-second-slot-already-broadcast");
    // Meme verrou pour le Technoroscope : pas de seconde copie tant que le
    // passage de 07h15 n'est pas confirme par l'historique.
    if(!await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+15,8*60+14)){
@@ -502,7 +516,7 @@ async function handler(req,res){
   if(horoscopeGenerate){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
    const existingPath="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
-   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+15,7*60+55))return res.status(200).json({ok:true,action:"skip",reason:"horoscope-first-slot-already-broadcast"});
+   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+15,7*60+55))return already(res,"horoscope-first-slot-already-broadcast");
    // Verrou quotidien : si le Technoroscope du jour est deja en file, aucune seconde generation ne peut l ecraser.
    const existingQueue=await az(base,key,"/queue"),existingRaw=await existingQueue.text();let existingData=null;try{existingData=JSON.parse(existingRaw)}catch{}
    if(existingQueue.ok&&queueRows(existingData).some(x=>JSON.stringify(x).toLowerCase().includes(existingPath.toLowerCase()))){
@@ -579,8 +593,8 @@ async function handler(req,res){
    weather:pendingJayaRows.filter(x=>{const raw=JSON.stringify(x).toLowerCase();return raw.includes("jaya-meteo")||raw.includes("jaya/meteo")}),
    news:pendingJayaRows.filter(x=>{const raw=JSON.stringify(x).toLowerCase();return raw.includes("jaya-infos")||raw.includes("jaya/infos")||raw.includes("jaya-flash")||raw.includes("jaya/meteo")})
   };
-  if(isNews&&pendingState.news.length)return res.status(200).json({ok:true,action:"skip",reason:"news-already-queued",queued:false});
-  if(isWeather&&pendingState.weather.length)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued",queued:false});
+  if(isNews&&pendingState.news.length)return already(res,"news-already-queued");
+  if(isWeather&&pendingState.weather.length)return already(res,"weather-already-queued");
   if(!isWeather&&!isNews&&pendingState.all.length){
    console.log("JAYA_H24_DEDUP",JSON.stringify({pendingJaya:pendingState.all.length,pendingAuto:pendingState.auto.length}));
    return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued",queued:false,pending_jaya:pendingState.all.length,pending_auto:pendingState.auto.length});
