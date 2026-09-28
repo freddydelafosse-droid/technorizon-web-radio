@@ -485,15 +485,15 @@ async function handler(req,res){
    const sourceBounds=period==="07"?[6*60+45,8*60+44]:[10*60+45,12*60+19];
    if(!await alreadyBroadcast(base,key,"jaya-flash-"+day+"-"+period,...sourceBounds)){
     console.warn("JAYA_FLASH_REPLAY_SOURCE_NOT_BROADCAST",path,period);
-    return res.status(200).json({ok:true,action:"skip",reason:"source-flash-not-yet-broadcast",file:path,period});
+    return skip(res,"source-flash-not-yet-broadcast",{file:path,period});
    }
    const existing=await az(base,key,"/queue");
    if(!existing.ok)throw new Error("Queue check failed: "+existing.status);
-   if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return res.status(200).json({ok:true,action:"skip",reason:"flash-already-queued"});
+   if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return already(res,"flash-already-queued");
    const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
    if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_FLASH_REPLAY",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Flash replay queue failed",stage:"queue",file:path})}
    console.log("JAYA_FLASH_REPLAY_QUEUED",path);
-   return res.status(200).json({ok:true,action:"flash-replay",file:path,tts_generated:false,period});
+   return res.status(200).json({ok:true,state:"QUEUED",action:"flash-replay",file:path,tts_generated:false,queued:true,period});
   }
   if(horoscopeReplay){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
@@ -503,14 +503,14 @@ async function handler(req,res){
    // passage de 07h15 n'est pas confirme par l'historique.
    if(!await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+15,8*60+14)){
     console.warn("JAYA_HOROSCOPE_REPLAY_SOURCE_NOT_BROADCAST",path);
-    return res.status(200).json({ok:true,action:"skip",reason:"source-horoscope-not-yet-broadcast",file:path});
+    return skip(res,"source-horoscope-not-yet-broadcast",{file:path});
    }
    const existing=await az(base,key,"/queue");
    if(!existing.ok)throw new Error("Queue check failed: "+existing.status);
-   if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return res.status(200).json({ok:true,action:"skip",reason:"horoscope-already-queued"});
+   if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return already(res,"horoscope-already-queued");
    const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
    if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_HOROSCOPE_REPLAY",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Horoscope replay queue failed",stage:"queue"})}
-   return res.status(200).json({ok:true,action:"horoscope-replay",file:path,tts_generated:false});
+   return res.status(200).json({ok:true,state:"QUEUED",action:"horoscope-replay",file:path,tts_generated:false,queued:true});
   }
   const now=new Date();
   if(horoscopeGenerate){
@@ -521,7 +521,7 @@ async function handler(req,res){
    const existingQueue=await az(base,key,"/queue"),existingRaw=await existingQueue.text();let existingData=null;try{existingData=JSON.parse(existingRaw)}catch{}
    if(existingQueue.ok&&queueRows(existingData).some(x=>JSON.stringify(x).toLowerCase().includes(existingPath.toLowerCase()))){
     console.log("JAYA_HOROSCOPE_GENERATION_LOCKED",existingPath);
-    return res.status(200).json({ok:true,action:"skip",reason:"horoscope-already-generated-or-queued",file:existingPath,tts_generated:false});
+    return already(res,"horoscope-already-generated-or-queued",{file:existingPath,tts_generated:false});
    }
    const text=radioPause(enforceDaypart(await horoscopeBulletin(),7));
    const ttsText=text.replace(/Technorizon\.fr/gi,"Tèk-no-ri-zon, point F R").replace(/Technorizon/gi,"Tèk-no-ri-zon");
@@ -561,7 +561,7 @@ async function handler(req,res){
    const q=await queueVerified(base,key,path,true);
    if(!q.ok)return res.status(502).json({ok:false,error:"Horoscope queue not confirmed",stage:"queue",file:path,queue_verified:false,queue_reason:q.reason||null});
    await persistJayaMemory(text,"horoscope",day+"-07:15");
-   return res.status(200).json({ok:true,action:"horoscope-generate",file:path,tts_generated:true,text,queued:true,queue_verified:true,queue_index:q.index});
+   return res.status(200).json({ok:true,state:"QUEUED",action:"horoscope-generate",file:path,tts_generated:true,text,queued:true,queue_verified:true,queue_index:q.index});
   }
   const qr=await az(base,key,"/queue"),qraw=await qr.text();let qdata=null;try{qdata=JSON.parse(qraw)}catch{}
   if(!qr.ok)return res.status(502).json({ok:false,error:"Queue check failed"});
@@ -577,7 +577,7 @@ async function handler(req,res){
    const period=lh<9?"07":"11";
    const start=period==="07"?6*60+45:10*60+45;
    if(await alreadyBroadcast(base,key,"jaya-flash-"+date+"-"+period,start,start+40))
-    return res.status(200).json({ok:true,action:"skip",reason:"flash-already-broadcast"});
+    return already(res,"flash-already-broadcast");
   }
   // État unique de la file Jaya : une seule lecture des lignes et une seule
   // décision anti-doublon. Les anciens contrôles pendingJaya + strong-dedup
@@ -597,7 +597,7 @@ async function handler(req,res){
   if(isWeather&&pendingState.weather.length)return already(res,"weather-already-queued");
   if(!isWeather&&!isNews&&pendingState.all.length){
    console.log("JAYA_H24_DEDUP",JSON.stringify({pendingJaya:pendingState.all.length,pendingAuto:pendingState.auto.length}));
-   return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued",queued:false,pending_jaya:pendingState.all.length,pending_auto:pendingState.auto.length});
+   return already(res,"jaya-already-queued",{pending_jaya:pendingState.all.length,pending_auto:pendingState.auto.length});
   }
   await loadJayaMemory();
   const songs=rows.map(songFromRow).filter(Boolean);
@@ -645,7 +645,7 @@ async function handler(req,res){
   // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
   if(!text||text.trim().length<12){
    console.error("JAYA_EMPTY_TEXT_BLOCKED",{isEditorial,mode,slot,nextSong:!!nextSong});
-   return res.status(200).json({ok:true,action:"skip",reason:"empty-or-too-short-text",queued:false});
+   return skip(res,"empty-or-too-short-text");
   }
   const ttsText=text.replace(/Technorizon\.fr/gi,"Tèk-no-ri-zon, point F R").replace(/Technorizon/gi,"Tèk-no-ri-zon");
   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
@@ -713,7 +713,7 @@ async function handler(req,res){
    }
   if(!isEditorial){rememberJaya(text);await persistJayaMemory(text,"h24",String(slot))}
   else await persistJayaMemory(text,"news_weather",editorialDay+"-"+editorialPeriod);
-  console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,action:"queued",queued:true,queue_verified:qv.ok&&qv.verified!==false,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
+  console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,state:"QUEUED",action:"queued",queued:true,queue_verified:qv.ok&&qv.verified!==false,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.stack||e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable",stage:"exception",detail:String(e?.message||e).slice(0,300)})}
 }
 
