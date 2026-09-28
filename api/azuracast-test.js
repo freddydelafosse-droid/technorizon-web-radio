@@ -565,19 +565,25 @@ async function handler(req,res){
    if(await alreadyBroadcast(base,key,"jaya-flash-"+date+"-"+period,start,start+40))
     return res.status(200).json({ok:true,action:"skip",reason:"flash-already-broadcast"});
   }
-  const pendingWeather=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-meteo")||raw.includes("jaya/meteo"))&&!played});
-  const pendingNews=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return (raw.includes("jaya-infos")||raw.includes("jaya/infos")||raw.includes("jaya-flash")||raw.includes("jaya/meteo"))&&!played});
-  const pendingJaya=rows.some(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
-  if(isNews&&pendingNews)return res.status(200).json({ok:true,action:"skip",reason:"news-already-queued"});
-  if(isWeather&&pendingWeather)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued"});
-  if(!isWeather&&!isNews&&pendingJaya)return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued"});
-  // Anti-doublon H24 fort : un seul Jaya Auto non joué peut exister dans la file.
-  // On bloque aussi si plusieurs entrées Jaya sont déjà en attente, afin de ne jamais créer une rafale.
-  const pendingJayaRows=rows.filter(x=>{const raw=JSON.stringify(x).toLowerCase(),played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;return raw.includes("jaya")&&!played});
-  const pendingAutoRows=pendingJayaRows.filter(x=>JSON.stringify(x).toLowerCase().includes("jaya-auto"));
-  if(!isWeather&&!isNews&&(pendingAutoRows.length>0||pendingJayaRows.length>0)){
-   console.log("JAYA_H24_STRONG_DEDUP",JSON.stringify({pendingJaya:pendingJayaRows.length,pendingAuto:pendingAutoRows.length}));
-   return res.status(200).json({ok:true,action:"skip",reason:"strong-jaya-dedup",queued:false,pending_jaya:pendingJayaRows.length,pending_auto:pendingAutoRows.length});
+  // État unique de la file Jaya : une seule lecture des lignes et une seule
+  // décision anti-doublon. Les anciens contrôles pendingJaya + strong-dedup
+  // se recouvraient et pouvaient renvoyer deux raisons différentes pour le même cas.
+  const pendingJayaRows=rows.filter(x=>{
+   const raw=JSON.stringify(x).toLowerCase();
+   const played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;
+   return raw.includes("jaya")&&!played;
+  });
+  const pendingState={
+   all:pendingJayaRows,
+   auto:pendingJayaRows.filter(x=>JSON.stringify(x).toLowerCase().includes("jaya-auto")),
+   weather:pendingJayaRows.filter(x=>{const raw=JSON.stringify(x).toLowerCase();return raw.includes("jaya-meteo")||raw.includes("jaya/meteo")}),
+   news:pendingJayaRows.filter(x=>{const raw=JSON.stringify(x).toLowerCase();return raw.includes("jaya-infos")||raw.includes("jaya/infos")||raw.includes("jaya-flash")||raw.includes("jaya/meteo")})
+  };
+  if(isNews&&pendingState.news.length)return res.status(200).json({ok:true,action:"skip",reason:"news-already-queued",queued:false});
+  if(isWeather&&pendingState.weather.length)return res.status(200).json({ok:true,action:"skip",reason:"weather-already-queued",queued:false});
+  if(!isWeather&&!isNews&&pendingState.all.length){
+   console.log("JAYA_H24_DEDUP",JSON.stringify({pendingJaya:pendingState.all.length,pendingAuto:pendingState.auto.length}));
+   return res.status(200).json({ok:true,action:"skip",reason:"jaya-already-queued",queued:false,pending_jaya:pendingState.all.length,pending_auto:pendingState.auto.length});
   }
   await loadJayaMemory();
   const songs=rows.map(songFromRow).filter(Boolean);
