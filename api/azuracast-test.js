@@ -523,6 +523,16 @@ async function handler(req,res){
     console.log("JAYA_HOROSCOPE_GENERATION_LOCKED",existingPath);
     return already(res,"horoscope-already-generated-or-queued",{file:existingPath,tts_generated:false});
    }
+   // AzuraCast can remove a queued item from /queue when it preloads it, before
+   // /history records the play. The daily MP3 is the durable generation lock.
+   // A watchdog must never regenerate and requeue it during that gap.
+   const fileCheck=await az(base,key,"/files/list?currentDirectory="+encodeURIComponent("Jaya/Horoscope")+"&rowCount=100&current=1&searchPhrase="+encodeURIComponent("jaya-horoscope-"+day));
+   if(!fileCheck.ok)return res.status(502).json({ok:false,error:"Horoscope file check failed",stage:"generation-lock",status:fileCheck.status});
+   const fileRows=queueRows(await fileCheck.json());
+   if(fileRows.some(x=>String(x?.path||x?.path_short||x?.media?.title||"").toLowerCase().includes("jaya-horoscope-"+day))){
+    console.log("JAYA_HOROSCOPE_FILE_LOCKED",existingPath);
+    return already(res,"horoscope-already-generated-or-queued",{file:existingPath,tts_generated:false});
+   }
    const text=radioPause(enforceDaypart(await horoscopeBulletin(),7));
    const ttsText=text.replace(/Technorizon\.fr/gi,"Techno horizon, point F R").replace(/Technorizon/gi,"Techno horizon");
    const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
