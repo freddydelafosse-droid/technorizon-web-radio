@@ -108,16 +108,15 @@ jobs:
               fi
             fi
 
-            # GitHub Actions peut lancer un cron avec plusieurs minutes de retard.
-            # On rattache l'exécution au créneau H24 attendu (:13/:33/:53)
-            # dans une fenêtre de 15 minutes, sans chevaucher le créneau suivant.
+            # Horloge H24 unique : chaque tick de 5 minutes est rattaché au
+            # prochain créneau logique :13/:33/:53. Aucune zone morte entre deux
+            # créneaux ; les exclusions éditoriales ci-dessous restent prioritaires.
             H=$((10#$PARIS_HOUR))
             ACTUAL_M=$((10#$PARIS_MINUTE))
-            M=-1
-            if   [ "$ACTUAL_M" -le 7 ]; then H=$(( (H + 23) % 24 )); M=53
-            elif [ "$ACTUAL_M" -ge 13 ] && [ "$ACTUAL_M" -le 27 ]; then M=13
-            elif [ "$ACTUAL_M" -ge 33 ] && [ "$ACTUAL_M" -le 47 ]; then M=33
-            elif [ "$ACTUAL_M" -ge 53 ]; then M=53
+            if   [ "$ACTUAL_M" -lt 13 ]; then M=13
+            elif [ "$ACTUAL_M" -lt 33 ]; then M=33
+            elif [ "$ACTUAL_M" -lt 53 ]; then M=53
+            else H=$(( (H + 1) % 24 )); M=13
             fi
 
             # :15 et :45 restent réservés à la préparation anticipée des rendez-vous éditoriaux.
