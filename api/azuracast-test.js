@@ -606,10 +606,19 @@ async function handler(req,res){
    const candidates=Array.from({length:24},(_,i)=>generic(slot+i));
    safeText=candidates.find(x=>!jayaTooGeneric(x))||null;
    if(!safeText){
-    // Ne jamais réinjecter une phrase fixe : si toutes les variantes sont trop
-    // proches de la mémoire antenne, on saute ce passage plutôt que de radoter.
-    console.warn("JAYA_H24_NO_UNIQUE_FALLBACK",slot);
-    return res.status(200).json({ok:true,action:"skip",reason:"no-unique-h24-text",queued:false});
+    // Dernier filet H24 : ne jamais supprimer un passage prévu uniquement parce
+    // que la mémoire anti-répétition est saturée. Cette formulation est construite
+    // à partir du créneau et varie sans désactiver le contrôle des tics de langage.
+    const fallbackPool=[
+     "Bonjour, Jaya au micro quelques secondes. Je vous laisse maintenant profiter de la programmation de Technorizon.",
+     "Jaya avec vous ce matin. Une courte parenthèse au micro, puis la programmation reprend sur Technorizon.",
+     "Bonjour depuis Technorizon. Jaya vous accompagne quelques secondes avant de laisser la place au prochain morceau.",
+     "Jaya au micro sur Technorizon. Je passe simplement vous saluer, puis on retrouve immédiatement la programmation.",
+     "Un mot de Jaya ce matin sur Technorizon. Merci d'être avec nous, je vous laisse découvrir la suite.",
+     "Bonjour, c'est Jaya sur Technorizon. Quelques secondes ensemble avant de poursuivre la programmation."
+    ];
+    safeText=fallbackPool[hash(String(slot)+"|emergency-h24")%fallbackPool.length];
+    console.warn("JAYA_H24_EMERGENCY_FALLBACK",slot);
    }
   }
   const text=radioPause(enforceDaypart(safeText,lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
