@@ -10,8 +10,7 @@ on:
   schedule:
     # Déclencheurs larges en UTC; les règles ci-dessous utilisent Europe/Paris.
     # Cela reste correct automatiquement lors des changements heure été/hiver.
-    - cron: '13,18,33,38,53,58 * * * *'
-    # Watchdog H24 supplémentaire : multiplie les occasions de rattrapage si le scheduler GitHub saute/retarde :13/:18.
+    # Horloge H24 unique : le script rattache chaque tick au créneau éditorial attendu.
     - cron: '*/5 * * * *'
     # Préparation des rendez-vous Infos + Météo.
     - cron: '45 * * * *'
@@ -99,7 +98,7 @@ jobs:
               if [ "$TARGET_H" -eq 7 ]; then AUTO_HOROSCOPE="generate"
               elif [ "$TARGET_H" -eq 8 ]; then AUTO_HOROSCOPE="replay"
               fi
-            elif [ "$EVENT_SCHEDULE" = "13,18,33,38,53,58 * * * *" ]; then
+            elif [ "$EVENT_SCHEDULE" = "*/5 * * * *" ]; then
               WATCH_H=$((10#$PARIS_HOUR))
               WATCH_M=$((10#$PARIS_MINUTE))
               if [ "$WATCH_H" -eq 7 ] && [ "$WATCH_M" -ge 13 ] && [ "$WATCH_M" -le 28 ]; then
@@ -122,7 +121,7 @@ jobs:
             fi
 
             # :15 et :45 restent réservés à la préparation anticipée des rendez-vous éditoriaux.
-            if { [ "$EVENT_SCHEDULE" = "13,18,33,38,53,58 * * * *" ] || [ "$EVENT_SCHEDULE" = "*/5 * * * *" ]; } && [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
+            if [ "$EVENT_SCHEDULE" = "*/5 * * * *" ] && [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
 
               # Lundi-vendredi
               if [ "$PARIS_DOW" -ge 1 ] && [ "$PARIS_DOW" -le 5 ]; then
