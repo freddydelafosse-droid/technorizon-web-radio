@@ -215,6 +215,13 @@ jobs:
           cat "$RESPONSE_FILE"
           echo
 
+          # Contrat API unique : un passage H24 prévu ne doit plus finir silencieusement
+          # en BLOCKED. Les doublons légitimes restent acceptés via ALREADY_QUEUED/PLAYED.
+          if [ -z "$ACTION" ] && grep -q '"state":"BLOCKED"' "$RESPONSE_FILE"; then
+            echo "::error::Passage Jaya H24 bloqué par l'API."
+            exit 1
+          fi
+
           # Une génération éditoriale ne doit jamais être relancée automatiquement :
           # une erreur tardive peut survenir après le TTS ou l'upload et créer un doublon.
           # Les réponses HTTP 200 qui refusent silencieusement le créneau prioritaire
