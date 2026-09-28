@@ -15,8 +15,9 @@ on:
     # Préparation des rendez-vous Infos + Météo.
     - cron: '45 * * * *'
     - cron: '15 * * * *'
-    # Technoroscope : une génération quotidienne, puis réutilisation du même MP3.
-    - cron: '8 4,5,6,7 * * *'
+    # Technoroscope : préparation 25 minutes avant 07h15 et 08h15,
+    # une génération quotidienne puis réutilisation du même MP3.
+    - cron: '50 3,4,5,6,7 * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -88,13 +89,14 @@ jobs:
 
             # Technoroscope : le cron dédié reste le déclencheur principal.
             # Les passages H24 réguliers servent aussi de watchdog : si GitHub saute le cron
-            # de :08, l'API rattrape le rendez-vous dans la fenêtre sûre. Les verrous
+            # de :50, l'API rattrape le rendez-vous dans la fenêtre sûre. Les verrous
             # historique/file côté API empêchent toute double génération ou double diffusion.
             PARIS_DATE=$(TZ=Europe/Paris date +%F)
-            if [ "$EVENT_SCHEDULE" = "8 4,5,6,7 * * *" ]; then
+            if [ "$EVENT_SCHEDULE" = "50 3,4,5,6,7 * * *" ]; then
               TARGET_H=$((10#$PARIS_HOUR))
               TARGET_M=$((10#$PARIS_MINUTE))
-              if [ "$TARGET_M" -lt 8 ]; then TARGET_H=$(( (TARGET_H + 23) % 24 )); fi
+              if [ "$TARGET_M" -lt 50 ]; then TARGET_H=$(( (TARGET_H + 23) % 24 )); fi
+              TARGET_H=$(( (TARGET_H + 1) % 24 ))
               if [ "$TARGET_H" -eq 7 ]; then AUTO_HOROSCOPE="generate"
               elif [ "$TARGET_H" -eq 8 ]; then AUTO_HOROSCOPE="replay"
               fi
