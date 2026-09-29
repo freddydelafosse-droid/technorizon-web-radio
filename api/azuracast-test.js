@@ -222,7 +222,7 @@ function enforceDaypart(text,hour){
 function ttsForJaya(text){
  // Prononciation française imposée pour la marque.
  // Les groupes courts évitent la lecture anglaise et la terminaison "zone".
- return String(text||"").replace(/Technorizon\.fr/gi,"Tèk no ri zon, point F R").replace(/Technorizon/gi,"Tèk no ri zon");
+ return String(text||"").replace(/Technorizon\.fr/gi,"Tèk no ri zon. point F R").replace(/Technorizon/gi,"Tèk no ri zon.");
 }
 function generic(slot){
  const p=daypart(),pool={
