@@ -220,9 +220,9 @@ function enforceDaypart(text,hour){
  return s;
 }
 function ttsForJaya(text){
- // Prononciation française imposée pour la marque.
- // Les groupes courts évitent la lecture anglaise et la terminaison "zone".
- return String(text||"").replace(/Technorizon\.fr/gi,"Tèk no ri zon. point F R").replace(/Technorizon/gi,"Tèk no ri zon.");
+ // Le s final muet de « horizons » guide le TTS vers le son nasal français.
+ // Cette substitution ne touche que le texte vocal, jamais le nom affiché.
+ return String(text||"").replace(/Technorizon\.fr/gi,"Technorizons point F R").replace(/Technorizon/gi,"Technorizons");
 }
 function generic(slot){
  const p=daypart(),pool={
