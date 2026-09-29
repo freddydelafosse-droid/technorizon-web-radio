@@ -13,13 +13,12 @@ on:
     # Cela reste correct automatiquement lors des changements heure été/hiver.
     # Horloge H24 unique : le script rattache chaque tick au créneau éditorial attendu.
     - cron: '*/5 * * * *'
-    # Préparation des rendez-vous Infos + Météo.
-    - cron: '45 * * * *'
-    - cron: '15 * * * *'
-    # Technoroscope : génération en avance avant 07h15.
-    - cron: '50 3,4,5,6 * * *'
+    # Déclenchement rapproché des rendez-vous Infos + Météo : priorité sans diffusion anticipée.
+    - cron: '55 * * * *'
+    - cron: '25 * * * *'
+    # Technoroscope : génération rapprochée avant 07h15.
+    - cron: '5 4,5,6,7 * * *'
     # Rediffusion proche de 08h15 : une file prioritaire passe dès le titre suivant.
-    - cron: '5 6,7 * * *'
   workflow_dispatch:
     inputs:
       weather_now:
@@ -71,22 +70,22 @@ jobs:
             # démarre après le changement d'heure (ex. 10:55 lancé à 11:02).
             H=$((10#$PARIS_HOUR))
             ACTUAL_M=$((10#$PARIS_MINUTE))
-            if [ "$EVENT_SCHEDULE" = "45 * * * *" ]; then
+            if [ "$EVENT_SCHEDULE" = "55 * * * *" ]; then
               # Utiliser directement l heure de Paris : H et ACTUAL_M sont initialises plus bas pour H24.
               SCHEDULED_H=$((10#$PARIS_HOUR))
               SCHEDULED_M=$((10#$PARIS_MINUTE))
-              if [ "$SCHEDULED_M" -lt 45 ]; then SCHEDULED_H=$(( (SCHEDULED_H + 23) % 24 )); fi
+              if [ "$SCHEDULED_M" -lt 55 ]; then SCHEDULED_H=$(( (SCHEDULED_H + 23) % 24 )); fi
               # Grille validée Infos + Météo : 07h00, 09h00, 11h00 et 12h30.
-              # :45 prépare les rendez-vous de 07h00, 09h00 et 11h00.
+              # :55 lance les rendez-vous de 07h00, 09h00 et 11h00.
               case "$SCHEDULED_H" in
                 6) AUTO_WEATHER=true ;;
                 8) AUTO_FLASH_REPLAY="07" ;;
                 10) AUTO_WEATHER=true ;;
               esac
-            elif [ "$EVENT_SCHEDULE" = "15 * * * *" ]; then
+            elif [ "$EVENT_SCHEDULE" = "25 * * * *" ]; then
               SCHEDULED_H=$H
-              if [ "$ACTUAL_M" -lt 15 ]; then SCHEDULED_H=$(( (H + 23) % 24 )); fi
-              # Préparation à 12h15 pour diffusion du dernier rendez-vous vers 12h30.
+              if [ "$ACTUAL_M" -lt 25 ]; then SCHEDULED_H=$(( (H + 23) % 24 )); fi
+              # Déclenchement à 12h25 pour diffusion du dernier rendez-vous vers 12h30.
               if [ "$SCHEDULED_H" -eq 12 ]; then AUTO_FLASH_REPLAY="11"; fi
             fi
 
@@ -95,16 +94,11 @@ jobs:
             # de :50, l'API rattrape le rendez-vous dans la fenêtre sûre. Les verrous
             # historique/file côté API empêchent toute double génération ou double diffusion.
             PARIS_DATE=$(TZ=Europe/Paris date +%F)
-            if [ "$EVENT_SCHEDULE" = "50 3,4,5,6 * * *" ]; then
-              TARGET_H=$((10#$PARIS_HOUR))
-              TARGET_M=$((10#$PARIS_MINUTE))
-              if [ "$TARGET_M" -lt 50 ]; then TARGET_H=$(( (TARGET_H + 23) % 24 )); fi
-              TARGET_H=$(( (TARGET_H + 1) % 24 ))
-              if [ "$TARGET_H" -eq 7 ]; then AUTO_HOROSCOPE="generate"; fi
-            elif [ "$EVENT_SCHEDULE" = "5 6,7 * * *" ]; then
+            if [ "$EVENT_SCHEDULE" = "5 4,5,6,7 * * *" ]; then
               TARGET_H=$((10#$PARIS_HOUR))
               TARGET_M=$((10#$PARIS_MINUTE))
               if [ "$TARGET_M" -lt 5 ]; then TARGET_H=$(( (TARGET_H + 23) % 24 )); fi
+              if [ "$TARGET_H" -eq 7 ]; then AUTO_HOROSCOPE="generate"; fi
               if [ "$TARGET_H" -eq 8 ]; then AUTO_HOROSCOPE="replay"; fi
             elif [ "$EVENT_SCHEDULE" = "*/5 * * * *" ]; then
               WATCH_H=$((10#$PARIS_HOUR))
@@ -127,7 +121,7 @@ jobs:
             else H=$(( (H + 1) % 24 )); M=13
             fi
 
-            # :15 et :45 restent réservés à la préparation anticipée des rendez-vous éditoriaux.
+            # :25 et :55 restent réservés aux rendez-vous éditoriaux.
             if [ "$EVENT_SCHEDULE" = "*/5 * * * *" ] && [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
 
               # Lundi-vendredi
