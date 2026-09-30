@@ -1,6 +1,9 @@
 name: Build Game Zone share image
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'game-zone-share.svg'
 jobs:
   build:
     runs-on: ubuntu-latest
