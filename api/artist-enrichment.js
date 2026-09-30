@@ -92,7 +92,7 @@ const MUSICAL_GENRES = new Set([
   'electro', 'electroclash', 'happy hardcore', 'hands up', 'speed garage'
 ]);
 
-const normalizeIdentity = (value) => String(value || '').normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
+const normalizeIdentity = (value) => String(value || '').normalize('NFKC').replace(/[’‘]/g, "'").toLowerCase().replace(/\s+/g, ' ').trim();
 
 export function reviewDecision(row, artist) {
   const source = row.source_details || {};
@@ -125,7 +125,7 @@ export function reviewDecision(row, artist) {
 
 async function integrateReviewQueue(supabaseUrl, dbHeaders) {
   const response = await supabaseFetchWithRetry(
-    `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id,artist_name,musicbrainz_id,matched_name,confidence,proposed_country,proposed_genres,proposed_active_years,source_details&status=eq.review&source_details->>integration_status=is.null&order=updated_at.desc,artist_id.asc&limit=${BATCH_SIZE}`,
+    `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id,artist_name,musicbrainz_id,matched_name,confidence,proposed_country,proposed_genres,proposed_active_years,source_details&status=in.(review,approved)&source_details->>integration_status=is.null&order=updated_at.desc,artist_id.asc&limit=${BATCH_SIZE}`,
     {headers: dbHeaders}
   );
   if (!response.ok) throw new Error(`Lecture propositions impossible : ${await response.text()}`);
@@ -167,7 +167,7 @@ async function integrateReviewQueue(supabaseUrl, dbHeaders) {
       integration_checked_at: new Date().toISOString(), integrated_fields: fields,
       integration_reason: decision.reason || null};
     const markResponse = await supabaseFetchWithRetry(
-      `${supabaseUrl}/rest/v1/artist_enrichment_queue?artist_id=eq.${id}&status=eq.review&source_details->>integration_status=is.null`,
+      `${supabaseUrl}/rest/v1/artist_enrichment_queue?artist_id=eq.${id}&status=in.(review,approved)&source_details->>integration_status=is.null`,
       {method: 'PATCH', headers: dbHeaders, body: JSON.stringify({source_details: metadata, updated_at: new Date().toISOString()})}
     );
     if (!markResponse.ok) throw new Error(`Traçabilité intégration impossible : ${await markResponse.text()}`);
@@ -541,22 +541,12 @@ const confidence =
     }
 
     integrated.push(...await integrateReviewQueue(supabaseUrl, dbHeaders));
-    const diagnosticsResponse = await supabaseFetchWithRetry(
-      `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_name,status,confidence,source_details&artist_name=in.(Cappella,Gala,Haddaway)`,
-      {headers: dbHeaders}
-    );
-    const queueChecks = diagnosticsResponse.ok ? (await diagnosticsResponse.json()).map(row => ({
-      artist: row.artist_name, status: row.status, confidence: row.confidence,
-      integration_status: row.source_details?.integration_status || null,
-      source_type: row.source_details?.type || null
-    })) : [];
     return res.status(200).json({
       mode: "COLLECT_AND_INTEGRATE_VERIFIED_FACTS",
       artists_table_modified: integrated.some(item => item.status === "applied"),
       integrated_count: integrated.filter(item => item.status === "applied").length,
       integrated_information_count: integrated.filter(item => item.status === "applied").reduce((count, item) => count + item.fields.length, 0),
       integration_results: integrated,
-      queue_checks: queueChecks,
       queue_modified: true,
       seeded,
       tested: results.length,
