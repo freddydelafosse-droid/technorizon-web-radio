@@ -221,57 +221,20 @@ function enforceDaypart(text,hour){
  }
  return s;
 }
-// Dedicated station-name rule; never silence final s in other words.
-const JAYA_STATION_DICTIONARY="Jaya Technorizons s muet 2026-09-30";
-let jayaStationLocator=null;
+// Persistent pronunciation alias, scoped to the station name only.
+// Keep Technorizons in the vocal script; apply the alias at synthesis time.
+// No remote dictionary permission is required.
+const JAYA_STATION_PRONUNCIATION={word:"Technorizons",alias:"Techno horizon",silent_final_s:true};
 function ttsForJaya(text){
- // Keep the s in the vocal script. The dictionary controls its pronunciation.
  return String(text||"").replace(/\bTechnorizons?\b/gi,"Technorizons")
   .replace(/\bTechnorizons\.fr\b/gi,"Technorizons point F R");
 }
-async function stationDictionary(el,create=false){
- if(jayaStationLocator)return jayaStationLocator;
- let cursor="";
- do{
-  const u=new URL("https://api.elevenlabs.io/v1/pronunciation-dictionaries");
-  u.searchParams.set("include_archived","false");u.searchParams.set("page_size","100");
-  if(cursor)u.searchParams.set("cursor",cursor);
-  const r=await fetch(u,{headers:{"xi-api-key":el},signal:AbortSignal.timeout(8000)});
-  if(!r.ok)throw new Error("Pronunciation dictionary lookup failed: "+r.status);
-  const page=await r.json();
-  const found=(page.pronunciation_dictionaries||[]).find(d=>d.name===JAYA_STATION_DICTIONARY);
-  if(found){
-   if(!found.id||!found.latest_version_id)throw new Error("Incomplete pronunciation dictionary");
-   return jayaStationLocator={pronunciation_dictionary_id:found.id,version_id:found.latest_version_id};
-  }
-  const next=page.has_more?page.next_cursor:"";
-  if(next&&next===cursor)throw new Error("Repeated dictionary cursor");
-  cursor=next;
- }while(cursor);
- if(!create)return null;
- // A familiar French word guides the nasal on and its silent final s.
- // Alias rules are supported by multilingual_v2, unlike French phoneme rules.
- const r=await fetch("https://api.elevenlabs.io/v1/pronunciation-dictionaries/add-from-rules",{
-  method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json"},
-  signal:AbortSignal.timeout(8000),
-  body:JSON.stringify({name:JAYA_STATION_DICTIONARY,
-   description:"Uniquement Technorizons : s final muet, terminaison nasale française. Voix Jaya inchangée.",
-   rules:[{type:"alias",string_to_replace:"Technorizons",alias:"Techno horizons"}]})
- });
- if(!r.ok)throw new Error("Pronunciation dictionary creation failed: "+r.status);
- const created=await r.json();
- if(!created.id||!created.version_id)throw new Error("Incomplete created pronunciation dictionary");
- return jayaStationLocator={pronunciation_dictionary_id:created.id,version_id:created.version_id};
-}
-async function jayaTtsPayload(text,el){
- let locator=null;
- try{locator=await stationDictionary(el)}catch(e){console.error("JAYA_STATION_PRONUNCIATION",e?.message||e)}
+async function jayaTtsPayload(text){
  const vocal=ttsForJaya(text);
  return {
-  text:locator?vocal:vocal.replace(/\bTechnorizons\b/g,"Technorizon"),
+  text:vocal.replace(/\bTechnorizons\b/g,JAYA_STATION_PRONUNCIATION.alias),
   model_id:"eleven_multilingual_v2",
-  voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true},
-  ...(locator?{pronunciation_dictionary_locators:[locator]}:{})
+  voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}
  };
 }
 function generic(slot){
@@ -540,11 +503,8 @@ async function handler(req,res){
   const authorized=!!secret&&req.headers.authorization==="Bearer "+secret;
   if(req.method==="POST"&&req.body?.action==="pronunciation-configure"){
    if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
-   const el=process.env.ELEVENLABS_API_KEY;
-   if(!el)return res.status(500).json({ok:false,error:"TTS configuration missing"});
-   const locator=await stationDictionary(el,true);
-   return res.status(200).json({ok:true,action:"pronunciation-configure",word:"Technorizons",silent_final_s:true,
-    dictionary:locator,queued:false,tts_generated:false});
+   return res.status(200).json({ok:true,action:"pronunciation-configure",
+    ...JAYA_STATION_PRONUNCIATION,implementation:"local-pronunciation-alias",queued:false,tts_generated:false});
   }
   const forceWeather=req.method==="POST"&&req.body?.action==="weather-now";
   const forceNews=req.method==="POST"&&req.body?.action==="news-now";
