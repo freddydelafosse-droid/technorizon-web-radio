@@ -606,8 +606,12 @@ async function handler(req,res){
    const period=String(req.body?.period||"").trim();
    if(!["07","11"].includes(period))return res.status(400).json({ok:false,error:"Invalid flash replay period"});
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+   const replaySlot=day+"-"+period+"-replay";
    const path="Jaya/Meteo/jaya-flash-"+day+"-"+period+".mp3";
    const bounds=period==="07"?[8*60+45,9*60+15]:[12*60+20,12*60+50];
+   // Verrou persistant : deux déclencheurs de secours peuvent se chevaucher alors
+   // qu'AzuraCast a déjà préchargé et masqué le premier élément de /queue.
+   if(await editorialSlotRecorded("flash_replay",replaySlot))return already(res,"flash-already-queued");
    if(await alreadyBroadcast(base,key,"jaya-flash-"+day+"-"+period,...bounds))return already(res,"flash-already-broadcast");
    // Ne jamais empiler une rediffusion si le premier passage du meme fichier
    // n'est pas encore confirme dans l'historique. Une insertion AzuraCast peut
@@ -622,6 +626,7 @@ async function handler(req,res){
    if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return already(res,"flash-already-queued");
    const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
    if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_FLASH_REPLAY",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Flash replay queue failed",stage:"queue",file:path})}
+   await persistJayaMemory("Flash replay queued","flash_replay",replaySlot);
    console.log("JAYA_FLASH_REPLAY_QUEUED",path);
    return res.status(200).json({ok:true,state:"QUEUED",action:"flash-replay",file:path,tts_generated:false,queued:true,period});
   }
