@@ -221,11 +221,58 @@ function enforceDaypart(text,hour){
  }
  return s;
 }
+// Dedicated station-name rule; never silence final s in other words.
+const JAYA_STATION_DICTIONARY="Jaya Technorizons s muet 2026-09-30";
+let jayaStationLocator=null;
 function ttsForJaya(text){
- // Keep the station's official spelling: the artificial final s was audible.
- return String(text||"")
-  .replace(/\bTechnorizons\b/gi,"Technorizon")
-  .replace(/\bTechnorizon\.fr\b/gi,"Technorizon point F R");
+ // Keep the s in the vocal script. The dictionary controls its pronunciation.
+ return String(text||"").replace(/\bTechnorizons?\b/gi,"Technorizons")
+  .replace(/\bTechnorizons\.fr\b/gi,"Technorizons point F R");
+}
+async function stationDictionary(el,create=false){
+ if(jayaStationLocator)return jayaStationLocator;
+ let cursor="";
+ do{
+  const u=new URL("https://api.elevenlabs.io/v1/pronunciation-dictionaries");
+  u.searchParams.set("include_archived","false");u.searchParams.set("page_size","100");
+  if(cursor)u.searchParams.set("cursor",cursor);
+  const r=await fetch(u,{headers:{"xi-api-key":el},signal:AbortSignal.timeout(8000)});
+  if(!r.ok)throw new Error("Pronunciation dictionary lookup failed: "+r.status);
+  const page=await r.json();
+  const found=(page.pronunciation_dictionaries||[]).find(d=>d.name===JAYA_STATION_DICTIONARY);
+  if(found){
+   if(!found.id||!found.latest_version_id)throw new Error("Incomplete pronunciation dictionary");
+   return jayaStationLocator={pronunciation_dictionary_id:found.id,version_id:found.latest_version_id};
+  }
+  const next=page.has_more?page.next_cursor:"";
+  if(next&&next===cursor)throw new Error("Repeated dictionary cursor");
+  cursor=next;
+ }while(cursor);
+ if(!create)return null;
+ // A familiar French word guides the nasal on and its silent final s.
+ // Alias rules are supported by multilingual_v2, unlike French phoneme rules.
+ const r=await fetch("https://api.elevenlabs.io/v1/pronunciation-dictionaries/add-from-rules",{
+  method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json"},
+  signal:AbortSignal.timeout(8000),
+  body:JSON.stringify({name:JAYA_STATION_DICTIONARY,
+   description:"Uniquement Technorizons : s final muet, terminaison nasale française. Voix Jaya inchangée.",
+   rules:[{type:"alias",string_to_replace:"Technorizons",alias:"Techno horizons"}]})
+ });
+ if(!r.ok)throw new Error("Pronunciation dictionary creation failed: "+r.status);
+ const created=await r.json();
+ if(!created.id||!created.version_id)throw new Error("Incomplete created pronunciation dictionary");
+ return jayaStationLocator={pronunciation_dictionary_id:created.id,version_id:created.version_id};
+}
+async function jayaTtsPayload(text,el){
+ let locator=null;
+ try{locator=await stationDictionary(el)}catch(e){console.error("JAYA_STATION_PRONUNCIATION",e?.message||e)}
+ const vocal=ttsForJaya(text);
+ return {
+  text:locator?vocal:vocal.replace(/\bTechnorizons\b/g,"Technorizon"),
+  model_id:"eleven_multilingual_v2",
+  voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true},
+  ...(locator?{pronunciation_dictionary_locators:[locator]}:{})
+ };
 }
 function generic(slot){
  const p=daypart(),pool={
@@ -491,6 +538,14 @@ async function handler(req,res){
  try{
   const secret=process.env.CRON_SECRET;
   const authorized=!!secret&&req.headers.authorization==="Bearer "+secret;
+  if(req.method==="POST"&&req.body?.action==="pronunciation-configure"){
+   if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
+   const el=process.env.ELEVENLABS_API_KEY;
+   if(!el)return res.status(500).json({ok:false,error:"TTS configuration missing"});
+   const locator=await stationDictionary(el,true);
+   return res.status(200).json({ok:true,action:"pronunciation-configure",word:"Technorizons",silent_final_s:true,
+    dictionary:locator,queued:false,tts_generated:false});
+  }
   const forceWeather=req.method==="POST"&&req.body?.action==="weather-now";
   const forceNews=req.method==="POST"&&req.body?.action==="news-now";
   const horoscopeGenerate=req.method==="POST"&&req.body?.action==="horoscope-generate";
@@ -610,8 +665,8 @@ async function handler(req,res){
     return already(res,"horoscope-already-generated-or-queued",{file:existingPath,tts_generated:false});
    }
    const text=radioPause(enforceDaypart(await horoscopeBulletin(),7));
-   const ttsText=ttsForJaya(text);
-   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
+   const ttsPayload=await jayaTtsPayload(text,el);
+   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify(ttsPayload)});
    if(!t.ok)return res.status(502).json({ok:false,error:"Horoscope TTS failed",status:t.status,stage:"tts"});
    const file="jaya-horoscope-"+day+".mp3",form=new FormData();form.append("file",new Blob([await t.arrayBuffer()],{type:"audio/mpeg"}),file);
    const up=await az(base,key,"/files/upload?currentDirectory="+encodeURIComponent("Jaya/Horoscope"),{method:"POST",body:form});
@@ -741,8 +796,8 @@ async function handler(req,res){
    console.error("JAYA_EMPTY_TEXT_BLOCKED",{isEditorial,mode,slot,nextSong:!!nextSong});
    return skip(res,"empty-or-too-short-text");
   }
-  const ttsText=ttsForJaya(text);
-  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify({text:ttsText,model_id:"eleven_multilingual_v2",voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}})});
+  const ttsPayload=await jayaTtsPayload(text,el);
+  const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify(ttsPayload)});
   if(!t.ok){const detail=await t.text().catch(()=>""),msg="TTS failed";console.error("JAYA_TTS",t.status,detail.slice(0,500));return res.status(502).json({ok:false,error:msg,status:t.status,stage:"tts"})}
   const audio=await t.arrayBuffer();
   const contentType=String(t.headers.get("content-type")||"").toLowerCase();
