@@ -14,9 +14,12 @@
   const languageSelect = document.getElementById('game-language-select');
   if (languageSelect) {
     languageSelect.value = region;
-    languageSelect.addEventListener('change', () => {
-      localStorage.setItem('technorizon-games-lang', languageSelect.value);
-      region = SUPPORTED_REGIONS.includes(languageSelect.value) ? languageSelect.value : 'fr';
+    ['click','touchstart','pointerdown'].forEach(type => languageSelect.addEventListener(type, event => event.stopPropagation(), {passive:true}));
+    languageSelect.addEventListener('change', event => {
+      event.stopPropagation();
+      const next = SUPPORTED_REGIONS.includes(event.target.value) ? event.target.value : 'fr';
+      localStorage.setItem('technorizon-games-lang', next);
+      region = next;
       lang = REGION_LANGUAGES[region];
       applyLanguage();
     });
