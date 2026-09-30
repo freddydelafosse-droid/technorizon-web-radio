@@ -114,63 +114,74 @@ export default async function handler(req, res) {
   // Si la file pending est vide, l'alimenter automatiquement depuis la table artists.
   // On ne modifie jamais artists ici : on crée uniquement des éléments de travail à valider.
   async function seedQueueFromArtists() {
-    const artistsResponse = await supabaseFetchWithRetry(
-      `${supabaseUrl}/rest/v1/artists?select=id,name&status=eq.active&order=name.asc&limit=${SEED_BATCH_SIZE}`,
-      { headers: dbHeaders }
-    );
-    if (!artistsResponse.ok) {
-      const details = await artistsResponse.text();
-      throw new Error(`Lecture artists impossible : ${details}`);
-    }
+    let scanned = 0;
+    let alreadyPresent = 0;
 
-    const artists = (await artistsResponse.json())
-      .map((row) => ({ id: row?.id, name: String(row?.name || "").trim() }))
-      .filter((row) => row.id != null && row.name);
-    if (!artists.length) return { scanned: 0, inserted: 0, already_present: 0 };
-
-    // Une seule lecture Supabase remplace jusqu'à SEED_BATCH_SIZE vérifications individuelles.
-    const ids = artists.map((artist) => String(artist.id));
-    const inFilter = ids.map((id) => `"${id.replace(/"/g, '\"')}"`).join(",");
-    const existingResponse = await supabaseFetchWithRetry(
-      `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id&artist_id=in.(${encodeURIComponent(inFilter)})`,
-      { headers: dbHeaders }
-    );
-    if (!existingResponse.ok) {
-      const details = await existingResponse.text();
-      throw new Error(`Lecture queue impossible : ${details}`);
-    }
-
-    const existing = new Set((await existingResponse.json()).map((row) => String(row.artist_id)));
-    const missing = artists.filter((artist) => !existing.has(String(artist.id)));
-    if (!missing.length) {
-      return { scanned: artists.length, inserted: 0, already_present: artists.length };
-    }
-
-    // Insertion groupée : une requête au lieu d'une requête par artiste.
-    const seedResponse = await supabaseFetchWithRetry(
-      `${supabaseUrl}/rest/v1/artist_enrichment_queue?on_conflict=artist_id`,
-      {
-        method: "POST",
-        headers: { ...dbHeaders, Prefer: "resolution=ignore-duplicates,return=representation" },
-        body: JSON.stringify(missing.map((artist) => ({
-          artist_id: artist.id,
-          artist_name: artist.name,
-          status: "pending",
-          updated_at: new Date().toISOString()
-        })))
+    // Walk beyond the first page instead of repeatedly checking the same 100 artists.
+    for (let offset = 0; ; offset += SEED_BATCH_SIZE) {
+      const artistsResponse = await supabaseFetchWithRetry(
+        `${supabaseUrl}/rest/v1/artists?select=id,name&status=eq.active&order=name.asc,id.asc&limit=${SEED_BATCH_SIZE}&offset=${offset}`,
+        { headers: dbHeaders }
+      );
+      if (!artistsResponse.ok) {
+        const details = await artistsResponse.text();
+        throw new Error(`Lecture artists impossible : ${details}`);
       }
-    );
-    if (!seedResponse.ok) {
-      const details = await seedResponse.text();
-      throw new Error(`Alimentation queue impossible : ${details}`);
-    }
 
-    const inserted = await seedResponse.json();
-    return {
-      scanned: artists.length,
-      inserted: Array.isArray(inserted) ? inserted.length : 0,
-      already_present: artists.length - (Array.isArray(inserted) ? inserted.length : 0)
-    };
+      const page = await artistsResponse.json();
+      const artists = page
+        .map((row) => ({ id: row?.id, name: String(row?.name || "").trim() }))
+        .filter((row) => row.id != null && row.name);
+      scanned += page.length;
+
+      if (artists.length) {
+        const inFilter = artists.map((artist) => JSON.stringify(String(artist.id))).join(",");
+        const existingResponse = await supabaseFetchWithRetry(
+          `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id&artist_id=in.(${encodeURIComponent(inFilter)})`,
+          { headers: dbHeaders }
+        );
+        if (!existingResponse.ok) {
+          const details = await existingResponse.text();
+          throw new Error(`Lecture queue impossible : ${details}`);
+        }
+
+        const existing = new Set((await existingResponse.json()).map((row) => String(row.artist_id)));
+        const missing = artists.filter((artist) => !existing.has(String(artist.id)));
+        alreadyPresent += artists.length - missing.length;
+
+        if (missing.length) {
+          const seedResponse = await supabaseFetchWithRetry(
+            `${supabaseUrl}/rest/v1/artist_enrichment_queue?on_conflict=artist_id`,
+            {
+              method: "POST",
+              headers: { ...dbHeaders, Prefer: "resolution=ignore-duplicates,return=representation" },
+              body: JSON.stringify(missing.map((artist) => ({
+                artist_id: artist.id,
+                artist_name: artist.name,
+                status: "pending",
+                updated_at: new Date().toISOString()
+              })))
+            }
+          );
+          if (!seedResponse.ok) {
+            const details = await seedResponse.text();
+            throw new Error(`Alimentation queue impossible : ${details}`);
+          }
+
+          const inserted = await seedResponse.json();
+          return {
+            scanned,
+            inserted: Array.isArray(inserted) ? inserted.length : 0,
+            already_present: alreadyPresent,
+            catalogue_exhausted: false
+          };
+        }
+      }
+
+      if (page.length < SEED_BATCH_SIZE) {
+        return { scanned, inserted: 0, already_present: alreadyPresent, catalogue_exhausted: true };
+      }
+    }
   }
 
  const pendingResponse = await supabaseFetchWithRetry(
