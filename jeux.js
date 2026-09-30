@@ -11,6 +11,14 @@
   let region = savedLanguage === 'en' ? 'gb' : savedLanguage;
   if (!SUPPORTED_REGIONS.includes(region)) region = 'fr';
   let lang = REGION_LANGUAGES[region];
+  const languageSelect = document.getElementById('game-language-select');
+  if (languageSelect) {
+    languageSelect.value = region;
+    languageSelect.addEventListener('change', () => {
+      localStorage.setItem('technorizon-games-lang', languageSelect.value);
+      location.reload();
+    });
+  }
   const I18N = {
     fr: {
       title: 'Jeux Technorizon — Blind Test, Hit ou Intox et TechnoQuiz',
