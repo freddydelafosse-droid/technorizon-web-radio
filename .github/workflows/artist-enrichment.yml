@@ -1,4 +1,4 @@
-name: Technorizon Artist Enrichment
+name: Technorizon Artist and French Enrichment
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Call protected enrichment API
+      - name: Call protected artist and French enrichment API
         env:
           ARTIST_ENRICHMENT_SECRET: ${{ secrets.ARTIST_ENRICHMENT_SECRET }}
         run: |
@@ -29,3 +29,5 @@ jobs:
             "https://www.technorizon.fr/api/artist-enrichment")
 
           echo "$response"
+
+          echo "$response" | python3 -c 'import json,sys; d=json.load(sys.stdin); f=d.get("french_enrichment", {}); print("French enrichment:", f.get("state", "missing"), "added:", f.get("added", 0), "remaining:", f.get("remaining", "?")); sys.exit(0 if f.get("state") == "verified" else 1)'
