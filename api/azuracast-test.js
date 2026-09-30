@@ -610,11 +610,11 @@ async function handler(req,res){
   if(horoscopeReplay){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
-   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,8*60+15,8*60+50))return already(res,"horoscope-second-slot-already-broadcast");
+   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,8*60+10,8*60+50))return already(res,"horoscope-second-slot-already-broadcast");
    if(await editorialSlotRecorded("horoscope_replay",day+"-08:15"))return already(res,"horoscope-already-queued");
    // Meme verrou pour le Technoroscope : pas de seconde copie tant que le
    // passage de 07h15 n'est pas confirme par l'historique.
-   if(!await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+15,8*60+14)){
+   if(!await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+10,8*60+14)){
     console.warn("JAYA_HOROSCOPE_REPLAY_SOURCE_NOT_BROADCAST",path);
     return skip(res,"source-horoscope-not-yet-broadcast",{file:path});
    }
@@ -630,7 +630,7 @@ async function handler(req,res){
   if(horoscopeGenerate){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
    const existingPath="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
-   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+15,7*60+55))return already(res,"horoscope-first-slot-already-broadcast");
+   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+10,7*60+55))return already(res,"horoscope-first-slot-already-broadcast");
    // Verrou quotidien : si le Technoroscope du jour est deja en file, aucune seconde generation ne peut l ecraser.
    const existingQueue=await az(base,key,"/queue"),existingRaw=await existingQueue.text();let existingData=null;try{existingData=JSON.parse(existingRaw)}catch{}
    if(existingQueue.ok&&queueRows(existingData).some(x=>JSON.stringify(x).toLowerCase().includes(existingPath.toLowerCase()))){
