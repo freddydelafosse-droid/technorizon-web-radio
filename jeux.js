@@ -16,7 +16,9 @@
     languageSelect.value = region;
     languageSelect.addEventListener('change', () => {
       localStorage.setItem('technorizon-games-lang', languageSelect.value);
-      location.reload();
+      region = SUPPORTED_REGIONS.includes(languageSelect.value) ? languageSelect.value : 'fr';
+      lang = REGION_LANGUAGES[region];
+      applyLanguage();
     });
   }
   const I18N = {
@@ -295,7 +297,7 @@
     document.title = t('title');
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.content = t('description');
-    const picker = document.querySelector('#game-language');
+    const picker = document.querySelector('#game-language-select');
     if (picker) picker.value = region;
     setText('.games-home', 'home'); setText('.games-info-link', 'info');
     setHtml('.games-hero h1', 'heroTitle'); setText('.games-hero p', 'heroText');
