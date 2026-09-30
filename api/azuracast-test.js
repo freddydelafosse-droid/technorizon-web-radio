@@ -149,6 +149,24 @@ async function alreadyBroadcast(base,key,title,startMinute,endMinute){
   return day===today&&minute>=startMinute&&minute<=endMinute;
  });
 }
+async function recentH24Broadcast(base,key,minGapSeconds=12*60){
+ const now=new Date(),start=new Date(now.getTime()-20*60*1000);
+ const response=await az(base,key,"/history?start="+encodeURIComponent(start.toISOString())+"&end="+encodeURIComponent(now.toISOString())+"&rowCount=100");
+ if(!response.ok){
+  console.error("JAYA_H24_RECENT_HISTORY_CHECK",response.status);
+  return {blocked:true,reason:"recent-h24-history-check-failed",gapSeconds:null};
+ }
+ let latest=null;
+ for(const entry of queueRows(await response.json())){
+  const name=String(entry?.song?.title||entry?.media?.title||entry?.song?.text||"").toLowerCase();
+  if(!name.includes("jaya-auto-"))continue;
+  const played=entry?.played_at||entry?.timestamp||entry?.date;
+  const date=typeof played==="number"?new Date(played<1e12?played*1000:played):new Date(played);
+  if(Number.isFinite(date.getTime())&&(latest===null||date.getTime()>latest))latest=date.getTime();
+ }
+ const gapSeconds=latest===null?null:Math.floor((now.getTime()-latest)/1000);
+ return {blocked:gapSeconds!==null&&gapSeconds>=0&&gapSeconds<minGapSeconds,reason:"recent-h24-broadcast",gapSeconds};
+}
 async function recentH24Generation(base,key,currentSlot){
  const dir="Jaya/Auto";
  const r=await az(base,key,"/files/list?currentDirectory="+encodeURIComponent(dir)+"&rowCount=100&current=1&searchPhrase="+encodeURIComponent("jaya-auto-"));
@@ -726,6 +744,13 @@ async function handler(req,res){
   }
   const slot=Math.floor(now.getTime()/(10*60*1000));
   if(!isWeather&&!isNews){
+   // L'historique antenne est le verrou le plus fiable après préchargement :
+   // aucune nouvelle Jaya H24 moins de douze minutes après la précédente.
+   const recentAir=await recentH24Broadcast(base,key);
+   if(recentAir.blocked){
+    console.log("JAYA_H24_BROADCAST_GAP_LOCK",JSON.stringify(recentAir));
+    return already(res,recentAir.reason,{gap_seconds:recentAir.gapSeconds,min_gap_seconds:12*60});
+   }
    const recent=await recentH24Generation(base,key,slot);
    if(recent.blocked){
     console.log("JAYA_H24_DURABLE_DEDUP",JSON.stringify(recent));
