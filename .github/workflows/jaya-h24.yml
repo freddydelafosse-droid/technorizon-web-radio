@@ -14,7 +14,8 @@ on:
     # Horloge H24 unique : le script rattache chaque tick au créneau éditorial attendu.
     - cron: '*/5 * * * *'
     # Déclenchement rapproché des rendez-vous Infos + Météo : priorité sans diffusion anticipée.
-    - cron: '55 * * * *'
+    # Réserver le runner cinq minutes plus tôt, puis attendre :55 dans le job.
+    - cron: '50 * * * *'
     - cron: '25 * * * *'
     # Technoroscope : génération rapprochée avant 07h15.
     - cron: '5 4,5,6,7 * * *'
@@ -73,7 +74,18 @@ jobs:
             # démarre après le changement d'heure (ex. 10:55 lancé à 11:02).
             H=$((10#$PARIS_HOUR))
             ACTUAL_M=$((10#$PARIS_MINUTE))
-            if [ "$EVENT_SCHEDULE" = "55 * * * *" ]; then
+            if [ "$EVENT_SCHEDULE" = "50 * * * *" ]; then
+              # Réserver le runner à :50 puis attendre localement :55. Cela absorbe les
+              # retards de démarrage GitHub sans placer le flash plus tôt qu avant.
+              if [ "$ACTUAL_M" -ge 50 ] && [ "$ACTUAL_M" -lt 55 ]; then
+                PARIS_SECOND=$(TZ=Europe/Paris date +%S)
+                WAIT_SECONDS=$(( (55 - ACTUAL_M) * 60 - 10#$PARIS_SECOND ))
+                if [ "$WAIT_SECONDS" -gt 0 ]; then sleep "$WAIT_SECONDS"; fi
+                PARIS_HOUR=$(TZ=Europe/Paris date +%H)
+                PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
+                H=$((10#$PARIS_HOUR))
+                ACTUAL_M=$((10#$PARIS_MINUTE))
+              fi
               # Utiliser directement l heure de Paris : H et ACTUAL_M sont initialises plus bas pour H24.
               SCHEDULED_H=$((10#$PARIS_HOUR))
               SCHEDULED_M=$((10#$PARIS_MINUTE))
