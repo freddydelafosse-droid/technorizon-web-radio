@@ -84,6 +84,8 @@ const MESSAGES=[
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 async function az(base,key,path,opts={}){return fetch(base+"/api/station/"+SID+path,{...opts,headers:{"X-API-Key":key,"Accept":"application/json",...(opts.headers||{})}})}
 function queueRows(data){return Array.isArray(data)?data:(data?.rows||[])}
+function queueIdentity(row){const song=row?.song||row?.media?.song||row?.media||{};return [song.title,song.text,row?.path,row?.media?.path].filter(Boolean).join(" ").toLowerCase()}
+function queuePlayed(row){return row?.is_played===true||row?.is_played===1||row?.is_played==="1"}
 function parisClock(date=new Date()){
  const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(date);
  const values=Object.fromEntries(parts.map(p=>[p.type,p.value]));
@@ -494,17 +496,35 @@ async function handler(req,res){
   const horoscopeReplay=req.method==="POST"&&req.body?.action==="horoscope-replay";
   const flashReplay=req.method==="POST"&&req.body?.action==="flash-replay";
   if(req.method==="POST"&&!forceWeather&&!forceNews&&!horoscopeGenerate&&!horoscopeReplay&&!flashReplay){
-   if(req.body?.action!=="inspect")return res.status(403).json({ok:false,error:"Test mutations disabled"});
+   if(!["inspect","flash-dedup"].includes(req.body?.action))return res.status(403).json({ok:false,error:"Test mutations disabled"});
    if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
    const q=await az(base,key,"/queue"),raw=await q.text();let data=null;try{data=JSON.parse(raw)}catch{}
    if(!q.ok)return res.status(q.status).json({ok:false,error:"Queue inspect failed"});
-   const rows=queueRows(data);
+   let rows=queueRows(data);
+   const removed=[];
+   if(req.body?.action==="flash-dedup"){
+    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+    const period=parisClock()<9*60?"07":"11",title="jaya-flash-"+day+"-"+period;
+    const copies=rows.filter(row=>!queuePlayed(row)&&String(row?.song?.title||"").toLowerCase()===title);
+    for(const row of copies.slice(1)){
+     const match=String(row?.links?.self||"").match(/\\/api\\/station\\/1\\/queue\\/(\\d+)$/);
+     if(!match)throw new Error("Duplicate queue ID unavailable");
+     const deletion=await az(base,key,"/queue/"+match[1],{method:"DELETE"});
+     if(!deletion.ok&&deletion.status!==404)throw new Error("Duplicate queue removal failed: "+deletion.status);
+     removed.push(match[1]);
+    }
+    if(removed.length){
+     const fresh=await az(base,key,"/queue");
+     if(!fresh.ok)throw new Error("Queue recheck failed");
+     rows=queueRows(await fresh.json());
+    }
+   }
    const np=await fetch(base+"/api/nowplaying/"+SID),nowPlaying=np.ok?await np.json():null;
    const end=new Date(),start=new Date(end.getTime()-2*60*60*1000);
    const hr=await az(base,key,"/history?start="+encodeURIComponent(start.toISOString())+"&end="+encodeURIComponent(end.toISOString())+"&rowCount=250");
    const history=hr.ok?queueRows(await hr.json()):[];
-   return res.status(200).json({ok:true,count:rows.length,
-    jaya:rows.map((row,index)=>({row,index})).filter(x=>JSON.stringify(x.row).toLowerCase().includes("jaya")).slice(0,10),
+   return res.status(200).json({ok:true,count:rows.length,removed_duplicates:removed,
+    jaya:rows.map((row,index)=>({row:{...row,log:undefined},index})).filter(x=>queueIdentity(x.row).includes("jaya")).slice(0,10),
     now_playing:nowPlaying?.now_playing||null,
     recent_jaya_history:history.filter(x=>JSON.stringify(x).toLowerCase().includes("jaya")).slice(0,10),
     next:rows.map(songFromRow).filter(Boolean).slice(0,3)});
@@ -638,20 +658,21 @@ async function handler(req,res){
    const start=period==="07"?6*60+45:10*60+45;
    if(await alreadyBroadcast(base,key,"jaya-flash-"+date+"-"+period,start,start+40))
     return already(res,"flash-already-broadcast");
+   if(await editorialSlotRecorded("news_weather",date+"-"+period))return already(res,"flash-already-generated-or-queued");
   }
   // État unique de la file Jaya : une seule lecture des lignes et une seule
   // décision anti-doublon. Les anciens contrôles pendingJaya + strong-dedup
   // se recouvraient et pouvaient renvoyer deux raisons différentes pour le même cas.
   const pendingJayaRows=rows.filter(x=>{
    const raw=JSON.stringify(x).toLowerCase();
-   const played=x?.is_played===true||x?.is_played===1||x?.is_played==="1"||!!x?.played_at;
-   return raw.includes("jaya")&&!played;
+   const played=queuePlayed(x);
+   return queueIdentity(x).includes("jaya")&&!played;
   });
   const pendingState={
    all:pendingJayaRows,
-   auto:pendingJayaRows.filter(x=>JSON.stringify(x).toLowerCase().includes("jaya-auto")),
-   weather:pendingJayaRows.filter(x=>{const raw=JSON.stringify(x).toLowerCase();return raw.includes("jaya-meteo")||raw.includes("jaya/meteo")}),
-   news:pendingJayaRows.filter(x=>{const raw=JSON.stringify(x).toLowerCase();return raw.includes("jaya-infos")||raw.includes("jaya/infos")||raw.includes("jaya-flash")||raw.includes("jaya/meteo")})
+   auto:pendingJayaRows.filter(x=>queueIdentity(x).includes("jaya-auto")),
+   weather:pendingJayaRows.filter(x=>{const raw=queueIdentity(x);return raw.includes("jaya-meteo")||raw.includes("jaya/meteo")}),
+   news:pendingJayaRows.filter(x=>{const raw=queueIdentity(x);return raw.includes("jaya-infos")||raw.includes("jaya/infos")||raw.includes("jaya-flash")||raw.includes("jaya/meteo")})
   };
   if(isNews&&pendingState.news.length)return already(res,"news-already-queued");
   if(isWeather&&pendingState.weather.length)return already(res,"weather-already-queued");
