@@ -23,4 +23,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add sports-share.jpg
           git diff --cached --quiet || git commit -m "Build Sports share preview image"
+          git pull --rebase origin main
           git push
