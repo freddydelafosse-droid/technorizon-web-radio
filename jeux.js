@@ -906,3 +906,21 @@
   renderProfile();
   loadOnlineRankings();
 })();
+
+
+// Game Zone sharing — isolated UI helper
+(()=>{
+  const button=document.getElementById('share-game-zone');
+  const status=document.getElementById('share-game-status');
+  if(!button)return;
+  const shareUrl='https://www.technorizon.fr/jeux.html';
+  const shareData={title:'Technorizon – Game Zone',text:'Blind Test, TechnoQuiz, Hit ou Intox… viens défier tes amis sur la Game Zone Technorizon !',url:shareUrl};
+  button.addEventListener('click',function(){
+    if(navigator.share){
+      navigator.share(shareData).then(()=>{if(status)status.textContent='Partage effectué ✓'}).catch(err=>{if(err&&err.name!=='AbortError'&&status)status.textContent='Partage annulé — maintien appuyé pour copier le lien.'});
+      return;
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(shareUrl).then(()=>{if(status)status.textContent='Lien de la Game Zone copié ✓'}).catch(()=>{window.prompt('Copie le lien de la Game Zone :',shareUrl)});return;}
+    window.prompt('Copie le lien de la Game Zone :',shareUrl);
+  });
+})();
