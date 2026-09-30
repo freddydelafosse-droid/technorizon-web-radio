@@ -16,6 +16,7 @@ const JAYA_BANNED_GENERIC=[
  "petit passage de jaya","jaya passe au micro","je rends deja la place","je vous laisse reprendre","retour a la musique","place au son",
  "petit coucou","petit signe","grain de sel","je passe je vous fais","je repars","parfois je sais etre raisonnable",
  "d abord","ensuite","et enfin","technorizone",
+ "avant de poursuivre la programmation","avant de poursuivre le programme","avant de continuer la programmation",
 ];
 function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
 function jayaTooGeneric(text){
