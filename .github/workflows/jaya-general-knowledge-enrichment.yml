@@ -21,8 +21,8 @@ jobs:
             echo "::error::Secret d'enrichissement manquant"
             exit 1
           fi
-          slot=$(( ($(date -u +%s) / 900) % 10 ))
+          slot=$(( ($(date -u +%s) / 900) % 34 ))
           curl --fail --silent --show-error --location \
             --connect-timeout 15 --max-time 240 \
             -H "x-enrichment-secret: $ENRICHMENT_SECRET" \
-            "https://www.technorizon.fr/api/general-knowledge-enrichment?offset=$slot&topics=2"
+            "https://www.technorizon.fr/api/general-knowledge-enrichment?offset=$slot&topics=4"
