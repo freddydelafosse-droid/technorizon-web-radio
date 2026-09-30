@@ -6,4 +6,5 @@
 <text x="790" y="270" text-anchor="middle" font-family="Arial,sans-serif" font-size="76" font-weight="900" fill="#fff">RÉSULTATS</text><text x="790" y="350" text-anchor="middle" font-family="Arial,sans-serif" font-size="76" font-weight="900" fill="#fff">SPORTIFS</text>
 <text x="790" y="410" text-anchor="middle" font-family="Arial,sans-serif" font-size="25" fill="#dff9ff">⚽  🏉  🤾  🏀  🏒  🏁</text>
 <rect x="505" y="465" width="570" height="92" rx="46" fill="#071525" stroke="url(#g)" stroke-width="4" filter="url(#gl)"/><text x="790" y="505" text-anchor="middle" font-family="Arial,sans-serif" font-size="32" font-weight="900" fill="#fff">PARTAGER</text><text x="790" y="540" text-anchor="middle" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#dff9ff">LES RÉSULTATS SPORTIFS</text>
+<!-- rebuild-20261001 -->
 </svg>
