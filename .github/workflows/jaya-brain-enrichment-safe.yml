@@ -1,12 +1,14 @@
 name: Jaya Brain Enrichment Safe
 
 on:
+  schedule:
+    - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       limit:
         description: "Nombre maximum d'artistes a traiter (par lots serveur de 10)"
         required: false
-        default: "50"
+        default: "250"
 
 permissions:
   contents: read
@@ -26,8 +28,8 @@ jobs:
             exit 1
           fi
 
-          limit="${LIMIT:-50}"
-          if ! [[ "$limit" =~ ^[0-9]+$ ]]; then limit=50; fi
+          limit="${LIMIT:-250}"
+          if ! [[ "$limit" =~ ^[0-9]+$ ]]; then limit=250; fi
           if [ "$limit" -lt 1 ]; then limit=1; fi
           if [ "$limit" -gt 250 ]; then limit=250; fi
           batches=$(( (limit + 9) / 10 ))
