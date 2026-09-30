@@ -15,19 +15,60 @@ concurrency:
 jobs:
   enrich-artists:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-
+    timeout-minutes: 10
     steps:
-      - name: Call protected artist and French enrichment API
+      - name: Enrich and integrate up to three sequential batches
         env:
           ARTIST_ENRICHMENT_SECRET: ${{ secrets.ARTIST_ENRICHMENT_SECRET }}
         run: |
-         response=$(curl --location --fail-with-body --silent --show-error \
-            --retry 3 --retry-all-errors --retry-delay 5 \
-            --connect-timeout 15 --max-time 180 \
-            -H "x-enrichment-secret: ${ARTIST_ENRICHMENT_SECRET}" \
-            "https://www.technorizon.fr/api/artist-enrichment")
-
-          echo "$response"
-
-          echo "$response" | python3 -c 'import json,sys; d=json.load(sys.stdin); f=d.get("french_enrichment", {}); print("French enrichment:", f.get("state", "missing"), "added:", f.get("added", 0), "remaining:", f.get("remaining", "?")); sys.exit(0 if f.get("state") == "verified" else 1)'
+          set -euo pipefail
+          if [ -z "$ARTIST_ENRICHMENT_SECRET" ]; then
+            echo "::error::ARTIST_ENRICHMENT_SECRET manquant"
+            exit 1
+          fi
+          export ENRICHMENT_STATS="$(mktemp)"
+          printf '{"tested":0,"profiles_integrated":0,"facts_integrated":0,"french_added":0,"batches":0}' > "$ENRICHMENT_STATS"
+          trap 'rm -f "$ENRICHMENT_STATS"' EXIT
+          for batch in 1 2 3; do
+            # No automatic whole-request retries: the API writes data before returning.
+            response=$(curl --location --fail-with-body --silent --show-error \
+              --connect-timeout 15 --max-time 180 \
+              -H "x-enrichment-secret: ${ARTIST_ENRICHMENT_SECRET}" \
+              "https://www.technorizon.fr/api/artist-enrichment")
+            echo "$response"
+            export ENRICHMENT_RESPONSE="$response"
+            exhausted=$(python3 - <<'PY'
+          import json, os
+          d = json.loads(os.environ["ENRICHMENT_RESPONSE"])
+          f = d.get("french_enrichment", {})
+          if d.get("mode") != "COLLECT_AND_INTEGRATE_VERIFIED_FACTS" or f.get("state") != "verified":
+              raise SystemExit("Enrichment API did not confirm integration and French verification")
+          if any(r.get("status") in ("ERROR", "retry") for r in d.get("results", []) + d.get("integration_results", [])):
+              raise SystemExit("Enrichment has errors or pending write retries")
+          path = os.environ["ENRICHMENT_STATS"]
+          with open(path) as handle:
+              stats = json.load(handle)
+          for key, value in (("tested",d.get("tested",0)), ("profiles_integrated",d.get("integrated_count",0)),
+                             ("facts_integrated",d.get("integrated_information_count",0)), ("french_added",f.get("added",0))):
+              stats[key] += value
+          stats["batches"] += 1
+          with open(path,"w") as handle:
+              json.dump(stats, handle)
+          print("yes" if d.get("tested",0) == 0 and d.get("integrated_count",0) == 0 and f.get("remaining",0) == 0 else "no")
+          PY
+            )
+            if [ "$exhausted" = "yes" ]; then
+              echo "Aucune nouvelle connaissance à intégrer dans les files actuelles."
+              break
+            fi
+          done
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          with open(os.environ["ENRICHMENT_STATS"]) as handle:
+              stats = json.load(handle)
+          print("### Enrichissement réellement effectué")
+          for label,key in (("Lots", "batches"),("Artistes recherchés", "tested"),("Fiches artistes complétées", "profiles_integrated"),
+                            ("Informations musicales intégrées", "facts_integrated"),("Fiches françaises ajoutées", "french_added")):
+              print(f"- {label} : {stats[key]}")
+          print("Les recherches et les fiches déjà présentes ne sont pas comptées comme de nouvelles connaissances.")
+          PY
