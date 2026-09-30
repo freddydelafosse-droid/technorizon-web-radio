@@ -133,6 +133,6 @@
   </div>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').then(registration=>registration.update()).catch(()=>{})}</script>
   <script src="/jeux-data.js?v=1" defer></script>
-  <script src="/jeux.js?v=13" defer></script>
+  <script src="/jeux.js?v=14" defer></script>
 <script>\n(()=>{const b=document.getElementById("share-game-zone"),s=document.getElementById("share-game-status");if(!b)return;const u="https://www.technorizon.fr/jeux.html",t="Technorizon – Game Zone",x="Blind Test, TechnoQuiz, Hit ou Intox… viens défier tes amis sur la Game Zone Technorizon !";b.addEventListener("click",async()=>{try{if(navigator.share){await navigator.share({title:t,text:x,url:u});s.textContent="Partage ouvert ✓"}else{await navigator.clipboard.writeText(u);s.textContent="Lien de la Game Zone copié ✓"}}catch(e){if(e&&e.name!=="AbortError")s.textContent="Tu peux copier ce lien : "+u}})})()\n</script>\n</body>
 </html>
