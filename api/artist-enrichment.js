@@ -541,12 +541,22 @@ const confidence =
     }
 
     integrated.push(...await integrateReviewQueue(supabaseUrl, dbHeaders));
+    const diagnosticsResponse = await supabaseFetchWithRetry(
+      `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_name,status,confidence,source_details&artist_name=in.(Cappella,Gala,Haddaway)`,
+      {headers: dbHeaders}
+    );
+    const queueChecks = diagnosticsResponse.ok ? (await diagnosticsResponse.json()).map(row => ({
+      artist: row.artist_name, status: row.status, confidence: row.confidence,
+      integration_status: row.source_details?.integration_status || null,
+      source_type: row.source_details?.type || null
+    })) : [];
     return res.status(200).json({
       mode: "COLLECT_AND_INTEGRATE_VERIFIED_FACTS",
       artists_table_modified: integrated.some(item => item.status === "applied"),
       integrated_count: integrated.filter(item => item.status === "applied").length,
       integrated_information_count: integrated.filter(item => item.status === "applied").reduce((count, item) => count + item.fields.length, 0),
       integration_results: integrated,
+      queue_checks: queueChecks,
       queue_modified: true,
       seeded,
       tested: results.length,
