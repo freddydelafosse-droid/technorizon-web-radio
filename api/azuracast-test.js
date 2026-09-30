@@ -507,7 +507,8 @@ async function handler(req,res){
     const period=parisClock()<9*60?"07":"11",title="jaya-flash-"+day+"-"+period;
     const copies=rows.filter(row=>!queuePlayed(row)&&String(row?.song?.title||"").toLowerCase()===title);
     for(const row of copies.slice(1)){
-     const match=String(row?.links?.self||"").match(/\\/api\\/station\\/1\\/queue\\/(\\d+)$/);
+     const queueId=String(row?.links?.self||"").split("/").pop();
+     const match=/^[0-9]+$/.test(queueId)?[null,queueId]:null;
      if(!match)throw new Error("Duplicate queue ID unavailable");
      const deletion=await az(base,key,"/queue/"+match[1],{method:"DELETE"});
      if(!deletion.ok&&deletion.status!==404)throw new Error("Duplicate queue removal failed: "+deletion.status);
