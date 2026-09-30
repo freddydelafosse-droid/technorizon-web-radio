@@ -125,6 +125,22 @@ jobs:
                   8) AUTO_FLASH_REPLAY="07" ;;
                 esac
               fi
+
+              # Le rendez-vous de 12h30 a le même filet de sécurité : un tick */5
+              # arrivé entre 12h20 et 12h35 réutilise le flash de 11h. Avant 12h25,
+              # il réserve le runner puis attend sans injecter trop tôt.
+              if [ "$WATCH_EDITORIAL_H" -eq 12 ] && [ "$WATCH_EDITORIAL_M" -ge 20 ] && [ "$WATCH_EDITORIAL_M" -le 35 ]; then
+                if [ "$WATCH_EDITORIAL_M" -lt 25 ]; then
+                  PARIS_SECOND=$(TZ=Europe/Paris date +%S)
+                  WAIT_SECONDS=$(( (25 - WATCH_EDITORIAL_M) * 60 - 10#$PARIS_SECOND ))
+                  if [ "$WAIT_SECONDS" -gt 0 ]; then sleep "$WAIT_SECONDS"; fi
+                  PARIS_HOUR=$(TZ=Europe/Paris date +%H)
+                  PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
+                  H=$((10#$PARIS_HOUR))
+                  ACTUAL_M=$((10#$PARIS_MINUTE))
+                fi
+                AUTO_FLASH_REPLAY="11"
+              fi
             fi
 
             # Technoroscope : le cron dédié reste le déclencheur principal.
