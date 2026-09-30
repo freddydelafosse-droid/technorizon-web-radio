@@ -125,7 +125,7 @@ export function reviewDecision(row, artist) {
 
 async function integrateReviewQueue(supabaseUrl, dbHeaders) {
   const response = await supabaseFetchWithRetry(
-    `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id,artist_name,musicbrainz_id,matched_name,confidence,proposed_country,proposed_genres,proposed_active_years,source_details&status=eq.review&source_details->>integration_status=is.null&order=confidence.desc.nullslast,updated_at.desc,artist_id.asc&limit=${BATCH_SIZE}`,
+    `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id,artist_name,musicbrainz_id,matched_name,confidence,proposed_country,proposed_genres,proposed_active_years,source_details&status=eq.review&source_details->>integration_status=is.null&order=updated_at.desc,artist_id.asc&limit=${BATCH_SIZE}`,
     {headers: dbHeaders}
   );
   if (!response.ok) throw new Error(`Lecture propositions impossible : ${await response.text()}`);
@@ -173,7 +173,9 @@ async function integrateReviewQueue(supabaseUrl, dbHeaders) {
     if (!markResponse.ok) throw new Error(`Traçabilité intégration impossible : ${await markResponse.text()}`);
     const marked = await markResponse.json();
     if (marked.length !== 1) throw new Error('Traçabilité intégration non confirmée');
-    results.push({artist: row.artist_name, status, fields, reason: decision.reason || null});
+    results.push({artist: row.artist_name, status, fields, reason: decision.reason || null,
+      confidence: row.confidence, source_type: row.source_details?.type || null,
+      provider: row.source_details?.provider || null, collaboration_detected: row.source_details?.collaboration_detected ?? null});
   }
   return results;
 }
