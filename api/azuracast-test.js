@@ -222,9 +222,10 @@ function enforceDaypart(text,hour){
  return s;
 }
 function ttsForJaya(text){
- // Le s final muet de « horizons » guide le TTS vers le son nasal français.
- // Cette substitution ne touche que le texte vocal, jamais le nom affiché.
- return String(text||"").replace(/Technorizon\.fr/gi,"Technorizons point F R").replace(/Technorizon/gi,"Technorizons");
+ // Keep the station's official spelling: the artificial final s was audible.
+ return String(text||"")
+  .replace(/\bTechnorizons\b/gi,"Technorizon")
+  .replace(/\bTechnorizon\.fr\b/gi,"Technorizon point F R");
 }
 function generic(slot){
  const p=daypart(),pool={
