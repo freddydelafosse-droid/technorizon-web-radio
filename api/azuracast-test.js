@@ -506,7 +506,11 @@ async function handler(req,res){
     const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
     const period=parisClock()<9*60?"07":"11",title="jaya-flash-"+day+"-"+period;
     const copies=rows.filter(row=>!queuePlayed(row)&&String(row?.song?.title||"").toLowerCase()===title);
-    for(const row of copies.slice(1)){
+    const liveResponse=await fetch(base+"/api/nowplaying/"+SID);
+    const liveData=liveResponse.ok?await liveResponse.json():null;
+    const alreadyPlaying=String(liveData?.now_playing?.song?.title||"").toLowerCase()===title;
+    const wasBroadcast=alreadyPlaying||await alreadyBroadcast(base,key,title,period==="07"?6*60+45:10*60+45,period==="07"?9*60:13*60);
+    for(const row of copies.slice(wasBroadcast?0:1)){
      const queueId=String(row?.links?.self||"").split("/").pop();
      const match=/^[0-9]+$/.test(queueId)?[null,queueId]:null;
      if(!match)throw new Error("Duplicate queue ID unavailable");
