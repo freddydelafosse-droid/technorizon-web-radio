@@ -262,7 +262,7 @@ function enforceDaypart(text,hour){
 // Persistent pronunciation alias, scoped to the station name only.
 // Keep Technorizons in the vocal script; apply the alias at synthesis time.
 // No remote dictionary permission is required.
-const JAYA_STATION_PRONUNCIATION={word:"Technorizons",alias:"Techno horizon",silent_final_s:true};
+const JAYA_STATION_PRONUNCIATION={word:"Technorizons",alias:"Tèknorizon",silent_final_s:true};
 function ttsForJaya(text){
  return String(text||"").replace(/\bTechnorizons?\b/gi,"Technorizons")
   .replace(/\bTechnorizons\.fr\b/gi,"Technorizons point F R");
