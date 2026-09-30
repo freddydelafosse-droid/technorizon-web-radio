@@ -49,6 +49,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_SCHEDULE: ${{ github.event.schedule }}
           HOROSCOPE_NOW: ${{ inputs.horoscope_now }}
+          PRONUNCIATION_CONFIGURE: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[JAYA_PRONUNCIATION_CONFIGURE]') }}
           FLASH_DEDUP: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[JAYA_FLASH_DEDUP]') }}
           FLASH_INSPECT: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[JAYA_FLASH_INSPECT]') }}
           FLASH_KICK: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[JAYA_FLASH_KICK]') }}
@@ -167,7 +168,10 @@ jobs:
             fi
           fi
 
-          if [ "$EVENT_NAME" = "push" ] && [ "$H24_KICK" = "true" ]; then
+          if [ "$EVENT_NAME" = "push" ] && [ "$PRONUNCIATION_CONFIGURE" = "true" ]; then
+            echo "Configuration du s muet pour Technorizons sans generation ni injection"
+            ACTION="pronunciation-configure"
+          elif [ "$EVENT_NAME" = "push" ] && [ "$H24_KICK" = "true" ]; then
             echo "Déclenchement ponctuel Jaya H24"
             ACTION=""
           elif [ "$EVENT_NAME" = "push" ] && [ "$FLASH_DEDUP" = "true" ]; then
