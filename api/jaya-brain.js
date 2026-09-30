@@ -109,19 +109,25 @@ const conversationHistory =
       ["tracks", `${supabaseUrl}/rest/v1/tracks?select=title,aliases,primary_artist,featured_artists,album,release_year,genres,description,facts,in_technorizon_library,in_rotation,rotation_group,technorizon_notes,visibility,status&status=eq.active&visibility=eq.public`]
     ];
 
-    const brainResponses = await Promise.all(
-      brainRequests.map(([, url]) => fetch(url, { headers: supabaseHeaders }))
-    );
-
-    const failedRequest = brainResponses.findIndex((response) => !response.ok);
-    if (failedRequest !== -1) {
-      const source = brainRequests[failedRequest][0];
-      console.error(`Jaya ${source} error:`, await brainResponses[failedRequest].text());
-      return res.status(500).json({ error: "Impossible de charger le cerveau de Jaya" });
-    }
-
+    // Supabase caps a single response at 1000 rows. Read every public page so
+    // newly enriched profiles remain accessible beyond that first page.
     const [faq, knowledge, entities, artists, tracks] = await Promise.all(
-      brainResponses.map((response) => response.json())
+      brainRequests.map(async ([source, url]) => {
+        const rows = [];
+        const pageSize = 1000;
+        for (let offset = 0; ; offset += pageSize) {
+          const response = await fetch(`${url}&order=id.asc&limit=${pageSize}&offset=${offset}`, {
+            headers: supabaseHeaders
+          });
+          if (!response.ok) {
+            console.error(`Jaya ${source} error:`, await response.text());
+            throw new Error(`Impossible de charger ${source}`);
+          }
+          const page = await response.json();
+          rows.push(...page);
+          if (page.length < pageSize) return rows;
+        }
+      })
     );
 
     if (req.method === "POST") {
