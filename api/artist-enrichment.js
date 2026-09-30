@@ -125,7 +125,7 @@ export function reviewDecision(row, artist) {
 
 async function integrateReviewQueue(supabaseUrl, dbHeaders) {
   const response = await supabaseFetchWithRetry(
-    `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id,artist_name,musicbrainz_id,matched_name,confidence,proposed_country,proposed_genres,proposed_active_years,source_details&status=eq.review&source_details->>integration_status=is.null&order=updated_at.asc,artist_id.asc&limit=${BATCH_SIZE}`,
+    `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id,artist_name,musicbrainz_id,matched_name,confidence,proposed_country,proposed_genres,proposed_active_years,source_details&status=eq.review&source_details->>integration_status=is.null&order=confidence.desc.nullslast,updated_at.desc,artist_id.asc&limit=${BATCH_SIZE}`,
     {headers: dbHeaders}
   );
   if (!response.ok) throw new Error(`Lecture propositions impossible : ${await response.text()}`);
