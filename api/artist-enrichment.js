@@ -75,6 +75,110 @@ function getSearchArtistName(originalArtistName) {
   return parts[0] || String(originalArtistName).trim();
 }
 
+const MUSICAL_GENRES = new Set([
+  'techno', 'electronic', 'electronica', 'dance', 'dance-pop', 'eurodance',
+  'euro house', 'house', 'deep house', 'acid house', 'progressive house',
+  'electro house', 'vocal house', 'funky house', 'disco house', 'tech house',
+  'hip house', 'italo house', 'french house', 'chicago house', 'garage house',
+  'trance', 'euro-trance', 'progressive trance', 'vocal trance', 'hard trance',
+  'acid trance', 'psytrance', 'goa trance', 'hardstyle', 'hardcore', 'gabber',
+  'hard techno', 'minimal techno', 'detroit techno', 'acid techno',
+  'edm', 'electropop', 'synth-pop', 'synthpop', 'europop', 'pop',
+  'italo dance', 'italo disco', 'disco', 'nu disco', 'nu-disco', 'dancehall',
+  'drum and bass', 'drum & bass', 'jungle', 'breakbeat', 'big beat',
+  'dubstep', 'uk garage', 'ambient', 'downtempo', 'trip hop', 'trip-hop',
+  'hip hop', 'hip-hop', 'rap', 'soul', 'funk', 'r&b', 'rhythm and blues',
+  'rock', 'pop rock', 'alternative rock', 'indie rock', 'new wave',
+  'electro', 'electroclash', 'happy hardcore', 'hands up', 'speed garage'
+]);
+
+const normalizeIdentity = (value) => String(value || '').normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
+
+export function reviewDecision(row, artist) {
+  const source = row.source_details || {};
+  const name = normalizeIdentity(row.artist_name);
+  if (!artist || artist.status !== 'active' || artist.visibility !== 'public' ||
+      normalizeIdentity(artist.name) !== name) return {reason: 'Profil absent, privé ou identité modifiée'};
+  if (source.provider !== 'MusicBrainz' || Number(row.confidence) !== 100 ||
+      source.collaboration_detected !== false ||
+      !['Person', 'Group', 'Orchestra', 'Choir'].includes(source.type) ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(row.musicbrainz_id || '') ||
+      normalizeIdentity(row.matched_name) !== name) return {reason: 'Correspondance insuffisante pour intégration automatique'};
+  const candidates = Array.isArray(source.candidates) ? source.candidates : [];
+  const exact = candidates.filter(candidate => normalizeIdentity(candidate.name) === name);
+  if (exact.length !== 1 || exact[0].id !== row.musicbrainz_id || Number(exact[0].score) !== 100 ||
+      /actor|actress|audiobook|comedian|politician|writer|author/i.test(source.disambiguation || '')) {
+    return {reason: 'Homonyme ou correspondance ambiguë'};
+  }
+  const patch = {};
+  if (!artist.country && /^[A-Z]{2}$/.test(row.proposed_country || '')) patch.country = row.proposed_country;
+  const genres = [...new Set((Array.isArray(row.proposed_genres) ? row.proposed_genres : [])
+    .map(value => String(value).trim().toLowerCase()).filter(value => MUSICAL_GENRES.has(value)))];
+  if ((!Array.isArray(artist.genres) || !artist.genres.length) && genres.length) patch.genres = genres;
+  // For a person, MusicBrainz life-span describes birth/death, not career years.
+  if (!artist.active_years && source.type !== 'Person' &&
+      /^\d{4}(?: - (?:\d{4}|aujourd’hui))?$/.test(row.proposed_active_years || '')) {
+    patch.active_years = row.proposed_active_years;
+  }
+  return {patch};
+}
+
+async function integrateReviewQueue(supabaseUrl, dbHeaders) {
+  const response = await supabaseFetchWithRetry(
+    `${supabaseUrl}/rest/v1/artist_enrichment_queue?select=artist_id,artist_name,musicbrainz_id,matched_name,confidence,proposed_country,proposed_genres,proposed_active_years,source_details&status=eq.review&source_details->>integration_status=is.null&order=updated_at.asc,artist_id.asc&limit=${BATCH_SIZE}`,
+    {headers: dbHeaders}
+  );
+  if (!response.ok) throw new Error(`Lecture propositions impossible : ${await response.text()}`);
+  const rows = await response.json();
+  const results = [];
+  for (const row of rows) {
+    const id = encodeURIComponent(String(row.artist_id));
+    const artistUrl = `${supabaseUrl}/rest/v1/artists?id=eq.${id}&status=eq.active&visibility=eq.public`;
+    const currentResponse = await supabaseFetchWithRetry(`${artistUrl}&select=id,name,country,genres,active_years,status,visibility`, {headers: dbHeaders});
+    if (!currentResponse.ok) throw new Error(`Lecture profil impossible : ${await currentResponse.text()}`);
+    const current = await currentResponse.json();
+    const decision = reviewDecision(row, current.length === 1 ? current[0] : null);
+    let status = decision.reason ? 'manual_review' : 'unchanged';
+    const fields = Object.keys(decision.patch || {});
+    if (fields.length) {
+      // Conditional writes preserve existing facts and protect concurrent human edits.
+      const conditions = fields.map(field => {
+        const value = current[0][field];
+        if (value == null) return `${field}=is.null`;
+        if (field === 'genres' && Array.isArray(value) && !value.length) return 'genres=eq.{}';
+        return `${field}=eq.${encodeURIComponent(String(value))}`;
+      });
+      const updateResponse = await supabaseFetchWithRetry(`${artistUrl}&${conditions.join('&')}`, {
+        method: 'PATCH', headers: dbHeaders, body: JSON.stringify(decision.patch)
+      });
+      if (!updateResponse.ok) throw new Error(`Intégration profil impossible : ${await updateResponse.text()}`);
+      const updated = await updateResponse.json();
+      if (updated.length !== 1) {
+        results.push({artist: row.artist_name, status: 'retry', reason: 'Profil modifié pendant le traitement'});
+        continue;
+      }
+      for (const field of fields) {
+        if (JSON.stringify(updated[0][field]) !== JSON.stringify(decision.patch[field])) throw new Error(`Écriture non confirmée : ${field}`);
+      }
+      status = 'applied';
+    }
+    // Provenance and decisions stay in the private queue; no new table/status is required.
+    const metadata = {...(row.source_details || {}), integration_status: status,
+      integration_checked_at: new Date().toISOString(), integrated_fields: fields,
+      integration_reason: decision.reason || null};
+    const markResponse = await supabaseFetchWithRetry(
+      `${supabaseUrl}/rest/v1/artist_enrichment_queue?artist_id=eq.${id}&status=eq.review&source_details->>integration_status=is.null`,
+      {method: 'PATCH', headers: dbHeaders, body: JSON.stringify({source_details: metadata, updated_at: new Date().toISOString()})}
+    );
+    if (!markResponse.ok) throw new Error(`Traçabilité intégration impossible : ${await markResponse.text()}`);
+    const marked = await markResponse.json();
+    if (marked.length !== 1) throw new Error('Traçabilité intégration non confirmée');
+    results.push({artist: row.artist_name, status, fields, reason: decision.reason || null});
+  }
+  return results;
+}
+
+
 export default async function handler(req, res) {
   const enrichmentSecret = process.env.ARTIST_ENRICHMENT_SECRET;
   const providedSecret = req.headers["x-enrichment-secret"];
@@ -112,7 +216,7 @@ export default async function handler(req, res) {
   };
 
   // Si la file pending est vide, l'alimenter automatiquement depuis la table artists.
-  // On ne modifie jamais artists ici : on crée uniquement des éléments de travail à valider.
+  // Les propositions fiables complètent les champs vides des profils publics.
   async function seedQueueFromArtists() {
     let scanned = 0;
     let alreadyPresent = 0;
@@ -184,6 +288,14 @@ export default async function handler(req, res) {
     }
   }
 
+ let integrated;
+ try {
+   integrated = await integrateReviewQueue(supabaseUrl, dbHeaders);
+ } catch (error) {
+   console.error("Artist enrichment integration:", error);
+   return res.status(500).json({error: "Erreur intégration des connaissances", details: error.message});
+ }
+
  const pendingResponse = await supabaseFetchWithRetry(
   `${supabaseUrl}/rest/v1/artist_enrichment_queue` +
   `?select=artist_name` +
@@ -238,7 +350,7 @@ const TEST_ARTISTS = pendingArtists.map(
       try {
         const searchArtistName = getSearchArtistName(artistName);
 const data = await musicBrainzSearch(searchArtistName);
-        const candidates = (data.artists || []).slice(0, 3);
+        const candidates = (data.artists || []).slice(0, 5);
 
        if (!candidates.length) {
   const notFoundUrl =
@@ -426,9 +538,13 @@ const confidence =
       await sleep(1300);
     }
 
+    integrated.push(...await integrateReviewQueue(supabaseUrl, dbHeaders));
     return res.status(200).json({
-      mode: "FIRST_BATCH_WRITE_TO_QUEUE",
-      artists_table_modified: false,
+      mode: "COLLECT_AND_INTEGRATE_VERIFIED_FACTS",
+      artists_table_modified: integrated.some(item => item.status === "applied"),
+      integrated_count: integrated.filter(item => item.status === "applied").length,
+      integrated_information_count: integrated.filter(item => item.status === "applied").reduce((count, item) => count + item.fields.length, 0),
+      integration_results: integrated,
       queue_modified: true,
       seeded,
       tested: results.length,
