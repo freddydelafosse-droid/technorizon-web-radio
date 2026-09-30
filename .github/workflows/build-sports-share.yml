@@ -1,0 +1,26 @@
+name: Build Sports share image
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sports-share.svg'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Convert SVG to JPG
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin imagemagick
+          rsvg-convert -w 1200 -h 630 sports-share.svg -o /tmp/sports-share.png
+          convert /tmp/sports-share.png -background "#020812" -alpha remove -strip -quality 84 sports-share.jpg
+      - name: Commit image
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sports-share.jpg
+          git diff --cached --quiet || git commit -m "Build Sports share preview image"
+          git push
