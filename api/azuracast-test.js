@@ -495,10 +495,19 @@ async function handler(req,res){
   const flashReplay=req.method==="POST"&&req.body?.action==="flash-replay";
   if(req.method==="POST"&&!forceWeather&&!forceNews&&!horoscopeGenerate&&!horoscopeReplay&&!flashReplay){
    if(req.body?.action!=="inspect")return res.status(403).json({ok:false,error:"Test mutations disabled"});
+   if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
    const q=await az(base,key,"/queue"),raw=await q.text();let data=null;try{data=JSON.parse(raw)}catch{}
    if(!q.ok)return res.status(q.status).json({ok:false,error:"Queue inspect failed"});
    const rows=queueRows(data);
-   return res.status(200).json({ok:true,count:rows.length,jaya:rows.filter(x=>JSON.stringify(x).toLowerCase().includes("jaya")).slice(0,10),next:rows.map(songFromRow).filter(Boolean).slice(0,3)});
+   const np=await fetch(base+"/api/nowplaying/"+SID),nowPlaying=np.ok?await np.json():null;
+   const end=new Date(),start=new Date(end.getTime()-2*60*60*1000);
+   const hr=await az(base,key,"/history?start="+encodeURIComponent(start.toISOString())+"&end="+encodeURIComponent(end.toISOString())+"&rowCount=250");
+   const history=hr.ok?queueRows(await hr.json()):[];
+   return res.status(200).json({ok:true,count:rows.length,
+    jaya:rows.map((row,index)=>({row,index})).filter(x=>JSON.stringify(x.row).toLowerCase().includes("jaya")).slice(0,10),
+    now_playing:nowPlaying?.now_playing||null,
+    recent_jaya_history:history.filter(x=>JSON.stringify(x).toLowerCase().includes("jaya")).slice(0,10),
+    next:rows.map(songFromRow).filter(Boolean).slice(0,3)});
   }
   if(req.method!=="GET"&&req.method!=="POST")return res.status(405).json({ok:false,error:"GET or POST only"});
   if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
