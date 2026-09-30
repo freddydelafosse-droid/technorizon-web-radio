@@ -104,6 +104,29 @@ jobs:
               if [ "$SCHEDULED_H" -eq 12 ]; then AUTO_FLASH_REPLAY="11"; fi
             fi
 
+            # Watchdog éditorial sur l'horloge */5 : ce tick arrive souvent alors
+            # que le cron dédié est fortement retardé. S'il démarre entre :50 et
+            # :54, il réserve le runner puis attend :55 avant toute insertion.
+            if [ "$EVENT_SCHEDULE" = "*/5 * * * *" ]; then
+              WATCH_EDITORIAL_H=$H
+              WATCH_EDITORIAL_M=$ACTUAL_M
+              if { [ "$WATCH_EDITORIAL_H" -eq 6 ] || [ "$WATCH_EDITORIAL_H" -eq 8 ] || [ "$WATCH_EDITORIAL_H" -eq 10 ]; } && [ "$WATCH_EDITORIAL_M" -ge 50 ]; then
+                if [ "$WATCH_EDITORIAL_M" -lt 55 ]; then
+                  PARIS_SECOND=$(TZ=Europe/Paris date +%S)
+                  WAIT_SECONDS=$(( (55 - WATCH_EDITORIAL_M) * 60 - 10#$PARIS_SECOND ))
+                  if [ "$WAIT_SECONDS" -gt 0 ]; then sleep "$WAIT_SECONDS"; fi
+                  PARIS_HOUR=$(TZ=Europe/Paris date +%H)
+                  PARIS_MINUTE=$(TZ=Europe/Paris date +%M)
+                  H=$((10#$PARIS_HOUR))
+                  ACTUAL_M=$((10#$PARIS_MINUTE))
+                fi
+                case "$WATCH_EDITORIAL_H" in
+                  6|10) AUTO_WEATHER=true ;;
+                  8) AUTO_FLASH_REPLAY="07" ;;
+                esac
+              fi
+            fi
+
             # Technoroscope : le cron dédié reste le déclencheur principal.
             # Les passages H24 réguliers servent aussi de watchdog : si GitHub saute le cron
             # de :50, l'API rattrape le rendez-vous dans la fenêtre sûre. Les verrous
