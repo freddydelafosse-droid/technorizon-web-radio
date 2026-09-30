@@ -1,3 +1,4 @@
+import french from "../lib/jaya-french.cjs";
 export default async function handler(req, res) {
   if (req.method !== "POST" && req.method !== "GET") {
   return res.status(405).json({
@@ -130,6 +131,8 @@ const conversationHistory =
       })
     );
 
+    const frenchRules=knowledge.filter(row=>row.category===french.CATEGORY);
+    const asksFrench=french.isFrenchQuestion(question);
     if (req.method === "POST") {
   const cleanQuestion = question
     .toLowerCase()
@@ -190,7 +193,7 @@ const faqMatch = faq.find((item) => {
   return false;
 });
 
-if (requestedLanguage === "fr" && faqMatch?.answer) {
+if (requestedLanguage === "fr" && !asksFrench && faqMatch?.answer) {
   return res.status(200).json({
     success: true,
     assistant: "Jaya",
@@ -216,7 +219,7 @@ const trackMatch = tracks.find((track) => {
   return titles.some((title) => cleanQuestion.includes(title));
 });
 
-if (requestedLanguage === "fr" && trackMatch) {
+if (requestedLanguage === "fr" && !asksFrench && trackMatch) {
 
 const asksYear =
   cleanQuestion.includes("quelle annee") ||
@@ -348,7 +351,7 @@ if (asksTechnorizon) {
   );
 });
 
-if (requestedLanguage === "fr" && artistMatch) {
+if (requestedLanguage === "fr" && !asksFrench && artistMatch) {
   const asksArtistTechnorizon =
     /\b(technorizon|rotation|diffuse|diffusee|diffusé|diffusée|programme|programmee|programmée|bibliotheque)\b/i.test(cleanQuestion);
 
@@ -446,7 +449,7 @@ if (
   let bestMatch = null;
   let bestScore = 0;
 
-  for (const item of knowledge) {
+  for (const item of knowledge.filter(row=>asksFrench?row.category===french.CATEGORY:row.category!==french.CATEGORY)) {
     const searchable = [
       item.category,
       item.title,
@@ -487,7 +490,7 @@ if (
     .replace(/[\u0300-\u036f]/g, "")
     .includes(words[0]);
 
-if (requestedLanguage === "fr" && !asksContextualTechnorizon && bestMatch && (exactTopicMatch || (isTechnorizonIntent && bestScore >= 2))) {
+if (requestedLanguage === "fr" && !asksFrench && !asksContextualTechnorizon && bestMatch && (exactTopicMatch || (isTechnorizonIntent && bestScore >= 2))) {
     return res.status(200).json({
       success: true,
       assistant: "Jaya",
@@ -691,7 +694,7 @@ if (artistMatch) {
 if (entityMatch?.description) {
   knowledgeContext.push(`Entité Technorizon : ${entityMatch.name} — ${entityMatch.description}`);
 }
-if (bestMatch && bestScore > 0 && (isTechnorizonIntent || exactTopicMatch)) {
+if (bestMatch && bestScore > 0 && (asksFrench || isTechnorizonIntent || exactTopicMatch)) {
   knowledgeContext.push(`Connaissance Technorizon : ${bestMatch.content}`);
 }
 
@@ -716,6 +719,8 @@ Les règles internes ci-dessous s'appliquent uniquement lorsque la question conc
 ${/technorizon|jaya|antenne|radio|diffus|rotation|programme/i.test(cleanQuestion) ? jayaBehaviorContext : "Aucune règle Technorizon spécifique n'est nécessaire pour cette question de culture générale."}
 
 Nouvelle règle prioritaire validée par Technorizon : tu es autorisée à répondre avec ta culture générale stable, même lorsque la réponse n'existe pas dans la base Technorizon. Toute ancienne règle limitant les réponses aux seules données enregistrées est remplacée par cette autorisation. Les affirmations concernant la programmation ou la bibliothèque Technorizon exigent toujours une preuve dans le contexte fourni.
+
+${requestedLanguage==="fr"?french.instructions(frenchRules,question):""}
 
 Tu réponds exclusivement en ${responseLanguage}, qui est la langue choisie par l'auditeur dans l'interface.
 Tu gardes une personnalité naturelle, chaleureuse, moderne et radiophonique.
@@ -835,6 +840,9 @@ return res.status(200).json({
   rules_count: jayaRules.length,
 behavior_ready: jayaBehaviorContext.length > 0,
 knowledge_count: knowledge.length,
+french_knowledge_count: frenchRules.length,
+french_corpus_total: french.RULES.length,
+french_review_ready: true,
 entities_count: entities.length,
   artists_count: artists.length,
   tracks_count: tracks.length,
