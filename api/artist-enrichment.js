@@ -1,3 +1,4 @@
+import french from "../lib/jaya-french.cjs";
 const BATCH_SIZE = 10;
 const SEED_BATCH_SIZE = 100;
 
@@ -216,6 +217,13 @@ export default async function handler(req, res) {
     "Content-Type": "application/json",
     Prefer: "return=representation"
   };
+
+  let frenchResult;
+  try { frenchResult=await french.enrich(supabaseUrl,dbHeaders); }
+  catch(error){
+    console.error("French enrichment:",error.message);
+    frenchResult={state:"error",error:error.message,added:0};
+  }
 
   // Si la file pending est vide, l'alimenter automatiquement depuis la table artists.
   // Les propositions fiables complètent les champs vides des profils publics.
@@ -543,6 +551,7 @@ const confidence =
     integrated.push(...await integrateReviewQueue(supabaseUrl, dbHeaders));
     return res.status(200).json({
       mode: "COLLECT_AND_INTEGRATE_VERIFIED_FACTS",
+      french_enrichment: frenchResult,
       artists_table_modified: integrated.some(item => item.status === "applied"),
       integrated_count: integrated.filter(item => item.status === "applied").length,
       integrated_information_count: integrated.filter(item => item.status === "applied").reduce((count, item) => count + item.fields.length, 0),
