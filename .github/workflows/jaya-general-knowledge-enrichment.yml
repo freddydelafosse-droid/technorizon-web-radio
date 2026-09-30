@@ -25,4 +25,4 @@ jobs:
           curl --fail --silent --show-error --location \
             --connect-timeout 15 --max-time 240 \
             -H "x-enrichment-secret: $ENRICHMENT_SECRET" \
-            "https://www.technorizon.fr/api/general-knowledge-enrichment?offset=$slot&topics=4"
+            "https://www.technorizon.fr/api/artist-enrichment?mode=general&offset=$slot&topics=4"
