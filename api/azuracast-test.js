@@ -562,7 +562,8 @@ async function handler(req,res){
   const horoscopeGenerate=req.method==="POST"&&req.body?.action==="horoscope-generate";
   const horoscopeReplay=req.method==="POST"&&req.body?.action==="horoscope-replay";
   const flashReplay=req.method==="POST"&&req.body?.action==="flash-replay";
-  if(req.method==="POST"&&!forceWeather&&!forceNews&&!horoscopeGenerate&&!horoscopeReplay&&!flashReplay){
+  const flashEmergency=req.method==="POST"&&req.body?.action==="flash-emergency";
+  if(req.method==="POST"&&!forceWeather&&!forceNews&&!horoscopeGenerate&&!horoscopeReplay&&!flashReplay&&!flashEmergency){
    if(!["inspect","flash-dedup"].includes(req.body?.action))return res.status(403).json({ok:false,error:"Test mutations disabled"});
    if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
    const q=await az(base,key,"/queue"),raw=await q.text();let data=null;try{data=JSON.parse(raw)}catch{}
@@ -612,6 +613,20 @@ async function handler(req,res){
   }
   const el=process.env.ELEVENLABS_API_KEY;
   if(!el&&!flashReplay&&!horoscopeReplay)return res.status(500).json({ok:false,error:"TTS configuration missing"});
+  if(flashEmergency){
+   if(req.headers["x-jaya-manual-override"]!==secret)return res.status(403).json({ok:false,error:"Emergency override required"});
+   const period=String(req.body?.period||"13").trim();
+   if(!["07","11","13","17"].includes(period))return res.status(400).json({ok:false,error:"Invalid emergency flash period"});
+   const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+   const path="Jaya/Meteo/jaya-flash-"+day+"-"+period+".mp3";
+   const existing=await az(base,key,"/queue");
+   if(!existing.ok)return res.status(502).json({ok:false,error:"Queue check failed",stage:"emergency"});
+   const rows=queueRows(await existing.json());
+   if(rows.some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return already(res,"flash-already-queued",{file:path});
+   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
+   if(!q.ok){const detail=await q.text().catch(()=>"");return res.status(502).json({ok:false,error:"Emergency flash queue failed",detail:detail.slice(0,300),file:path})}
+   return res.status(200).json({ok:true,state:"QUEUED",action:"flash-emergency",file:path,queued:true,priority:true});
+  }
   if(flashReplay){
    const period=String(req.body?.period||"").trim();
    if(!["07","11","13","17"].includes(period))return res.status(400).json({ok:false,error:"Invalid flash replay period"});
