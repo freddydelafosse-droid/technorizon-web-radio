@@ -285,6 +285,7 @@ jobs:
               -X POST \
               -H "Authorization: Bearer $CRON_SECRET" \
               -H "Content-Type: application/json" \
+              $(if [ "$EVENT_NAME" = "push" ] && [ "$FLASH_KICK" = "true" ]; then printf '%s' '-H "X-Jaya-Manual-Override: '"$CRON_SECRET"'"'; fi) \
               --data "$(if [ "$ACTION" = "flash-replay" ]; then printf '{\"action\":\"flash-replay\",\"period\":\"%s\"}' "$AUTO_FLASH_REPLAY"; else printf '{\"action\":\"%s\"}' "$ACTION"; fi)" \
               "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
 
