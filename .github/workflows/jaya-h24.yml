@@ -101,7 +101,13 @@ jobs:
               SCHEDULED_H=$H
               if [ "$ACTUAL_M" -lt 25 ]; then SCHEDULED_H=$(( (H + 23) % 24 )); fi
               # Déclenchement à 12h25 pour diffusion du dernier rendez-vous vers 12h30.
-              if [ "$SCHEDULED_H" -eq 12 ]; then AUTO_FLASH_REPLAY="11"; fi
+              case "$SCHEDULED_H" in
+                12) AUTO_FLASH_REPLAY="11" ;;
+                13) AUTO_WEATHER=true ;;
+                15) AUTO_FLASH_REPLAY="13" ;;
+                17) AUTO_WEATHER=true ;;
+                18) AUTO_FLASH_REPLAY="17" ;;
+              esac
             fi
 
             # Watchdog éditorial sur l'horloge */5 : ce tick arrive souvent alors
@@ -129,7 +135,7 @@ jobs:
               # Le rendez-vous de 12h30 a le même filet de sécurité : un tick */5
               # arrivé entre 12h20 et 12h35 réutilise le flash de 11h. Avant 12h25,
               # il réserve le runner puis attend sans injecter trop tôt.
-              if [ "$WATCH_EDITORIAL_H" -eq 12 ] && [ "$WATCH_EDITORIAL_M" -ge 20 ] && [ "$WATCH_EDITORIAL_M" -le 35 ]; then
+              if { [ "$WATCH_EDITORIAL_H" -eq 12 ] || [ "$WATCH_EDITORIAL_H" -eq 13 ] || [ "$WATCH_EDITORIAL_H" -eq 15 ] || [ "$WATCH_EDITORIAL_H" -eq 17 ] || [ "$WATCH_EDITORIAL_H" -eq 18 ]; } && [ "$WATCH_EDITORIAL_M" -ge 20 ] && [ "$WATCH_EDITORIAL_M" -le 35 ]; then
                 if [ "$WATCH_EDITORIAL_M" -lt 25 ]; then
                   PARIS_SECOND=$(TZ=Europe/Paris date +%S)
                   WAIT_SECONDS=$(( (25 - WATCH_EDITORIAL_M) * 60 - 10#$PARIS_SECOND ))
@@ -139,7 +145,13 @@ jobs:
                   H=$((10#$PARIS_HOUR))
                   ACTUAL_M=$((10#$PARIS_MINUTE))
                 fi
-                AUTO_FLASH_REPLAY="11"
+                case "$WATCH_EDITORIAL_H" in
+                  12) AUTO_FLASH_REPLAY="11" ;;
+                  13) AUTO_WEATHER=true ;;
+                  15) AUTO_FLASH_REPLAY="13" ;;
+                  17) AUTO_WEATHER=true ;;
+                  18) AUTO_FLASH_REPLAY="17" ;;
+                esac
               fi
             fi
 
@@ -204,14 +216,14 @@ jobs:
             # Garder une transition libre autour des flashs et du Technoroscope.
             # Ces créneaux H24 entraient en collision avec les MP3 prioritaires.
             if { [ "$H" -eq 7 ] || [ "$H" -eq 8 ]; } && { [ "$M" -eq 13 ] || [ "$M" -eq 33 ]; }; then ALLOW_H24=false; fi
-            if { [ "$H" -eq 6 ] || [ "$H" -eq 8 ] || [ "$H" -eq 10 ] || [ "$H" -eq 12 ]; } && [ "$M" -eq 53 ]; then ALLOW_H24=false; fi
+            if { [ "$H" -eq 6 ] || [ "$H" -eq 8 ] || [ "$H" -eq 10 ] || [ "$H" -eq 12 ] || [ "$H" -eq 13 ] || [ "$H" -eq 15 ] || [ "$H" -eq 17 ] || [ "$H" -eq 18 ]; } && [ "$M" -eq 53 ]; then ALLOW_H24=false; fi
 
             # Filet de sécurité sur l'heure réelle : un tick */5 retardé après :53
             # bascule sinon vers le créneau :13 de l'heure suivante et contourne les
             # exclusions ci-dessus (ex. 08h54 interprété comme 09h13 avant le flash de 09h).
             if { [ "$PARIS_HOUR" -eq 6 ] || [ "$PARIS_HOUR" -eq 8 ] || [ "$PARIS_HOUR" -eq 10 ]; } && [ "$ACTUAL_M" -ge 45 ]; then ALLOW_H24=false; fi
             if { [ "$PARIS_HOUR" -eq 7 ] || [ "$PARIS_HOUR" -eq 8 ]; } && [ "$ACTUAL_M" -ge 5 ] && [ "$ACTUAL_M" -le 30 ]; then ALLOW_H24=false; fi
-            if [ "$PARIS_HOUR" -eq 12 ] && [ "$ACTUAL_M" -ge 10 ] && [ "$ACTUAL_M" -le 35 ]; then ALLOW_H24=false; fi
+            if { [ "$PARIS_HOUR" -eq 12 ] || [ "$PARIS_HOUR" -eq 13 ] || [ "$PARIS_HOUR" -eq 15 ] || [ "$PARIS_HOUR" -eq 17 ] || [ "$PARIS_HOUR" -eq 18 ]; } && [ "$ACTUAL_M" -ge 10 ] && [ "$ACTUAL_M" -le 35 ]; then ALLOW_H24=false; fi
 
             if [ "$AUTO_WEATHER" != "true" ] && [ -z "$AUTO_FLASH_REPLAY" ] && [ -z "$AUTO_HOROSCOPE" ] && [ "$ALLOW_H24" != "true" ]; then
               echo "Aucun passage Jaya prévu à cet horaire de Paris."
