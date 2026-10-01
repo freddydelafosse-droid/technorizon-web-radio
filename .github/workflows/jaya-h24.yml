@@ -245,7 +245,8 @@ jobs:
             ACTION="inspect"
           elif [ "$EVENT_NAME" = "push" ] && [ "$FLASH_KICK" = "true" ]; then
             echo "Déclenchement urgence Infos + Météo Jaya"
-            ACTION="news-now"
+            ACTION="flash-emergency"
+            AUTO_FLASH_REPLAY="13"
           elif [ "$EVENT_NAME" = "push" ] && [ "$HOROSCOPE_REPLAY_KICK" = "true" ]; then
             echo "Déclenchement ponctuel de la rediffusion du Technoroscope"
             ACTION="horoscope-replay"
@@ -286,7 +287,7 @@ jobs:
               -H "Authorization: Bearer $CRON_SECRET" \
               -H "Content-Type: application/json" \
               -H "X-Jaya-Manual-Override: $(if [ "$EVENT_NAME" = "push" ] && [ "$FLASH_KICK" = "true" ]; then printf '%s' "$CRON_SECRET"; fi)" \
-              --data "$(if [ "$ACTION" = "flash-replay" ]; then printf '{\"action\":\"flash-replay\",\"period\":\"%s\"}' "$AUTO_FLASH_REPLAY"; else printf '{\"action\":\"%s\"}' "$ACTION"; fi)" \
+              --data "$(if [ "$ACTION" = "flash-replay" ] || [ "$ACTION" = "flash-emergency" ]; then printf '{\"action\":\"%s\",\"period\":\"%s\"}' "$ACTION" "$AUTO_FLASH_REPLAY"; else printf '{\"action\":\"%s\"}' "$ACTION"; fi)" \
               "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
 
 
