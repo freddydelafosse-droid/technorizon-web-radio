@@ -627,7 +627,12 @@ async function handler(req,res){
    // Ne jamais empiler une rediffusion si le premier passage du meme fichier
    // n'est pas encore confirme dans l'historique. Une insertion AzuraCast peut
    // disparaitre de la file visible avant de passer reellement a l'antenne.
-   const sourceBounds=period==="07"?[6*60+45,8*60+44]:[10*60+45,12*60+19];
+   const sourceBounds={
+    "07":[6*60+45,8*60+44],
+    "11":[10*60+45,12*60+19],
+    "13":[13*60+20,15*60+19],
+    "17":[17*60+20,18*60+19]
+   }[period];
    if(!await alreadyBroadcast(base,key,"jaya-flash-"+day+"-"+period,...sourceBounds)){
     console.warn("JAYA_FLASH_REPLAY_SOURCE_NOT_BROADCAST",path,period);
     return skip(res,"source-flash-not-yet-broadcast",{file:path,period});
