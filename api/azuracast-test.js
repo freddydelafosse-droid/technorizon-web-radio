@@ -123,7 +123,7 @@ const EDITORIAL_WINDOWS={
 };
 function editorialWindows(action,period){
  if(action==="flash-replay"){
-  const replayWindows={"07":[[8*60+40,9*60+5]],"11":[[12*60+10,12*60+35]],"13":[[15*60+10,15*60+35]],"17":[[18*60+10,18*60+35]]};
+  const replayWindows={"07":[[8*60+40,9*60+20]],"11":[[12*60+10,12*60+50]],"13":[[15*60+10,15*60+50]],"17":[[18*60+10,18*60+50]]};
   return replayWindows[period]||[];
  }
  return EDITORIAL_WINDOWS[action]||[];
