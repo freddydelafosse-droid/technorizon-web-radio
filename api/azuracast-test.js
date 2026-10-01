@@ -642,6 +642,13 @@ async function handler(req,res){
    const path="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
    if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,8*60+10,8*60+50))return already(res,"horoscope-second-slot-already-broadcast");
    if(await editorialSlotRecorded("horoscope_replay",day+"-08:15"))return already(res,"horoscope-already-queued");
+   // Verrou anti-doublon durable : Supabase peut être indisponible (HTTP 400).
+   // Dans ce cas, l'historique AzuraCast reste l'autorité. Si le même fichier
+   // a été diffusé récemment autour du second rendez-vous, aucun replay n'est autorisé.
+   if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+50,9*60+5)){
+    console.log("JAYA_HOROSCOPE_REPLAY_HISTORY_LOCK",path);
+    return already(res,"horoscope-replay-already-broadcast");
+   }
    // Meme verrou pour le Technoroscope : pas de seconde copie tant que le
    // passage de 07h15 n'est pas confirme par l'historique.
    if(!await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+10,8*60+14)){
