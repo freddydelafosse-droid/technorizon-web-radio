@@ -17,8 +17,21 @@ const JAYA_BANNED_GENERIC=[
  "petit coucou","petit signe","grain de sel","je passe je vous fais","je repars","parfois je sais etre raisonnable",
  "d abord","ensuite","et enfin","technorizone",
  "avant de poursuivre la programmation","avant de poursuivre le programme","avant de continuer la programmation",
+ "une courte parenthese","courte parenthese","petite parenthese","une petite parenthese",
 ];
 function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
+function repeatedJayaPhrase(text){
+ const words=normJaya(text).split(" ").filter(Boolean);
+ if(words.length<4)return false;
+ const grams=[];
+ for(let i=0;i<=words.length-4;i++)grams.push(words.slice(i,i+4).join(" "));
+ return jayaRecent.slice(-250).some(old=>{
+  const oldWords=normJaya(old).split(" ").filter(Boolean);
+  if(oldWords.length<4)return false;
+  const oldText=" "+oldWords.join(" ")+" ";
+  return grams.some(g=>oldText.includes(" "+g+" "));
+ });
+}
 function jayaTooGeneric(text){
  const n=normJaya(text);
  // "énergie" était devenu un tic de langage : blocage dur avant TTS.
@@ -26,6 +39,8 @@ function jayaTooGeneric(text){
  if(JAYA_BANNED_GENERIC.some(x=>n.includes(x)))return true;
  // H24 pré-généré : aucune heure chiffrée ne doit pouvoir être dite à l'antenne.
  if(/\b(?:[01]?\d|2[0-3])\s*(?:h|heures?)\s*(?:[0-5]\d)?\b/i.test(String(text||"")))return true;
+ // Anti-tic global : bloque aussi toute séquence de 4 mots déjà entendue récemment.
+ if(repeatedJayaPhrase(text))return true;
  // Anti-radotage renforcé : comparaison sur une mémoire plus longue et seuil plus strict.
  return jayaRecent.slice(-140).some(old=>{const na=normJaya(old),nb=normJaya(text);if(na===nb)return true;const a=new Set(na.split(" ").filter(x=>x.length>3)),b=nb.split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.25});
 }
@@ -294,10 +309,10 @@ function generic(slot){
   journee:[
    "Jaya passe vous faire un petit signe entre deux titres. Et hop, retour à la musique !",
    "Bon… je ne vais pas monopoliser le micro. Je vous laisse avec le son.",
-   "Petite parenthèse avec Jaya, juste comme ça, puis on repart immédiatement en musique.",
+   "Quelques secondes avec vous entre deux titres, puis je laisse le prochain morceau prendre le relais.",
    "Vous êtes toujours là ? Parfait, moi aussi. Allez, je rends l'antenne à la musique.",
    "Un passage éclair au micro et je disparais déjà… enfin, jusqu'à la prochaine fois.",
-   "Une petite parenthèse avec vous, et je rends déjà la place au prochain titre.",
+   "Je viens simplement prendre de vos nouvelles entre deux morceaux, puis la programmation reprend son chemin.",
    "Quelques secondes ensemble, ça me suffisait pour venir vous dire bonjour. On repart.",
    "Je passais simplement voir si tout allait bien de votre côté. Maintenant, place au son."
   ],
@@ -317,7 +332,7 @@ function generic(slot){
    "Si vous êtes toujours là à cette heure-ci, je crois qu'on peut se comprendre. On repart.",
    "Quelques mots de Jaya dans la nuit, puis je vous rends immédiatement le son.",
    "Je passe vérifier que les noctambules tiennent le coup. Visiblement oui, alors musique !",
-   "Une petite parenthèse au micro avant de replonger dans la musique. C'est reparti."
+   "Je glisse quelques mots aux noctambules avant que le prochain morceau ne prenne le relais."
   ]
  };
  return pool[p][hash(String(slot)+"|generic|"+p)%pool[p].length];
