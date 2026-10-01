@@ -747,7 +747,7 @@ async function handler(req,res){
    const period=lh<9?"07":lh<13?"11":lh<17?"13":"17";
    const starts={"07":6*60+45,"11":10*60+45,"13":13*60+10,"17":17*60+10};
    const start=starts[period];
-   if(await alreadyBroadcast(base,key,"jaya-flash-"+date+"-"+period,start,start+40))
+   if(await alreadyBroadcast(base,key,"jaya-flash-"+date+"-"+period,start,start+40) && req.headers["x-jaya-manual-override"]!==secret)
     return already(res,"flash-already-broadcast");
    if(await editorialSlotRecorded("news_weather",date+"-"+period))return already(res,"flash-already-generated-or-queued");
   }
