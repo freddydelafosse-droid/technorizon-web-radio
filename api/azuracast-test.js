@@ -118,11 +118,14 @@ function parisClock(date=new Date()){
 const EDITORIAL_WINDOWS={
  "horoscope-generate":[[6*60+50,8*60+28]],
  "horoscope-replay":[[7*60+50,8*60+28]],
- "news-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]],
- "weather-now":[[6*60+40,7*60+5],[10*60+40,11*60+5]]
+ "news-now":[[6*60+40,7*60+5],[10*60+40,11*60+5],[13*60+10,13*60+35],[17*60+10,17*60+35]],
+ "weather-now":[[6*60+40,7*60+5],[10*60+40,11*60+5],[13*60+10,13*60+35],[17*60+10,17*60+35]]
 };
 function editorialWindows(action,period){
- if(action==="flash-replay")return period==="07"?[[8*60+40,9*60+5]]:[[12*60+10,12*60+35]];
+ if(action==="flash-replay"){
+  const replayWindows={"07":[[8*60+40,9*60+5]],"11":[[12*60+10,12*60+35]],"13":[[15*60+10,15*60+35]],"17":[[18*60+10,18*60+35]]};
+  return replayWindows[period]||[];
+ }
  return EDITORIAL_WINDOWS[action]||[];
 }
 function editorialSlot(action,period,minute){
@@ -611,11 +614,12 @@ async function handler(req,res){
   if(!el&&!flashReplay&&!horoscopeReplay)return res.status(500).json({ok:false,error:"TTS configuration missing"});
   if(flashReplay){
    const period=String(req.body?.period||"").trim();
-   if(!["07","11"].includes(period))return res.status(400).json({ok:false,error:"Invalid flash replay period"});
+   if(!["07","11","13","17"].includes(period))return res.status(400).json({ok:false,error:"Invalid flash replay period"});
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const replaySlot=day+"-"+period+"-replay";
    const path="Jaya/Meteo/jaya-flash-"+day+"-"+period+".mp3";
-   const bounds=period==="07"?[8*60+45,9*60+15]:[12*60+20,12*60+50];
+   const replayBounds={"07":[8*60+45,9*60+15],"11":[12*60+20,12*60+50],"13":[15*60+20,15*60+50],"17":[18*60+20,18*60+50]};
+   const bounds=replayBounds[period];
    // Verrou persistant : deux déclencheurs de secours peuvent se chevaucher alors
    // qu'AzuraCast a déjà préchargé et masqué le premier élément de /queue.
    if(await editorialSlotRecorded("flash_replay",replaySlot))return already(res,"flash-already-queued");
@@ -735,8 +739,9 @@ async function handler(req,res){
   const isNews=forceNews;
   if(isNews||isWeather){
    const date=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
-   const period=lh<9?"07":"11";
-   const start=period==="07"?6*60+45:10*60+45;
+   const period=lh<9?"07":lh<13?"11":lh<17?"13":"17";
+   const starts={"07":6*60+45,"11":10*60+45,"13":13*60+10,"17":17*60+10};
+   const start=starts[period];
    if(await alreadyBroadcast(base,key,"jaya-flash-"+date+"-"+period,start,start+40))
     return already(res,"flash-already-broadcast");
    if(await editorialSlotRecorded("news_weather",date+"-"+period))return already(res,"flash-already-generated-or-queued");
@@ -792,7 +797,7 @@ async function handler(req,res){
    const weatherBody=weather.replace(/^Bonjour, ici Jaya avec votre météo nationale sur Technorizon\.fr\.\s*/i,"").replace(/\s*Très bonne écoute\s*!?\s*$/i,"").trim();
    editorialText=(news?news+" ":"Bonjour, ici Jaya. On passe tout de suite à la météo. ")+weatherBody+" "+nextFlashText+" Très bonne écoute !";
   }
-  const editorialPeriod=isEditorial?(lh<9?"07":"11"):"";
+  const editorialPeriod=isEditorial?(lh<9?"07":lh<13?"11":lh<17?"13":"17"):"";
   const editorialDay=isEditorial?new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now):"";
   const generatedText=isEditorial?editorialText:await smartAnnouncement({song:mode<2?nextSong:null,slot,hour:lh,minute:lm});
   // Filet de sécurité H24 : si l’IA/anti-répétition ne renvoie rien, Jaya utilise
