@@ -1,3 +1,4 @@
+/* deploy-trigger: techno-blast-groups-v19 */
 (() => {
   'use strict';
   if (window.__TECHNORIZON_GAMES_NATIVE__) return;
