@@ -164,7 +164,7 @@ jobs:
               WATCH_M=$((10#$PARIS_MINUTE))
               if [ "$WATCH_H" -eq 7 ] && [ "$WATCH_M" -ge 13 ] && [ "$WATCH_M" -le 28 ]; then
                 AUTO_HOROSCOPE="generate"
-              elif [ "$WATCH_H" -eq 8 ] && [ "$WATCH_M" -ge 13 ] && [ "$WATCH_M" -le 28 ]; then
+              elif [ "$WATCH_H" -eq 8 ] && [ "$WATCH_M" -ge 5 ] && [ "$WATCH_M" -le 28 ]; then
                 AUTO_HOROSCOPE="replay"
               fi
             fi
