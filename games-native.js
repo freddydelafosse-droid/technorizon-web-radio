@@ -7,7 +7,9 @@
   const originalTitle = document.title;
   const pages = {
     'infos.html': { page: 'infos', inlineScripts: true },
-    'jeux.html': { page: 'games', style: '/jeux.css?v=13', scripts: ['/jeux-data.js?v=3', '/jeux.js?v=19'] },
+    'jeux.html': { page: 'gamezone' },
+    'jeux-musicaux.html': { page: 'games', style: '/jeux.css?v=15', scripts: ['/jeux-data.js?v=3', '/jeux.js?v=19'] },
+    'techno-arcade.html': { page: 'arcade' },
     'a-propos.html': { page: 'about', scripts: ['/content-pages-i18n.js?v=1'] },
     'contact.html': { page: 'contact', scripts: ['/content-pages-i18n.js?v=1'] },
     'technoroscope.html': { page: 'technoroscope', scripts: ['/technoroscope-i18n.js?v=9'] },
@@ -78,8 +80,9 @@
   };
 
   const openPage = async path => {
-    if (layer || opening) return;
+    if (opening) return;
     const config = pages[path];
+    if (layer) closePage();
     if (!config) return;
     opening = true;
     radioWasPlaying = Boolean(mainAudio && !mainAudio.paused);
