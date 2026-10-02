@@ -11,6 +11,7 @@
     'jeux-musicaux.html': { page: 'games', style: '/jeux.css?v=15', scripts: ['/jeux-data.js?v=3', '/jeux.js?v=20'] },
     'techno-arcade.html': { page: 'arcade', inlineScripts: true },
     'techno-brick-preview.html': { page: 'brick', inlineScripts: true },
+    'techno-blast-preview.html': { page: 'blast', inlineScripts: true },
     'a-propos.html': { page: 'about', scripts: ['/content-pages-i18n.js?v=1'] },
     'contact.html': { page: 'contact', scripts: ['/content-pages-i18n.js?v=1'] },
     'technoroscope.html': { page: 'technoroscope', scripts: ['/technoroscope-i18n.js?v=9'] },
@@ -101,7 +102,7 @@
     layer.style.zIndex = '900';
     layer.setAttribute('aria-label', config.page === 'games' ? 'Jeux Technorizon' : 'Contenu Technorizon');
     layer.innerHTML = '<div class="tz-games-host"><p style="padding:70px 20px;text-align:center;color:#aebdcb;font-family:Arial,sans-serif">Chargement…</p></div>';
-    if (['gamezone','games','arcade','brick'].includes(config.page)) {
+    if (['gamezone','games','arcade','brick','blast'].includes(config.page)) {
       layer.style.background = "linear-gradient(180deg,rgba(2,3,13,.10),rgba(2,3,13,.72) 48%,rgba(2,3,13,.94)),url('/Fond-Technorizon-V2.png.png') center top/cover no-repeat";
       layer.style.backgroundColor = '#020812';
     }
