@@ -332,6 +332,16 @@ jobs:
               echo "::error::Rediffusion Technoroscope non confirmée."
               exit 1
             fi
+          elif [ "$ACTION" = "flash-replay" ] || [ "$ACTION" = "flash-emergency" ]; then
+            if ! grep -Eq '"queue_verified":true|"reason":"flash-already-queued"|"reason":"flash-already-broadcast"' "$RESPONSE_FILE"; then
+              echo "::error::Flash Infos + Météo prioritaire non confirmé dans la file/historique."
+              exit 1
+            fi
+          elif [ "$ACTION" = "weather-now" ] || [ "$ACTION" = "news-now" ]; then
+            if ! grep -Eq '"queue_verified":true|"reason":"flash-already-broadcast"|"reason":"flash-already-generated-or-queued"|"reason":"news-already-queued"|"reason":"weather-already-queued"' "$RESPONSE_FILE"; then
+              echo "::error::Infos + Météo non confirmées dans la file/historique."
+              exit 1
+            fi
           fi
 
           if [ -n "${CURL_EXIT:-}" ] || [ "${HTTP_CODE:-000}" -ge 400 ]; then
