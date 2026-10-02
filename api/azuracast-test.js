@@ -68,7 +68,7 @@ async function recentEditorial(kind){
  try{
   const u=new URL(cfg.url+"/rest/v1/jaya_antenna_memory");
   u.searchParams.set("select","text");u.searchParams.set("kind","eq."+kind);
-  u.searchParams.set("order","created_at.desc");u.searchParams.set("limit","4");
+  u.searchParams.set("order","created_at.desc");u.searchParams.set("limit",kind==="horoscope"?"14":"4");
   const r=await fetch(u,{headers:{apikey:cfg.key,Authorization:"Bearer "+cfg.key,Accept:"application/json"}});
   return r.ok?(await r.json()).map(x=>String(x.text||"").slice(0,1400)):[];
  }catch{return []}
@@ -392,12 +392,24 @@ async function horoscopeBulletin(){
  const key=process.env.OPENAI_API_KEY;if(!key)throw new Error("Horoscope AI configuration missing");
  const signs=["Bélier","Taureau","Gémeaux","Cancer","Lion","Vierge","Balance","Scorpion","Sagittaire","Capricorne","Verseau","Poissons"];
  const recent=await recentEditorial("horoscope");
- const instructions=frenchReview+"\n"+"Tu es Jaya, animatrice de Technorizon. Écris le Technoroscope du matin en français oral naturel, chaleureux, souriant et complice. Fais OBLIGATOIREMENT les 12 signes dans l'ordre fourni, avec UNE phrase courte par signe. Ne t'arrête jamais avant Poissons. Ne présente jamais l'astrologie comme une certitude, un fait scientifique, un diagnostic ou un conseil médical, juridique ou financier. Évite les prédictions graves ou anxiogènes. Vise environ 1 min 30 à l'oral. Commence par une accroche très courte annonçant le Technoroscope. Termine OBLIGATOIREMENT par : Prochain horoscope à 08h15 sur Technorizon, ou retrouvez votre horoscope complet sur Technorizon.fr. Même personnalité que Jaya à l'antenne : naturelle, élégante, légèrement malicieuse. Pas d'emoji, pas de guillemets, pas de didascalie.";
+ const dayKey=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+ const themeSets=[
+  ["relations","initiative","organisation","créativité","repos","communication","projet","patience","découverte","équilibre","imprévu","plaisir"],
+  ["confiance","maison","curiosité","écoute","ambition","détail","décision","intuition","mouvement","priorité","rencontre","inspiration"],
+  ["nouveauté","coopération","choix","rythme","audace","souplesse","harmonie","recul","élan","méthode","originalité","sensibilité"],
+  ["motivation","dialogue","concentration","entourage","expression","simplification","compromis","transformation","exploration","constance","liberté","rêverie"],
+  ["spontanéité","stabilité","échange","cocon","rayonnement","efficacité","sociabilité","discernement","optimisme","construction","surprise","douceur"],
+  ["action","confort","idée","protection","leadership","rangement","diplomatie","profondeur","aventure","responsabilité","innovation","imagination"],
+  ["élan","fidélité","apprentissage","émotion","générosité","précision","partage","instinct","horizon","persévérance","indépendance","création"]
+ ];
+ const dayIndex=Math.floor(Date.now()/86400000)%themeSets.length;
+ const todayThemes=themeSets[dayIndex];
+ const instructions=frenchReview+"\n"+"Tu es Jaya, animatrice de Technorizon. Écris le Technoroscope du matin en français oral naturel, chaleureux, souriant et complice. Fais OBLIGATOIREMENT les 12 signes dans l'ordre fourni, avec UNE phrase courte par signe. Ne t'arrête jamais avant Poissons. Aujourd'hui chaque signe a un angle éditorial distinct imposé : "+signs.map((x,i)=>x+"="+todayThemes[i]).join(", ")+". Construis réellement chaque phrase autour de cet angle, sans reprendre le même conseil, la même situation, la même image ou la même conclusion que dans les anciens horoscopes fournis. Varie aussi la syntaxe : évite que les 12 phrases aient la même construction. Les thèmes amour, relations, travail, projets, forme légère, créativité, organisation et loisirs peuvent alterner, mais jamais de diagnostic ni de conseil médical, juridique ou financier. Ne présente jamais l'astrologie comme une certitude ou un fait scientifique. Évite les prédictions graves ou anxiogènes. Vise environ 1 min 30 à l'oral. Commence par une accroche très courte annonçant le Technoroscope, différente des précédentes. Termine OBLIGATOIREMENT par : Prochain horoscope à 08h15 sur Technorizon, ou retrouvez votre horoscope complet sur Technorizon.fr. Même personnalité que Jaya à l'antenne : naturelle, élégante, légèrement malicieuse. Pas d'emoji, pas de guillemets, pas de didascalie.";
  for(let attempt=1;attempt<=2;attempt++){
   const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({
    model:"gpt-5-mini",
    instructions,
-   input:"Signes à traiter aujourd'hui : "+signs.join(", ")+". Le texte doit contenir les 12 signes, de Bélier à Poissons, puis l'annonce finale. Évite de recycler les accroches et les images des horoscopes précédents : "+JSON.stringify(recent),
+   input:"Date éditoriale : "+dayKey+". Signes à traiter aujourd'hui : "+signs.join(", ")+". Le texte doit contenir les 12 signes, de Bélier à Poissons, puis l'annonce finale. Compare chaque signe aux 14 éditions précédentes et produis un contenu nettement différent, pas une simple reformulation. Archives à ne pas recycler : "+JSON.stringify(recent),
    max_output_tokens:3000
   })});
   if(!r.ok)throw new Error("Horoscope AI "+r.status);
