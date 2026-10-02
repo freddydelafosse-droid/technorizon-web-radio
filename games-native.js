@@ -9,7 +9,7 @@
     'infos.html': { page: 'infos', inlineScripts: true },
     'jeux.html': { page: 'gamezone', inlineScripts: true },
     'jeux-musicaux.html': { page: 'games', style: '/jeux.css?v=15', scripts: ['/jeux-data.js?v=3', '/jeux.js?v=20'] },
-    'techno-arcade.html': { page: 'arcade', inlineScripts: true },
+    'techno-arcade.html': { page: 'arcade', inlineScripts: true, version: 'arcade-v2-blast-live' },
     'techno-brick-preview.html': { page: 'brick', inlineScripts: true },
     'techno-blast-preview.html': { page: 'blast', inlineScripts: true },
     'a-propos.html': { page: 'about', scripts: ['/content-pages-i18n.js?v=1'] },
@@ -114,7 +114,7 @@
     if (jayaPanel) jayaPanel.style.setProperty('z-index','100001','important');
 
     try {
-      const pageVersion = path === 'jeux-musicaux.html' ? 'back-game-zone-2' : path === 'techno-blast-preview.html' ? 'blast-v17-groups-visible' : '1';
+      const pageVersion = config.version || (path === 'jeux-musicaux.html' ? 'back-game-zone-2' : path === 'techno-blast-preview.html' ? 'blast-v18-groups-live' : '1');
       const tasks = [fetch(`/${path}?v=${pageVersion}`, { cache: 'no-store' })];
       if (config.style) tasks.push(ensureStyle(config.style));
       const [response] = await Promise.all(tasks);
