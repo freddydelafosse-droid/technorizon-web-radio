@@ -2,7 +2,8 @@ const GAME_RULES = {
   blind: { step: 100, max: 2500 },
   intox: { step: 75, max: 375 },
   quiz: { step: 75, max: 375 },
-  brick: { step: 1, max: 10000000 }
+  brick: { step: 1, max: 10000000 },
+  blast: { step: 1, max: 10000000 }
 };
 
 function config() {
