@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#050713"><title>TECHNO-SNAKE — Technorizon.fr</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:#050713;color:#fff;font-family:Arial,sans-serif;overscroll-behavior:none}
+body{min-height:100dvh;display:flex;justify-content:center;background:radial-gradient(circle at 50% 10%,#14204a 0,#070a19 34%,#03040a 72%)}
+.app{width:min(100%,520px);min-height:100dvh;padding:max(14px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center}
+.logo{width:min(78vw,330px);height:auto;margin:3px auto 0}.title{font-size:clamp(25px,8vw,42px);font-weight:900;letter-spacing:2px;margin:2px 0 2px;text-shadow:0 0 10px #00eaff,0 0 22px #ff2bd6}.sub{color:#a9b4d8;font-size:13px;margin:0 0 10px}
+.hud{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:9px}.pill{border:1px solid #25315f;background:#090d20cc;border-radius:12px;padding:7px;text-align:center;box-shadow:inset 0 0 14px #00eaff12}.pill b{display:block;color:#00f0ff;font-size:18px}.pill span{font-size:10px;color:#aeb8d6;text-transform:uppercase;letter-spacing:1px}
+.stage{position:relative;width:100%;aspect-ratio:1/1;border-radius:17px;padding:5px;background:linear-gradient(135deg,#00eaff,#7b39ff,#ff2bd6);box-shadow:0 0 24px #00eaff44,0 0 34px #ff2bd633;touch-action:none;overflow:hidden}
+canvas{width:100%;height:100%;display:block;border-radius:13px;background:#050816}
+.overlay{position:absolute;inset:5px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#030611c9;backdrop-filter:blur(4px);padding:24px;text-align:center}
+.card h2{margin:0 0 7px;font-size:29px}.card p{margin:5px 0 15px;color:#c2cae3;line-height:1.35}.btn{border:0;border-radius:999px;padding:13px 25px;font-weight:900;font-size:16px;color:#07101c;background:linear-gradient(90deg,#00eaff,#55ffda);box-shadow:0 0 20px #00eaff77}.hint{font-size:12px;color:#8d99bd;margin:10px 0 3px;text-align:center}.legend{font-size:12px;color:#c2cae3;text-align:center;line-height:1.55}.cyan{color:#00efff}.pink{color:#ff46d7}.gold{color:#ffd84a}
+</style></head>
+<body><main class="app">
+<img class="logo" src="ImageLogoFinal.png" alt="TECHNORIZON.FR">
+<h1 class="title">TECHNO-SNAKE</h1><p class="sub">Attrape le son. Fais monter le score.</p>
+<div class="hud"><div class="pill"><b id="score">0</b><span>Score</span></div><div class="pill"><b id="best">0</b><span>Record</span></div><div class="pill"><b id="level">1</b><span>Niveau</span></div></div>
+<div class="stage" id="stage"><canvas id="game" width="600" height="600"></canvas><div class="overlay" id="overlay"><div class="card"><h2 id="ovTitle">Prêt ? 🎧</h2><p id="ovText">Glisse ton doigt dans la direction voulue.<br>Récupère les notes et les bonus.</p><button class="btn" id="start">JOUER</button></div></div></div>
+<p class="hint">📱 Swipe sur mobile • ⌨️ Flèches / ZQSD sur ordinateur</p>
+<div class="legend"><span class="cyan">♪ +10</span> &nbsp; <span class="pink">★ +30</span> &nbsp; <span class="gold">⚡ ralentit brièvement le tempo</span></div>
+</main>
+<script>
+const c=document.getElementById('game'),ctx=c.getContext('2d'),N=24,S=c.width/N;
+const scoreEl=document.getElementById('score'),bestEl=document.getElementById('best'),levelEl=document.getElementById('level'),ov=document.getElementById('overlay');
+let snake,dir,nextDir,item,score,best=+(localStorage.getItem('technoSnakeBest')||0),timer,running=false,eaten=0,slowUntil=0;
+bestEl.textContent=best;
+const rnd=()=>Math.floor(Math.random()*N);
+function spawn(){let p;do p={x:rnd(),y:rnd()}while(snake.some(s=>s.x===p.x&&s.y===p.y));let r=Math.random();item={...p,type:r<.72?'note':r<.91?'star':'bolt'};}
+function reset(){snake=[{x:12,y:12},{x:11,y:12},{x:10,y:12},{x:9,y:12}];dir={x:1,y:0};nextDir={...dir};score=0;eaten=0;slowUntil=0;spawn();sync();}
+function sync(){scoreEl.textContent=score;bestEl.textContent=best;levelEl.textContent=1+Math.floor(eaten/5);}
+function speed(){return Math.max(68,145-Math.floor(eaten/5)*12)+(Date.now()<slowUntil?65:0)}
+function schedule(){clearTimeout(timer);if(running)timer=setTimeout(step,speed())}
+function step(){dir=nextDir;const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(s=>s.x===h.x&&s.y===h.y)){end();return}
+snake.unshift(h);if(h.x===item.x&&h.y===item.y){eaten++;if(item.type==='note')score+=10;else if(item.type==='star')score+=30;else{score+=15;slowUntil=Date.now()+5000}if(score>best){best=score;localStorage.setItem('technoSnakeBest',best)}spawn();sync()}else snake.pop();draw();schedule();}
+function draw(){ctx.fillStyle='#050816';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#102044';ctx.lineWidth=1;for(let i=1;i<N;i++){ctx.beginPath();ctx.moveTo(i*S,0);ctx.lineTo(i*S,c.height);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*S);ctx.lineTo(c.width,i*S);ctx.stroke()}
+snake.forEach((s,i)=>{let g=ctx.createLinearGradient(s.x*S,s.y*S,(s.x+1)*S,(s.y+1)*S);g.addColorStop(0,i===0?'#fff':'#00eaff');g.addColorStop(1,i===0?'#00eaff':'#9b42ff');ctx.shadowBlur=14;ctx.shadowColor='#00eaff';ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(s.x*S+2,s.y*S+2,S-4,S-4,8);ctx.fill()});ctx.shadowBlur=18;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 28px Arial';ctx.fillStyle=item.type==='note'?'#00f5ff':item.type==='star'?'#ff42d4':'#ffd84a';ctx.shadowColor=ctx.fillStyle;ctx.fillText(item.type==='note'?'♪':item.type==='star'?'★':'⚡',(item.x+.5)*S,(item.y+.52)*S);ctx.shadowBlur=0}
+function setDir(x,y){if(!running)return;if(x===-dir.x&&y===-dir.y)return;nextDir={x,y}}
+function start(){reset();running=true;ov.style.display='none';draw();schedule()}
+function end(){running=false;clearTimeout(timer);document.getElementById('ovTitle').textContent='GAME OVER';document.getElementById('ovText').innerHTML='Score : <b>'+score+'</b><br>Record : <b>'+best+'</b>';document.getElementById('start').textContent='REJOUER';ov.style.display='flex'}
+document.getElementById('start').onclick=start;
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowup','z','w'].includes(k))setDir(0,-1);if(['arrowdown','s'].includes(k))setDir(0,1);if(['arrowleft','q','a'].includes(k))setDir(-1,0);if(['arrowright','d'].includes(k))setDir(1,0);if(k===' '&&!running)start();});
+let sx=0,sy=0;const stage=document.getElementById('stage');stage.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});stage.addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<18)return;if(Math.abs(dx)>Math.abs(dy))setDir(dx>0?1:-1,0);else setDir(0,dy>0?1:-1)},{passive:true});
+reset();draw();
+</script></body></html>
