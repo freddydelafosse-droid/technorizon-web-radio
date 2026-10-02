@@ -153,3 +153,18 @@ body,
 .tz-games-host {
   min-height: 100%;
 }
+
+/* Shared Technorizon planet universe for the native game pages. */
+body[data-content-page="gamezone"] .tz-games-layer,
+body[data-content-page="games"] .tz-games-layer,
+body[data-content-page="arcade"] .tz-games-layer {
+  background:
+    linear-gradient(180deg,rgba(2,3,13,.10),rgba(2,3,13,.72) 48%,rgba(2,3,13,.94)),
+    url('/Fond-Technorizon-V2.png.png') center top / cover no-repeat fixed !important;
+  background-color:#020812 !important;
+}
+body[data-content-page="gamezone"] .tz-games-host,
+body[data-content-page="games"] .tz-games-host,
+body[data-content-page="arcade"] .tz-games-host {
+  background:transparent !important;
+}
