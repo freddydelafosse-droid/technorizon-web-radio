@@ -28,6 +28,13 @@ function send(res, status, payload) {
   res.status(status).setHeader('Cache-Control', 'no-store').json(payload);
 }
 
+async function handleProgress(req,res,url,key,headers){
+  const clean=v=>cleanName(v), playerKey=v=>clean(v).toLowerCase();
+  if(req.method==='GET'){const name=clean(req.query?.name);if(name.length<2)return send(res,400,{error:'Pseudo invalide.'});const q=new URLSearchParams({player_key:'eq.'+playerKey(name),game:'eq.blast',select:'player_name,level,stock,updated_at',limit:'1'});const r=await fetch(url+'/rest/v1/game_progress?'+q,{headers});if(!r.ok)throw new Error('Progress GET '+r.status);const rows=await r.json();return send(res,200,{progress:rows[0]||null})}
+  if(req.method==='POST'){const name=clean(req.body?.name),level=Number(req.body?.level),s=req.body?.stock||{};if(name.length<2||!Number.isInteger(level)||level<1||level>1000000)return send(res,400,{error:'Progression invalide.'});const stock={rocket:Math.max(0,Math.min(999,Number(s.rocket)||0)),bomb:Math.max(0,Math.min(999,Number(s.bomb)||0)),disco:Math.max(0,Math.min(999,Number(s.disco)||0))};const r=await fetch(url+'/rest/v1/rpc/save_game_progress',{method:'POST',headers,body:JSON.stringify({p_player_name:name,p_game:'blast',p_level:level,p_stock:stock})});if(!r.ok)throw new Error('Progress POST '+r.status);return send(res,200,{ok:true})}
+  return send(res,405,{error:'Méthode non autorisée.'});
+}
+
 export default async function handler(req, res) {
   const { url, key } = config();
   if (!url || !key) return send(res, 503, { error: 'Classement momentanément indisponible.' });
@@ -39,6 +46,7 @@ export default async function handler(req, res) {
   };
 
   try {
+    if (String(req.query?.mode||'') === 'progress') return await handleProgress(req,res,url,key,headers);
     if (req.method === 'GET') {
       const requested = Number.parseInt(req.query?.limit, 10);
       const full = String(req.query?.full || '') === '1';
