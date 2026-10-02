@@ -642,7 +642,7 @@ async function handler(req,res){
   if(!el&&!flashReplay&&!horoscopeReplay)return res.status(500).json({ok:false,error:"TTS configuration missing"});
   if(flashEmergency){
    if(req.headers["x-jaya-manual-override"]!==secret)return res.status(403).json({ok:false,error:"Emergency override required"});
-   const period=String(req.body?.period||"13").trim();
+   const period=String(req.body?.period||"").trim();
    if(!["07","11","13","17"].includes(period))return res.status(400).json({ok:false,error:"Invalid emergency flash period"});
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Meteo/jaya-flash-"+day+"-"+period+".mp3";
@@ -650,9 +650,9 @@ async function handler(req,res){
    if(!existing.ok)return res.status(502).json({ok:false,error:"Queue check failed",stage:"emergency"});
    const rows=queueRows(await existing.json());
    if(rows.some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return already(res,"flash-already-queued",{file:path});
-   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
-   if(!q.ok){const detail=await q.text().catch(()=>"");return res.status(502).json({ok:false,error:"Emergency flash queue failed",detail:detail.slice(0,300),file:path})}
-   return res.status(200).json({ok:true,state:"QUEUED",action:"flash-emergency",file:path,queued:true,priority:true});
+   const q=await queueVerified(base,key,path,true);
+   if(!q.ok)return res.status(502).json({ok:false,error:"Emergency flash queue not confirmed",stage:"queue-verify",file:path,queue_verified:false,reason:q.reason||null});
+   return res.status(200).json({ok:true,state:"QUEUED",action:"flash-emergency",file:path,queued:true,priority:true,queue_verified:true,queue_index:q.index});
   }
   if(flashReplay){
    const period=String(req.body?.period||"").trim();
@@ -682,11 +682,11 @@ async function handler(req,res){
    const existing=await az(base,key,"/queue");
    if(!existing.ok)throw new Error("Queue check failed: "+existing.status);
    if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return already(res,"flash-already-queued");
-   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
-   if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_FLASH_REPLAY",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Flash replay queue failed",stage:"queue",file:path})}
+   const q=await queueVerified(base,key,path,true);
+   if(!q.ok)return res.status(502).json({ok:false,error:"Flash replay queue not confirmed",stage:"queue-verify",file:path,queue_verified:false,reason:q.reason||null});
    await persistJayaMemory("Flash replay queued","flash_replay",replaySlot);
-   console.log("JAYA_FLASH_REPLAY_QUEUED",path);
-   return res.status(200).json({ok:true,state:"QUEUED",action:"flash-replay",file:path,tts_generated:false,queued:true,period});
+   console.log("JAYA_FLASH_REPLAY_QUEUED",path,"index",q.index);
+   return res.status(200).json({ok:true,state:"QUEUED",action:"flash-replay",file:path,tts_generated:false,queued:true,priority:true,queue_verified:true,queue_index:q.index,period});
   }
   if(horoscopeReplay){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
