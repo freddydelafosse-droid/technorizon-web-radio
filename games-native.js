@@ -82,10 +82,11 @@
   const openPage = async path => {
     if (opening) return;
     const config = pages[path];
+    const keepRadioPlaying = Boolean(radioWasPlaying || (mainAudio && !mainAudio.paused));
     if (layer) closePage();
     if (!config) return;
     opening = true;
-    radioWasPlaying = Boolean(mainAudio && !mainAudio.paused);
+    radioWasPlaying = keepRadioPlaying;
 
     const region = localStorage.getItem('technorizon-region') ||
       (localStorage.getItem('technorizon-lang') === 'en' ? 'gb' : 'fr');
