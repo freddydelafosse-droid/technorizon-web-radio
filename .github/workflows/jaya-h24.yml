@@ -239,7 +239,14 @@ jobs:
           elif [ "$EVENT_NAME" = "push" ] && [ "$FLASH_KICK" = "true" ]; then
             echo "Déclenchement urgence Infos + Météo Jaya"
             ACTION="flash-emergency"
-            AUTO_FLASH_REPLAY="13"
+            EMERGENCY_H=$(TZ=Europe/Paris date +%H)
+            case "$EMERGENCY_H" in
+              07|08) AUTO_FLASH_REPLAY="07" ;;
+              11|12) AUTO_FLASH_REPLAY="11" ;;
+              13|14|15|16) AUTO_FLASH_REPLAY="13" ;;
+              17|18|19) AUTO_FLASH_REPLAY="17" ;;
+              *) AUTO_FLASH_REPLAY="07" ;;
+            esac
           elif [ "$EVENT_NAME" = "push" ] && [ "$HOROSCOPE_REPLAY_KICK" = "true" ]; then
             echo "Déclenchement ponctuel de la rediffusion du Technoroscope"
             ACTION="horoscope-replay"
