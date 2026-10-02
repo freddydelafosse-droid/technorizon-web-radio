@@ -38,6 +38,21 @@
         <div class="game-share-actions"><a class="game-listen-btn" href="/" target="_blank" rel="noopener">🎧 Écouter Technorizon</a><button id="share-game-zone" class="game-share-btn" type="button">↗ Partager la Game Zone</button></div><p id="share-game-status" class="share-game-status" aria-live="polite"></p>
       </header>
 
+      <section class="game-universes" aria-label="Univers de jeux" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin:26px 0">
+        <div class="glass" style="padding:22px;border:1px solid rgba(0,240,255,.35);border-radius:22px">
+          <span class="eyebrow">🎧 JEUX MUSICAUX</span><h2 style="margin:8px 0">Défie Jaya et tes amis</h2>
+          <p>Blind Test, Hit ou Intox ? et TechnoQuiz restent réunis ici.</p>
+          <a href="#music-games" style="display:inline-flex;padding:11px 18px;border-radius:999px;background:#20efff;color:#00131b;font-weight:900;text-decoration:none">JOUER AUX JEUX MUSICAUX</a>
+        </div>
+        <a href="/techno-arcade.html" class="glass" style="display:block;padding:22px;border:1px solid rgba(255,47,189,.55);border-radius:22px;text-decoration:none;color:#fff;box-shadow:0 0 28px rgba(255,47,189,.12)">
+          <span class="eyebrow">🕹️ TECHNO ARCADE</span><h2 style="margin:8px 0">Entre dans l’Arcade</h2>
+          <p>Jeux d’arcade Technorizon, World Tours, records et défis.</p>
+          <strong style="color:#ff5dca">OUVRIR TECHNO ARCADE →</strong>
+        </a>
+      </section>
+
+      <div id="music-games"></div>
+
       <section class="player-card glass" aria-labelledby="profile-title">
         <div>
           <span class="eyebrow">PROFIL JOUEUR</span>
@@ -59,7 +74,7 @@
         <button class="game-tab active" data-game="blind" type="button"><span>🎧</span> Blind Test</button>
         <button class="game-tab" data-game="intox" type="button"><span>⚡</span> Hit ou Intox ?</button>
         <button class="game-tab" data-game="quiz" type="button"><span>🧠</span> TechnoQuiz</button>
-        <a class="game-tab" href="/techno-brick-preview.html" style="text-decoration:none"><span>🌍</span> Techno-Brick World Tour</a>
+        
       </nav>
 
       <section id="game-blind" class="game-panel active glass" aria-labelledby="blind-title">
