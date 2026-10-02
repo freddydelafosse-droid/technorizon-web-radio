@@ -240,13 +240,22 @@ jobs:
             echo "Déclenchement urgence Infos + Météo Jaya"
             ACTION="flash-emergency"
             EMERGENCY_H=$(TZ=Europe/Paris date +%H)
-            case "$EMERGENCY_H" in
-              07|08|09|10) AUTO_FLASH_REPLAY="07" ;;
-              11|12) AUTO_FLASH_REPLAY="11" ;;
-              13|14|15|16) AUTO_FLASH_REPLAY="13" ;;
-              17|18|19) AUTO_FLASH_REPLAY="17" ;;
-              *) AUTO_FLASH_REPLAY="" ;;
-            esac
+            EMERGENCY_M=$(TZ=Europe/Paris date +%M)
+            EMERGENCY_TOTAL=$((10#$EMERGENCY_H * 60 + 10#$EMERGENCY_M))
+            # Urgence uniquement autour des 8 rendez-vous officiels.
+            # En particulier 08h00 n'est PAS un créneau Infos + Météo.
+            if [ "$EMERGENCY_TOTAL" -ge 405 ] && [ "$EMERGENCY_TOTAL" -le 440 ]; then AUTO_FLASH_REPLAY="07"
+            elif [ "$EMERGENCY_TOTAL" -ge 525 ] && [ "$EMERGENCY_TOTAL" -le 560 ]; then AUTO_FLASH_REPLAY="07"
+            elif [ "$EMERGENCY_TOTAL" -ge 645 ] && [ "$EMERGENCY_TOTAL" -le 680 ]; then AUTO_FLASH_REPLAY="11"
+            elif [ "$EMERGENCY_TOTAL" -ge 735 ] && [ "$EMERGENCY_TOTAL" -le 770 ]; then AUTO_FLASH_REPLAY="11"
+            elif [ "$EMERGENCY_TOTAL" -ge 795 ] && [ "$EMERGENCY_TOTAL" -le 830 ]; then AUTO_FLASH_REPLAY="13"
+            elif [ "$EMERGENCY_TOTAL" -ge 915 ] && [ "$EMERGENCY_TOTAL" -le 950 ]; then AUTO_FLASH_REPLAY="13"
+            elif [ "$EMERGENCY_TOTAL" -ge 1035 ] && [ "$EMERGENCY_TOTAL" -le 1070 ]; then AUTO_FLASH_REPLAY="17"
+            elif [ "$EMERGENCY_TOTAL" -ge 1095 ] && [ "$EMERGENCY_TOTAL" -le 1130 ]; then AUTO_FLASH_REPLAY="17"
+            else
+              echo "::error::Aucun rendez-vous Infos + Météo officiel à cette heure."
+              exit 1
+            fi
           elif [ "$EVENT_NAME" = "push" ] && [ "$HOROSCOPE_REPLAY_KICK" = "true" ]; then
             echo "Déclenchement ponctuel de la rediffusion du Technoroscope"
             ACTION="horoscope-replay"
