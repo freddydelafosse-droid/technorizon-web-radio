@@ -8,7 +8,7 @@
   const pages = {
     'infos.html': { page: 'infos', inlineScripts: true },
     'jeux.html': { page: 'gamezone', inlineScripts: true },
-    'jeux-musicaux.html': { page: 'games', style: '/jeux.css?v=15', scripts: ['/jeux-data.js?v=3', '/jeux.js?v=19'] },
+    'jeux-musicaux.html': { page: 'games', style: '/jeux.css?v=15', scripts: ['/jeux-data.js?v=3', '/jeux.js?v=20'] },
     'techno-arcade.html': { page: 'arcade', inlineScripts: true },
     'techno-brick-preview.html': { page: 'brick', inlineScripts: true },
     'a-propos.html': { page: 'about', scripts: ['/content-pages-i18n.js?v=1'] },
