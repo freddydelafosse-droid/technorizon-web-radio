@@ -1,47 +1,37 @@
 <!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#050713"><title>TECHNO-SNAKE — Technorizon.fr</title>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>TECHNO-SNAKE</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:#050713;color:#fff;font-family:Arial,sans-serif;overscroll-behavior:none}
-body{min-height:100dvh;display:flex;justify-content:center;background:radial-gradient(circle at 50% 10%,#14204a 0,#070a19 34%,#03040a 72%)}
-.app{width:min(100%,520px);min-height:100dvh;padding:max(14px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center}
-.logo{width:min(78vw,330px);height:auto;margin:3px auto 0}.title{font-size:clamp(25px,8vw,42px);font-weight:900;letter-spacing:2px;margin:2px 0 2px;text-shadow:0 0 10px #00eaff,0 0 22px #ff2bd6}.sub{color:#a9b4d8;font-size:13px;margin:0 0 10px}
-.hud{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:9px}.pill{border:1px solid #25315f;background:#090d20cc;border-radius:12px;padding:7px;text-align:center;box-shadow:inset 0 0 14px #00eaff12}.pill b{display:block;color:#00f0ff;font-size:18px}.pill span{font-size:10px;color:#aeb8d6;text-transform:uppercase;letter-spacing:1px}
-.stage{position:relative;width:100%;aspect-ratio:1/1;border-radius:17px;padding:5px;background:linear-gradient(135deg,#00eaff,#7b39ff,#ff2bd6);box-shadow:0 0 24px #00eaff44,0 0 34px #ff2bd633;touch-action:none;overflow:hidden}
-canvas{width:100%;height:100%;display:block;border-radius:13px;background:#050816}
-.overlay{position:absolute;inset:5px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#030611c9;backdrop-filter:blur(4px);padding:24px;text-align:center}
-.card h2{margin:0 0 7px;font-size:29px}.card p{margin:5px 0 15px;color:#c2cae3;line-height:1.35}.btn{border:0;border-radius:999px;padding:13px 25px;font-weight:900;font-size:16px;color:#07101c;background:linear-gradient(90deg,#00eaff,#55ffda);box-shadow:0 0 20px #00eaff77}.hint{font-size:12px;color:#8d99bd;margin:10px 0 3px;text-align:center}.legend{font-size:12px;color:#c2cae3;text-align:center;line-height:1.55}.cyan{color:#00efff}.pink{color:#ff46d7}.gold{color:#ffd84a}
-</style></head>
-<body><main class="app">
-<img class="logo" src="ImageLogoFinal.png" alt="TECHNORIZON.FR">
-<h1 class="title">TECHNO-SNAKE</h1><p class="sub">Attrape le son. Fais monter le score.</p>
-<div class="hud"><div class="pill"><b id="score">0</b><span>Score</span></div><div class="pill"><b id="best">0</b><span>Record</span></div><div class="pill"><b id="level">1</b><span>Niveau</span></div></div>
-<div class="stage" id="stage"><canvas id="game" width="600" height="600"></canvas><div class="overlay" id="overlay"><div class="card"><h2 id="ovTitle">Prêt ? 🎧</h2><p id="ovText">Glisse ton doigt dans la direction voulue.<br>Récupère les notes et les bonus.</p><button class="btn" id="start" type="button" onclick="startGame(event)">JOUER</button></div></div></div>
-<p class="hint">📱 Swipe sur mobile • ⌨️ Flèches / ZQSD sur ordinateur</p>
-<div class="legend"><span class="cyan">♪ +10</span> &nbsp; <span class="pink">★ +30</span> &nbsp; <span class="gold">⚡ ralentit brièvement le tempo</span></div>
-</main>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;min-height:100vh;background:#050713;color:#fff;font-family:Arial,sans-serif;text-align:center}.app{max-width:520px;margin:auto;padding:14px}.logo{max-width:320px;width:75%;height:auto}.title{margin:4px 0;font-size:36px;text-shadow:0 0 12px #00eaff,0 0 20px #ff2bd6}.sub{color:#aeb8d6;margin:0 0 10px}.hud{display:flex;gap:8px;margin-bottom:10px}.hud div{flex:1;background:#090d20;border:1px solid #25315f;border-radius:12px;padding:8px}.hud b{display:block;color:#00efff;font-size:20px}.hud span{font-size:10px;color:#aeb8d6}.stage{position:relative;width:100%;aspect-ratio:1;background:linear-gradient(135deg,#00eaff,#7b39ff,#ff2bd6);padding:5px;border-radius:17px;touch-action:none}canvas{display:block;width:100%;height:100%;background:#050816;border-radius:13px}.overlay{position:absolute;inset:5px;background:rgba(3,6,17,.88);border-radius:13px;display:flex;align-items:center;justify-content:center;padding:20px}.btn{font-size:20px;font-weight:bold;border:0;border-radius:30px;padding:15px 34px;background:#00eaff;color:#041018;touch-action:manipulation}.hint{font-size:12px;color:#9ba7c9}
+</style></head><body><main class="app">
+<img class="logo" src="ImageLogoFinal.png" alt="TECHNORIZON.FR"><h1 class="title">TECHNO-SNAKE</h1><p class="sub">Attrape le son. Fais monter le score.</p>
+<div class="hud"><div><b id="score">0</b><span>SCORE</span></div><div><b id="best">0</b><span>RECORD</span></div><div><b id="level">1</b><span>NIVEAU</span></div></div>
+<div class="stage" id="stage"><canvas id="game" width="480" height="480"></canvas><div class="overlay" id="overlay"><div><h2 id="message">Prêt ? 🎧</h2><p>Glisse ton doigt pour diriger le serpent.</p><button id="playButton" class="btn" type="button">JOUER</button></div></div></div>
+<p class="hint">📱 Swipe sur mobile • ⌨️ Flèches sur ordinateur</p></main>
 <script>
-const c=document.getElementById('game'),ctx=c.getContext('2d'),N=24,S=c.width/N;
-const scoreEl=document.getElementById('score'),bestEl=document.getElementById('best'),levelEl=document.getElementById('level'),ov=document.getElementById('overlay');
-let snake,dir,nextDir,item,score,best=0,timer,running=false,eaten=0,slowUntil=0;try{best=+(window.localStorage.getItem('technoSnakeBest')||0)}catch(e){best=0}
-bestEl.textContent=best;
-const rnd=()=>Math.floor(Math.random()*N);
-function spawn(){let p;do p={x:rnd(),y:rnd()}while(snake.some(s=>s.x===p.x&&s.y===p.y));let r=Math.random();item={...p,type:r<.72?'note':r<.91?'star':'bolt'};}
-function reset(){snake=[{x:12,y:12},{x:11,y:12},{x:10,y:12},{x:9,y:12}];dir={x:1,y:0};nextDir={...dir};score=0;eaten=0;slowUntil=0;spawn();sync();}
-function sync(){scoreEl.textContent=score;bestEl.textContent=best;levelEl.textContent=1+Math.floor(eaten/5);}
-function speed(){return Math.max(68,145-Math.floor(eaten/5)*12)+(Date.now()<slowUntil?65:0)}
-function schedule(){clearTimeout(timer);if(running)timer=setTimeout(step,speed())}
-function step(){dir=nextDir;const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(s=>s.x===h.x&&s.y===h.y)){end();return}
-snake.unshift(h);if(h.x===item.x&&h.y===item.y){eaten++;if(item.type==='note')score+=10;else if(item.type==='star')score+=30;else{score+=15;slowUntil=Date.now()+5000}if(score>best){best=score;try{window.localStorage.setItem('technoSnakeBest',best)}catch(e){}}spawn();sync()}else snake.pop();draw();schedule();}
-function draw(){ctx.fillStyle='#050816';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#102044';ctx.lineWidth=1;for(let i=1;i<N;i++){ctx.beginPath();ctx.moveTo(i*S,0);ctx.lineTo(i*S,c.height);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*S);ctx.lineTo(c.width,i*S);ctx.stroke()}
-snake.forEach((s,i)=>{let g=ctx.createLinearGradient(s.x*S,s.y*S,(s.x+1)*S,(s.y+1)*S);g.addColorStop(0,i===0?'#fff':'#00eaff');g.addColorStop(1,i===0?'#00eaff':'#9b42ff');ctx.shadowBlur=14;ctx.shadowColor='#00eaff';ctx.fillStyle=g;ctx.fillRect(s.x*S+3,s.y*S+3,S-6,S-6)});ctx.shadowBlur=18;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 28px Arial';ctx.fillStyle=item.type==='note'?'#00f5ff':item.type==='star'?'#ff42d4':'#ffd84a';ctx.shadowColor=ctx.fillStyle;ctx.fillText(item.type==='note'?'♪':item.type==='star'?'★':'⚡',(item.x+.5)*S,(item.y+.52)*S);ctx.shadowBlur=0}
-function setDir(x,y){if(!running)return;if(x===-dir.x&&y===-dir.y)return;nextDir={x,y}}
-function startGame(e){if(e)e.preventDefault();if(running)return;reset();running=true;ov.style.display='none';draw();schedule()}
-function end(){running=false;clearTimeout(timer);document.getElementById('ovTitle').textContent='GAME OVER';document.getElementById('ovText').innerHTML='Score : <b>'+score+'</b><br>Record : <b>'+best+'</b>';document.getElementById('start').textContent='REJOUER';ov.style.display='flex'}
-const startBtn=document.getElementById('start');startBtn.addEventListener('touchend',function(e){e.stopPropagation();startGame(e)},{passive:false});
-addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowup','z','w'].includes(k))setDir(0,-1);if(['arrowdown','s'].includes(k))setDir(0,1);if(['arrowleft','q','a'].includes(k))setDir(-1,0);if(['arrowright','d'].includes(k))setDir(1,0);if(k===' '&&!running)startGame();});
-let sx=0,sy=0;const stage=document.getElementById('stage');stage.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});stage.addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<18)return;if(Math.abs(dx)>Math.abs(dy))setDir(dx>0?1:-1,0);else setDir(0,dy>0?1:-1)},{passive:true});
-reset();draw();
+(function(){
+var canvas=document.getElementById("game");
+var ctx=canvas.getContext("2d");
+var overlay=document.getElementById("overlay");
+var button=document.getElementById("playButton");
+var scoreNode=document.getElementById("score");
+var bestNode=document.getElementById("best");
+var levelNode=document.getElementById("level");
+var grid=24, cell=20, snake=[], food={}, dx=1,dy=0,nextX=1,nextY=0,score=0,best=0,eaten=0,running=false,timer=null,sx=0,sy=0;
+try{best=parseInt(localStorage.getItem("technoSnakeBest")||"0",10)||0;}catch(err){best=0;}
+bestNode.innerHTML=best;
+function randomFood(){var ok=false,x,y;while(!ok){x=Math.floor(Math.random()*grid);y=Math.floor(Math.random()*grid);ok=true;for(var i=0;i<snake.length;i++){if(snake[i].x===x&&snake[i].y===y){ok=false;break;}}}food={x:x,y:y};}
+function reset(){snake=[{x:12,y:12},{x:11,y:12},{x:10,y:12},{x:9,y:12}];dx=1;dy=0;nextX=1;nextY=0;score=0;eaten=0;scoreNode.innerHTML="0";levelNode.innerHTML="1";randomFood();draw();}
+function draw(){ctx.fillStyle="#050816";ctx.fillRect(0,0,480,480);ctx.fillStyle="#00eaff";for(var i=0;i<snake.length;i++){ctx.fillRect(snake[i].x*cell+2,snake[i].y*cell+2,cell-4,cell-4);}ctx.fillStyle="#ff42d4";ctx.beginPath();ctx.arc(food.x*cell+10,food.y*cell+10,7,0,Math.PI*2);ctx.fill();}
+function speed(){var v=145-Math.floor(eaten/5)*12;return v<70?70:v;}
+function tick(){if(!running)return;dx=nextX;dy=nextY;var h={x:snake[0].x+dx,y:snake[0].y+dy};if(h.x<0||h.y<0||h.x>=grid||h.y>=grid){gameOver();return;}for(var i=0;i<snake.length;i++){if(snake[i].x===h.x&&snake[i].y===h.y){gameOver();return;}}snake.unshift(h);if(h.x===food.x&&h.y===food.y){score+=10;eaten++;scoreNode.innerHTML=score;levelNode.innerHTML=1+Math.floor(eaten/5);if(score>best){best=score;bestNode.innerHTML=best;try{localStorage.setItem("technoSnakeBest",String(best));}catch(err){}}randomFood();}else{snake.pop();}draw();timer=setTimeout(tick,speed());}
+function startGame(){if(timer){clearTimeout(timer);timer=null;}reset();running=true;overlay.style.display="none";timer=setTimeout(tick,speed());}
+function gameOver(){running=false;if(timer){clearTimeout(timer);timer=null;}document.getElementById("message").innerHTML="GAME OVER<br><small>Score : "+score+"</small>";button.innerHTML="REJOUER";overlay.style.display="flex";}
+function direction(x,y){if(!running)return;if(x===-dx&&y===-dy)return;nextX=x;nextY=y;}
+button.onclick=function(){startGame();return false;};
+document.addEventListener("keydown",function(e){var k=e.keyCode;if(k===38)direction(0,-1);else if(k===40)direction(0,1);else if(k===37)direction(-1,0);else if(k===39)direction(1,0);});
+var stage=document.getElementById("stage");
+stage.addEventListener("touchstart",function(e){if(!e.touches.length)return;sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+stage.addEventListener("touchend",function(e){if(!e.changedTouches.length)return;var ax=e.changedTouches[0].clientX-sx,ay=e.changedTouches[0].clientY-sy;if(Math.max(Math.abs(ax),Math.abs(ay))<15)return;if(Math.abs(ax)>Math.abs(ay))direction(ax>0?1:-1,0);else direction(0,ay>0?1:-1);},{passive:true});
+reset();
+})();
 </script></body></html>
