@@ -113,7 +113,8 @@
     if (jayaPanel) jayaPanel.style.setProperty('z-index','100001','important');
 
     try {
-      const tasks = [fetch(`/${path}`, { cache: 'no-store' })];
+      const pageVersion = path === 'jeux-musicaux.html' ? 'back-game-zone-2' : '1';
+      const tasks = [fetch(`/${path}?v=${pageVersion}`, { cache: 'no-store' })];
       if (config.style) tasks.push(ensureStyle(config.style));
       const [response] = await Promise.all(tasks);
       if (!response.ok) throw new Error('Content unavailable');
