@@ -128,8 +128,9 @@ function parisClock(date=new Date()){
  return Number(values.hour)*60+Number(values.minute);
 }
 // Fenêtres éditoriales centralisées. Une seule source de vérité côté API.
-// Les heures de diffusion restent : Infos+Météo 07:00/09:00/11:00/12:30,
-// Technoroscope 07:15/08:15. Ces fenêtres couvrent uniquement leur préparation/rattrapage.
+// Grille officielle Infos+Météo : 07:00, 09:00, 11:00, 12:30, 13:30, 15:30, 17:30, 18:30.
+// Nouvelles éditions : 07:00, 11:00, 13:30, 17:30. Rediffusions : 09:00, 12:30, 15:30, 18:30.
+// Technoroscope 07:15/08:15 reste indépendant.
 const EDITORIAL_WINDOWS={
  "horoscope-generate":[[6*60+50,8*60+28]],
  "horoscope-replay":[[7*60+50,8*60+28]],
