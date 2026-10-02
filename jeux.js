@@ -28,7 +28,7 @@
     fr: {
       title: 'Jeux Technorizon — Blind Test, Hit ou Intox et TechnoQuiz',
       description: 'Jouez au Blind Test, à Hit ou Intox et au TechnoQuiz de Technorizon.fr.',
-      home: "← Retour à l'accueil", info: 'ⓘ Infos', heroTitle: 'Choisis ton jeu.<br><span>Défie tes amis</span>',
+      home: "← Retour à la Game Zone", info: 'ⓘ Infos', heroTitle: 'Choisis ton jeu.<br><span>Défie tes amis</span>',
       heroText: 'Du son, des défis et des points dans une salle de jeux 100 % Technorizon',
       profileEyebrow: 'PROFIL JOUEUR', profileTitle: 'Ton pseudo', nickname: 'Entre ton pseudo', save: 'Enregistrer',
       points: 'points', streak: 'jours de série', games: 'parties',
@@ -62,7 +62,7 @@
     en: {
       title: 'Technorizon Games — Blind Test, Hit or Myth and TechnoQuiz',
       description: 'Play Technorizon.fr’s Blind Test, Hit or Myth and TechnoQuiz.',
-      home: '← Back to home', info: 'ⓘ Info', heroTitle: 'Choose your game.<br><span>Challenge your friends</span>',
+      home: '← Back to Game Zone', info: 'ⓘ Info', heroTitle: 'Choose your game.<br><span>Challenge your friends</span>',
       heroText: 'Music, challenges and points in a 100% Technorizon game room',
       profileEyebrow: 'PLAYER PROFILE', profileTitle: 'Your nickname', nickname: 'Enter your nickname', save: 'Save',
       points: 'points', streak: 'day streak', games: 'games',
@@ -96,7 +96,7 @@
     de: {
       title: 'Technorizon Spiele — Blind Test, Hit oder Mythos und TechnoQuiz',
       description: 'Spiele den Blind Test, Hit oder Mythos und das TechnoQuiz von Technorizon.fr.',
-      home: '← Zurück zur Startseite', info: 'ⓘ Infos', heroTitle: 'Wähle dein Spiel.<br><span>Fordere deine Freunde heraus</span>',
+      home: '← Zurück zur Game Zone', info: 'ⓘ Infos', heroTitle: 'Wähle dein Spiel.<br><span>Fordere deine Freunde heraus</span>',
       heroText: 'Musik, Herausforderungen und Punkte in einer Spielhalle 100 % Technorizon',
       profileEyebrow: 'SPIELERPROFIL', profileTitle: 'Dein Benutzername', nickname: 'Benutzernamen eingeben', save: 'Speichern',
       points: 'Punkte', streak: 'Tage in Folge', games: 'Spiele',
@@ -130,7 +130,7 @@
     es: {
       title: 'Juegos Technorizon — Blind Test, Hit o Mito y TechnoQuiz',
       description: 'Juega al Blind Test, Hit o Mito y TechnoQuiz de Technorizon.fr.',
-      home: '← Volver al inicio', info: 'ⓘ Información', heroTitle: 'Elige tu juego.<br><span>Desafía a tus amigos</span>',
+      home: '← Volver a Game Zone', info: 'ⓘ Información', heroTitle: 'Elige tu juego.<br><span>Desafía a tus amigos</span>',
       heroText: 'Música, retos y puntos en una sala de juegos 100 % Technorizon',
       profileEyebrow: 'PERFIL DEL JUGADOR', profileTitle: 'Tu apodo', nickname: 'Escribe tu apodo', save: 'Guardar',
       points: 'puntos', streak: 'días seguidos', games: 'partidas',
@@ -164,7 +164,7 @@
     it: {
       title: 'Giochi Technorizon — Blind Test, Hit o Mito e TechnoQuiz',
       description: 'Gioca al Blind Test, Hit o Mito e TechnoQuiz di Technorizon.fr.',
-      home: '← Torna alla home', info: 'ⓘ Info', heroTitle: 'Scegli il tuo gioco.<br><span>Sfida i tuoi amici</span>',
+      home: '← Torna alla Game Zone', info: 'ⓘ Info', heroTitle: 'Scegli il tuo gioco.<br><span>Sfida i tuoi amici</span>',
       heroText: 'Musica, sfide e punti in una sala giochi 100% Technorizon',
       profileEyebrow: 'PROFILO GIOCATORE', profileTitle: 'Il tuo nickname', nickname: 'Inserisci il nickname', save: 'Salva',
       points: 'punti', streak: 'giorni di serie', games: 'partite',
@@ -198,7 +198,7 @@
     pt: {
       title: 'Jogos Technorizon — Blind Test, Hit ou Mito e TechnoQuiz',
       description: 'Jogue o Blind Test, Hit ou Mito e TechnoQuiz da Technorizon.fr.',
-      home: '← Voltar ao início', info: 'ⓘ Informações', heroTitle: 'Escolhe o teu jogo.<br><span>Desafia os teus amigos</span>',
+      home: '← Voltar à Game Zone', info: 'ⓘ Informações', heroTitle: 'Escolhe o teu jogo.<br><span>Desafia os teus amigos</span>',
       heroText: 'Música, desafios e pontos numa sala de jogos 100% Technorizon',
       profileEyebrow: 'PERFIL DO JOGADOR', profileTitle: 'O teu nome', nickname: 'Introduz o teu nome', save: 'Guardar',
       points: 'pontos', streak: 'dias seguidos', games: 'partidas',
@@ -232,7 +232,7 @@
     nl: {
       title: 'Technorizon Games — Blind Test, Hit of Mythe en TechnoQuiz',
       description: 'Speel de Blind Test, Hit of Mythe en TechnoQuiz van Technorizon.fr.',
-      home: '← Terug naar home', info: 'ⓘ Info', heroTitle: 'Kies je spel.<br><span>Daag je vrienden uit</span>',
+      home: '← Terug naar Game Zone', info: 'ⓘ Info', heroTitle: 'Kies je spel.<br><span>Daag je vrienden uit</span>',
       heroText: 'Muziek, uitdagingen en punten in een 100% Technorizon-speelhal',
       profileEyebrow: 'SPELERS PROFIEL', profileTitle: 'Je bijnaam', nickname: 'Vul je bijnaam in', save: 'Opslaan',
       points: 'punten', streak: 'dagen op rij', games: 'spellen',
@@ -264,10 +264,10 @@
       blindPartyName: 'Blind Test Feest', intoxGameName: 'Hit of Mythe'
     },
     pl: {
-      title:'Gry Technorizon — Blind Test, Hit czy Mit i TechnoQuiz',description:'Zagraj w Blind Test, Hit czy Mit i TechnoQuiz na Technorizon.fr.',home:'← Powrót do strony głównej',info:'ⓘ Informacje',heroTitle:'Wybierz grę.<br><span>Rzuć wyzwanie znajomym</span>',heroText:'Muzyka, wyzwania i punkty w strefie gier Technorizon',profileEyebrow:'PROFIL GRACZA',profileTitle:'Twój pseudonim',nickname:'Wpisz pseudonim',save:'Zapisz',points:'punkty',streak:'dni z rzędu',games:'gry',blindTab:'<span>🎧</span> Blind Test',intoxTab:'<span>⚡</span> Hit czy Mit?',quizTab:'<span>🧠</span> TechnoQuiz',blindTitle:'Blind Test Technorizon',blindLead:'Posłuchaj fragmentu i odgadnij tytuł. Pięć utworów, cztery odpowiedzi, tylko jedna poprawna.',blindIntro:'Wybierz tryb. Fragmenty trwają do 15 sekund.',express:'<span>⚡</span><strong>Szybka gra</strong><small>5 fragmentów · szybka runda</small>',party:'<span>🎉</span><strong>Wieczór ze znajomymi</strong><small>25 fragmentów · grajcie na zmianę!</small>',trueFalse:'PRAWDA CZY FAŁSZ',intoxLead:'Pojawia się stwierdzenie muzyczne. Zdecyduj, czy to hit… czy mit.',intoxIntro:'Pięć stwierdzeń sprawdzających Twoją wiedzę muzyczną.',intoxStart:'Zagraj w Hit czy Mit',electro:'MUZYKA ELEKTRONICZNA',quizLead:'Artyści, utwory i klasyki: pięć pytań, by sprawdzić swoją wiedzę.',quizIntro:'Każda poprawna odpowiedź daje 75 punktów.',quizStart:'Uruchom TechnoQuiz',topPlayers:'NAJLEPSI GRACZE',rankingTitle:'Ranking online',rankingNote:'',footer:'© 2026 Technorizon.fr · Muzyka bez granic',emptyRanking:'Zajmij pierwsze miejsce w rankingu!',pt:'pkt',pts:'pkt',finished:'Koniec gry!',added:'Punkty dodano do profilu {name}.',replay:'Zagraj ponownie',preparing:'Przygotowywanie fragmentu…',clip:'FRAGMENT {number}',whatTitle:'Jaki to utwór?',listen:'▶ Odtwórz fragment',pause:'❚❚ Pauza',listenAgain:'▶ Odtwórz ponownie',audioError:'Nie można odtworzyć fragmentu. Naciśnij Dalej.',unavailable:'Fragment chwilowo niedostępny',replaced:'Ten utwór zostanie automatycznie zastąpiony.',tryAnother:'Spróbuj innego fragmentu',correctTrack:'Dobrze! {artist} — {title}',wasTrack:'To było {artist} — {title}',statement:'STWIERDZENIE {number}',hitTrue:'🎯 HIT — Prawda',intoxFalse:'🚨 MIT — Fałsz',wellDone:'Brawo!',missed:'Niestety!',exact:'Dokładnie: {artist} wykonuje „{title}”.',falseDetail:'Mit: „{title}” wykonuje {artist}.',trackBy:'„{title}” wykonuje {artist}.',whoPerforms:'Kto wykonuje „{title}”?',whichTitle:'Który utwór wykonuje {artist}?',question:'PYTANIE {number}',goodAnswer:'Dobra odpowiedź!',rightAnswer:'Poprawna odpowiedź to: {answer}',next:'Następne pytanie →',blindPartyName:'Blind Test Impreza',intoxGameName:'Hit czy Mit'
+      title:'Gry Technorizon — Blind Test, Hit czy Mit i TechnoQuiz',description:'Zagraj w Blind Test, Hit czy Mit i TechnoQuiz na Technorizon.fr.',home:'← Powrót do Game Zone',info:'ⓘ Informacje',heroTitle:'Wybierz grę.<br><span>Rzuć wyzwanie znajomym</span>',heroText:'Muzyka, wyzwania i punkty w strefie gier Technorizon',profileEyebrow:'PROFIL GRACZA',profileTitle:'Twój pseudonim',nickname:'Wpisz pseudonim',save:'Zapisz',points:'punkty',streak:'dni z rzędu',games:'gry',blindTab:'<span>🎧</span> Blind Test',intoxTab:'<span>⚡</span> Hit czy Mit?',quizTab:'<span>🧠</span> TechnoQuiz',blindTitle:'Blind Test Technorizon',blindLead:'Posłuchaj fragmentu i odgadnij tytuł. Pięć utworów, cztery odpowiedzi, tylko jedna poprawna.',blindIntro:'Wybierz tryb. Fragmenty trwają do 15 sekund.',express:'<span>⚡</span><strong>Szybka gra</strong><small>5 fragmentów · szybka runda</small>',party:'<span>🎉</span><strong>Wieczór ze znajomymi</strong><small>25 fragmentów · grajcie na zmianę!</small>',trueFalse:'PRAWDA CZY FAŁSZ',intoxLead:'Pojawia się stwierdzenie muzyczne. Zdecyduj, czy to hit… czy mit.',intoxIntro:'Pięć stwierdzeń sprawdzających Twoją wiedzę muzyczną.',intoxStart:'Zagraj w Hit czy Mit',electro:'MUZYKA ELEKTRONICZNA',quizLead:'Artyści, utwory i klasyki: pięć pytań, by sprawdzić swoją wiedzę.',quizIntro:'Każda poprawna odpowiedź daje 75 punktów.',quizStart:'Uruchom TechnoQuiz',topPlayers:'NAJLEPSI GRACZE',rankingTitle:'Ranking online',rankingNote:'',footer:'© 2026 Technorizon.fr · Muzyka bez granic',emptyRanking:'Zajmij pierwsze miejsce w rankingu!',pt:'pkt',pts:'pkt',finished:'Koniec gry!',added:'Punkty dodano do profilu {name}.',replay:'Zagraj ponownie',preparing:'Przygotowywanie fragmentu…',clip:'FRAGMENT {number}',whatTitle:'Jaki to utwór?',listen:'▶ Odtwórz fragment',pause:'❚❚ Pauza',listenAgain:'▶ Odtwórz ponownie',audioError:'Nie można odtworzyć fragmentu. Naciśnij Dalej.',unavailable:'Fragment chwilowo niedostępny',replaced:'Ten utwór zostanie automatycznie zastąpiony.',tryAnother:'Spróbuj innego fragmentu',correctTrack:'Dobrze! {artist} — {title}',wasTrack:'To było {artist} — {title}',statement:'STWIERDZENIE {number}',hitTrue:'🎯 HIT — Prawda',intoxFalse:'🚨 MIT — Fałsz',wellDone:'Brawo!',missed:'Niestety!',exact:'Dokładnie: {artist} wykonuje „{title}”.',falseDetail:'Mit: „{title}” wykonuje {artist}.',trackBy:'„{title}” wykonuje {artist}.',whoPerforms:'Kto wykonuje „{title}”?',whichTitle:'Który utwór wykonuje {artist}?',question:'PYTANIE {number}',goodAnswer:'Dobra odpowiedź!',rightAnswer:'Poprawna odpowiedź to: {answer}',next:'Następne pytanie →',blindPartyName:'Blind Test Impreza',intoxGameName:'Hit czy Mit'
     },
     ja: {
-      title:'Technorizonゲーム — Blind Test・Hit or Myth・TechnoQuiz',description:'Technorizon.frのBlind Test、Hit or Myth、TechnoQuizで遊ぼう。',home:'← ホームに戻る',info:'ⓘ 情報',heroTitle:'ゲームを選ぼう。<br><span>友だちに挑戦</span>',heroText:'音楽、チャレンジ、ポイントを楽しむTechnorizonゲームゾーン',profileEyebrow:'プレイヤープロフィール',profileTitle:'ニックネーム',nickname:'ニックネームを入力',save:'保存',points:'ポイント',streak:'連続日数',games:'ゲーム',blindTab:'<span>🎧</span> Blind Test',intoxTab:'<span>⚡</span> Hit or Myth?',quizTab:'<span>🧠</span> TechnoQuiz',blindTitle:'Technorizon Blind Test',blindLead:'音源を聴いて曲名を当てよう。5曲、4つの選択肢、正解は1つ。',blindIntro:'モードを選択。音源は最大15秒です。',express:'<span>⚡</span><strong>クイックゲーム</strong><small>5曲 · 短時間プレイ</small>',party:'<span>🎉</span><strong>友だちとパーティー</strong><small>25曲 · 交代でプレイ！</small>',trueFalse:'○か×か',intoxLead:'音楽に関する文章が表示されます。正しいか間違いかを当てよう。',intoxIntro:'5つの問題で音楽知識をチェック。',intoxStart:'Hit or Mythをプレイ',electro:'エレクトロニック音楽',quizLead:'アーティスト、曲、名曲について5問に挑戦。',quizIntro:'正解すると75ポイント。',quizStart:'TechnoQuizを開始',topPlayers:'トッププレイヤー',rankingTitle:'オンラインランキング',rankingNote:'',footer:'© 2026 Technorizon.fr · 国境のない音楽',emptyRanking:'ランキングの最初のプレイヤーになろう！',pt:'pt',pts:'pt',finished:'ゲーム終了！',added:'{name}のプロフィールにポイントを追加しました。',replay:'もう一度プレイ',preparing:'音源を準備中…',clip:'音源 {number}',whatTitle:'この曲は？',listen:'▶ 音源を聴く',pause:'❚❚ 一時停止',listenAgain:'▶ もう一度聴く',audioError:'この音源を再生できません。「次へ」を押してください。',unavailable:'音源は一時的に利用できません',replaced:'この曲は自動的に別の曲へ置き換えられます。',tryAnother:'別の音源を試す',correctTrack:'正解！ {artist} — {title}',wasTrack:'正解は {artist} — {title}',statement:'問題 {number}',hitTrue:'🎯 HIT — 正しい',intoxFalse:'🚨 MYTH — 間違い',wellDone:'正解！',missed:'残念！',exact:'正解：{artist} の「{title}」。',falseDetail:'間違い：「{title}」は {artist} の曲です。',trackBy:'「{title}」は {artist} の曲です。',whoPerforms:'「{title}」を歌っているのは？',whichTitle:'{artist} の曲はどれ？',question:'問題 {number}',goodAnswer:'正解！',rightAnswer:'正解は：{answer}',next:'次の問題 →',blindPartyName:'Blind Test パーティー',intoxGameName:'Hit or Myth'
+      title:'Technorizonゲーム — Blind Test・Hit or Myth・TechnoQuiz',description:'Technorizon.frのBlind Test、Hit or Myth、TechnoQuizで遊ぼう。',home:'← Game Zoneに戻る',info:'ⓘ 情報',heroTitle:'ゲームを選ぼう。<br><span>友だちに挑戦</span>',heroText:'音楽、チャレンジ、ポイントを楽しむTechnorizonゲームゾーン',profileEyebrow:'プレイヤープロフィール',profileTitle:'ニックネーム',nickname:'ニックネームを入力',save:'保存',points:'ポイント',streak:'連続日数',games:'ゲーム',blindTab:'<span>🎧</span> Blind Test',intoxTab:'<span>⚡</span> Hit or Myth?',quizTab:'<span>🧠</span> TechnoQuiz',blindTitle:'Technorizon Blind Test',blindLead:'音源を聴いて曲名を当てよう。5曲、4つの選択肢、正解は1つ。',blindIntro:'モードを選択。音源は最大15秒です。',express:'<span>⚡</span><strong>クイックゲーム</strong><small>5曲 · 短時間プレイ</small>',party:'<span>🎉</span><strong>友だちとパーティー</strong><small>25曲 · 交代でプレイ！</small>',trueFalse:'○か×か',intoxLead:'音楽に関する文章が表示されます。正しいか間違いかを当てよう。',intoxIntro:'5つの問題で音楽知識をチェック。',intoxStart:'Hit or Mythをプレイ',electro:'エレクトロニック音楽',quizLead:'アーティスト、曲、名曲について5問に挑戦。',quizIntro:'正解すると75ポイント。',quizStart:'TechnoQuizを開始',topPlayers:'トッププレイヤー',rankingTitle:'オンラインランキング',rankingNote:'',footer:'© 2026 Technorizon.fr · 国境のない音楽',emptyRanking:'ランキングの最初のプレイヤーになろう！',pt:'pt',pts:'pt',finished:'ゲーム終了！',added:'{name}のプロフィールにポイントを追加しました。',replay:'もう一度プレイ',preparing:'音源を準備中…',clip:'音源 {number}',whatTitle:'この曲は？',listen:'▶ 音源を聴く',pause:'❚❚ 一時停止',listenAgain:'▶ もう一度聴く',audioError:'この音源を再生できません。「次へ」を押してください。',unavailable:'音源は一時的に利用できません',replaced:'この曲は自動的に別の曲へ置き換えられます。',tryAnother:'別の音源を試す',correctTrack:'正解！ {artist} — {title}',wasTrack:'正解は {artist} — {title}',statement:'問題 {number}',hitTrue:'🎯 HIT — 正しい',intoxFalse:'🚨 MYTH — 間違い',wellDone:'正解！',missed:'残念！',exact:'正解：{artist} の「{title}」。',falseDetail:'間違い：「{title}」は {artist} の曲です。',trackBy:'「{title}」は {artist} の曲です。',whoPerforms:'「{title}」を歌っているのは？',whichTitle:'{artist} の曲はどれ？',question:'問題 {number}',goodAnswer:'正解！',rightAnswer:'正解は：{answer}',next:'次の問題 →',blindPartyName:'Blind Test パーティー',intoxGameName:'Hit or Myth'
     }
   };
   const JAYA_HOST = {
