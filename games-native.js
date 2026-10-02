@@ -99,6 +99,10 @@
     layer.style.zIndex = '900';
     layer.setAttribute('aria-label', config.page === 'games' ? 'Jeux Technorizon' : 'Contenu Technorizon');
     layer.innerHTML = '<div class="tz-games-host"><p style="padding:70px 20px;text-align:center;color:#aebdcb;font-family:Arial,sans-serif">Chargement…</p></div>';
+    if (['gamezone','games','arcade'].includes(config.page)) {
+      layer.style.background = "linear-gradient(180deg,rgba(2,3,13,.10),rgba(2,3,13,.72) 48%,rgba(2,3,13,.94)),url('/Fond-Technorizon-V2.png.png') center top/cover no-repeat";
+      layer.style.backgroundColor = '#020812';
+    }
     document.body.appendChild(layer);
     document.body.style.overflow = 'hidden';
     const jayaFab = document.querySelector('.jaya-fab');
