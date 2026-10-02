@@ -136,6 +136,8 @@
       host.innerHTML = parsed.body.innerHTML;
 
       host.querySelectorAll('.games-home,.back,#back,a[href="/"],a[href="index.html"]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === '/jeux.html' || href === 'jeux.html') return;
         link.addEventListener('click', closePage, { capture: true });
       });
 
