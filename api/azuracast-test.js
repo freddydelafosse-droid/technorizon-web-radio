@@ -694,8 +694,11 @@ async function handler(req,res){
    const existing=await az(base,key,"/queue");
    if(!existing.ok)throw new Error("Queue check failed: "+existing.status);
    if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return already(res,"flash-already-queued");
-   const q=await queueVerified(base,key,path,true);
-   if(!q.ok)return res.status(502).json({ok:false,error:"Flash replay queue not confirmed",stage:"queue-verify",file:path,queue_verified:false,reason:q.reason||null});
+   // Le PUT /files/batch est l'accusé de réception AzuraCast. /queue est seulement
+   // une vue transitoire : AutoDJ peut précharger le média et le retirer immédiatement.
+   // Le verrou persistant est écrit dès l'acceptation pour empêcher tout doublon.
+   const q=await queueVerified(base,key,path,false);
+   if(!q.ok)return res.status(502).json({ok:false,error:"Flash replay queue rejected",stage:"queue",file:path,queue_verified:false,reason:q.reason||null});
    await persistJayaMemory("Flash replay queued","flash_replay",replaySlot);
    console.log("JAYA_FLASH_REPLAY_QUEUED",path,"index",q.index);
    return res.status(200).json({ok:true,state:"QUEUED",action:"flash-replay",file:path,tts_generated:false,queued:true,priority:true,queue_verified:true,queue_index:q.index,period});
@@ -944,13 +947,12 @@ async function handler(req,res){
   }
   // Les rendez-vous éditoriaux fixes passent en priorité devant la musique déjà en attente.
   // AzuraCast reçoit d'abord la mise en file, puis la priorité est demandée pour la météo.
-  const qv=await queueVerified(base,key,path,isEditorial);
-  if(!qv.ok){
-    if(isEditorial)return res.status(502).json({ok:false,error:"Queue insertion not verified",stage:"queue-verify",file:path,reason:qv.reason||"unknown"});
-    // H24 : AzuraCast peut accepter le PUT puis précharger immédiatement le titre,
-    // ce qui le fait disparaître de la file visible. Ne pas transformer ce cas en 502.
-    console.warn("JAYA_H24_QUEUE_ACCEPTED_NOT_VISIBLE",path,qv.reason||"unknown");
-   }
+  // /files/batch est l'autorité d'acceptation. La vue /queue n'est pas une preuve
+  // durable car AutoDJ précharge les titres prioritaires. Le verrou Supabase ci-dessous
+  // devient la preuve persistante de placement et bloque les watchdogs concurrents.
+  const qv=await queueVerified(base,key,path,false);
+  if(!qv.ok)return res.status(502).json({ok:false,error:"Queue insertion rejected",stage:"queue",file:path,reason:qv.reason||"unknown"});
+  if(qv.verified===false)console.warn("JAYA_QUEUE_ACCEPTED_PRELOADED",path);
   if(!isEditorial){rememberJaya(text);await persistJayaMemory(text,"h24",String(slot))}
   else await persistJayaMemory(text,"news_weather",editorialDay+"-"+editorialPeriod);
   console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,state:"QUEUED",action:"queued",queued:true,queue_verified:qv.ok&&qv.verified!==false,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
