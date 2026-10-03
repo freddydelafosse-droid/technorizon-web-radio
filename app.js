@@ -280,7 +280,7 @@ if (v2Artist) {
     }
 
     await updateNowPlaying();
-    setInterval(updateNowPlaying, 10000);
+    setInterval(updateNowPlaying, 30000);
 })();
 
 /* ===== DÉDICACES - ENVOI SANS COUPER LA RADIO ===== */
@@ -640,7 +640,7 @@ setInterval(loadDedicaces, 60000);
   }
 
   await updateNowPlaying();
-  setInterval(updateNowPlaying, 10000);
+  setInterval(updateNowPlaying, 30000);
 })();
 
 /* ===== TECHNOBOT - OUVERTURE / FERMETURE ===== */
