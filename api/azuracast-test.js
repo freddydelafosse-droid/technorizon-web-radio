@@ -655,7 +655,15 @@ async function handler(req,res){
    const rows=queueRows(await existing.json());
    if(rows.some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return already(res,"flash-already-queued",{file:path});
    const q=await queueVerified(base,key,path,true);
-   if(!q.ok)return res.status(502).json({ok:false,error:"Emergency flash queue not confirmed",stage:"queue-verify",file:path,queue_verified:false,reason:q.reason||null});
+   if(!q.ok){
+    // AzuraCast peut accepter/précharger un média prioritaire puis le retirer de /queue
+    // avant que la lecture de contrôle ne le voie. En urgence, vérifier aussi l'historique
+    // avant de renvoyer 502 afin d'éviter une réinjection aveugle.
+    try{
+     if(await alreadyBroadcast(base,key,"jaya-flash-",minute-30,minute+10))return already(res,"flash-already-broadcast",{file:path});
+    }catch(e){console.error("JAYA_EMERGENCY_HISTORY_CHECK",e?.message||e)}
+    return res.status(502).json({ok:false,error:"Emergency flash queue not confirmed",stage:"queue-verify",file:path,queue_verified:false,reason:q.reason||null});
+   }
    return res.status(200).json({ok:true,state:"QUEUED",action:"flash-emergency",file:path,queued:true,priority:true,queue_verified:true,queue_index:q.index});
   }
   if(flashReplay){
