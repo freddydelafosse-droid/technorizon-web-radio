@@ -165,9 +165,41 @@ jobs:
             elif [ "$EVENT_SCHEDULE" = "*/5 * * * *" ]; then
               WATCH_H=$((10#$PARIS_HOUR))
               WATCH_M=$((10#$PARIS_MINUTE))
-              if [ "$WATCH_H" -eq 7 ] && [ "$WATCH_M" -ge 13 ] && [ "$WATCH_M" -le 28 ]; then
+
+              # Préparer les rendez-vous AVANT l'heure annoncée. Les verrous
+              # éditoriaux côté API rendent ces fenêtres répétables sans doublon.
+              # Infos + Météo à :00 : préparation dans les 15 minutes précédentes,
+              # puis rattrapage court après l'heure si GitHub a pris du retard.
+              if [ "$WATCH_H" -eq 6 ] && [ "$WATCH_M" -ge 45 ]; then
+                AUTO_WEATHER=true
+              elif [ "$WATCH_H" -eq 7 ] && [ "$WATCH_M" -le 15 ]; then
+                AUTO_WEATHER=true
+              elif [ "$WATCH_H" -eq 8 ] && [ "$WATCH_M" -ge 45 ]; then
+                AUTO_FLASH_REPLAY="07"
+              elif [ "$WATCH_H" -eq 9 ] && [ "$WATCH_M" -le 15 ]; then
+                AUTO_FLASH_REPLAY="07"
+              elif [ "$WATCH_H" -eq 10 ] && [ "$WATCH_M" -ge 45 ]; then
+                AUTO_WEATHER=true
+              elif [ "$WATCH_H" -eq 11 ] && [ "$WATCH_M" -le 15 ]; then
+                AUTO_WEATHER=true
+
+              # Infos + Météo à :30 : préparation dès :15, rattrapage jusqu'à :45.
+              elif [ "$WATCH_H" -eq 12 ] && [ "$WATCH_M" -ge 15 ] && [ "$WATCH_M" -le 45 ]; then
+                AUTO_FLASH_REPLAY="11"
+              elif [ "$WATCH_H" -eq 13 ] && [ "$WATCH_M" -ge 15 ] && [ "$WATCH_M" -le 45 ]; then
+                AUTO_WEATHER=true
+              elif [ "$WATCH_H" -eq 15 ] && [ "$WATCH_M" -ge 15 ] && [ "$WATCH_M" -le 45 ]; then
+                AUTO_FLASH_REPLAY="13"
+              elif [ "$WATCH_H" -eq 17 ] && [ "$WATCH_M" -ge 15 ] && [ "$WATCH_M" -le 45 ]; then
+                AUTO_WEATHER=true
+              elif [ "$WATCH_H" -eq 18 ] && [ "$WATCH_M" -ge 15 ] && [ "$WATCH_M" -le 45 ]; then
+                AUTO_FLASH_REPLAY="17"
+
+              # Technoroscope : l'édition 07h15 reste générée autour du rendez-vous.
+              # Le replay 08h15 est préparé dès 07h55 pour absorber un retard GitHub.
+              elif [ "$WATCH_H" -eq 7 ] && [ "$WATCH_M" -ge 13 ] && [ "$WATCH_M" -le 28 ]; then
                 AUTO_HOROSCOPE="generate"
-              elif [ "$WATCH_H" -eq 8 ] && [ "$WATCH_M" -ge 5 ] && [ "$WATCH_M" -le 28 ]; then
+              elif { [ "$WATCH_H" -eq 7 ] && [ "$WATCH_M" -ge 55 ]; } || { [ "$WATCH_H" -eq 8 ] && [ "$WATCH_M" -le 28 ]; }; then
                 AUTO_HOROSCOPE="replay"
               fi
             fi
