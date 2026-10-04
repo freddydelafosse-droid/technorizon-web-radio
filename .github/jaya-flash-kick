@@ -1,1 +1,1 @@
-prepare flash 11h00 2026-10-04 — scheduler stalled; inspect queue/history/lock before insert
+inspect flash 11h00 2026-10-04 after queue confirmation failure — read only
