@@ -715,19 +715,31 @@ async function handler(req,res){
     console.log("JAYA_HOROSCOPE_REPLAY_HISTORY_LOCK",path);
     return already(res,"horoscope-replay-already-broadcast");
    }
-   // Meme verrou pour le Technoroscope : pas de seconde copie tant que le
-   // passage de 07h15 n'est pas confirme par l'historique.
-   if(!await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+10,8*60+14)){
-    console.warn("JAYA_HOROSCOPE_REPLAY_SOURCE_NOT_BROADCAST",path);
-    return skip(res,"source-horoscope-not-yet-broadcast",{file:path});
-   }
+   // Le passage de 07h15 peut disparaître de /queue avant que /history ne soit
+   // immédiatement à jour. Ne pas bloquer le rendez-vous public de 08h15 sur ce
+   // seul signal transitoire : le fichier quotidien + les verrous replay/history
+   // ci-dessus empêchent déjà la création d'une seconde édition ou d'un doublon.
+   const sourceSeen=await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+10,8*60+14);
+   if(!sourceSeen)console.warn("JAYA_HOROSCOPE_REPLAY_SOURCE_HISTORY_PENDING",path);
+
    const existing=await az(base,key,"/queue");
    if(!existing.ok)throw new Error("Queue check failed: "+existing.status);
    if(queueRows(await existing.json()).some(x=>JSON.stringify(x).toLowerCase().includes(path.toLowerCase())))return already(res,"horoscope-already-queued");
-   const q=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],priority:true})});
-   if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_HOROSCOPE_REPLAY",q.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Horoscope replay queue failed",stage:"queue"})}
+
+   // Mise en file prioritaire + vérification. AzuraCast peut précharger le média
+   // et le retirer très vite de /queue : si le PUT est accepté mais invisible,
+   // conserver le verrou persistant pour empêcher les tentatives concurrentes.
+   const q=await queueVerified(base,key,path,true);
+   if(!q.ok){
+    // Dernier contrôle antenne avant de déclarer un échec.
+    if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,7*60+50,9*60+5)){
+     await persistJayaMemory("Technoroscope replay already broadcast","horoscope_replay",day+"-08:15");
+     return already(res,"horoscope-replay-already-broadcast",{file:path});
+    }
+    return res.status(502).json({ok:false,error:"Horoscope replay queue not confirmed",stage:"queue-verify",file:path,queue_verified:false,reason:q.reason||null});
+   }
    await persistJayaMemory("Technoroscope replay queued","horoscope_replay",day+"-08:15");
-   return res.status(200).json({ok:true,state:"QUEUED",action:"horoscope-replay",file:path,tts_generated:false,queued:true});
+   return res.status(200).json({ok:true,state:"QUEUED",action:"horoscope-replay",file:path,tts_generated:false,queued:true,queue_verified:true,queue_index:q.index,source_history_confirmed:sourceSeen});
   }
   const now=new Date();
   if(horoscopeGenerate){
