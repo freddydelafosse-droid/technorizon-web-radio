@@ -128,8 +128,18 @@ jobs:
                 esac
               fi
 
-              # Rendez-vous de :30 : le watchdog unique prépare dès :25.
-              # Le verrou persistant API empêche un second tick de remettre le même flash.
+              # Rattrapage des rendez-vous :00 si les ticks :50/:55 ont ete
+              # retardes au-dela du changement d'heure. L'API verifie file,
+              # historique et verrou persistant avant toute nouvelle insertion.
+              if { [ "$WATCH_EDITORIAL_H" -eq 7 ] || [ "$WATCH_EDITORIAL_H" -eq 9 ] || [ "$WATCH_EDITORIAL_H" -eq 11 ]; } && [ "$WATCH_EDITORIAL_M" -ge 0 ] && [ "$WATCH_EDITORIAL_M" -le 15 ]; then
+                case "$WATCH_EDITORIAL_H" in
+                  7|11) AUTO_WEATHER=true ;;
+                  9) AUTO_FLASH_REPLAY="07" ;;
+                esac
+              fi
+
+              # Rendez-vous de :30 : preparation des :25, puis fenetre de
+              # rattrapage jusqu'a :45. Le verrou persistant API empeche un doublon.
               if { [ "$WATCH_EDITORIAL_H" -eq 12 ] || [ "$WATCH_EDITORIAL_H" -eq 13 ] || [ "$WATCH_EDITORIAL_H" -eq 15 ] || [ "$WATCH_EDITORIAL_H" -eq 17 ] || [ "$WATCH_EDITORIAL_H" -eq 18 ]; } && [ "$WATCH_EDITORIAL_M" -ge 25 ] && [ "$WATCH_EDITORIAL_M" -le 45 ]; then
                 case "$WATCH_EDITORIAL_H" in
                   12) AUTO_FLASH_REPLAY="11" ;;
