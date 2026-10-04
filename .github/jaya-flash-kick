@@ -1,1 +1,1 @@
-urgent flash 09h00 2026-10-04 — inject and verify queue
+retry flash 09h00 2026-10-04 after API syntax fix — anti-duplicate queue/history/lock
