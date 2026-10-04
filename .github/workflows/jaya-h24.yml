@@ -203,9 +203,10 @@ jobs:
                 elif [ "$H" -ge 13 ] && [ "$H" -lt 17 ] && [ "$M" -eq 13 ]; then ALLOW_H24=true
                 elif [ "$H" -ge 17 ] && [ "$H" -lt 23 ]; then ALLOW_H24=true
                 fi
-              # Dimanche
+              # Dimanche : presence renforcee Jaya H24, 3 passages/heure.
+              # Les exclusions editoriales appliquees plus bas restent prioritaires.
               elif [ "$PARIS_DOW" -eq 7 ]; then
-                if [ "$H" -ge 9 ] && [ "$H" -lt 21 ] && [ "$M" -eq 13 ]; then ALLOW_H24=true; fi
+                if [ "$H" -ge 9 ] && [ "$H" -lt 21 ] && { [ "$M" -eq 13 ] || [ "$M" -eq 33 ] || [ "$M" -eq 53 ]; }; then ALLOW_H24=true; fi
               fi
             fi
 
