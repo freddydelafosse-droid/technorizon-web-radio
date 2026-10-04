@@ -1,1 +1,1 @@
-inspect flash 11h00 2026-10-04 after queue confirmation failure — read only
+recover 12h30 replay 2026-10-04 from existing 11h file — one queue attempt, anti-duplicate checks
