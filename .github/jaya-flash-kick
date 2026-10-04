@@ -1,1 +1,1 @@
-retry flash 09h00 2026-10-04 after API syntax fix — anti-duplicate queue/history/lock
+recover flash 09h00 2026-10-04 after syntax repair — inspect queue/history/lock before insert
