@@ -1,1 +1,1 @@
-recover 12h30 replay 2026-10-04 from existing 11h file — one queue attempt, anti-duplicate checks
+inspect 12h30 replay after queue failure — read only
