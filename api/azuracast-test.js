@@ -671,10 +671,10 @@ async function handler(req,res){
    // manqué même après sa fenêtre normale. Le period est imposé par le workflow
    // et les contrôles file + historique ci-dessous empêchent le doublon.
    // On refuse seulement une période manifestement future pour la journée.
-   const emergencyLatest={"07":9*60,"11":12*60+30,"13":15*60+30,"17":18*60+30};
+   const emergencyEarliest={"07":6*60+45,"11":10*60+45,"13":13*60+15,"17":17*60+15};
    const period=String(req.body?.period||"").trim();
    if(!["07","11","13","17"].includes(period))return res.status(400).json({ok:false,error:"Invalid emergency flash period"});
-   if(minute<emergencyLatest[period]-15)return skip(res,"future-emergency-period",{minute,period});
+   if(minute<emergencyEarliest[period])return skip(res,"future-emergency-period",{minute,period});
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Meteo/jaya-flash-"+day+"-"+period+".mp3";
    const existing=await az(base,key,"/queue");
