@@ -227,7 +227,11 @@ async function queueVerified(base,key,path,priority=false){
  // retire de /queue avant nos contrôles. Le PUT /files/batch 2xx reste
  // l'accusé de réception autoritaire, y compris pour un rendez-vous prioritaire.
  // Les verrous file/historique/Supabase en amont empêchent les doublons.
- console.warn("JAYA_QUEUE_ACCEPTED_NOT_VISIBLE",path,priority?"priority":"normal");
+ if(priority){
+  console.error("JAYA_PRIORITY_QUEUE_NOT_CONFIRMED",path);
+  return {ok:false,index:null,verified:false,reason:"priority-not-confirmed"};
+ }
+ console.warn("JAYA_QUEUE_ACCEPTED_NOT_VISIBLE",path,"normal");
  return {ok:true,index:null,verified:false,reason:"accepted-not-visible"};
 }
 
