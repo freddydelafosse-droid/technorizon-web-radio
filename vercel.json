@@ -79,5 +79,11 @@
       "source": "/sports",
       "destination": "/sports.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/jaya-clock",
+      "schedule": "2-59/5 * * * *"
+    }
   ]
 }
