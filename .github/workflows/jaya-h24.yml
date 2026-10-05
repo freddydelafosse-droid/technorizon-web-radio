@@ -342,6 +342,36 @@ jobs:
           cat "$RESPONSE_FILE"
           echo
 
+          # Watchdog réseau des rendez-vous éditoriaux : un 5xx/timeout transitoire
+          # ne doit plus faire disparaître un flash. On retente la MEME action après
+          # contrôle implicite côté API (file/historique/verrou persistant), ce qui
+          # évite de fabriquer un doublon si la première requête avait abouti tardivement.
+          if [ -n "$ACTION" ] && { [ -n "${CURL_EXIT:-}" ] || [ "${HTTP_CODE:-000}" -ge 500 ]; }; then
+            case "$ACTION" in
+              weather-now|news-now|flash-replay|flash-emergency|horoscope-generate|horoscope-replay)
+                echo "::warning::Incident transitoire Jaya HTTP ${HTTP_CODE:-000}; vérification/rattrapage automatique."
+                RETRY=1
+                while [ "$RETRY" -le 3 ]; do
+                  sleep $((RETRY * 8))
+                  : > "$RESPONSE_FILE"
+                  unset CURL_EXIT
+                  HTTP_CODE=$(curl --silent --show-error --connect-timeout 10 --max-time 55 \
+                    -o "$RESPONSE_FILE" -w "%{http_code}" \
+                    -X POST \
+                    -H "Authorization: Bearer $CRON_SECRET" \
+                    -H "Content-Type: application/json" \
+                    -H "X-Jaya-Manual-Override: $(if [ "$EVENT_NAME" = "push" ] && [ "$FLASH_KICK" = "true" ]; then printf '%s' "$CRON_SECRET"; fi)" \
+                    --data "$(if [ "$ACTION" = "flash-replay" ] || [ "$ACTION" = "flash-emergency" ]; then printf '{\"action\":\"%s\",\"period\":\"%s\"}' "$ACTION" "$AUTO_FLASH_REPLAY"; else printf '{\"action\":\"%s\"}' "$ACTION"; fi)" \
+                    "https://www.technorizon.fr/api/azuracast-test") || CURL_EXIT=$?
+                  echo "Jaya watchdog tentative $RETRY HTTP: ${HTTP_CODE:-000}"
+                  cat "$RESPONSE_FILE"; echo
+                  if [ -z "${CURL_EXIT:-}" ] && [ "${HTTP_CODE:-000}" -lt 500 ]; then break; fi
+                  RETRY=$((RETRY + 1))
+                done
+                ;;
+            esac
+          fi
+
           # Contrat API unique : un passage H24 prévu ne doit plus finir silencieusement
           # en BLOCKED. Les doublons légitimes restent acceptés via ALREADY_QUEUED/PLAYED.
           if [ -z "$ACTION" ] && grep -q '"state":"BLOCKED"' "$RESPONSE_FILE"; then
