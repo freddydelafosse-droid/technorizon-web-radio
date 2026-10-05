@@ -15,6 +15,10 @@ on:
     # les fenêtres et les verrous anti-doublon. Si un cron GitHub est retardé,
     # le watchdog */5 prend le relais ; si les deux arrivent, un seul passage est accepté.
     - cron: '25 * * * *'
+    # Filet de sécurité dédié aux rediffusions :30. Le watchdog API/file/historique
+    # empêche le doublon si le passage normal a déjà été placé ou diffusé.
+    - cron: '35 10,13,16 * * *'
+    - cron: '35 16 * * *'
     - cron: '50 * * * *'
     # Technoroscope : génération rapprochée avant 07h15.
     - cron: '5 4,5,6,7 * * *'
@@ -95,6 +99,14 @@ jobs:
                 6) AUTO_WEATHER=true ;;
                 8) AUTO_FLASH_REPLAY="07" ;;
                 10) AUTO_WEATHER=true ;;
+              esac
+            elif [ "$EVENT_SCHEDULE" = "35 10,13,16 * * *" ] || [ "$EVENT_SCHEDULE" = "35 16 * * *" ]; then
+              # UTC -> Europe/Paris varie avec l'heure d'été. On décide donc sur l'heure
+              # locale réelle et uniquement dans la fenêtre de rattrapage :30.
+              case "$H" in
+                12) AUTO_FLASH_REPLAY="11" ;;
+                15) AUTO_FLASH_REPLAY="13" ;;
+                18) AUTO_FLASH_REPLAY="17" ;;
               esac
             elif [ "$EVENT_SCHEDULE" = "25 * * * *" ]; then
               SCHEDULED_H=$H
