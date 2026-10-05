@@ -373,7 +373,7 @@ jobs:
               exit 1
             fi
           elif [ "$ACTION" = "horoscope-replay" ]; then
-            if ! grep -Eq '"action":"horoscope-replay"|"reason":"horoscope-second-slot-already-broadcast"|"reason":"horoscope-already-queued"' "$RESPONSE_FILE"; then
+            if ! grep -Eq '"action":"horoscope-replay"|"reason":"horoscope-second-slot-already-broadcast"|"reason":"horoscope-replay-already-broadcast"|"reason":"horoscope-already-queued"' "$RESPONSE_FILE"; then
               echo "::error::Rediffusion Technoroscope non confirmée."
               exit 1
             fi
