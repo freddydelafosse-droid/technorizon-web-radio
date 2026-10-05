@@ -9,10 +9,13 @@ on:
       - '.github/jaya-flash-kick'
       - '.github/jaya-h24-kick'
   schedule:
-    # Horloge H24 + watchdog éditorial unique. Les anciens crons :50/:25 ont été
-    # supprimés : GitHub peut les démarrer très en retard et leur EVENT_SCHEDULE
-    # devient alors trompeur. Le tick */5 décide avec l'heure réelle Europe/Paris.
+    # Horloge H24 + watchdog éditorial toutes les 5 minutes.
     - cron: '2-59/5 * * * *'
+    # Déclencheurs éditoriaux redondants. Ils sont volontaires : l'API centralise
+    # les fenêtres et les verrous anti-doublon. Si un cron GitHub est retardé,
+    # le watchdog */5 prend le relais ; si les deux arrivent, un seul passage est accepté.
+    - cron: '25 * * * *'
+    - cron: '50 * * * *'
     # Technoroscope : génération rapprochée avant 07h15.
     - cron: '5 4,5,6,7 * * *'
     # Technoroscope : la rediffusion de 08h15 est gérée séparément de la grille Infos + Météo.
