@@ -647,11 +647,14 @@ async function handler(req,res){
   if(!el&&!flashReplay&&!horoscopeReplay)return res.status(500).json({ok:false,error:"TTS configuration missing"});
   if(flashEmergency){
    if(req.headers["x-jaya-manual-override"]!==secret)return res.status(403).json({ok:false,error:"Emergency override required"});
-   // Double verrou : même avec override, aucune urgence Infos+Météo hors voisinage des 8 rendez-vous officiels.
-   const emergencyWindows=[[6*60+45,7*60+20],[8*60+45,9*60+20],[10*60+45,11*60+20],[12*60+15,12*60+50],[13*60+15,13*60+50],[15*60+15,15*60+50],[17*60+15,17*60+50],[18*60+15,18*60+50]];
-   if(!emergencyWindows.some(([start,end])=>minute>=start&&minute<=end))return skip(res,"outside-official-news-weather-slot",{minute});
+   // Mode urgence authentifié : autoriser le rattrapage du dernier rendez-vous
+   // manqué même après sa fenêtre normale. Le period est imposé par le workflow
+   // et les contrôles file + historique ci-dessous empêchent le doublon.
+   // On refuse seulement une période manifestement future pour la journée.
+   const emergencyLatest={"07":9*60,"11":12*60+30,"13":15*60+30,"17":18*60+30};
    const period=String(req.body?.period||"").trim();
    if(!["07","11","13","17"].includes(period))return res.status(400).json({ok:false,error:"Invalid emergency flash period"});
+   if(minute<emergencyLatest[period]-15)return skip(res,"future-emergency-period",{minute,period});
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Meteo/jaya-flash-"+day+"-"+period+".mp3";
    const existing=await az(base,key,"/queue");
