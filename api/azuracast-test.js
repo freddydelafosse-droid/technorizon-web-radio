@@ -210,7 +210,7 @@ async function recentH24Generation(base,key,currentSlot){
  return {blocked:delta!==null&&delta>=0&&delta<=1,reason:"recent-h24-file",slot:newest,delta};
 }
 async function queueVerified(base,key,path,priority=false){
- const queueOnce=()=>az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"queue",files:[path],dirs:[],...(priority?{priority:true}:{})})});
+ const queueOnce=()=>az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:priority?"immediate":"queue",files:[path],dirs:[]})});
  const q=await queueOnce();
  if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_QUEUE",q.status,detail.slice(0,500));return {ok:false,status:q.status,reason:"queue-http"};}
  for(let attempt=1;attempt<=6;attempt++){
@@ -969,7 +969,7 @@ async function handler(req,res){
   // /files/batch est l'autorité d'acceptation. La vue /queue n'est pas une preuve
   // durable car AutoDJ précharge les titres prioritaires. Le verrou Supabase ci-dessous
   // devient la preuve persistante de placement et bloque les watchdogs concurrents.
-  const qv=await queueVerified(base,key,path,false);
+  const qv=await queueVerified(base,key,path,isEditorial);
   if(!qv.ok)return res.status(502).json({ok:false,error:"Queue insertion rejected",stage:"queue",file:path,reason:qv.reason||"unknown"});
   if(qv.verified===false)console.warn("JAYA_QUEUE_ACCEPTED_PRELOADED",path);
   if(!isEditorial){rememberJaya(text);await persistJayaMemory(text,"h24",String(slot))}
