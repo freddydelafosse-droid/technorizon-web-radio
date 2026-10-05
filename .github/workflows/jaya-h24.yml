@@ -282,7 +282,7 @@ jobs:
             # En particulier 08h00 n'est PAS un créneau Infos + Météo.
             if [ "$EMERGENCY_TOTAL" -ge 405 ] && [ "$EMERGENCY_TOTAL" -le 440 ]; then AUTO_FLASH_REPLAY="07"
             elif [ "$EMERGENCY_TOTAL" -ge 525 ] && [ "$EMERGENCY_TOTAL" -le 575 ]; then AUTO_FLASH_REPLAY="07"
-            elif [ "$EMERGENCY_TOTAL" -ge 645 ] && [ "$EMERGENCY_TOTAL" -le 680 ]; then AUTO_FLASH_REPLAY="11"
+            elif [ "$EMERGENCY_TOTAL" -ge 645 ] && [ "$EMERGENCY_TOTAL" -le 695 ]; then AUTO_FLASH_REPLAY="11"
             elif [ "$EMERGENCY_TOTAL" -ge 735 ] && [ "$EMERGENCY_TOTAL" -le 770 ]; then AUTO_FLASH_REPLAY="11"
             elif [ "$EMERGENCY_TOTAL" -ge 795 ] && [ "$EMERGENCY_TOTAL" -le 830 ]; then AUTO_FLASH_REPLAY="13"
             elif [ "$EMERGENCY_TOTAL" -ge 915 ] && [ "$EMERGENCY_TOTAL" -le 950 ]; then AUTO_FLASH_REPLAY="13"
