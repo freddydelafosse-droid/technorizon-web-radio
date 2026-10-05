@@ -12,7 +12,7 @@ on:
     # Horloge H24 + watchdog éditorial unique. Les anciens crons :50/:25 ont été
     # supprimés : GitHub peut les démarrer très en retard et leur EVENT_SCHEDULE
     # devient alors trompeur. Le tick */5 décide avec l'heure réelle Europe/Paris.
-    - cron: '*/5 * * * *'
+    - cron: '2-59/5 * * * *'
     # Technoroscope : génération rapprochée avant 07h15.
     - cron: '5 4,5,6,7 * * *'
     # Technoroscope : la rediffusion de 08h15 est gérée séparément de la grille Infos + Météo.
@@ -109,7 +109,7 @@ jobs:
             # Watchdog éditorial sur l'horloge */5 : ce tick arrive souvent alors
             # que le cron dédié est fortement retardé. S'il démarre entre :50 et
             # :54, il réserve le runner puis attend :55 avant toute insertion.
-            if [ "$EVENT_SCHEDULE" = "*/5 * * * *" ]; then
+            if [ "$EVENT_SCHEDULE" = "2-59/5 * * * *" ]; then
               WATCH_EDITORIAL_H=$H
               WATCH_EDITORIAL_M=$ACTUAL_M
               if { [ "$WATCH_EDITORIAL_H" -eq 6 ] || [ "$WATCH_EDITORIAL_H" -eq 8 ] || [ "$WATCH_EDITORIAL_H" -eq 10 ]; } && [ "$WATCH_EDITORIAL_M" -ge 50 ]; then
@@ -162,7 +162,7 @@ jobs:
               if [ "$TARGET_M" -lt 5 ]; then TARGET_H=$(( (TARGET_H + 23) % 24 )); fi
               if [ "$TARGET_H" -eq 7 ]; then AUTO_HOROSCOPE="generate"; fi
               if [ "$TARGET_H" -eq 8 ]; then AUTO_HOROSCOPE="replay"; fi
-            elif [ "$EVENT_SCHEDULE" = "*/5 * * * *" ]; then
+            elif [ "$EVENT_SCHEDULE" = "2-59/5 * * * *" ]; then
               WATCH_H=$((10#$PARIS_HOUR))
               WATCH_M=$((10#$PARIS_MINUTE))
 
@@ -216,7 +216,7 @@ jobs:
             fi
 
             # :25 et :55 restent réservés aux rendez-vous éditoriaux.
-            if [ "$EVENT_SCHEDULE" = "*/5 * * * *" ] && [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
+            if [ "$EVENT_SCHEDULE" = "2-59/5 * * * *" ] && [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
 
               # Lundi-vendredi
               if [ "$PARIS_DOW" -ge 1 ] && [ "$PARIS_DOW" -le 5 ]; then
