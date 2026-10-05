@@ -857,9 +857,12 @@ async function handler(req,res){
   // décision anti-doublon. Les anciens contrôles pendingJaya + strong-dedup
   // se recouvraient et pouvaient renvoyer deux raisons différentes pour le même cas.
   const pendingJayaRows=rows.filter(x=>{
-   const raw=JSON.stringify(x).toLowerCase();
+   const identity=queueIdentity(x);
    const played=queuePlayed(x);
-   return queueIdentity(x).includes("jaya")&&!played;
+   // Ne considérer que les véritables interventions Jaya. Les liners peuvent
+   // contenir "Jaya et Gaby" dans leur titre sans être un passage H24.
+   const isJayaIntervention=/(?:jaya-auto|jaya-flash|jaya-meteo|jaya-infos|jaya-horoscope|jaya\/(?:auto|meteo|infos|horoscope))/.test(identity);
+   return isJayaIntervention&&!played;
   });
   const pendingState={
    all:pendingJayaRows,
