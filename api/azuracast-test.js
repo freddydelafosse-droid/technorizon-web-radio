@@ -664,7 +664,7 @@ async function handler(req,res){
     }catch(e){console.error("JAYA_EMERGENCY_HISTORY_CHECK",e?.message||e)}
     return res.status(502).json({ok:false,error:"Emergency flash queue not confirmed",stage:"queue-verify",file:path,queue_verified:false,reason:q.reason||null});
    }
-   return res.status(200).json({ok:true,state:"QUEUED",action:"flash-emergency",file:path,queued:true,priority:true,queue_verified:true,queue_index:q.index});
+   return res.status(200).json({ok:true,state:q.verified===false?"ACCEPTED_PRELOADED":"QUEUED",action:"flash-emergency",file:path,queued:true,priority:true,queue_verified:q.verified!==false,queue_accepted:true,queue_index:q.index});
   }
   if(flashReplay){
    const period=String(req.body?.period||"").trim();
@@ -701,7 +701,7 @@ async function handler(req,res){
    if(!q.ok)return res.status(502).json({ok:false,error:"Flash replay queue rejected",stage:"queue",file:path,queue_verified:false,reason:q.reason||null});
    await persistJayaMemory("Flash replay queued","flash_replay",replaySlot);
    console.log("JAYA_FLASH_REPLAY_QUEUED",path,"index",q.index);
-   return res.status(200).json({ok:true,state:"QUEUED",action:"flash-replay",file:path,tts_generated:false,queued:true,priority:true,queue_verified:true,queue_index:q.index,period});
+   return res.status(200).json({ok:true,state:q.verified===false?"ACCEPTED_PRELOADED":"QUEUED",action:"flash-replay",file:path,tts_generated:false,queued:true,priority:true,queue_verified:q.verified!==false,queue_accepted:true,queue_index:q.index,period});
   }
   if(horoscopeReplay){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
@@ -739,7 +739,7 @@ async function handler(req,res){
     return res.status(502).json({ok:false,error:"Horoscope replay queue not confirmed",stage:"queue-verify",file:path,queue_verified:false,reason:q.reason||null});
    }
    await persistJayaMemory("Technoroscope replay queued","horoscope_replay",day+"-08:15");
-   return res.status(200).json({ok:true,state:"QUEUED",action:"horoscope-replay",file:path,tts_generated:false,queued:true,queue_verified:true,queue_index:q.index,source_history_confirmed:sourceSeen});
+   return res.status(200).json({ok:true,state:q.verified===false?"ACCEPTED_PRELOADED":"QUEUED",action:"horoscope-replay",file:path,tts_generated:false,queued:true,queue_verified:q.verified!==false,queue_accepted:true,queue_index:q.index,source_history_confirmed:sourceSeen});
   }
   const now=new Date();
   if(horoscopeGenerate){
@@ -800,7 +800,7 @@ async function handler(req,res){
    const q=await queueVerified(base,key,path,true);
    if(!q.ok)return res.status(502).json({ok:false,error:"Horoscope queue not confirmed",stage:"queue",file:path,queue_verified:false,queue_reason:q.reason||null});
    await persistJayaMemory(text,"horoscope",day+"-07:15");
-   return res.status(200).json({ok:true,state:"QUEUED",action:"horoscope-generate",file:path,tts_generated:true,text,queued:true,queue_verified:true,queue_index:q.index});
+   return res.status(200).json({ok:true,state:q.verified===false?"ACCEPTED_PRELOADED":"QUEUED",action:"horoscope-generate",file:path,tts_generated:true,text,queued:true,queue_verified:q.verified!==false,queue_accepted:true,queue_index:q.index});
   }
   const qr=await az(base,key,"/queue"),qraw=await qr.text();let qdata=null;try{qdata=JSON.parse(qraw)}catch{}
   if(!qr.ok)return res.status(502).json({ok:false,error:"Queue check failed"});
@@ -967,7 +967,7 @@ async function handler(req,res){
   if(qv.verified===false)console.warn("JAYA_QUEUE_ACCEPTED_PRELOADED",path);
   if(!isEditorial){rememberJaya(text);await persistJayaMemory(text,"h24",String(slot))}
   else await persistJayaMemory(text,"news_weather",editorialDay+"-"+editorialPeriod);
-  console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,state:"QUEUED",action:"queued",queued:true,queue_verified:qv.ok&&qv.verified!==false,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
+  console.log("JAYA_AUTO_QUEUED",path,"verified-index",qv.index,nextSong||"generic",rawNextSong&&!nextSong?"brain-rejected":"brain-ok");return res.status(200).json({ok:true,state:"QUEUED",action:"queued",queued:true,queue_verified:qv.verified!==false,queue_accepted:qv.ok,queue_index:qv.index,file:path,announced:!isWeather&&mode<2?nextSong:null,brain_checked:!!rawNextSong,brain_validated:!!nextSong,mode:isEditorial?"news-weather":mode<2&&nextSong?"next-title":"general",text});
  }catch(e){console.error("AzuraCast/Jaya",e?.stack||e?.message||e);return res.status(502).json({ok:false,error:"AzuraCast/Jaya unavailable",stage:"exception",detail:String(e?.message||e).slice(0,300)})}
 }
 
