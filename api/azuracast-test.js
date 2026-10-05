@@ -223,12 +223,12 @@ async function queueVerified(base,key,path,priority=false){
  // dans la file doit être confirmée. Pour Jaya H24, AzuraCast peut retirer
  // immédiatement le titre de la file visible pour le précharger ; le PUT 200
  // reste alors valide et l'historique antenne confirme ensuite la diffusion.
- if(!priority){
-  console.warn("JAYA_QUEUE_ACCEPTED_NOT_VISIBLE",path);
-  return {ok:true,index:null,verified:false,reason:"accepted-not-visible"};
- }
- console.error("JAYA_QUEUE_NOT_CONFIRMED",path);
- return {ok:false,index:null,verified:false,reason:"not-confirmed"};
+ // AzuraCast peut accepter puis précharger immédiatement un média, ce qui le
+ // retire de /queue avant nos contrôles. Le PUT /files/batch 2xx reste
+ // l'accusé de réception autoritaire, y compris pour un rendez-vous prioritaire.
+ // Les verrous file/historique/Supabase en amont empêchent les doublons.
+ console.warn("JAYA_QUEUE_ACCEPTED_NOT_VISIBLE",path,priority?"priority":"normal");
+ return {ok:true,index:null,verified:false,reason:"accepted-not-visible"};
 }
 
 function cleanMeta(v){
