@@ -1,0 +1,29 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contrôle Jaya — Technorizon</title>
+<style>body{margin:0;background:#070b18;color:#eef6ff;font-family:system-ui,Arial}.wrap{max-width:980px;margin:auto;padding:22px}.head{display:flex;gap:14px;align-items:center}.logo{width:70px;border-radius:16px}.card{background:#10182b;border:1px solid #273758;border-radius:18px;padding:18px;margin:16px 0}.ok{color:#6ef0a9}.warn{color:#ffd36e}.bad{color:#ff7c8b}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.slot{padding:12px;border-radius:12px;background:#0a1122;border:1px solid #202e4c}.time{font-size:1.25rem;font-weight:800}.tag{font-size:.8rem;opacity:.8}.live{font-weight:700}button{padding:10px 14px;border-radius:10px;border:0;cursor:pointer}small{opacity:.7}</style></head>
+<body><div class="wrap"><div class="head"><img class="logo" src="/Logo-Officiel-Technorizon.jpg"><div><h1>Contrôle Jaya</h1><div>Infos / Météo · Horoscope · Jaya H24</div></div></div>
+<div class="card"><div id="health">Connexion à AzuraCast…</div><div id="live"></div><small id="updated"></small></div>
+<div class="card"><h2>Prochains passages prévus</h2><div class="grid" id="schedule"></div></div>
+<div class="card"><h2>Jaya dans la file AzuraCast</h2><div id="queue">Chargement…</div></div>
+<div class="card"><h2>Derniers passages Jaya détectés</h2><div id="history">Chargement…</div></div>
+<button onclick="load()">Actualiser maintenant</button></div>
+<script>
+const editorial=[["07:00","Infos / Météo"],["07:15","Technoroscope"],["08:15","Technoroscope"],["09:00","Infos / Météo"],["11:00","Infos / Météo"],["12:30","Infos / Météo"],["13:30","Infos / Météo"],["15:30","Infos / Météo"],["17:30","Infos / Météo"],["18:30","Infos / Météo"]];
+function parisParts(d=new Date()){const p=new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",weekday:"short",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(d);return Object.fromEntries(p.map(x=>[x.type,x.value]))}
+function h24Slots(){const p=parisParts(),dow=p.weekday.toLowerCase(),out=[];let hours=[];
+ if(dow.startsWith("dim")){for(let h=9;h<=20;h++)hours.push([h,[13,33,53]])}
+ else if(dow.startsWith("sam")){hours=[[5,[13]]];for(let h=6;h<=12;h++)hours.push([h,[13,33,53]]);for(let h=13;h<=16;h++)hours.push([h,[13]]);for(let h=17;h<=22;h++)hours.push([h,[13,33,53]])}
+ else{hours=[[5,[13]]];for(let h=6;h<=12;h++)hours.push([h,[13,33,53]]);for(let h=13;h<=15;h++)hours.push([h,[13,33]]);for(let h=16;h<=19;h++)hours.push([h,[13,33,53]]);for(let h=20;h<=21;h++)hours.push([h,[13,33]]);hours.push([22,[13]])}
+ for(const [h,mins] of hours)for(const m of mins)out.push([String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"),"Jaya H24"]);return out}
+function upcoming(){const p=parisParts(),now=+p.hour*60 + +p.minute;return editorial.concat(h24Slots()).map(x=>[x,+x[0].slice(0,2)*60 + +x[0].slice(3)]).filter(x=>x[1]>=now).sort((a,b)=>a[1]-b[1]).slice(0,12).map(x=>x[0])}
+function renderSchedule(){document.querySelector("#schedule").innerHTML=upcoming().map(x=>'<div class="slot"><div class="time">'+x[0]+'</div><div>'+x[1]+'</div><div class="tag">PRÉVU</div></div>').join("")||"Plus de passage prévu aujourd’hui."}
+function label(x){return (x.title||x.path||"Jaya").replace(/^.*\//,"")}
+function time(x){if(!x.played_at)return "";const d=typeof x.played_at==="number"?new Date(x.played_at<1e12?x.played_at*1000:x.played_at):new Date(x.played_at);return isNaN(d)?"":d.toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"})}
+async function load(){renderSchedule();try{const r=await fetch("/api/nowplaying/control-jaya?ts="+Date.now(),{cache:"no-store"});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.details||d.error||"Erreur");
+ document.querySelector("#health").innerHTML='<b class="ok">● AzuraCast connecté</b> — '+d.jaya_queue.length+' passage(s) Jaya visible(s) dans la file';
+ document.querySelector("#live").innerHTML=d.now_playing?'<p class="live">À l’antenne : '+(d.now_playing.song?.text||d.now_playing.song?.title||"—")+'</p>':"";
+ document.querySelector("#updated").textContent="Contrôle : "+new Date(d.generated_at).toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris"});
+ document.querySelector("#queue").innerHTML=d.jaya_queue.length?d.jaya_queue.map((x,i)=>'<div class="slot"><b>#'+(x.index+1)+' '+label(x)+'</b><div class="tag">EN FILE AZURACAST</div></div>').join(""):'<span class="warn">Aucun passage Jaya actuellement visible dans /queue. Un média peut déjà avoir été préchargé par AzuraCast.</span>';
+ document.querySelector("#history").innerHTML=d.recent_jaya_history.length?d.recent_jaya_history.map(x=>'<div class="slot"><b>'+time(x)+' '+label(x)+'</b><div class="tag ok">DIFFUSÉ / HISTORIQUE</div></div>').join(""):'Aucun passage Jaya détecté dans les 3 dernières heures.';
+ }catch(e){document.querySelector("#health").innerHTML='<b class="bad">● Contrôle indisponible</b> — '+e.message}}
+load();setInterval(load,30000);
+</script></body></html>
