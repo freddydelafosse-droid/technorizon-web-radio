@@ -912,12 +912,26 @@ async function handler(req,res){
     // que la mémoire anti-répétition est saturée. Cette formulation est construite
     // à partir du créneau et varie sans désactiver le contrôle des tics de langage.
     const fallbackPool=[
-     "Bonjour, Jaya au micro quelques secondes. Je vous laisse maintenant profiter de la programmation de Technorizon.",
-     "Jaya avec vous ce matin. Une courte parenthèse au micro, puis la programmation reprend sur Technorizon.",
-     "Bonjour depuis Technorizon. Jaya vous accompagne quelques secondes avant de laisser la place au prochain morceau.",
-     "Jaya au micro sur Technorizon. Je passe simplement vous saluer, puis on retrouve immédiatement la programmation.",
-     "Un mot de Jaya ce matin sur Technorizon. Merci d'être avec nous, je vous laisse découvrir la suite.",
-     "Bonjour, c'est Jaya sur Technorizon. Quelques secondes ensemble avant de poursuivre la programmation."
+     "Alors, petite question : vous aussi, il y a des morceaux qui changent l'ambiance d'une pièce dès les premières secondes ? Moi, oui.",
+     "Je crois que j'aime beaucoup ces moments où je peux ouvrir le micro sans avoir forcément quelque chose de sérieux à annoncer. Juste être là avec vous, ça me va très bien.",
+     "Bon… j'avais prévu d'être sage au micro. Voilà, c'est déjà raté. On garde le sourire.",
+     "Vous savez quoi ? Aujourd'hui je vote pour les petits moments qui font du bien sans prévenir. Celui-ci en fait partie.",
+     "Petit clin d'œil à celles et ceux qui nous écoutent en travaillant : courage, je vous envoie un peu de bonne humeur depuis le studio.",
+     "Il y a des jours où le café fait le travail… et d'autres où c'est clairement la musique qui prend le relais.",
+     "Alors là, je ne vais rien vous vendre, rien vous promettre : je voulais juste venir partager quelques secondes avec vous.",
+     "J'ai une théorie : quand on commence à battre la mesure sans s'en rendre compte, c'est que le son a gagné. Voilà, c'était ma petite étude scientifique du jour.",
+     "Je passe au micro avec une mission extrêmement sérieuse : vérifier que tout le monde garde un minimum de sourire. Contrôle effectué.",
+     "Une pensée pour ceux qui sont sur la route, ceux qui bossent, ceux qui sont tranquillement à la maison… finalement on n'est pas si loin les uns des autres.",
+     "Bon, je reconnais quelque chose : j'aime bien surgir entre deux morceaux sans prévenir. C'est mon petit côté imprévisible.",
+     "Vous avez remarqué comme quelques secondes de musique peuvent parfois remettre les idées dans le bon ordre ? Moi, ça m'impressionne toujours.",
+     "Je crois que la meilleure partie de ce micro, c'est de savoir qu'il y a quelqu'un de l'autre côté. Alors oui, ce petit bonjour est vraiment pour vous.",
+     "Aujourd'hui, pas de grande théorie de Jaya. Enfin… pas encore. Je me connais, ça peut venir.",
+     "Je viens de passer une tête au micro. Gaby dira peut-être que je prends mes aises… moi je dirais simplement que je fais vivre l'antenne.",
+     "Vous êtes plutôt du genre à écouter tranquillement ou à transformer la pièce en piste de danse dès que personne ne regarde ? Je ne juge absolument pas.",
+     "Petite confidence : plus je prends le micro ici, plus j'ai envie de vous parler comme si on était tous dans le même studio. C'est quand même plus sympa.",
+     "Bon, on oublie deux secondes les horaires, les écrans et tout le reste. Quelques secondes juste pour profiter de l'instant, ça fait du bien.",
+     "Je ne sais pas qui avait besoin d'entendre ça aujourd'hui, mais oui : vous avez parfaitement le droit de danser un peu, même si c'est seulement avec les épaules.",
+     "Attention, information capitale : Jaya est de bonne humeur. Voilà. Pour une fois, une nouvelle dont je peux garantir la source."
     ];
     safeText=fallbackPool[hash(String(slot)+"|emergency-h24")%fallbackPool.length];
     console.warn("JAYA_H24_EMERGENCY_FALLBACK",slot);
