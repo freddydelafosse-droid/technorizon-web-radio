@@ -252,7 +252,10 @@ jobs:
             # exclusions ci-dessus (ex. 08h54 interprété comme 09h13 avant le flash de 09h).
             if { [ "$PARIS_HOUR" -eq 6 ] || [ "$PARIS_HOUR" -eq 8 ] || [ "$PARIS_HOUR" -eq 10 ]; } && [ "$ACTUAL_M" -ge 45 ]; then ALLOW_H24=false; fi
             if { [ "$PARIS_HOUR" -eq 7 ] || [ "$PARIS_HOUR" -eq 8 ]; } && [ "$ACTUAL_M" -ge 5 ] && [ "$ACTUAL_M" -le 30 ]; then ALLOW_H24=false; fi
-            if { [ "$PARIS_HOUR" -eq 12 ] || [ "$PARIS_HOUR" -eq 13 ] || [ "$PARIS_HOUR" -eq 15 ] || [ "$PARIS_HOUR" -eq 17 ] || [ "$PARIS_HOUR" -eq 18 ]; } && [ "$ACTUAL_M" -ge 10 ] && [ "$ACTUAL_M" -le 35 ]; then ALLOW_H24=false; fi
+            # Priorité Jaya : ne plus neutraliser H24 pendant 25 minutes autour des flashs :30.
+            # Seul le créneau H24 :33 est écarté quand il chevauche directement le rendez-vous éditorial.
+            # Le passage :13 reste autorisé et l'API conserve les verrous anti-doublon.
+            if { [ "$H" -eq 12 ] || [ "$H" -eq 13 ] || [ "$H" -eq 15 ] || [ "$H" -eq 17 ] || [ "$H" -eq 18 ]; } && [ "$M" -eq 33 ]; then ALLOW_H24=false; fi
 
             if [ "$AUTO_WEATHER" != "true" ] && [ -z "$AUTO_FLASH_REPLAY" ] && [ -z "$AUTO_HOROSCOPE" ] && [ "$ALLOW_H24" != "true" ]; then
               echo "Aucun passage Jaya prévu à cet horaire de Paris."
