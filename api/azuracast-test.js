@@ -615,6 +615,31 @@ async function handler(req,res){
    return res.status(200).json({ok:true,action:"pronunciation-configure",
     ...JAYA_STATION_PRONUNCIATION,implementation:"local-pronunciation-alias",queued:false,tts_generated:false});
   }
+  const cleanupJaya=req.method==="POST"&&req.body?.action==="cleanup-jaya";
+  if(cleanupJaya){
+   if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
+   // Nettoyage prudent : uniquement les H24 générés dans Jaya/Auto.
+   // Le slot est un epoch par tranches de 10 min : on conserve 24 h, ce qui protège
+   // largement les fichiers récemment créés/préchargés. Les flashs et horoscopes,
+   // nécessaires aux rediffusions, ne sont jamais touchés ici.
+   const dir="Jaya/Auto",keepSlots=144,currentSlot=Math.floor(Date.now()/(10*60*1000));
+   const lr=await az(base,key,"/files/list?currentDirectory="+encodeURIComponent(dir)+"&rowCount=500&current=1&searchPhrase="+encodeURIComponent("jaya-auto-"));
+   if(!lr.ok)return res.status(502).json({ok:false,error:"Jaya cleanup list failed",status:lr.status});
+   const rows=queueRows(await lr.json()),files=[];
+   for(const row of rows){
+    const raw=JSON.stringify(row),m=raw.match(/jaya-auto-(\d+)\.mp3/i);
+    if(!m)continue;
+    const slot=Number(m[1]); if(!Number.isFinite(slot)||currentSlot-slot<=keepSlots)continue;
+    const path=String(row?.path||row?.media?.path||"");
+    files.push(path&&path.toLowerCase().startsWith("jaya/auto/")?path:"Jaya/Auto/"+m[0]);
+   }
+   if(!files.length)return res.status(200).json({ok:true,state:"CLEAN",action:"cleanup-jaya",deleted:0,kept_hours:24});
+   const del=await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"delete",files:[...new Set(files)],dirs:[]})});
+   const detail=await del.text().catch(()=>"");
+   if(!del.ok)return res.status(502).json({ok:false,error:"Jaya cleanup delete failed",status:del.status,detail:detail.slice(0,300)});
+   console.log("JAYA_AUTO_CLEANUP",{deleted:new Set(files).size,kept_hours:24});
+   return res.status(200).json({ok:true,state:"CLEANED",action:"cleanup-jaya",deleted:new Set(files).size,kept_hours:24});
+  }
   const forceWeather=req.method==="POST"&&req.body?.action==="weather-now";
   const forceNews=req.method==="POST"&&req.body?.action==="news-now";
   const horoscopeGenerate=req.method==="POST"&&req.body?.action==="horoscope-generate";
