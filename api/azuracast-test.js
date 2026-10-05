@@ -522,13 +522,33 @@ async function smartAnnouncement({song,slot,hour,minute}){
   "réagis comme si tu venais réellement d’écouter le morceau avec l’auditeur: sensation d’abord, mots ensuite, sans inventer de fait sur le titre",
   "laisse apparaître une mini-improvisation: une idée, une petite correction ou parenthèse, puis une relance courte sans conclusion parfaite",
   "adresse-toi directement à une personne qui écoute, sans formule collective, avec chaleur et naturel",
-  "fais une intervention plus libre: aucune obligation de citer la station, ton prénom, le morceau suivant ou une formule de sortie"
+  "fais une intervention plus libre: aucune obligation de citer la station, ton prénom, le morceau suivant ou une formule de sortie",
+  "raconte une micro-scène imaginaire et clairement légère de studio en une ou deux phrases, sans la présenter comme un fait réel",
+  "partage une petite pensée personnelle de Jaya sur le plaisir d'écouter de la musique, sans slogan ni teasing",
+  "lance un mini-défi ludique à l'auditeur qui ne demande aucune réponse ni donnée personnelle",
+  "fais une remarque sur un souvenir musical universel: le morceau qu'on remet trop fort, la chanson qu'on reconnaît en deux secondes, sans inventer de fait sur le titre diffusé",
+  "joue avec une question absurde mais adulte et très courte, puis reviens naturellement au son",
+  "fais une micro-confidence souriante de Jaya, fictive et sans prétendre décrire un événement réel",
+  "prends un angle culture musicale général et sûr, sans donner de fait précis non vérifié ni annoncer le titre suivant",
+  "parle du contraste entre une journée ordinaire et quelques secondes de musique qui changent l'ambiance, sans formule radio",
+  "fais une intervention presque contemplative, calme et imagée, très différente des passages enthousiastes",
+  "fais une intervention franchement drôle mais sobre, avec une chute unique et sans taquiner toujours les mêmes personnes",
+  "adresse une pensée aux auditeurs de nuit, du matin, de journée ou de soirée selon le contexte, sans supposer leur activité",
+  "fais une mini-réflexion sur un détail quotidien banal et transforme-le en prétexte musical inattendu",
+  "réagis uniquement avec une émotion et une image concrète; pas de station, pas de prénom, pas de teasing",
+  "fais un passage où Jaya assume une préférence de style très générale et subjective, sans prétendre connaître le morceau joué",
+  "fais une fausse hésitation naturelle entre deux idées, choisis-en une et termine sans formule de sortie",
+  "fais un clin d'oeil au côté 90s, 2000s ou actuel de l'univers Technorizon sans attribuer une décennie au morceau en cours",
+  "propose une petite respiration positive, chaleureuse et adulte, sans motivation creuse ni conseil de vie",
+  "fais une intervention construite autour d'un seul mot ou d'une seule sensation, puis développe-la brièvement de façon inattendue",
+  "prends le contre-pied total du passage précédent: si le ton récent était intense sois calme; s'il était calme sois joueuse; change aussi la structure",
+  "fais comme une vraie prise de parole non préparée: commence au milieu d'une idée, souris de ta propre remarque, puis coupe court naturellement"
  ];
  const angle=angles[Math.abs(Number(slot))%angles.length];
  // Recharge la mémoire persistante à CHAQUE génération: les fonctions serverless ne partagent pas toujours leur RAM.
  await loadJayaMemory();
- const recent=jayaRecent.slice(-24);
- const antiRepeat=recent.length?"\nMEMOIRE ANTENNE: voici tes interventions recentes. La nouvelle doit etre reellement differente: ne reprends ni la meme accroche, ni le meme sujet, ni la meme structure, ni la meme chute, ni une formulation reconnaissable. Si une idee leur ressemble, pars ailleurs.\n"+recent.map((x,i)=>(i+1)+". "+x).join("\n"):"";
+ const recent=jayaRecent.slice(-60);
+ const antiRepeat=recent.length?"\nMEMOIRE ANTENNE ET REGLE DE ROTATION: voici tes 60 derniers passages. La nouvelle intervention doit changer AU MINIMUM quatre dimensions parmi: sujet, accroche, ton, longueur, structure, personne grammaticale, niveau d intensite, humour, image, chute. Ne reprends ni le meme sujet ni la meme mecanique qu un passage recent. Si plusieurs passages recents parlent de musique, de rythme, de suite, de station ou de volume, choisis obligatoirement un autre univers. Une phrase simplement reformulee compte comme une repetition.\n"+recent.map((x,i)=>(i+1)+". "+x).join("\n"):"";
  const gabyAntennaDNA=`
 ADN ANTENNE GABY — exemples authentiques fournis par Gaby. Ils servent uniquement à comprendre sa mécanique d'animation; NE LES RECITE PAS et ne les paraphrase pas trop près :
 1. Oulala, prévenez vos voisins car ça va taper fort avec la suite que l’on vous réserve.
