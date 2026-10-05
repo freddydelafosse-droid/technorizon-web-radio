@@ -221,14 +221,12 @@ jobs:
             # :25 et :55 restent réservés aux rendez-vous éditoriaux.
             if [ "$EVENT_SCHEDULE" = "2-59/5 * * * *" ] && [ "$M" -ge 0 ] && [ "$AUTO_WEATHER" != "true" ]; then
 
-              # Lundi-vendredi
+              # Lundi-vendredi : socle antenne Jaya validé = minimum 3 passages/h
+              # entre 07h00 et 23h00. Les rendez-vous éditoriaux restent prioritaires ;
+              # si un tick sert Infos/Météo/Technoroscope, H24 reprend au tick suivant.
               if [ "$PARIS_DOW" -ge 1 ] && [ "$PARIS_DOW" -le 5 ]; then
-                if   [ "$H" -eq 5 ]  && [ "$M" -eq 13 ]; then ALLOW_H24=true
-                elif [ "$H" -ge 6 ]  && [ "$H" -lt 13 ]; then ALLOW_H24=true
-                elif [ "$H" -ge 13 ] && [ "$H" -lt 16 ] && { [ "$M" -eq 13 ] || [ "$M" -eq 33 ]; }; then ALLOW_H24=true
-                elif [ "$H" -ge 16 ] && [ "$H" -lt 20 ]; then ALLOW_H24=true
-                elif [ "$H" -ge 20 ] && [ "$H" -lt 22 ] && { [ "$M" -eq 13 ] || [ "$M" -eq 33 ]; }; then ALLOW_H24=true
-                elif [ "$H" -eq 22 ] && [ "$M" -eq 13 ]; then ALLOW_H24=true
+                if [ "$H" -ge 7 ] && [ "$H" -lt 23 ] && { [ "$M" -eq 13 ] || [ "$M" -eq 33 ] || [ "$M" -eq 53 ]; }; then
+                  ALLOW_H24=true
                 fi
               # Samedi
               elif [ "$PARIS_DOW" -eq 6 ]; then
