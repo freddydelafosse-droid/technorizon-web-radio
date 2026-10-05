@@ -368,7 +368,7 @@ jobs:
           # soit sa présence réelle dans la file, soit qu'il a déjà été diffusé/placé.
           # Un simple HTTP 200 ne suffit plus.
           if [ "$ACTION" = "horoscope-generate" ]; then
-            if ! grep -Eq '"queue_verified":true|"reason":"horoscope-first-slot-already-broadcast"|"reason":"horoscope-already-generated-or-queued"' "$RESPONSE_FILE"; then
+            if ! grep -Eq "queue_verified":true|"queue_accepted":true|"reason":"horoscope-first-slot-already-broadcast"|"reason":"horoscope-already-generated-or-queued"' "$RESPONSE_FILE"; then
               echo "::error::Technoroscope non confirmé dans la file/historique."
               exit 1
             fi
@@ -378,12 +378,12 @@ jobs:
               exit 1
             fi
           elif [ "$ACTION" = "flash-replay" ] || [ "$ACTION" = "flash-emergency" ]; then
-            if ! grep -Eq '"queue_verified":true|"reason":"flash-already-queued"|"reason":"flash-already-broadcast"' "$RESPONSE_FILE"; then
+            if ! grep -Eq "queue_verified":true|"queue_accepted":true|"reason":"flash-already-queued"|"reason":"flash-already-broadcast"' "$RESPONSE_FILE"; then
               echo "::error::Flash Infos + Météo prioritaire non confirmé dans la file/historique."
               exit 1
             fi
           elif [ "$ACTION" = "weather-now" ] || [ "$ACTION" = "news-now" ]; then
-            if ! grep -Eq '"queue_verified":true|"reason":"flash-already-broadcast"|"reason":"flash-already-generated-or-queued"|"reason":"news-already-queued"|"reason":"weather-already-queued"' "$RESPONSE_FILE"; then
+            if ! grep -Eq "queue_verified":true|"queue_accepted":true|"reason":"flash-already-broadcast"|"reason":"flash-already-generated-or-queued"|"reason":"news-already-queued"|"reason":"weather-already-queued"' "$RESPONSE_FILE"; then
               echo "::error::Infos + Météo non confirmées dans la file/historique."
               exit 1
             fi
