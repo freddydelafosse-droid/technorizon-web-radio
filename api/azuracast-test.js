@@ -613,6 +613,38 @@ async function handler(req,res){
  try{
   const secret=process.env.CRON_SECRET;
   const authorized=!!secret&&req.headers.authorization==="Bearer "+secret;
+  // QStash migration bridge. Shadow mode is intentionally read-only while
+  // GitHub Actions remains authoritative.
+  const qstashClock=req.method==="POST"&&req.body?.action==="qstash-clock";
+  if(qstashClock){
+   if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
+   const now=new Date(),minute=parisClock(now);
+   console.log("JAYA_QSTASH_SHADOW",{minute,at:now.toISOString()});
+   return res.status(200).json({ok:true,mode:"shadow",source:"qstash",timezone:"Europe/Paris",minute,antenna_mutation:false});
+  }
+  // One-shot bootstrap: creates/updates the 5-minute QStash shadow schedule
+  // using server-side secrets, then this route is removed after validation.
+  if(req.method==="GET"&&req.query?.qstash_bootstrap==="jaya-20261006-shadow-v1-7f3a9c"){
+   const qurl=String(process.env.QSTASH_URL||"").replace(/\/$/,"");
+   const qtoken=process.env.QSTASH_TOKEN;
+   if(!qurl||!qtoken||!secret)return res.status(500).json({ok:false,error:"QStash configuration missing"});
+   const destination="https://www.technorizon.fr/api/azuracast-test";
+   const endpoint=qurl+"/v2/schedules/"+encodeURIComponent(destination);
+   const qr=await fetch(endpoint,{method:"POST",headers:{
+    Authorization:"Bearer "+qtoken,
+    "Content-Type":"application/json",
+    "Upstash-Cron":"*/5 * * * *",
+    "Upstash-Schedule-Id":"technorizon-jaya-clock-shadow",
+    "Upstash-Method":"POST",
+    "Upstash-Retries":"1",
+    "Upstash-Forward-Authorization":"Bearer "+secret,
+    "Upstash-Redact-Fields":"header[Authorization]",
+    "Upstash-Label":"technorizon-jaya-shadow"
+   },body:JSON.stringify({action:"qstash-clock"})});
+   const raw=await qr.text();let data=null;try{data=JSON.parse(raw)}catch{}
+   if(!qr.ok)return res.status(502).json({ok:false,error:"QStash schedule creation failed",status:qr.status,detail:data||raw.slice(0,300)});
+   return res.status(200).json({ok:true,created:true,mode:"shadow",schedule:data||null,cron:"*/5 * * * *",destination});
+  }
   if(req.method==="POST"&&req.body?.action==="pronunciation-configure"){
    if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
    return res.status(200).json({ok:true,action:"pronunciation-configure",
