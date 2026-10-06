@@ -613,14 +613,56 @@ async function handler(req,res){
  try{
   const secret=process.env.CRON_SECRET;
   const authorized=!!secret&&req.headers.authorization==="Bearer "+secret;
-  // QStash migration bridge. Shadow mode is intentionally read-only while
-  // GitHub Actions remains authoritative.
+  // QStash is the primary clock. One 5-minute tick decides the next antenna
+  // action in Europe/Paris; the existing API remains the execution engine and
+  // keeps its queue/history/Supabase anti-duplicate protections.
   const qstashClock=req.method==="POST"&&req.body?.action==="qstash-clock";
   if(qstashClock){
    if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
-   const now=new Date(),minute=parisClock(now);
-   console.log("JAYA_QSTASH_SHADOW",{minute,at:now.toISOString()});
-   return res.status(200).json({ok:true,mode:"shadow",source:"qstash",timezone:"Europe/Paris",minute,antenna_mutation:false});
+   const now=new Date(),minute=parisClock(now),h=Math.floor(minute/60),m=minute%60;
+   const dow=Number(new Intl.DateTimeFormat("en-US",{timeZone:"Europe/Paris",weekday:"short"}).format(now).replace(/.*/,x=>({Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:7}[x]||0)));
+   let action=null,period=null;
+
+   // Editorial priority: prepare shortly before the public slot.
+   if(h===6&&m===50) action="weather-now";                 // 07:00 new
+   else if(h===7&&m===10) action="horoscope-generate";    // ~07:15
+   else if(h===8&&m===10) action="horoscope-replay";      // ~08:15
+   else if(h===8&&m===50){action="flash-replay";period="07";} // 09:00
+   else if(h===10&&m===50) action="weather-now";          // 11:00 new
+   else if(h===12&&m===20){action="flash-replay";period="11";} // 12:30
+   else if(h===13&&m===20) action="weather-now";          // 13:30 new
+   else if(h===15&&m===20){action="flash-replay";period="13";} // 15:30
+   else if(h===17&&m===20) action="weather-now";          // 17:30 new
+   else if(h===18&&m===20){action="flash-replay";period="17";} // 18:30
+
+   // H24: three opportunities/hour. A second 5-minute opportunity provides a
+   // catch-up; the API's 12-minute history lock prevents a duplicate.
+   let h24=false;
+   if(!action){
+    const h24Minute=[10,15,30,35,50,55].includes(m);
+    if(dow>=1&&dow<=5) h24=h>=7&&h<23&&h24Minute;
+    else if(dow===6){
+     h24=(h===5&&[10,15].includes(m)) ||
+       (h>=6&&h<13&&h24Minute) ||
+       (h>=13&&h<17&&[10,15].includes(m)) ||
+       (h>=17&&h<23&&h24Minute);
+    }else if(dow===7) h24=h>=9&&h<21&&h24Minute;
+   }
+
+   if(!action&&!h24){
+    console.log("JAYA_QSTASH_IDLE",{minute,h,m,dow,at:now.toISOString()});
+    return res.status(200).json({ok:true,mode:"live",source:"qstash",state:"IDLE",minute,antenna_mutation:false});
+   }
+
+   const destination="https://www.technorizon.fr/api/azuracast-test";
+   const headers={Authorization:"Bearer "+secret,"Content-Type":"application/json","X-Jaya-Source":"qstash-live"};
+   const opts=action
+    ? {method:"POST",headers,body:JSON.stringify(period?{action,period}:{action})}
+    : {method:"GET",headers};
+   const downstream=await fetch(destination,opts);
+   const raw=await downstream.text();let detail=null;try{detail=JSON.parse(raw)}catch{detail={raw:raw.slice(0,500)}}
+   console.log("JAYA_QSTASH_LIVE",{minute,h,m,dow,action:action||"h24",period,status:downstream.status,detail});
+   return res.status(downstream.ok?200:502).json({ok:downstream.ok,mode:"live",source:"qstash",decision:action||"h24",period,minute,downstream_status:downstream.status,detail});
   }
   // One-shot bootstrap: creates/updates the 5-minute QStash shadow schedule
   // using server-side secrets, then this route is removed after validation.
