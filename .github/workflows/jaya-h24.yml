@@ -296,10 +296,7 @@ jobs:
             # À 17h30, générer une édition fraîche : c’est la source officielle ensuite rediffusée à 18h30.
             elif [ "$EMERGENCY_TOTAL" -ge 1035 ] && [ "$EMERGENCY_TOTAL" -le 1070 ]; then ACTION="weather-now"; AUTO_FLASH_REPLAY=""
             elif [ "$EMERGENCY_TOTAL" -ge 1095 ] && [ "$EMERGENCY_TOTAL" -le 1130 ]; then AUTO_FLASH_REPLAY="17"
-            else
-              echo "::error::Aucun rendez-vous Infos + Météo officiel à cette heure."
-              exit 1
-            fi
+            else\n              echo "FORCAGE MANUEL Infos + Météo hors horaire"\n              ACTION="weather-now"\n              AUTO_FLASH_REPLAY=""\n            fi
           elif [ "$EVENT_NAME" = "push" ] && [ "$HOROSCOPE_REPLAY_KICK" = "true" ]; then
             echo "Déclenchement ponctuel de la rediffusion du Technoroscope"
             ACTION="horoscope-replay"
