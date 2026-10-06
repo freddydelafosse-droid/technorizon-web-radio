@@ -210,9 +210,12 @@ jobs:
               elif [ "$WATCH_H" -eq 18 ] && [ "$WATCH_M" -ge 15 ] && [ "$WATCH_M" -le 45 ]; then
                 AUTO_FLASH_REPLAY="17"
 
-              # Technoroscope : l'édition 07h15 reste générée autour du rendez-vous.
-              # Le replay 08h15 est préparé dès 07h55 pour absorber un retard GitHub.
-              elif [ "$WATCH_H" -eq 7 ] && [ "$WATCH_M" -ge 13 ] && [ "$WATCH_M" -le 28 ]; then
+              fi
+
+              # Technoroscope : watchdog INDEPENDANT des Infos/Météo.
+              # Ne jamais le placer dans la chaîne elif météo : à 08hxx, la branche
+              # du flash 09h00 pouvait gagner et empêcher totalement le replay 08h15.
+              if [ "$WATCH_H" -eq 7 ] && [ "$WATCH_M" -ge 13 ] && [ "$WATCH_M" -le 28 ]; then
                 AUTO_HOROSCOPE="generate"
               elif { [ "$WATCH_H" -eq 7 ] && [ "$WATCH_M" -ge 55 ]; } || { [ "$WATCH_H" -eq 8 ] && [ "$WATCH_M" -le 28 ]; }; then
                 AUTO_HOROSCOPE="replay"
