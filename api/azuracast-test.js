@@ -216,14 +216,6 @@ async function queueVerified(base,key,path,priority=false){
  // even when Liquidsoap/AutoDJ has already preloaded the next music item.
  const queueOnce=()=>az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:priority?"immediate":"queue",files:[path],dirs:[]})});
  const q=await queueOnce();
- if(priority&&q.ok){
-  await new Promise(r=>setTimeout(r,1200));
-  const reinforce=await queueOnce();
-  if(!reinforce.ok){
-   const detail=await reinforce.text().catch(()=>"");
-   console.warn("JAYA_EDITORIAL_PRIORITY_REINFORCE",reinforce.status,detail.slice(0,300));
-  }else console.log("JAYA_EDITORIAL_PRIORITY_REINFORCED",path);
- }
  if(!q.ok){const detail=await q.text().catch(()=>"");console.error("JAYA_QUEUE",q.status,detail.slice(0,500));return {ok:false,status:q.status,reason:"queue-http"};}
  for(let attempt=1;attempt<=6;attempt++){
   await new Promise(r=>setTimeout(r,2000));
