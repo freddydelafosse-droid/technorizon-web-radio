@@ -629,7 +629,7 @@ async function handler(req,res){
    else if(h===8&&m===10) action="horoscope-replay";      // ~08:15
    else if(h===8&&m===50){action="flash-replay";period="07";} // 09:00
    else if(h===10&&m===50) action="weather-now";          // 11:00 new
-   else if(h===12&&m===20){action="flash-replay";period="11";} // 12:30
+   else if(h===12&&[20,25].includes(m)){action="flash-replay";period="11";} // 12:30 + safety retry
    else if(h===13&&m===20) action="weather-now";          // 13:30 new
    else if(h===15&&m===20){action="flash-replay";period="13";} // 15:30
    else if(h===17&&m===20) action="weather-now";          // 17:30 new
@@ -638,7 +638,18 @@ async function handler(req,res){
    // H24: three opportunities/hour. A second 5-minute opportunity provides a
    // catch-up; the API's 12-minute history lock prevents a duplicate.
    let h24=false;
-   if(!action){
+   // Hard editorial reservation: H24 can never compete with an editorial slot.
+   // These buffers cover preparation, QStash retry and the announced on-air time.
+   const editorialReserved =
+    (h===6&&m>=45) || (h===7&&m<=20) ||                 // 07:00 + horoscope 07:15
+    (h===8&&m>=5) || (h===9&&m<=5) ||                  // horoscope 08:15 + 09:00 flash
+    (h===10&&m>=45) || (h===11&&m<=5) ||               // 11:00 flash
+    (h===12&&m>=15&&m<=35) ||                          // 12:30 flash
+    (h===13&&m>=15&&m<=35) ||                          // 13:30 flash
+    (h===15&&m>=15&&m<=35) ||                          // 15:30 flash
+    (h===17&&m>=15&&m<=35) ||                          // 17:30 flash
+    (h===18&&m>=15&&m<=35);                            // 18:30 flash
+   if(!action&&!editorialReserved){
     const h24Minute=[10,15,30,35,50,55].includes(m);
     if(dow>=1&&dow<=5) h24=h>=7&&h<23&&h24Minute;
     else if(dow===6){
