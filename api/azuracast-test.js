@@ -1006,12 +1006,25 @@ async function handler(req,res){
   const path=uploadDir+"/"+file;
   // Jaya uniquement : +3 dB via la métadonnée native Liquidsoap d'AzuraCast.
   // Aucun changement du TTS, du timbre, de la fluidité ou du niveau des musiques.
-  const mediaId=upData?.id;
+  // Selon la version AzuraCast, /files/upload peut renvoyer l'id directement,
+  // sous data/file, ou uniquement le chemin. Le gain est optionnel et ne doit
+  // jamais fragiliser la mise en file antenne.
+  let mediaId=upData?.id||upData?.data?.id||upData?.file?.id||null;
+  if(!mediaId){
+   try{
+    const fr=await az(base,key,"/files?searchPhrase="+encodeURIComponent(file));
+    if(fr.ok){
+     const fd=await fr.json(),rows=Array.isArray(fd)?fd:(fd?.rows||[]);
+     const hit=rows.find(x=>String(x?.path||x?.name||"").toLowerCase().includes(file.toLowerCase()));
+     mediaId=hit?.id||null;
+    }
+   }catch(e){console.warn("JAYA_GAIN_LOOKUP",e?.message||e)}
+  }
   if(mediaId){
    const gain=await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:3}})});
-   if(!gain.ok){const detail=await gain.text().catch(()=>"");console.error("JAYA_GAIN",gain.status,detail.slice(0,500))}
+   if(!gain.ok){const detail=await gain.text().catch(()=>"");console.warn("JAYA_GAIN",gain.status,detail.slice(0,500))}
    else console.log("JAYA_GAIN","+3 dB",mediaId);
-  }else console.error("JAYA_GAIN","Media ID absent après upload");
+  }else console.warn("JAYA_GAIN_SKIPPED","Media ID introuvable; diffusion continue sans modification de gain",path);
   // Range automatiquement chaque nouvelle intervention dans la playlist de stockage "Banque Jaya".
   // La playlist peut rester désactivée : la mise en file directe ci-dessous continue de gérer le passage antenne.
   try{
