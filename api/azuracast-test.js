@@ -1005,7 +1005,21 @@ async function handler(req,res){
   }
   const editorialPeriod=isEditorial?(lh<9?"07":lh<13?"11":lh<17?"13":"17"):"";
   const editorialDay=isEditorial?new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now):"";
-  const generatedText=isEditorial?editorialText:await smartAnnouncement({song:null,slot,hour:lh,minute:lm});
+  let generatedText=isEditorial?editorialText:await smartAnnouncement({song:null,slot,hour:lh,minute:lm});
+  // Anti-radotage sans toucher à la personnalité de Jaya : si une excellente
+  // génération est refusée uniquement par les contrôles de répétition, on lui
+  // donne jusqu'à deux nouvelles chances avec un angle/style différent avant
+  // d'utiliser les phrases locales de secours. Le créneau antenne reste inchangé.
+  if(!isEditorial&&(!generatedText||String(generatedText).trim().length<12||jayaTooGeneric(generatedText))){
+   for(let retry=1;retry<=2;retry++){
+    const retryText=await smartAnnouncement({song:null,slot:slot+retry*1009,hour:lh,minute:lm});
+    if(retryText&&String(retryText).trim().length>=12&&!jayaTooGeneric(retryText)){
+     generatedText=retryText;
+     console.log("JAYA_H24_ANTIREPEAT_RETRY_OK",{slot,retry});
+     break;
+    }
+   }
+  }
   // Filet de sécurité H24 : si l’IA/anti-répétition ne renvoie rien, Jaya utilise
   // une intervention locale déterministe au lieu de rester silencieuse.
   let safeText=generatedText;
