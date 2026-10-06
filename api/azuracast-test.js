@@ -629,7 +629,7 @@ async function handler(req,res){
    const qtoken=process.env.QSTASH_TOKEN;
    if(!qurl||!qtoken||!secret)return res.status(500).json({ok:false,error:"QStash configuration missing"});
    const destination="https://www.technorizon.fr/api/azuracast-test";
-   const endpoint=qurl+"/v2/schedules/"+encodeURIComponent(destination);
+   const endpoint=qurl+"/v2/schedules/"+destination;
    const qr=await fetch(endpoint,{method:"POST",headers:{
     Authorization:"Bearer "+qtoken,
     "Content-Type":"application/json",
