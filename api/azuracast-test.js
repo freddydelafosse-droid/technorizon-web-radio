@@ -228,8 +228,11 @@ async function queueVerified(base,key,path,priority=false){
  // l'accusé de réception autoritaire, y compris pour un rendez-vous prioritaire.
  // Les verrous file/historique/Supabase en amont empêchent les doublons.
  if(priority){
-  console.error("JAYA_PRIORITY_QUEUE_NOT_CONFIRMED",path);
-  return {ok:false,index:null,verified:false,reason:"priority-not-confirmed"};
+  // AzuraCast peut accepter puis précharger immédiatement un média prioritaire :
+  // il disparaît alors de /queue avant notre première vérification. Le PUT 2xx
+  // reste l'accusé d'acceptation ; les verrous persistants empêchent les doublons.
+  console.warn("JAYA_PRIORITY_QUEUE_ACCEPTED_PRELOADED",path);
+  return {ok:true,index:null,verified:false,reason:"accepted-preloaded"};
  }
  console.warn("JAYA_QUEUE_ACCEPTED_NOT_VISIBLE",path,"normal");
  return {ok:true,index:null,verified:false,reason:"accepted-not-visible"};
