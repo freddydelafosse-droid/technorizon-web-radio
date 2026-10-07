@@ -684,7 +684,7 @@ async function handler(req,res){
    return res.status(200).json({ok:true,action:"pronunciation-configure",
     ...JAYA_STATION_PRONUNCIATION,implementation:"local-pronunciation-alias",queued:false,tts_generated:false});
   }
-  // Intervention manuelle ponctuelle : texte fourni explicitement, authentifié par CRON_SECRET.
+  // Intervention manuelle ponctuelle : texte fourni explicitement, authentifié par CRON_SECRET.\n  // Les interventions manuelles restent hors mémoire H24 afin de ne pas influencer l’anti-radotage automatique.
   // Cette voie ne modifie ni la grille QStash ni la logique H24. Elle génère un fichier
   // distinct, le range dans Banque Jaya et le place en priorité immédiate.
   const manualJaya=req.method==="POST"&&req.body?.action==="manual-jaya";
