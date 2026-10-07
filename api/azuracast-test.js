@@ -717,7 +717,7 @@ async function handler(req,res){
    else if(h===8&&m===15) action="horoscope-replay";      // 08:15
    else if(h===9&&m===0){action="flash-replay";period="07";} // 09:00
    else if(h===11&&m===0) action="weather-now";           // 11:00
-   else if(h===12&&[30,35].includes(m)){action="flash-replay";period="11";} // 12:30 + protected retry
+   else if(h===12&&m===30){action="flash-replay";period="11";} // 12:30
    else if(h===13&&m===30) action="weather-now";          // 13:30
    else if(h===15&&m===30){action="flash-replay";period="13";} // 15:30
    else if(h===17&&m===30) action="weather-now";          // 17:30
