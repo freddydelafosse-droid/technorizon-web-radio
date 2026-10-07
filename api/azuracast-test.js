@@ -684,6 +684,38 @@ async function handler(req,res){
    return res.status(200).json({ok:true,action:"pronunciation-configure",
     ...JAYA_STATION_PRONUNCIATION,implementation:"local-pronunciation-alias",queued:false,tts_generated:false});
   }
+  // Intervention manuelle ponctuelle : texte fourni explicitement, authentifié par CRON_SECRET.
+  // Cette voie ne modifie ni la grille QStash ni la logique H24. Elle génère un fichier
+  // distinct, le range dans Banque Jaya et le place en priorité immédiate.
+  const manualJaya=req.method==="POST"&&req.body?.action==="manual-jaya";
+  if(manualJaya){
+   if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
+   const manualText=String(req.body?.text||"").replace(/\\s+/g," ").trim();
+   if(manualText.length<12||manualText.length>900)return res.status(400).json({ok:false,error:"Invalid manual Jaya text"});
+   const el=process.env.ELEVENLABS_API_KEY;
+   if(!el)return res.status(500).json({ok:false,error:"TTS configuration missing"});
+   const text=radioPause(manualText);
+   const ttsPayload=await jayaTtsPayload(text,el);
+   const t=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+VOICE,{method:"POST",headers:{"xi-api-key":el,"Content-Type":"application/json","Accept":"audio/mpeg"},body:JSON.stringify(ttsPayload)});
+   if(!t.ok){const detail=await t.text().catch(()=>"");console.error("JAYA_MANUAL_TTS",t.status,detail.slice(0,500));return res.status(502).json({ok:false,error:"Manual Jaya TTS failed",status:t.status,stage:"tts"});}
+   const audio=await t.arrayBuffer(),contentType=String(t.headers.get("content-type")||"").toLowerCase();
+   if(audio.byteLength<4096||(!contentType.includes("audio")&&!contentType.includes("mpeg")))return res.status(502).json({ok:false,error:"Invalid manual TTS audio",stage:"tts-validation"});
+   const file="jaya-manual-"+Date.now()+".mp3",form=new FormData();form.append("file",new Blob([audio],{type:"audio/mpeg"}),file);
+   const up=await az(base,key,"/files/upload?currentDirectory="+encodeURIComponent("Jaya/Auto"),{method:"POST",body:form});
+   const upRaw=await up.text();let upData=null;try{upData=JSON.parse(upRaw)}catch{}
+   if(!up.ok)return res.status(502).json({ok:false,error:"Manual Jaya upload failed",status:up.status,stage:"upload"});
+   const path="Jaya/Auto/"+file;
+   let mediaId=upData?.id||upData?.data?.id||upData?.file?.id||null;
+   if(mediaId)await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:3}})}).catch(()=>{});
+   try{
+    const pr=await az(base,key,"/playlists");if(pr.ok){const pdata=await pr.json(),playlists=Array.isArray(pdata)?pdata:(pdata?.rows||[]),bank=playlists.find(p=>String(p?.name||"").trim().toLowerCase()==="banque jaya");if(bank?.id)await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"playlist",playlists:[String(bank.id)],files:[path],dirs:[]})});}
+   }catch(e){console.warn("JAYA_MANUAL_BANK",e?.message||e)}
+   const qv=await queueVerified(base,key,path,true);
+   if(!qv.ok)return res.status(502).json({ok:false,error:"Manual Jaya queue rejected",stage:"queue",file:path,reason:qv.reason||"unknown"});
+   await persistJayaMemory(text,"manual",file);
+   console.log("JAYA_MANUAL_QUEUED",path);
+   return res.status(200).json({ok:true,state:qv.verified===false?"ACCEPTED_PRELOADED":"QUEUED",action:"manual-jaya",queued:true,priority:true,file:path,text,queue_verified:qv.verified!==false,queue_accepted:true,queue_index:qv.index});
+  }
   const cleanupJaya=req.method==="POST"&&req.body?.action==="cleanup-jaya";
   if(cleanupJaya){
    if(!authorized)return res.status(401).json({ok:false,error:"Unauthorized"});
