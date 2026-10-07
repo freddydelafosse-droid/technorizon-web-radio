@@ -1,20 +1,28 @@
 (()=>{
   'use strict';
   const KEY='technorizon-radio-playing';
+  let wanted=false,retryTimer=0;
   const audio=document.getElementById('v2-audio');
   const playButton=document.getElementById('v2-play');
 
   // Secondary pages must never create another audio stream.
   if(!audio||!playButton)return;
 
-  const mark=playing=>{try{sessionStorage.setItem(KEY,playing?'1':'0')}catch(e){}};
-  const play=async()=>{try{await audio.play();mark(true);return true}catch(e){mark(false);return false}};
-  const pause=()=>{audio.pause();mark(false)};
+  const mark=playing=>{wanted=playing;try{sessionStorage.setItem(KEY,playing?'1':'0')}catch(e){}};
+  try{wanted=sessionStorage.getItem(KEY)==='1'}catch(e){}
+  const retry=delay=>{if(!wanted||retryTimer)return;retryTimer=setTimeout(async()=>{retryTimer=0;if(wanted&&audio.paused)await play()},delay)};
+  const play=async()=>{wanted=true;try{await audio.play();mark(true);return true}catch(e){retry(1200);return false}};
+  const pause=()=>{wanted=false;if(retryTimer){clearTimeout(retryTimer);retryTimer=0}audio.pause();mark(false)};
 
   audio.addEventListener('playing',()=>mark(true));
-  audio.addEventListener('pause',()=>mark(false));
-  audio.addEventListener('ended',()=>{if(sessionStorage.getItem(KEY)==='1')setTimeout(play,500)});
-  audio.addEventListener('error',()=>{if(sessionStorage.getItem(KEY)==='1')setTimeout(play,1500)});
+  // A mobile browser/network interruption must not be mistaken for a user pause.
+  audio.addEventListener('pause',()=>{if(wanted)retry(700)});
+  audio.addEventListener('ended',()=>retry(500));
+  audio.addEventListener('error',()=>retry(1200));
+  audio.addEventListener('stalled',()=>retry(900));
+  audio.addEventListener('abort',()=>retry(900));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&wanted&&audio.paused)retry(150)});
+  window.addEventListener('pageshow',()=>{if(wanted&&audio.paused)retry(150)});
 
   if('mediaSession' in navigator){
     try{
