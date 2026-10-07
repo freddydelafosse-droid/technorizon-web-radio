@@ -627,17 +627,18 @@ async function handler(req,res){
    const dow=Number(new Intl.DateTimeFormat("en-US",{timeZone:"Europe/Paris",weekday:"short"}).format(now).replace(/.*/,x=>({Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:7}[x]||0)));
    let action=null,period=null;
 
-   // Editorial priority: prepare shortly before the public slot.
-   if(h===6&&m===50) action="weather-now";                 // 07:00 new
-   else if(h===7&&m===10) action="horoscope-generate";    // ~07:15
-   else if(h===8&&m===10) action="horoscope-replay";      // ~08:15
-   else if(h===8&&m===50){action="flash-replay";period="07";} // 09:00
-   else if(h===10&&m===50) action="weather-now";          // 11:00 new
-   else if(h===12&&[20,25].includes(m)){action="flash-replay";period="11";} // 12:30 + safety retry
-   else if(h===13&&m===20) action="weather-now";          // 13:30 new
-   else if(h===15&&m===20){action="flash-replay";period="13";} // 15:30
-   else if(h===17&&m===20) action="weather-now";          // 17:30 new
-   else if(h===18&&m===20){action="flash-replay";period="17";} // 18:30
+   // Editorial priority: trigger at the advertised public slot, never early.
+   // AzuraCast then inserts Jaya at the next safe AutoDJ boundary; no title is cut.
+   if(h===7&&m===0) action="weather-now";                  // 07:00 new
+   else if(h===7&&m===15) action="horoscope-generate";    // 07:15
+   else if(h===8&&m===15) action="horoscope-replay";      // 08:15
+   else if(h===9&&m===0){action="flash-replay";period="07";} // 09:00
+   else if(h===11&&m===0) action="weather-now";           // 11:00 new
+   else if(h===12&&[30,35].includes(m)){action="flash-replay";period="11";} // 12:30 + protected retry
+   else if(h===13&&m===30) action="weather-now";          // 13:30 new
+   else if(h===15&&m===30){action="flash-replay";period="13";} // 15:30
+   else if(h===17&&m===30) action="weather-now";          // 17:30 new
+   else if(h===18&&m===30){action="flash-replay";period="17";} // 18:30
 
    // H24: three opportunities/hour. A second 5-minute opportunity provides a
    // catch-up; the API's 12-minute history lock prevents a duplicate.
