@@ -185,9 +185,10 @@ overflow:hidden!important
 </style><style id="tz-global-era-theme">
 /* Global era theme: the selected player skin drives the whole Technorizon visual universe. */
 html[data-tz-theme="cassette90"] body{--era-metal:#25292b;--era-dark:#080a0b;--era-edge:#555b5e;--era-text:#e7e8e4;--era-muted:#9da3a2;--era-glow:#77e6c0}
-html[data-tz-theme="cassette90"] .v2-background{background-image:linear-gradient(rgba(36,0,46,.10),rgba(10,0,20,.24)),url("Fond-Technorizon-V2.png.png")!important}
-html[data-tz-theme="cassette90"] .v2-background::before{content:"";position:absolute;inset:0;background:rgba(112,0,150,.16);mix-blend-mode:color;pointer-events:none}
-html[data-tz-theme="cassette90"] .v2-background::after{background:linear-gradient(to bottom,rgba(18,0,24,.05),rgba(15,0,24,.18) 52%,rgba(2,0,8,.78) 100%)!important}
+html[data-tz-theme="cassette90"] .v2-background{background-image:linear-gradient(rgba(72,0,92,.22),rgba(32,0,58,.34)),url("Fond-Technorizon-V2.png.png")!important;background-blend-mode:color!important}
+html[data-tz-theme="cassette90"] .v2-background::before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(126,0,165,.18),rgba(63,0,125,.08) 48%,rgba(185,0,132,.16));mix-blend-mode:color;pointer-events:none}
+html[data-tz-theme="cassette90"] .v2-background::after{background:linear-gradient(to bottom,rgba(20,0,30,.02),rgba(20,0,34,.14) 50%,rgba(3,0,10,.72) 100%)!important}
+html[data-tz-theme="cassette90"] .v2-background>.v2-topbar,html[data-tz-theme="cassette90"] .v2-background>.v2-header,html[data-tz-theme="cassette90"] .v2-background>.v2-main,html[data-tz-theme="cassette90"] .v2-background>.v2-footer{position:relative;z-index:1}
 html[data-tz-theme="cassette90"] .v2-brand-logo{text-shadow:0 0 8px rgba(255,255,255,.25),0 0 18px rgba(255,42,210,.30)!important}
 html[data-tz-theme="cassette90"] .v2-brand-techno,html[data-tz-theme="cassette90"] .v2-brand-rizon{color:#f2f2f5!important}
 html[data-tz-theme="cassette90"] .v2-brand-o,html[data-tz-theme="cassette90"] .v2-brand-fr{color:#d77cff!important}
