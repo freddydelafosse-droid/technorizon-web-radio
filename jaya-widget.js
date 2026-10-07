@@ -12,6 +12,15 @@
   html[data-tz-theme="cassette90"] .radio-live-badge{border-color:rgba(228,173,66,.58)!important;color:#e4ad42!important}
   html[data-tz-theme="cassette90"] .radio-live-dot{background:#e4ad42!important;box-shadow:0 0 10px #e4ad42!important}
   html[data-tz-theme="cassette90"] .radio-vu-mini i{background:#e4ad42!important;box-shadow:0 0 8px rgba(228,173,66,.72)!important}
+  html[data-tz-theme="cassette90"] .jaya-panel{border-color:rgba(218,169,69,.52)!important;box-shadow:0 18px 55px rgba(0,0,0,.58),0 0 30px rgba(218,169,69,.14)!important}
+  html[data-tz-theme="cassette90"] .jaya-head{border-bottom-color:rgba(218,169,69,.24)!important;background:rgba(73,50,15,.28)!important}
+  html[data-tz-theme="cassette90"] .jaya-avatar{border-color:rgba(228,173,66,.72)!important;box-shadow:0 0 13px rgba(228,173,66,.28)!important}
+  html[data-tz-theme="cassette90"] .jaya-title strong{color:#f1ce78!important}
+  html[data-tz-theme="cassette90"] .jaya-title span{color:#c5a969!important}
+  html[data-tz-theme="cassette90"] .jaya-lang,html[data-tz-theme="cassette90"] .jaya-input{border-color:rgba(218,169,69,.38)!important}
+  html[data-tz-theme="cassette90"] .jaya-msg.bot{border-color:rgba(218,169,69,.24)!important;background:rgba(91,63,18,.18)!important}
+  html[data-tz-theme="cassette90"] .jaya-send{border-color:rgba(218,169,69,.58)!important;background:rgba(139,94,20,.22)!important;color:#f3d47f!important}
+  html[data-tz-theme="cassette90"] .jaya-form{border-top-color:rgba(218,169,69,.22)!important}
   @media(max-width:600px){html[data-tz-theme="cassette90"] .jaya-fab:after{display:none!important}}
   `;
   const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
