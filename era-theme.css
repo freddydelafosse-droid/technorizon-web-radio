@@ -7,3 +7,11 @@ html[data-tz-theme="cassette90"] :is(button,.btn,.button,a.back,.back,.cta){back
 html[data-tz-theme="cassette90"] :is(h1,h2,h3,.title){text-shadow:0 1px #000;letter-spacing:.04em}
 html[data-tz-theme="cassette90"] :is(.accent,.cyan,.meta,.eyebrow){color:var(--era-glow)!important}
 html[data-tz-theme="cassette90"] :is(input,select,textarea){background:#0b0e0f!important;color:var(--era-text)!important}
+
+/* Explicit public-page selectors: each section has its own historical class names. */
+html[data-tz-theme="cassette90"] :is(.page,.detail-page,.bg){color:var(--era-text)!important}
+html[data-tz-theme="cassette90"] :is(.feature,.zone,.news-item,.match,.notice,.table-wrap,.result,.field,.intro,.filters,.football-v2,.results,.standings,.signs){border-color:#505658!important}
+html[data-tz-theme="cassette90"] :is(.feature,.zone,.news-item,.match,.result){border-radius:5px!important;background:linear-gradient(180deg,rgba(39,43,45,.94),rgba(9,11,12,.96))!important;box-shadow:inset 0 1px rgba(255,255,255,.08),0 6px 16px rgba(0,0,0,.3)!important}
+html[data-tz-theme="cassette90"] :is(.back,.detail-back,.enter,.send,.game-listen-btn,.game-share-btn,.pill,.share-sports,.lang-select,.lang){border:1px solid #596064!important;border-radius:3px!important;background:linear-gradient(#2b3032,#101213)!important;color:var(--era-text)!important;box-shadow:inset 0 1px rgba(255,255,255,.09),0 2px 4px #000!important}
+html[data-tz-theme="cassette90"] :is(.detail-title,.tz-title-line,.brand,.logo,.title-wrap,.title){color:var(--era-text)!important;text-shadow:0 1px #000!important}
+html[data-tz-theme="cassette90"] :is(.news-meta,.news-readmore,.tagline,.tag,.sub){color:var(--era-glow)!important}
