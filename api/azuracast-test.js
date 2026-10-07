@@ -130,19 +130,19 @@ function queuePlayed(row){return row?.is_played===true||row?.is_played===1||row?
 // Grille programmes officielle utilisée par le cerveau H24. Jaya peut promouvoir
 // uniquement ces rendez-vous; elle n'annonce/désannonce jamais un titre ou un artiste.
 const JAYA_PROGRAM_GRID={
-  1:[{name:"Back In Time 80's",start:18*60,end:20*60}],
-  2:[{name:"Back In Time 90's",start:18*60,end:20*60}],
-  3:[{name:"Back In Time 2000's",start:18*60,end:20*60},{name:"Jade Connexion",start:20*60,end:22*60}],
-  4:[{name:"Back In Time 2010's",start:18*60,end:20*60},{name:"Technorizon Club",start:20*60,end:24*60}],
-  5:[{name:"Back In Time 2020's",start:18*60,end:20*60},{name:"Technorizon Club",start:20*60,end:24*60}],
-  6:[{name:"Technorizon Furax",start:20*60,end:24*60}],
-  7:[{name:"Back In Time Mix",start:17*60,end:20*60}]
+  1:[{name:"Back In Time 80's",start:18*60,end:20*60,active:true}],
+  2:[{name:"Back In Time 90's",start:18*60,end:20*60,active:true}],
+  3:[{name:"Back In Time 2000's",start:18*60,end:20*60,active:true},{name:"Jade Connexion",start:20*60,end:22*60,active:true}],
+  4:[{name:"Back In Time 2010's",start:18*60,end:20*60,active:true},{name:"Technorizon Club",start:20*60,end:24*60,active:true}],
+  5:[{name:"Back In Time 2020's",start:18*60,end:20*60,active:true},{name:"Technorizon Club",start:20*60,end:24*60,active:true}],
+  6:[{name:"Technorizon Furax",start:20*60,end:24*60,active:true}],
+  7:[{name:"Back In Time Mix",start:17*60,end:20*60,active:true}]
 };
 function parisDow(date=new Date()){
  return Number(new Intl.DateTimeFormat("en-US",{timeZone:"Europe/Paris",weekday:"short"}).format(date).replace(/.*/,x=>({Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:7}[x]||0)));
 }
 function jayaUpcomingProgram(date=new Date()){
- const now=parisClock(date),dow=parisDow(date),rows=JAYA_PROGRAM_GRID[dow]||[];
+ const now=parisClock(date),dow=parisDow(date),rows=(JAYA_PROGRAM_GRID[dow]||[]).filter(x=>x.active===true);
  const future=rows.filter(x=>x.start>now).sort((a,b)=>a.start-b.start);
  if(!future.length)return null;
  const p=future[0],minutesUntil=p.start-now;
