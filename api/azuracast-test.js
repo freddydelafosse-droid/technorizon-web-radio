@@ -626,6 +626,14 @@ Ce qu'il faut apprendre de ces exemples : réaction spontanée au morceau, adres
   if(!r.ok){console.error("JAYA_SMART_HTTP",r.status);return null}
   const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
   if(!out||out.length>500)return null;
+  // Sécurité grille: hors promo officielle, aucune heure chiffrée n'est admise.
+  // En mode promo, seule l'heure exacte fournie par la grille du jour est autorisée.
+  const spokenTimes=out.match(/\b(?:[01]?\d|2[0-3])\s*h(?:\s*[0-5]\d)?\b/gi)||[];
+  if(spokenTimes.length){
+   if(!programPromo){console.error("JAYA_PROGRAM_TIME_REJECTED",out);return null}
+   const expected=normJaya(upcomingProgram.spoken).replace(/\s+/g,"");
+   if(spokenTimes.some(t=>normJaya(t).replace(/\s+/g,"")!==expected)){console.error("JAYA_PROGRAM_WRONG_TIME_REJECTED",out);return null}
+  }
   if(jayaTooGeneric(out)){
    console.error("JAYA_REPEAT_REJECTED",out);
    const fallbackAngles=[
