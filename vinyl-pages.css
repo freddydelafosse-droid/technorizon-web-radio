@@ -1,0 +1,28 @@
+/* Full-page vinyl skin, loaded by all 8 content pages. Scoped to avoid changing classic/gold. */
+html[data-tz-theme="vinyl"]{--vinyl-forest:#0c2426;--vinyl-teal:#355b5b;--vinyl-gold:#dbb967;--vinyl-cream:#f5e7c8;color-scheme:dark}
+html[data-tz-theme="vinyl"] body{background:radial-gradient(ellipse at 50% 0%,#3e6766 0%,#173637 43%,#071719 100%) fixed!important;color:var(--vinyl-cream)!important}
+html[data-tz-theme="vinyl"] body:before{background:radial-gradient(ellipse at top,#52757433,transparent 70%)!important}
+html[data-tz-theme="vinyl"] :is(header,nav,main,section,article,aside,footer,form,.panel,.card,.box,.tile,.result,.content,.container,.wrap,.widget,.forecast,.day,.match,.game-card,.news-card,.sport-card){border-color:#b7974d!important}
+html[data-tz-theme="vinyl"] :is(.panel,.card,.box,.tile,.result,.widget,.forecast,.day,.match,.game-card,.news-card,.sport-card,.glass,.content-card){background:linear-gradient(145deg,#315858eb,#102d30ed)!important;box-shadow:inset 0 1px #ffffff13,0 9px 24px #0004!important;color:var(--vinyl-cream)!important}
+html[data-tz-theme="vinyl"] :is(h1,h2,h3,h4,.title,.heading,.section-title,.brand,.logo-text){color:#f3d487!important;text-shadow:0 1px 4px #0005!important}
+html[data-tz-theme="vinyl"] :is(p,li,label,small,span,strong,td,th){border-color:#b7974d55}
+html[data-tz-theme="vinyl"] :is(a,button,.btn,[role="button"]){border-color:#b7974d!important}
+html[data-tz-theme="vinyl"] :is(button,.btn,[type="submit"],[role="button"]){background:linear-gradient(145deg,#446d68,#18383a)!important;color:#f7e5b9!important;box-shadow:inset 0 1px #ffffff21!important}
+html[data-tz-theme="vinyl"] :is(button,.btn,[type="submit"],[role="button"]):hover{background:linear-gradient(145deg,#5c8077,#244a4b)!important}
+html[data-tz-theme="vinyl"] :is(input,select,textarea){background:#102b2e!important;color:#f5e6c6!important;border:1px solid #b7974d!important}
+html[data-tz-theme="vinyl"] :is(input,select,textarea):focus{outline:2px solid #e2bd65!important;outline-offset:2px}
+html[data-tz-theme="vinyl"] :is(table,thead,tbody,tr,td,th){border-color:#9b854f!important}
+html[data-tz-theme="vinyl"] :is(th,thead){background:#345758!important;color:#f5d88e!important}
+html[data-tz-theme="vinyl"] :is(dialog,[role="dialog"],.modal,.popup,.overlay,.drawer){background:#173637!important;color:#f3e5c4!important;border-color:#bd9b50!important}
+html[data-tz-theme="vinyl"] :is(.active,.selected,[aria-selected="true"]){border-color:#efcf76!important}
+html[data-tz-theme="vinyl"] :is(.muted,.subtitle,.secondary,.description){color:#d1c5a9!important}
+html[data-tz-theme="vinyl"] a:not(.btn){color:#efd08a}
+html[data-tz-theme="vinyl"] :is(.back,.back-link,.home-link){color:#f1cc75!important}
+html[data-tz-theme="vinyl"] :is(.hero,.page-header,.header-inner,.topbar){background:linear-gradient(120deg,#274b4c,#132f32)!important;border-color:#b7974d!important}
+html[data-tz-theme="vinyl"] :is(.weather-card,.weather-day,.zodiac-card,.horoscope-card,.result-card,.score-card,.news-item,.article-card,.contact-card,.dedicace-card){background:linear-gradient(145deg,#315959,#112e31)!important;border:1px solid #aa904f!important;color:#f3e5c6!important}
+html[data-tz-theme="vinyl"] :is(.accent,.highlight,.gold,.score,.temperature){color:#efcb78!important}
+@media(max-width:700px){html[data-tz-theme="vinyl"] body{background:#102b2d!important}html[data-tz-theme="vinyl"] :is(.panel,.card,.box,.tile){box-shadow:0 4px 12px #0003!important}}
+/* Gold edition: ensure the standalone Infos interior uses gold, too. */
+html[data-tz-theme="cassette90"] body{background:radial-gradient(ellipse at top,#473518,#110f0b 85%) fixed!important}
+html[data-tz-theme="cassette90"] :is(.news-card,.news-item,.article-card,.panel,.card,.news-list article){background:linear-gradient(140deg,#302416ed,#12100dee)!important;border-color:#bd9446!important;color:#f2dfb7!important}
+html[data-tz-theme="cassette90"] :is(.news-card h2,.news-item h2,.article-card h2,.news-list h2){color:#f0cc77!important}
