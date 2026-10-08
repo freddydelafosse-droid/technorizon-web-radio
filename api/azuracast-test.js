@@ -29,19 +29,19 @@ function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u03
 function repeatedJayaPhrase(text){
  const n=normJaya(text);
  if(!n)return false;
- const recent=jayaRecent.slice(-80).map(normJaya).filter(Boolean);
+ const recent=jayaRecent.slice(-12).map(normJaya).filter(Boolean);
  // Exact repetitions are never acceptable; shared radio vocabulary is normal.
  if(recent.includes(n))return true;
  const words=n.split(" ").filter(Boolean);
  if(words.length<9)return false;
  const stop=new Set(["alors","avec","comme","dans","depuis","encore","entre","faire","ici","jaya","mais","meme","nous","pour","quand","radio","sont","technorizon","tous","tout","toute","vous"]);
  const content=words.filter(w=>w.length>=5&&!stop.has(w));
- return recent.slice(-25).some(old=>{
+ return recent.slice(-6).some(old=>{
   const ow=old.split(" ").filter(Boolean);
   const oc=ow.filter(w=>w.length>=5&&!stop.has(w));
   if(content.length<5||oc.length<5)return false;
   const overlap=content.filter(w=>oc.includes(w)).length/Math.min(content.length,oc.length);
-  return overlap>=0.78;
+  return overlap>=0.94;
  });
 }
 function jayaTooGeneric(text){
