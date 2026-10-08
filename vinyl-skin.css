@@ -104,3 +104,8 @@ html[data-tz-theme="vinyl"] .v2-contact-gold:before,html[data-tz-theme="vinyl"] 
 /* Final parked angle: stylus completely outside the platter until PLAY. */
 .tz-vinyl-arm-moving{transform:rotate(-55deg)!important}
 .tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm-moving{transform:rotate(0deg)!important}
+
+/* Hardware layout: keep controls clear of the spinning platter. */
+.tz-skin-host[data-skin="vinyl"] .tz-vinyl-start{left:auto!important;right:4.2%!important;bottom:3.2%!important;z-index:6!important;min-width:88px}
+.tz-skin-host[data-skin="vinyl"] .tz-vinyl-pitch{bottom:23%!important;right:5%!important;height:24%!important}
+@media(max-width:700px){.tz-skin-host[data-skin="vinyl"] .tz-vinyl-start{right:3%!important;bottom:2%!important;min-width:70px;font-size:8px!important;padding:5px 6px!important}}
