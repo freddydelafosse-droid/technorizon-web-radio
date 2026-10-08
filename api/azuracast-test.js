@@ -752,6 +752,23 @@ async function handler(req,res){
    else if(h===17&&m===30) action="weather-now";          // 17:30
    else if(h===18&&m===30){action="flash-replay";period="17";} // 18:30
 
+   // A single protected catch-up attempt five minutes after each official
+   // editorial slot. The execution API checks persistent slot memory, AzuraCast
+   // queue and broadcast history before accepting a second insertion.
+   // Never trigger before the announced time or change the published schedule.
+   if(!action){
+    if(h===7&&m===5) action="weather-now";
+    else if(h===7&&m===20) action="horoscope-generate";
+    else if(h===8&&m===20) action="horoscope-replay";
+    else if(h===9&&m===5){action="flash-replay";period="07";}
+    else if(h===11&&m===5) action="weather-now";
+    else if(h===12&&m===35){action="flash-replay";period="11";}
+    else if(h===13&&m===35) action="weather-now";
+    else if(h===15&&m===35){action="flash-replay";period="13";}
+    else if(h===17&&m===35) action="weather-now";
+    else if(h===18&&m===35){action="flash-replay";period="17";}
+   }
+
    // H24: three opportunities/hour. A second 5-minute opportunity provides a
    // catch-up; the API's 12-minute history lock prevents a duplicate.
    let h24=false;
