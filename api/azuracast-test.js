@@ -3,6 +3,7 @@ const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1;
 const JAYA_RECENT_MAX=500;
 let jayaRecent=[];
 const JAYA_BANNED_GENERIC=[
+ "bon j avais prevu d etre sage au micro","voila c est rate on garde le sourire",
  "tres bonne ecoute","on garde l energie","je vous accompagne encore un moment",
  "j espere que votre soiree se passe bien","la musique continue","on continue",
  "on garde cette energie","garder l energie","plein d energie",
@@ -337,6 +338,34 @@ async function jayaTtsPayload(text){
   voice_settings:{speed:0.95,stability:0.34,similarity_boost:0.80,style:0.34,use_speaker_boost:true}
  };
 }
+const JAYA_EXTRA_FALLBACKS=[
+"Vous êtes sur Technorizon, et moi j'ai une mission : vous tenir compagnie avec le sourire.",
+"Je crois que le studio vient de gagner quelques décibels de bonne humeur.",
+"Entre nous, une journée avec de la musique électronique a déjà un avantage.",
+"Je vous envoie un sourire depuis le studio, où que vous soyez.",
+"Un clin d'œil à celles et ceux qui travaillent pendant que les autres dansent.",
+"Sur Technorizon, les kilomètres nous séparent peut-être, mais la musique nous rassemble.",
+"J'espère que votre journée vous réserve au moins une jolie surprise.",
+"Petite pensée pour les auditeurs qui nous écoutent sur la route : prudence et bonne musique.",
+"Une dédicace spontanée à tous les passionnés de sons électroniques.",
+"Je vous souhaite une belle découverte musicale dans les prochaines minutes.",
+"Je me demande combien de pays écoutent la même basse en ce moment.",
+"Si vous dansez discrètement dans votre cuisine, votre secret est bien gardé.",
+"Il paraît que la bonne humeur est contagieuse : je tente l'expérience.",
+"Je vous adresse un salut depuis le studio de Technorizon.",
+"Les amateurs de House, de Techno et d'Eurodance sont ici chez eux.",
+"Petite pensée aux équipes de nuit et aux lève-tôt : je suis avec vous.",
+"Je profite du micro pour remercier celles et ceux qui partagent Technorizon.",
+"Parfois, un simple refrain suffit à réveiller un souvenir.",
+"Un petit message aux nouveaux auditeurs : bienvenue dans notre univers.",
+"Je ne sais pas où vous êtes, mais j'espère que le son vous plaît.",
+"Il y a toujours une bonne raison de découvrir un nouveau morceau.",
+"Je vous souhaite quelques minutes rien qu'à vous, au rythme de Technorizon.",
+"Une pensée pour les auditeurs de France et d'ailleurs.",
+"Le studio est de bonne humeur, et j'espère que ça s'entend.",
+"Un sourire à tous ceux qui écoutent en préparant leur journée.",
+"Je suis ravie de partager ce moment avec vous sur Technorizon."
+];
 function generic(slot){
  const p=daypart(),pool={
   matin:[
@@ -378,7 +407,7 @@ function generic(slot){
    "Je glisse quelques mots aux noctambules avant que le prochain morceau ne prenne le relais."
   ]
  };
- return pool[p][hash(String(slot)+"|generic|"+p)%pool[p].length];
+ const choices=[...pool[p],...JAYA_EXTRA_FALLBACKS]; return choices[hash(String(slot)+"|generic|"+p)%choices.length];
 }
 function weatherSky(code){if(code===0)return "un ciel bien dégagé";if(code<=3)return "un ciel partagé entre éclaircies et nuages";if(code===45||code===48)return "des brouillards par endroits";if(code>=51&&code<=67)return "des pluies ou averses";if(code>=71&&code<=77)return "quelques chutes de neige";if(code>=80&&code<=82)return "des averses";if(code>=95)return "un risque d'orages";return "un temps variable"}
 async function weatherBulletin({tomorrow=false}={}){const pool=[["Lille",50.6292,3.0573],["Paris",48.8566,2.3522],["Strasbourg",48.5734,7.7521],["Nantes",47.2184,-1.5536],["Bordeaux",44.8378,-0.5792],["Lyon",45.764,4.8357],["Marseille",43.2965,5.3698],["Rouen",49.4431,1.0993],["Rennes",48.1173,-1.6778],["Brest",48.3904,-4.4861],["Caen",49.1829,-0.3707],["Amiens",49.8941,2.2958],["Reims",49.2583,4.0317],["Dijon",47.322,5.0415],["Orléans",47.903,1.9093],["Tours",47.3941,0.6848],["Poitiers",46.5802,0.3404],["Limoges",45.8336,1.2611],["Clermont-Ferrand",45.7772,3.087],["Grenoble",45.1885,5.7245],["Toulouse",43.6047,1.4442],["Montpellier",43.6108,3.8767],["Nice",43.7102,7.262],["Perpignan",42.6887,2.8948]];const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());const seed=hash(day+"weather-cities");const cities=Array.from({length:7},(_,i)=>pool[(seed+i*7)%pool.length]);const settled=await Promise.allSettled(cities.map(async([city,latitude,longitude])=>{const u=new URL("https://api.open-meteo.com/v1/forecast");u.searchParams.set("latitude",latitude);u.searchParams.set("longitude",longitude);u.searchParams.set("daily","weather_code,temperature_2m_max,precipitation_probability_max");u.searchParams.set("timezone","Europe/Paris");u.searchParams.set("forecast_days",tomorrow?"2":"1");const r=await fetch(u);if(!r.ok)throw new Error("Weather "+city);const j=await r.json();return{city,max:Math.round(j.daily.temperature_2m_max[tomorrow?1:0]),rain:Math.round(j.daily.precipitation_probability_max[tomorrow?1:0]||0),code:Number(j.daily.weather_code[tomorrow?1:0]||0)}}));const data=settled.filter(x=>x.status==="fulfilled").map(x=>x.value);if(data.length<4)throw new Error("Weather data insufficient");const ordered=data.slice().sort((a,b)=>hash(day+a.city+"order")-hash(day+b.city+"order"));const wet=ordered.filter(x=>x.rain>=50).map(x=>x.city);const temps=ordered.map((x,i)=>(i===ordered.length-1?"et ":"")+x.max+" degrés à "+x.city).join(", ").replace(", et "," et ");const skyRows=ordered.slice(0,3).map(x=>({city:x.city,sky:weatherSky(x.code)}));const skyGroups=new Map();for(const x of skyRows){const a=skyGroups.get(x.sky)||[];a.push(x.city);skyGroups.set(x.sky,a)}let sky;if(skyGroups.size===1){const same=skyRows[0].sky;const variants=[same+" sur l'ensemble des zones suivies",same+" d'est en ouest sur les secteurs observés","une même tendance sur l'ensemble, avec "+same];sky=variants[hash(day+"weather-sky-group")%variants.length]}else{sky=Array.from(skyGroups.entries()).map(([s,cs])=>cs.length>1?s+" de "+cs[0]+" à "+cs[cs.length-1]:s+" vers "+cs[0]).join(", ")}return "Bonjour, ici Jaya avec votre météo nationale sur Technorizon.fr. "+(tomorrow?"Pour demain, ":"Aujourd'hui, ")+temps+". Côté ciel, "+sky+". "+(wet.length?"Le risque de pluie est plus marqué vers "+wet.slice(0,3).join(", ")+".":"Le risque de pluie reste globalement limité sur les villes suivies.")+" Et pour retrouver la météo détaillée de votre ville, rendez-vous sur Technorizon.fr, rubrique Météo. Très bonne écoute !"}
