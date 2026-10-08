@@ -27,28 +27,26 @@ function programTimeAllowed(text){
 }
 function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
 function repeatedJayaPhrase(text){
- const words=normJaya(text).split(" ").filter(Boolean);
- if(words.length<4)return false;
- const grams=[];
- for(let i=0;i<=words.length-4;i++)grams.push(words.slice(i,i+4).join(" "));
- return jayaRecent.slice(-250).some(old=>{
-  const oldWords=normJaya(old).split(" ").filter(Boolean);
-  if(oldWords.length<4)return false;
-  const oldText=" "+oldWords.join(" ")+" ";
-  return grams.some(g=>oldText.includes(" "+g+" "));
- });
+ const normalized=normJaya(text);
+ if(!normalized)return false;
+ // Exact duplicates are always rejected. Common four-word expressions are not.
+ return jayaRecent.slice(-JAYA_RECENT_MAX).some(old=>normJaya(old)===normalized);
 }
 function jayaTooGeneric(text){
  const n=normJaya(text);
- // "énergie" était devenu un tic de langage : blocage dur avant TTS.
  if(/\benergie\b/.test(n))return true;
  if(JAYA_BANNED_GENERIC.some(x=>n.includes(x)))return true;
- // H24 pré-généré : aucune heure chiffrée ne doit pouvoir être dite à l'antenne.
  if(/\b(?:[01]?\d|2[0-3])\s*(?:h|heures?)\s*(?:[0-5]\d)?\b/i.test(String(text||""))&&!programTimeAllowed(String(text||"")))return true;
- // Anti-tic global : bloque aussi toute séquence de 4 mots déjà entendue récemment.
  if(repeatedJayaPhrase(text))return true;
- // Anti-radotage renforcé : comparaison sur une mémoire plus longue et seuil plus strict.
- return jayaRecent.slice(-140).some(old=>{const na=normJaya(old),nb=normJaya(text);if(na===nb)return true;const a=new Set(na.split(" ").filter(x=>x.length>3)),b=nb.split(" ").filter(x=>x.length>3);if(!a.size||!b.length)return false;const common=b.filter(x=>a.has(x)).length;return common/Math.min(a.size,b.length)>=0.25});
+ // Only reject near-identical passages, not ordinary shared vocabulary.
+ const current=new Set(n.split(" ").filter(w=>w.length>3));
+ if(current.size<5)return false;
+ return jayaRecent.slice(-80).some(old=>{
+  const previous=new Set(normJaya(old).split(" ").filter(w=>w.length>3));
+  if(previous.size<5)return false;
+  const common=[...current].filter(w=>previous.has(w)).length;
+  return common/Math.max(current.size,previous.size)>=0.85;
+ });
 }
 function rememberJaya(text){const s=String(text||"").trim();if(!s)return;jayaRecent.push(s);if(jayaRecent.length>JAYA_RECENT_MAX)jayaRecent=jayaRecent.slice(-JAYA_RECENT_MAX)}
 function jayaMemoryConfig(){
@@ -1178,7 +1176,7 @@ async function handler(req,res){
     const fallbackPool=[
      "Alors, petite question : vous aussi, il y a des morceaux qui changent l'ambiance d'une pièce dès les premières secondes ? Moi, oui.",
      "Je crois que j'aime beaucoup ces moments où je peux ouvrir le micro sans avoir forcément quelque chose de sérieux à annoncer. Juste être là avec vous, ça me va très bien.",
-     "Bon… j'avais prévu d'être sage au micro. Voilà, c'est déjà raté. On garde le sourire.",
+     "Je suis tombée sur une drôle de question : pourquoi une mélodie peut-elle rester dans la tête toute la journée ? Si vous avez la réponse, je prends.",
      "Vous savez quoi ? Aujourd'hui je vote pour les petits moments qui font du bien sans prévenir. Celui-ci en fait partie.",
      "Petit clin d'œil à celles et ceux qui nous écoutent en travaillant : courage, je vous envoie un peu de bonne humeur depuis le studio.",
      "Il y a des jours où le café fait le travail… et d'autres où c'est clairement la musique qui prend le relais.",
@@ -1197,7 +1195,9 @@ async function handler(req,res){
      "Je ne sais pas qui avait besoin d'entendre ça aujourd'hui, mais oui : vous avez parfaitement le droit de danser un peu, même si c'est seulement avec les épaules.",
      "Attention, information capitale : Jaya est de bonne humeur. Voilà. Pour une fois, une nouvelle dont je peux garantir la source."
     ];
-    safeText=fallbackPool[hash(String(slot)+"|emergency-h24")%fallbackPool.length];
+    const eligible=fallbackPool.filter(candidate=>!jayaTooGeneric(candidate));
+    const selection=eligible.length?eligible:fallbackPool.filter(candidate=>!repeatedJayaPhrase(candidate)&&!JAYA_BANNED_GENERIC.some(x=>normJaya(candidate).includes(x)));
+    safeText=(selection.length?selection:fallbackPool)[hash(String(slot)+"|emergency-h24")%(selection.length||fallbackPool.length)];
     console.warn("JAYA_H24_EMERGENCY_FALLBACK",slot);
    }
   }
