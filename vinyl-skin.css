@@ -46,3 +46,13 @@ html[data-tz-theme="vinyl"] :is(.tz-spa-news,.tz-spa-panel,.tz-weather-panel,.tz
 html[data-tz-theme="vinyl"] :is(.tz-spa-news-title,.tz-spa-source,.tz-spa-sub,.tz-weather-sub){color:#f1e3c4!important}
 html[data-tz-theme="cassette90"] #tz-spa-infos :is(.tz-spa-sub,.tz-spa-source,.tz-spa-status){color:#d9c49b!important}
 html[data-tz-theme="cassette90"] #tz-spa-infos :is(.tz-spa-back,.tz-spa-readmore,.tz-spa-meta){color:#e5bb61!important}
+
+/* Vinyl hardware refinement: all moving elements remain independent. */
+.tz-vinyl-body{overflow:hidden;border-radius:7px;background:linear-gradient(150deg,#648681,#345c5b 60%,#224143)}
+.tz-vinyl-platter{width:62%;left:5%;top:5%;border:6px ridge #d2ac54;box-shadow:0 0 0 5px #17292a,0 0 0 8px #d2a64d,0 7px 13px #000a}
+.tz-vinyl-arm{right:12%;top:12%;height:57%;width:7px;transform:rotate(-13deg);transform-origin:50% 8%}
+.tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm{transform:rotate(12deg)}
+.tz-vinyl-start{left:5%;bottom:7%;font-size:9px;padding:7px 9px;z-index:2}
+.tz-vinyl-pitch{right:5%;bottom:17%;height:26%}
+.tz-vinyl-label{background:radial-gradient(circle,#25211a 0%,#0a0b0b 65%);border-color:#e2bd67}
+.tz-skin-host[data-skin="vinyl"] .tz-skin-choice[data-skin="vinyl"]{color:#f9e5b4!important;border-color:#d8b665!important;box-shadow:0 0 8px #d9b35b55!important}
