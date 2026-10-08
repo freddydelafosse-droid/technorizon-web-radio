@@ -1195,7 +1195,6 @@ async function handler(req,res){
     const fallbackPool=[
      "Alors, petite question : vous aussi, il y a des morceaux qui changent l'ambiance d'une pièce dès les premières secondes ? Moi, oui.",
      "Je crois que j'aime beaucoup ces moments où je peux ouvrir le micro sans avoir forcément quelque chose de sérieux à annoncer. Juste être là avec vous, ça me va très bien.",
-     "Bon… j'avais prévu d'être sage au micro. Voilà, c'est déjà raté. On garde le sourire.",
      "Vous savez quoi ? Aujourd'hui je vote pour les petits moments qui font du bien sans prévenir. Celui-ci en fait partie.",
      "Petit clin d'œil à celles et ceux qui nous écoutent en travaillant : courage, je vous envoie un peu de bonne humeur depuis le studio.",
      "Il y a des jours où le café fait le travail… et d'autres où c'est clairement la musique qui prend le relais.",
@@ -1214,8 +1213,13 @@ async function handler(req,res){
      "Je ne sais pas qui avait besoin d'entendre ça aujourd'hui, mais oui : vous avez parfaitement le droit de danser un peu, même si c'est seulement avec les épaules.",
      "Attention, information capitale : Jaya est de bonne humeur. Voilà. Pour une fois, une nouvelle dont je peux garantir la source."
     ];
-    safeText=fallbackPool[hash(String(slot)+"|emergency-h24")%fallbackPool.length];
-    console.warn("JAYA_H24_EMERGENCY_FALLBACK",slot);
+    const safeEmergency=fallbackPool.filter(candidate=>!jayaTooGeneric(candidate));
+     if(!safeEmergency.length){
+      console.error("JAYA_H24_NO_UNREPEATED_TEXT",{slot});
+      return skip(res,"h24-no-unrepeated-text");
+     }
+     safeText=safeEmergency[hash(String(slot)+"|emergency-h24")%safeEmergency.length];
+     console.warn("JAYA_H24_EMERGENCY_FALLBACK_FILTERED",slot);
    }
   }
   const text=radioPause(enforceDaypart(safeText,lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
