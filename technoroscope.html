@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head><script>(()=>{let s='classic';try{s=localStorage.getItem('technorizon-player-skin-desktop')||'classic'}catch(e){}document.documentElement.dataset.tzTheme=['classic','cassette90','vinyl'].includes(s)?s:'classic'})()</script>
+<head><script>(()=>{let s='classic';try{s=new URLSearchParams(location.search).get('skin')||localStorage.getItem('technorizon-player-skin-desktop')||'classic'}catch(e){}document.documentElement.dataset.tzTheme=['classic','cassette90','vinyl'].includes(s)?s:'classic';try{localStorage.setItem('technorizon-player-skin-desktop',document.documentElement.dataset.tzTheme)}catch(e){}})()</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="icon" type="image/jpeg" href="Logo-Officiel-Technorizon.jpg">
@@ -34,7 +34,7 @@ html[data-tz-theme="cassette90"] .horoscope-share{background:linear-gradient(180
   <link rel="canonical" href="https://www.technorizon.fr/technoroscope.html">
   <meta property="og:locale" content="fr_FR"><meta property="og:type" content="website"><meta property="og:site_name" content="Technorizon.fr"><meta property="og:title" content="Technoroscope : horoscope du jour | Technorizon.fr"><meta property="og:description" content="Découvrez gratuitement votre Technoroscope du jour pour les douze signes astrologiques dans l’univers de Technorizon.fr."><meta property="og:url" content="https://www.technorizon.fr/technoroscope.html"><meta property="og:image" content="https://www.technorizon.fr/ImageLogoFinal.png"><meta property="og:image:alt" content="Technorizon.fr — La musique sans frontières">
   <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Technoroscope : horoscope du jour | Technorizon.fr"><meta name="twitter:description" content="Découvrez gratuitement votre Technoroscope du jour pour les douze signes astrologiques dans l’univers de Technorizon.fr."><meta name="twitter:image" content="https://www.technorizon.fr/ImageLogoFinal.png">
-<link id="tz-era-shared-css" rel="stylesheet" href="/era-theme.css?v=7"><link rel="stylesheet" href="/vinyl-pages.css?v=1"></head>
+<link id="tz-era-shared-css" rel="stylesheet" href="/era-theme.css?v=7"><link rel="stylesheet" href="/vinyl-pages.css?v=4"></head>
 <body data-content-page="technoroscope">
   <div class="page"><div class="bg"></div><div class="shade"></div><main class="panel">
     <div class="top"><a href="index.html" class="back" id="back">← Retour à l'accueil</a><select id="langSelect" class="lang-select" aria-label="Langue et région du Technoroscope"><option value="fr">🇫🇷 FR</option><option value="be">🇧🇪 BE</option><option value="ch">🇨🇭 CH</option><option value="gb">🇬🇧 GB</option><option value="us">🇺🇸 US</option><option value="ca">🇨🇦 CA</option><option value="de">🇩🇪 DE</option><option value="es">🇪🇸 ES</option><option value="it">🇮🇹 IT</option><option value="pt">🇵🇹 PT</option><option value="nl">🇳🇱 NL</option><option value="pl">🇵🇱 PL</option><option value="jp">🇯🇵 JP</option></select></div>
