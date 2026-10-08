@@ -3,7 +3,7 @@
 create table if not exists public.jaya_antenna_memory (
   id bigint generated always as identity primary key,
   text text not null check (char_length(text) between 12 and 3000),
-  kind text not null default 'h24' check (kind in ('h24', 'news_weather', 'horoscope')),
+  kind text not null default 'h24' check (kind in ('h24', 'news_weather', 'horoscope', 'manual', 'flash_replay', 'horoscope_replay')),
   slot text,
   created_at timestamptz not null default now()
 );
