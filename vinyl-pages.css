@@ -62,3 +62,16 @@ html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.feature,.zo
 html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.logo,.brand,.tagline,.signature){text-shadow:0 1px 5px #0008!important}
 html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.intro,.sub,.meta,.status){color:#ded0af!important}
 html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.tz-title-line,.detail-title):after{background:linear-gradient(90deg,transparent,#d8b766,transparent)!important;box-shadow:0 0 8px #d8b76644!important}
+
+/* Match the working Météo styling on ALL standalone page shells, not just .panel. */
+html[data-tz-theme="vinyl"] :is(.detail-panel,.panel,.wrap,.sport-panel,.game-zone,.contact-panel,.about-panel,.sports-shell,.games-shell){background:radial-gradient(circle at 50% 0%,#42696375,transparent 55%),linear-gradient(140deg,#25494ae8,#10282ae8)!important;border:1px solid #c5a457!important;box-shadow:0 18px 45px #0006,inset 0 1px #fff2!important;color:#f3e5c6!important}
+html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.sports-page,.games-page) :is(h1,h2,h3,.detail-title,.hero-title,.page-title){color:#f3d485!important;text-shadow:0 1px 10px #0008!important}
+html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.sports-page,.games-page) :is(.top a,.detail-back,.back,.news-readmore,.news-arrow,.topright a,.home-link){color:#e8c674!important}
+html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.sports-page,.games-page) :is(.news-item,.astro-sign,.sign,.zodiac,.horoscope-sign,.game-card,.game-tile,.game-option,.sports-card,.match-row,.standings-row,.contact-card,.about-card,.feature,.zone,.arcade,.game-listen-btn,.game-share-btn){background:linear-gradient(145deg,#315959,#112e31)!important;border:1px solid #aa904f!important;color:#f3e5c6!important;box-shadow:inset 0 1px #ffffff1a,0 5px 14px #0003!important}
+html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.sports-page,.games-page) :is(.top,.topright,.header,.hero,.filters,.sports-filters,.select-row,.view-tabs){border-color:#b7974d!important}
+html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.sports-page,.games-page) :is(.news-badge,.astro-score,.astro-sign.active,.view-tabs .active,.selected,.sport-filter-label,.games-eyebrow,.eyebrow,.kicker){color:#f3d485!important;border-color:#d7b562!important}
+html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.sports-page,.games-page) :is(.detail-title,.page-title,h1):after{background:linear-gradient(90deg,transparent,#d6b364,transparent)!important}
+html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.sports-page,.games-page) :is(.bg,.v2-background){background:radial-gradient(ellipse at 45% 0%,#4a7771,#183c3c 50%,#081c1f 100%) fixed!important}
+html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.sports-page,.games-page) :is(.shade){background:linear-gradient(180deg,#071a1a30,#05161770)!important}
+html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.sports-page,.games-page) :is(input,select,textarea,button){border-color:#c4a35b!important;color:#f5e7c8!important}
+html[data-tz-theme="vinyl"] .detail-panel .news-item:nth-child(even):before{background:#d7b562!important}
