@@ -114,3 +114,7 @@ html[data-tz-theme="vinyl"] .v2-contact-gold:before,html[data-tz-theme="vinyl"] 
 .tz-skin-host[data-skin="vinyl"] .tz-vinyl-platter{width:62%!important;left:5%!important;top:7%!important}
 .tz-skin-host[data-skin="vinyl"] .tz-vinyl-body:after{right:auto!important;left:70%!important;bottom:18%!important;width:25%!important;text-align:center!important;line-height:1.4!important}
 .tz-skin-host[data-skin="vinyl"] .tz-vinyl-start{right:4%!important;bottom:3%!important}
+
+/* Fine alignment of front-panel lettering and start switch. */
+.tz-skin-host[data-skin="vinyl"] .tz-vinyl-start{bottom:6.5%!important}
+.tz-skin-host[data-skin="vinyl"] .tz-vinyl-body:after{bottom:15%!important;left:69%!important;right:auto!important;width:26%!important;text-align:center!important}
