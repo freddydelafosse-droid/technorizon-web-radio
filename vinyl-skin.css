@@ -94,3 +94,9 @@ html[data-tz-theme="vinyl"] .v2-top-social{border-color:#d4b36c!important;backgr
 html[data-tz-theme="vinyl"] .v2-nav .nav-icon{color:#f2cf79!important}
 html[data-tz-theme="vinyl"] .v2-contact-gold,html[data-tz-theme="vinyl"] .v2-games-highlight{background:linear-gradient(#466b66,#173637)!important}
 html[data-tz-theme="vinyl"] .v2-contact-gold:before,html[data-tz-theme="vinyl"] .v2-games-highlight:before{display:none!important}
+
+/* Right-hand tonearm rest -> left-hand lead-in groove. Never spin the arm with the platter. */
+.tz-vinyl-arm-moving{transform-box:view-box;transform-origin:518px 75px;transform:rotate(-19deg)!important;transition:transform .8s cubic-bezier(.25,.8,.25,1)!important}
+.tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm-moving{transform:rotate(0deg)!important}
+.tz-vinyl-arm-svg{overflow:hidden}
+@media(prefers-reduced-motion:reduce){.tz-vinyl-arm-moving{transition:none!important}}
