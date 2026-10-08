@@ -37,3 +37,12 @@ html[data-tz-theme="cassette90"] #tz-spa-infos{background:#100f0c!important;colo
 html[data-tz-theme="cassette90"] #tz-spa-infos .tz-spa-bg{background:radial-gradient(ellipse at top,#4c3919,#0c0b09 80%)!important}
 html[data-tz-theme="cassette90"] #tz-spa-infos .tz-spa-panel,html[data-tz-theme="cassette90"] #tz-spa-infos .tz-spa-news{background:linear-gradient(140deg,#262016ed,#0e0d0bea)!important;border-color:#b88a3a!important;color:#f7e7c2!important}
 html[data-tz-theme="cassette90"] #tz-spa-infos .tz-spa-title,html[data-tz-theme="cassette90"] #tz-spa-infos .tz-spa-news-title{color:#f1d28b!important}
+
+/* Harmonize every section and modal without changing the underlying content. */
+html[data-tz-theme="vinyl"] :is(.v2-card,.v2-card-content,.v2-dedicaces,.v2-dedicaces-tab,.v2-platform-badge,.v2-technoroscope-link){border-color:#b99b55!important;color:#f0e2bf!important}
+html[data-tz-theme="vinyl"] :is(.v2-card a,.v2-platform-badge,.v2-technoroscope-link,.v2-dedicaces-tab){color:#e9d6a6!important}
+html[data-tz-theme="vinyl"] :is([class*="horoscope"],[class*="sports"],[class*="jaya"],[class*="contact"],[class*="games"],[class*="weather"],[class*="infos"]):is(section,article,dialog){border-color:#b99b55!important}
+html[data-tz-theme="vinyl"] :is(.tz-spa-news,.tz-spa-panel,.tz-weather-panel,.tz-weather-now,.tz-weather-search input,.tz-weather-search button){border-color:#c1a25a!important}
+html[data-tz-theme="vinyl"] :is(.tz-spa-news-title,.tz-spa-source,.tz-spa-sub,.tz-weather-sub){color:#f1e3c4!important}
+html[data-tz-theme="cassette90"] #tz-spa-infos :is(.tz-spa-sub,.tz-spa-source,.tz-spa-status){color:#d9c49b!important}
+html[data-tz-theme="cassette90"] #tz-spa-infos :is(.tz-spa-back,.tz-spa-readmore,.tz-spa-meta){color:#e5bb61!important}
