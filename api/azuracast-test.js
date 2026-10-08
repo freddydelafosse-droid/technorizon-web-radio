@@ -819,7 +819,7 @@ async function handler(req,res){
    if(!up.ok)return res.status(502).json({ok:false,error:"Manual Jaya upload failed",status:up.status,stage:"upload"});
    const path="Jaya/Auto/"+file;
    let mediaId=upData?.id||upData?.data?.id||upData?.file?.id||null;
-   if(mediaId)await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:3}})}).catch(()=>{});
+   if(mediaId)await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:5}})}).catch(()=>{});
    try{
     const pr=await az(base,key,"/playlists");if(pr.ok){const pdata=await pr.json(),playlists=Array.isArray(pdata)?pdata:(pdata?.rows||[]),bank=playlists.find(p=>String(p?.name||"").trim().toLowerCase()==="banque jaya");if(bank?.id)await az(base,key,"/files/batch",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({do:"playlist",playlists:[String(bank.id)],files:[path],dirs:[]})});}
    }catch(e){console.warn("JAYA_MANUAL_BANK",e?.message||e)}
@@ -1043,7 +1043,7 @@ async function handler(req,res){
    const raw=await up.text();let data=null;try{data=JSON.parse(raw)}catch{}
    if(!up.ok)return res.status(502).json({ok:false,error:"Horoscope upload failed",status:up.status,stage:"upload"});
    const path="Jaya/Horoscope/"+file,mediaId=data?.id;
-   if(mediaId)await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:3}})});
+   if(mediaId)await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:5}})});
    // Affecte aussi le Technoroscope à la playlist de stockage "Banque Jaya",
    // comme les autres interventions de Jaya, afin qu'il ne reste pas non assigné.
    try{
@@ -1229,7 +1229,7 @@ async function handler(req,res){
   const upRaw=await up.text();let upData=null;try{upData=JSON.parse(upRaw)}catch{}
   if(!up.ok){const msg="Upload failed";console.error("JAYA_UPLOAD",up.status,upRaw.slice(0,500));return res.status(502).json({ok:false,error:msg,status:up.status,stage:"upload"})}
   const path=uploadDir+"/"+file;
-  // Jaya uniquement : +3 dB via la métadonnée native Liquidsoap d'AzuraCast.
+  // Jaya uniquement : +5 dB via la métadonnée native Liquidsoap d'AzuraCast.
   // Aucun changement du TTS, du timbre, de la fluidité ou du niveau des musiques.
   // Selon la version AzuraCast, /files/upload peut renvoyer l'id directement,
   // sous data/file, ou uniquement le chemin. Le gain est optionnel et ne doit
@@ -1246,9 +1246,9 @@ async function handler(req,res){
    }catch(e){console.warn("JAYA_GAIN_LOOKUP",e?.message||e)}
   }
   if(mediaId){
-   const gain=await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:3}})});
+   const gain=await az(base,key,"/file/"+mediaId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({extra_metadata:{amplify:5}})});
    if(!gain.ok){const detail=await gain.text().catch(()=>"");console.warn("JAYA_GAIN",gain.status,detail.slice(0,500))}
-   else console.log("JAYA_GAIN","+3 dB",mediaId);
+   else console.log("JAYA_GAIN","+5 dB",mediaId);
   }else console.warn("JAYA_GAIN_SKIPPED","Media ID introuvable; diffusion continue sans modification de gain",path);
   // Range automatiquement chaque nouvelle intervention dans la playlist de stockage "Banque Jaya".
   // La playlist peut rester désactivée : la mise en file directe ci-dessous continue de gérer le passage antenne.
