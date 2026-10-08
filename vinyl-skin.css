@@ -102,5 +102,5 @@ html[data-tz-theme="vinyl"] .v2-contact-gold:before,html[data-tz-theme="vinyl"] 
 @media(prefers-reduced-motion:reduce){.tz-vinyl-arm-moving{transition:none!important}}
 
 /* Final parked angle: stylus completely outside the platter until PLAY. */
-.tz-vinyl-arm-moving{transform:rotate(-60deg)!important}
+.tz-vinyl-arm-moving{transform:rotate(-55deg)!important}
 .tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm-moving{transform:rotate(0deg)!important}
