@@ -48,3 +48,17 @@ html[data-tz-theme="cassette90"] .news-item:before,html[data-tz-theme="cassette9
 html[data-tz-theme="cassette90"] .detail-title,html[data-tz-theme="cassette90"] .news-readmore,html[data-tz-theme="cassette90"] .news-arrow,html[data-tz-theme="cassette90"] .detail-back{color:#e9c36f!important}
 html[data-tz-theme="cassette90"] .detail-title:after{background:linear-gradient(90deg,transparent,#d3a84d,transparent)!important}
 html[data-tz-theme="cassette90"] .news-badge{color:#e9c36f!important;border-color:#b99148!important}
+
+/* Actual classes used by the top-navigation destinations, not generic .card only */
+html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page){background:transparent!important;color:#f2e4c2!important}
+html[data-tz-theme="vinyl"] :is(.v2-background,.bg){background:radial-gradient(ellipse at 48% 5%,#537973,#244a49 48%,#0b2023 100%) fixed!important}
+html[data-tz-theme="vinyl"] :is(.shade){background:linear-gradient(180deg,#0718191a,#081d2070)!important}
+html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.panel,.box,.feature,.features,.intro,.hero,.arcade,.zones,.field,.results,.standings,.table-wrap,.signs,.result,.mail,.send,.game-listen-btn,.game-share-btn,.notice,.filters,.football-v2,.view-tabs,.topright){background:linear-gradient(145deg,#355a56ed,#112f31ed)!important;border-color:#c2a25a!important;color:#f4e5c6!important;box-shadow:inset 0 1px #fff2,0 8px 22px #0004!important}
+html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.top,.page-top,.back,.tag,.tagline,.signature,.brand,.tz-title-line,.title-wrap,.sub,.intro,.logo,.status,.badge,.pill,.meta,.club,.score,.line){color:#e7c576!important;border-color:#b89a54!important}
+html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(h1,h2,h3,.title,.tz-title-line){color:#f4d38a!important}
+html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.back,.lang-select,.lang,.enter,.view-tabs button,.share-sports){background:#204141!important;border:1px solid #bda05d!important;color:#f1d18b!important}
+html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.game-listen-btn,.game-share-btn,.enter,.share-sports):hover{background:#466c63!important}
+html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.feature,.zone,.arcade,.signs,.result,.match,.team,.field){border-color:#bda05b!important}
+html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.logo,.brand,.tagline,.signature){text-shadow:0 1px 5px #0008!important}
+html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.intro,.sub,.meta,.status){color:#ded0af!important}
+html[data-tz-theme="vinyl"] :is(.page,.wrap,.zone,.detail-page) :is(.tz-title-line,.detail-title):after{background:linear-gradient(90deg,transparent,#d8b766,transparent)!important;box-shadow:0 0 8px #d8b76644!important}
