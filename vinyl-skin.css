@@ -56,3 +56,21 @@ html[data-tz-theme="cassette90"] #tz-spa-infos :is(.tz-spa-back,.tz-spa-readmore
 .tz-vinyl-pitch{right:5%;bottom:17%;height:26%}
 .tz-vinyl-label{background:radial-gradient(circle,#25211a 0%,#0a0b0b 65%);border-color:#e2bd67}
 .tz-skin-host[data-skin="vinyl"] .tz-skin-choice[data-skin="vinyl"]{color:#f9e5b4!important;border-color:#d8b665!important;box-shadow:0 0 8px #d9b35b55!important}
+
+/* High-end SL-inspired hardware: platter stays a separate rotating layer. */
+.tz-vinyl-body{background:linear-gradient(135deg,#77918b 0%,#52736e 23%,#3b605c 55%,#264744 100%);border:3px solid #d5b266;box-shadow:inset 0 2px 2px #fff8,inset 0 -3px 6px #061b1d70,0 13px 28px #0009}
+.tz-vinyl-body:before{content:"";position:absolute;inset:8px;border:1px solid #f0d98b33;border-radius:3px;pointer-events:none}
+.tz-vinyl-platter{width:63%;left:5%;top:5%;border:7px ridge #d9b96c;background:repeating-radial-gradient(circle,#070909 0 3px,#202321 4px 5px,#080909 6px 8px);box-shadow:0 0 0 5px #192b2b,0 0 0 9px #cba454,0 8px 14px #000b}
+.tz-vinyl-label{background:radial-gradient(circle at 42% 40%,#2b2a24,#070808 72%);border:2px solid #e6c57d;box-shadow:0 0 0 2px #181919,inset 0 0 10px #000}
+.tz-vinyl-arm{right:8%;top:9%;height:75%;width:23%;background:none;box-shadow:none;transform:rotate(-13deg);transform-origin:77% 13%;pointer-events:none;z-index:3}
+.tz-vinyl-arm:before,.tz-vinyl-arm:after{content:none}
+.tz-vinyl-bearing{position:absolute;right:4%;top:1%;width:44%;aspect-ratio:1;border-radius:50%;border:5px double #e7c67b;background:radial-gradient(circle,#171a19 0 20%,#b18c46 23% 36%,#33332c 39% 55%,#d5b369 58%);box-shadow:0 3px 7px #0009,inset 0 1px #fff8}
+.tz-vinyl-arm-tube{position:absolute;right:22%;top:15%;height:65%;width:8px;border-radius:8px;background:linear-gradient(90deg,#7b5c25,#fce09a 45%,#b18b42 78%,#6b552c);box-shadow:2px 2px 3px #0007;transform:rotate(10deg);transform-origin:50% 6%}
+.tz-vinyl-arm-tube:after{content:"";position:absolute;bottom:1%;left:-10px;width:28px;height:7px;border-radius:4px;background:linear-gradient(#f4d586,#98763c);transform:rotate(-22deg)}
+.tz-vinyl-headshell{position:absolute;right:19%;top:75%;width:22px;height:13px;background:linear-gradient(145deg,#e6c779,#8b6c32);border:1px solid #4e4028;border-radius:3px 3px 1px 1px;transform:rotate(10deg);box-shadow:1px 2px 4px #0008}
+.tz-vinyl-headshell:after{content:"";position:absolute;left:6px;bottom:-7px;width:2px;height:8px;background:#e8e2c8}
+.tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm{transform:rotate(10deg)}
+.tz-vinyl-strobe{position:absolute;left:4%;top:4%;height:18px;width:18px;border:3px solid #d4b163;border-radius:50%;background:radial-gradient(circle,#f8e8ac,#c79b40 55%,#392d19);box-shadow:0 1px 4px #0008}
+.tz-vinyl-power{position:absolute;right:5%;top:6%;width:8px;height:8px;border-radius:50%;background:#b4dc5c;box-shadow:0 0 9px #c6e57899}
+.tz-vinyl-start{background:linear-gradient(135deg,#f5d788,#a9823e);border:2px solid #eac77c;box-shadow:inset 0 1px #fff8,0 2px 4px #0007}
+@media(max-width:700px){.tz-vinyl-arm{top:10%;right:7%}.tz-vinyl-bearing{border-width:3px}.tz-vinyl-arm-tube{width:5px}.tz-vinyl-headshell{width:15px;height:9px}.tz-vinyl-strobe{width:12px;height:12px}}
