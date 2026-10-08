@@ -1,0 +1,39 @@
+/* Technorizon Vinyl Edition: isolated theme, all site panels */
+html[data-tz-theme="vinyl"] body{background:#102526!important;color:#e9e5d9!important}
+html[data-tz-theme="vinyl"] .v2-background{background:radial-gradient(ellipse at 50% 18%,#426a68 0%,#183738 47%,#081719 100%)!important}
+html[data-tz-theme="vinyl"] .v2-topbar,html[data-tz-theme="vinyl"] .v2-glass,html[data-tz-theme="vinyl"] .v2-card,html[data-tz-theme="vinyl"] .v2-platforms,html[data-tz-theme="vinyl"] .seo-summary{background:linear-gradient(145deg,#254b4bdb,#102a2de8)!important;border-color:#b99b55!important;box-shadow:inset 0 1px #ffffff12,0 7px 22px #0005!important}
+html[data-tz-theme="vinyl"] .v2-nav a,html[data-tz-theme="vinyl"] .v2-top-signature,html[data-tz-theme="vinyl"] .v2-live-main{color:#f0dfb7!important}
+html[data-tz-theme="vinyl"] .nav-icon,html[data-tz-theme="vinyl"] .v2-more,html[data-tz-theme="vinyl"] .v2-card-icon,html[data-tz-theme="vinyl"] .v2-status-dot{color:#dfbd6a!important;border-color:#c6a153!important}
+html[data-tz-theme="vinyl"] :is(#tz-spa-infos,#tz-spa-weather,[id^="tz-spa-"]){background:#102b2d!important;color:#f3e9d3!important}
+html[data-tz-theme="vinyl"] :is(.tz-spa-bg,.tz-weather-bg){background:radial-gradient(circle at top,#456965,#0a2023 80%)!important}
+html[data-tz-theme="vinyl"] :is(.tz-spa-panel,.tz-weather-panel,.tz-spa-news,.tz-weather-now){background:#17383be8!important;border-color:#bc9c53!important;color:#f3e9d3!important}
+html[data-tz-theme="vinyl"] :is(.tz-spa-title,.tz-weather-title,.tz-spa-meta,.tz-spa-readmore,.tz-spa-back,.tz-weather-back,.tz-weather-location){color:#e8c46e!important}
+html[data-tz-theme="vinyl"] :is(button,input,select,textarea){accent-color:#cda958}
+html[data-tz-theme="vinyl"] .tz-skin-host{background:linear-gradient(135deg,#385e5e,#1d3e40)!important;border:1px solid #bd9b4b!important}
+.tz-vinyl{display:none;max-width:520px;margin:auto;font-family:Arial,sans-serif;color:#f3d993}
+.tz-skin-host[data-skin="vinyl"] .tz-player-original,.tz-skin-host[data-skin="vinyl"] .tz-cassette90{display:none!important}
+.tz-skin-host[data-skin="vinyl"] .tz-vinyl{display:block}
+.tz-vinyl-title{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:7px 0 10px;font-weight:900;letter-spacing:2px;font-size:13px}
+.tz-vinyl-title small{font-size:9px;font-weight:500}
+.tz-vinyl-body{position:relative;aspect-ratio:1.48;background:linear-gradient(135deg,#537877,#244748);border:2px solid #b99a54;border-radius:4px;box-shadow:inset 0 2px #ffffff55,0 12px 25px #0008;overflow:hidden}
+.tz-vinyl-platter{position:absolute;left:4%;top:5%;width:66%;aspect-ratio:1;border-radius:50%;border:8px ridge #c7a04c;background:repeating-radial-gradient(circle,#0b0d0d 0 3px,#202322 4px 5px,#0a0c0c 6px 8px);box-shadow:0 0 0 5px #192527,0 4px 10px #0009;display:grid;place-items:center;will-change:transform}
+.tz-vinyl-label{width:44%;aspect-ratio:1;border:2px solid #dfba62;border-radius:50%;background:#090b0c;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;font-weight:900;font-size:clamp(8px,2.5vw,13px);letter-spacing:.6px}
+.tz-vinyl-label small{font-size:7px;font-weight:400}
+.tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-platter{animation:tz-vinyl-rotate 1.8s linear infinite}
+@keyframes tz-vinyl-rotate{to{transform:rotate(360deg)}}
+.tz-vinyl-arm{position:absolute;right:10%;top:10%;height:68%;width:7px;background:linear-gradient(90deg,#96702b,#f7d777,#98742f);border-radius:8px;transform-origin:50% 8%;transform:rotate(-23deg);transition:transform .6s ease;box-shadow:2px 2px 4px #0007;pointer-events:none}
+.tz-vinyl-arm:before{content:"";position:absolute;top:-8px;left:-16px;width:37px;height:37px;border-radius:50%;border:5px double #dfb959;background:#443923}
+.tz-vinyl-arm:after{content:"";position:absolute;bottom:-5px;left:-8px;width:21px;height:13px;background:#c69d49;border:1px solid #372d18}
+.tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm{transform:rotate(4deg)}
+.tz-vinyl-pitch{position:absolute;right:4%;bottom:15%;height:27%;width:5%;border:2px solid #c69e4a;background:#102629}
+.tz-vinyl-pitch:after{content:"";position:absolute;top:46%;left:-20%;width:140%;height:8px;background:#e3bd6a}
+.tz-vinyl-start{position:absolute;left:5%;bottom:5%;padding:8px 10px;border:1px solid #f4d47e;background:linear-gradient(#ebc66d,#a07932);color:#122222;font-size:10px;font-weight:900;cursor:pointer}
+.tz-vinyl-meta{display:grid;gap:5px;text-align:center;margin:11px 0 5px}
+.tz-vinyl-meta>*{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tz-vinyl-meta span{font-size:12px;color:#d1d7d0}
+@media(max-width:700px){.tz-vinyl-title{font-size:10px}.tz-vinyl-title small{font-size:8px}.tz-vinyl-platter{border-width:5px}.tz-vinyl-label small{font-size:5px}}
+/* Gold cassette: harmonize the news page below the player, including its contents */
+html[data-tz-theme="cassette90"] #tz-spa-infos{background:#100f0c!important;color:#f6e8c7!important}
+html[data-tz-theme="cassette90"] #tz-spa-infos .tz-spa-bg{background:radial-gradient(ellipse at top,#4c3919,#0c0b09 80%)!important}
+html[data-tz-theme="cassette90"] #tz-spa-infos .tz-spa-panel,html[data-tz-theme="cassette90"] #tz-spa-infos .tz-spa-news{background:linear-gradient(140deg,#262016ed,#0e0d0bea)!important;border-color:#b88a3a!important;color:#f7e7c2!important}
+html[data-tz-theme="cassette90"] #tz-spa-infos .tz-spa-title,html[data-tz-theme="cassette90"] #tz-spa-infos .tz-spa-news-title{color:#f1d28b!important}
