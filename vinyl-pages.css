@@ -124,3 +124,12 @@ html[data-tz-theme="cassette90"] body .detail-page .news-item::before,
 html[data-tz-theme="vinyl"] body .detail-page .news-item::before{background:var(--tz-premium-accent)!important;box-shadow:none!important}
 html[data-tz-theme="cassette90"] body .detail-page .detail-title::after,
 html[data-tz-theme="vinyl"] body .detail-page .detail-title::after{background:linear-gradient(90deg,transparent,var(--tz-premium-accent),transparent)!important}
+
+/* Vinyl: exact Contact and About Technorizon page interiors (desktop + mobile). */
+html[data-tz-theme="vinyl"] body .page{background:linear-gradient(145deg,#365f59ed,#102a2dec)!important;border:1px solid #c6a65f!important;color:#f4e7c9!important;box-shadow:0 16px 45px #0008,inset 0 1px #ffffff20!important}
+html[data-tz-theme="vinyl"] body .page :is(.brand,h1,.tag,.tagline,.back,.signature,.feature strong){color:#f1d38c!important;text-shadow:none!important}
+html[data-tz-theme="vinyl"] body .page :is(.intro,.feature span){color:#f3e7cd!important}
+html[data-tz-theme="vinyl"] body .page .tz-title-line{background:linear-gradient(90deg,transparent,#bda05e,#f1d38c,#bda05e,transparent)!important;box-shadow:none!important}
+html[data-tz-theme="vinyl"] body .page :is(.mail,.feature,.lang-select){background:linear-gradient(145deg,#315b56,#10292b)!important;border:1px solid #bca05e!important;color:#f1d38c!important}
+html[data-tz-theme="vinyl"] body .page .signature{border-top-color:#bca05e66!important}
+@media(max-width:700px){html[data-tz-theme="vinyl"] body .page{width:100%!important;max-width:100%!important;box-sizing:border-box!important;padding:24px 18px!important}html[data-tz-theme="vinyl"] body .page .features{grid-template-columns:1fr!important}html[data-tz-theme="vinyl"] body .page :is(.intro,.mail){overflow-wrap:anywhere}}
