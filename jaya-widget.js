@@ -22,6 +22,21 @@
   html[data-tz-theme="cassette90"] .jaya-send{border-color:rgba(218,169,69,.58)!important;background:rgba(139,94,20,.22)!important;color:#f3d47f!important}
   html[data-tz-theme="cassette90"] .jaya-form{border-top-color:rgba(218,169,69,.22)!important}
   @media(max-width:600px){html[data-tz-theme="cassette90"] .jaya-fab:after{display:none!important}}
+
+  /* Vinyl Jaya: injected widget CSS, applies on both mobile and desktop. */
+  html[data-tz-theme="vinyl"] .jaya-fab{border-color:#e2c477!important;background:#163334!important;box-shadow:0 0 18px #d8b86c66!important}
+  html[data-tz-theme="vinyl"] .jaya-fab:after{border-color:#bca05e!important;color:#f1d38c!important;background:#163334!important}
+  html[data-tz-theme="vinyl"] .jaya-panel{background:linear-gradient(155deg,#315a55,#102a2c)!important;border:1px solid #c6a65f!important;box-shadow:0 18px 55px #000a!important;color:#f4e7c9!important}
+  html[data-tz-theme="vinyl"] .jaya-head{background:#244945!important;border-bottom-color:#bda05e!important}
+  html[data-tz-theme="vinyl"] .jaya-avatar{border-color:#e3c476!important;box-shadow:0 0 12px #e3c47655!important}
+  html[data-tz-theme="vinyl"] .jaya-title strong{color:#f1d38c!important}
+  html[data-tz-theme="vinyl"] .jaya-title span{color:#d7c5a0!important}
+  html[data-tz-theme="vinyl"] .jaya-lang,html[data-tz-theme="vinyl"] .jaya-input{background:#102a2c!important;border-color:#bda05e!important;color:#f4e7c9!important}
+  html[data-tz-theme="vinyl"] .jaya-msg.bot{background:#234741!important;border-color:#bda05e!important;color:#f4e7c9!important}
+  html[data-tz-theme="vinyl"] .jaya-msg.user{background:#345b54!important;border-color:#c6a65f!important;color:#fff0cc!important}
+  html[data-tz-theme="vinyl"] .jaya-form{background:#122e2f!important;border-top-color:#bda05e!important}
+  html[data-tz-theme="vinyl"] .jaya-send{background:#385c50!important;border-color:#c6a65f!important;color:#f1d38c!important}
+  @media(max-width:600px){html[data-tz-theme="vinyl"] .jaya-fab:after{display:none!important}html[data-tz-theme="vinyl"] .jaya-panel{max-width:calc(100vw - 28px)!important}}
   `;
   const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
 
