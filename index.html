@@ -318,7 +318,8 @@ overflow:hidden!important
 .tz-skin-host[data-skin="cassette90"] .tz-deck-top small{font-size:6px!important;letter-spacing:1px!important}
 .tz-skin-host[data-skin="cassette90"] .tz-deck-face{display:grid!important;grid-template-columns:1fr 1fr!important;grid-template-areas:"tape tape" "meter display"!important;gap:7px!important;padding:7px!important;min-height:0!important}
 .tz-skin-host[data-skin="cassette90"] .tz-tape{grid-area:tape!important;box-sizing:border-box!important;width:100%!important;height:auto!important;aspect-ratio:1.68/1!important;padding:0!important;border-color:#555b5e!important;background:#050606 url('/assets/cassette90-premium.webp') center/contain no-repeat!important;box-shadow:inset 0 0 18px #000,0 1px rgba(255,255,255,.06)!important}
-.tz-skin-host[data-skin="cassette90"] .tz-tape>*{display:none!important}
+.tz-skin-host[data-skin="cassette90"] .tz-tape>*:not(.tz-original-reels){display:none!important}
+.tz-skin-host[data-skin="cassette90"] .tz-tape>.tz-original-reels{display:block!important;visibility:visible!important;opacity:1!important}
 .tz-skin-host[data-skin="cassette90"] .tz-meter{grid-area:meter!important;box-sizing:border-box!important;width:100%!important;height:88px!important;min-height:88px!important;padding:10px 7px!important}
 .tz-skin-host[data-skin="cassette90"] .tz-deck-display{grid-area:display!important;box-sizing:border-box!important;width:100%!important;height:88px!important;min-height:88px!important;padding:11px 8px!important}
 .tz-skin-host[data-skin="cassette90"] .tz-deck-display:before{font-size:5px!important;margin-bottom:8px!important}
@@ -419,4 +420,12 @@ const start=()=>{
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
-</script></body></html>
+</script><style id="tz-mobile-decks-visible-v1">
+@media(max-width:800px){
+.tz-skin-host[data-skin="cassette90"] .tz-tape>.tz-original-reels{display:block!important;visibility:visible!important;opacity:1!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+.tz-skin-host[data-skin="cassette90"] .tz-tape{position:relative!important}
+.tz-skin-host[data-skin="vinyl"] .tz-vinyl{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;max-width:100%!important}
+.tz-skin-host[data-skin="vinyl"] .tz-vinyl-body{width:100%!important;box-sizing:border-box!important}
+.tz-skin-host .tz-skin-switch{display:flex!important;visibility:visible!important;position:relative!important;z-index:100!important}
+}
+</style></body></html>
