@@ -766,7 +766,7 @@ async function handler(req,res){
    // These buffers cover preparation, QStash retry and the announced on-air time.
    const editorialReserved =
     (h===6&&m>=45) || (h===7&&m<=20) ||                 // 07:00 + horoscope 07:15
-    (h===8&&m>=5) || (h===9&&m<=5) ||                  // horoscope 08:15 + 09:00 flash
+    (h===8&&m>=5&&m<=20) || (h===9&&m<=5) ||                  // horoscope 08:15 + 09:00 flash
     (h===10&&m>=45) || (h===11&&m<=5) ||               // 11:00 flash
     (h===12&&m>=15&&m<=35) ||                          // 12:30 flash
     (h===13&&m>=15&&m<=35) ||                          // 13:30 flash
