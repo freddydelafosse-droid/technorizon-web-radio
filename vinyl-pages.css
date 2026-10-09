@@ -83,3 +83,44 @@ html[data-tz-theme="cassette90"] :is(.detail-page,.page,.wrap,.zone,.sports-page
 html[data-tz-theme="cassette90"] :is(.detail-page,.page,.wrap,.zone,.sports-page,.games-page) :is(input,select,textarea,button,.back,.detail-back){background:#191d1d!important;border-color:#b99552!important;color:#f0d392!important}
 html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.zone,.sports-page,.games-page) :is(.detail-panel,.panel,.news-list,.news-item,.news-card,.news-list article,.card,.box,.feature,.field,.filters,.result,.match,.standings,.sign,.zodiac,.horoscope-card,.contact-card,.about-card,.game-card,.widget){background:linear-gradient(145deg,#315b56,#102b2d)!important;border-color:#c8a65c!important;color:#f4e7c8!important;box-shadow:inset 0 1px #ffffff1a,0 9px 24px #0006!important}
 html[data-tz-theme="vinyl"] :is(.detail-page,.page,.wrap,.zone,.sports-page,.games-page) :is(.news-title,.news-badge,.detail-title,.title,.brand,h1,h2,h3){color:#f3d58b!important}
+
+/* AUTHORITATIVE SHARED THEMES v11: actual home cards and real standalone pages. */
+html[data-tz-theme="cassette90"]{--tz-premium-top:#30302b;--tz-premium-bottom:#0d1011;--tz-premium-border:#ba9650;--tz-premium-accent:#eac36b;--tz-premium-text:#f2e5c9;--tz-premium-back:#101315}
+html[data-tz-theme="vinyl"]{--tz-premium-top:#365e59;--tz-premium-bottom:#102a2c;--tz-premium-border:#c6a65f;--tz-premium-accent:#f1d38c;--tz-premium-text:#f5e7c9;--tz-premium-back:#102629}
+html[data-tz-theme="cassette90"] body .v2-grid > .v2-card,
+html[data-tz-theme="vinyl"] body .v2-grid > .v2-card{
+background:linear-gradient(150deg,var(--tz-premium-top),var(--tz-premium-bottom))!important;border:1px solid var(--tz-premium-border)!important;border-radius:7px!important;color:var(--tz-premium-text)!important;box-shadow:inset 0 1px #ffffff20,0 10px 26px #0007!important}
+html[data-tz-theme="cassette90"] body .v2-grid > .v2-card .v2-card-icon,
+html[data-tz-theme="vinyl"] body .v2-grid > .v2-card .v2-card-icon{
+border:1px solid var(--tz-premium-border)!important;background:var(--tz-premium-bottom)!important;color:var(--tz-premium-accent)!important;border-radius:5px!important;box-shadow:inset 0 1px #ffffff1c!important}
+html[data-tz-theme="cassette90"] body .v2-grid > .v2-card :is(h2,.v2-more,.v2-technoroscope-link,.v2-live-main),
+html[data-tz-theme="vinyl"] body .v2-grid > .v2-card :is(h2,.v2-more,.v2-technoroscope-link,.v2-live-main){color:var(--tz-premium-accent)!important;text-shadow:none!important}
+html[data-tz-theme="cassette90"] body .v2-grid > .v2-card .v2-card-content,
+html[data-tz-theme="vinyl"] body .v2-grid > .v2-card .v2-card-content{color:var(--tz-premium-text)!important}
+html[data-tz-theme="cassette90"] body #tz-spa-infos,
+html[data-tz-theme="vinyl"] body #tz-spa-infos{background:var(--tz-premium-back)!important;color:var(--tz-premium-text)!important}
+html[data-tz-theme="cassette90"] body #tz-spa-infos .tz-spa-panel,
+html[data-tz-theme="vinyl"] body #tz-spa-infos .tz-spa-panel,
+html[data-tz-theme="cassette90"] body #tz-spa-weather .tz-weather-panel,
+html[data-tz-theme="vinyl"] body #tz-spa-weather .tz-weather-panel{
+background:linear-gradient(150deg,var(--tz-premium-top),var(--tz-premium-bottom))!important;border:1px solid var(--tz-premium-border)!important;color:var(--tz-premium-text)!important;box-shadow:inset 0 1px #ffffff18,0 15px 45px #0009!important}
+html[data-tz-theme="cassette90"] body #tz-spa-infos .tz-spa-news,
+html[data-tz-theme="vinyl"] body #tz-spa-infos .tz-spa-news{
+background:linear-gradient(150deg,var(--tz-premium-top),var(--tz-premium-bottom))!important;border-color:var(--tz-premium-border)!important;color:var(--tz-premium-text)!important}
+html[data-tz-theme="cassette90"] body #tz-spa-infos :is(.tz-spa-title,.tz-spa-meta,.tz-spa-readmore,.tz-spa-back,.tz-spa-lang),
+html[data-tz-theme="vinyl"] body #tz-spa-infos :is(.tz-spa-title,.tz-spa-meta,.tz-spa-readmore,.tz-spa-back,.tz-spa-lang){color:var(--tz-premium-accent)!important}
+html[data-tz-theme="cassette90"] body #tz-spa-infos .tz-spa-news::before,
+html[data-tz-theme="vinyl"] body #tz-spa-infos .tz-spa-news::before{background:var(--tz-premium-accent)!important;box-shadow:none!important}
+/* Standalone Infos is infos.html (NOT #tz-spa-infos). Target its real DOM classes. */
+html[data-tz-theme="cassette90"] body .detail-page .detail-panel,
+html[data-tz-theme="vinyl"] body .detail-page .detail-panel{
+background:linear-gradient(150deg,var(--tz-premium-top),var(--tz-premium-bottom))!important;border:1px solid var(--tz-premium-border)!important;color:var(--tz-premium-text)!important;box-shadow:inset 0 1px #ffffff1c,0 18px 45px #0008!important}
+html[data-tz-theme="cassette90"] body .detail-page .news-item,
+html[data-tz-theme="vinyl"] body .detail-page .news-item{
+background:linear-gradient(145deg,var(--tz-premium-top),var(--tz-premium-bottom))!important;border:1px solid var(--tz-premium-border)!important;color:var(--tz-premium-text)!important}
+html[data-tz-theme="cassette90"] body .detail-page :is(.detail-title,.news-badge,.news-readmore,.news-arrow,.detail-back),
+html[data-tz-theme="vinyl"] body .detail-page :is(.detail-title,.news-badge,.news-readmore,.news-arrow,.detail-back){color:var(--tz-premium-accent)!important;text-shadow:none!important}
+html[data-tz-theme="cassette90"] body .detail-page .news-item::before,
+html[data-tz-theme="vinyl"] body .detail-page .news-item::before{background:var(--tz-premium-accent)!important;box-shadow:none!important}
+html[data-tz-theme="cassette90"] body .detail-page .detail-title::after,
+html[data-tz-theme="vinyl"] body .detail-page .detail-title::after{background:linear-gradient(90deg,transparent,var(--tz-premium-accent),transparent)!important}
