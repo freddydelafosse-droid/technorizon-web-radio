@@ -30,3 +30,9 @@
 - **Production :** aucune modification ni déploiement.
 - **Retour arrière :** supprimer la branche de planification si nécessaire ; `main` inchangée.
 - **Prochaine étape :** inspecter l'arborescence réelle du dépôt avant tout développement.
+
+### 2026-10-10 — Positionnement produit confirmé
+- **Décision utilisateur :** l'application Android Technorizon doit être **haut de gamme / premium** dans son design, son ergonomie, ses animations, sa fluidité, sa stabilité et sa finition.
+- **Interprétation :** premium décrit la qualité de l'expérience, sans remettre en cause la gratuité pour les auditeurs.
+- **Statut :** exigence produit validée et consignée ; aucune modification de l'application ni de la production.
+- **Prochaine étape :** décliner ce niveau d'exigence en critères de conception et de recette vérifiables.
