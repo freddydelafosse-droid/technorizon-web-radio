@@ -123,3 +123,7 @@ html[data-tz-theme="vinyl"] .v2-contact-gold:before,html[data-tz-theme="vinyl"] 
 .tz-vinyl-arm-moving{transform-origin:483px 90px!important;transform:rotate(var(--tz-vinyl-arm-angle,-42deg))!important;transition:transform .9s linear!important}
 .tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm-moving{transform:rotate(var(--tz-vinyl-arm-angle,0deg))!important}
 @media(prefers-reduced-motion:reduce){.tz-vinyl-arm-moving{transition:none!important}}
+
+/* 2026-10-10 correction: lead-in starts at outer groove, then sweeps inward with track progress. */
+.tz-vinyl-arm-moving{transform-origin:483px 90px!important;transform:rotate(var(--tz-vinyl-arm-angle,-42deg))!important}
+.tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm-moving{transform:rotate(var(--tz-vinyl-arm-angle,-12deg))!important}
