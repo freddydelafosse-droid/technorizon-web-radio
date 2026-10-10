@@ -12,6 +12,10 @@ sync();
 /* Synchronise la pointe avec le temps réel du morceau diffusé par AzuraCast.
    La progression ne dépend pas du temps d'écoute local de l'auditeur. */
 const arm=deck.querySelector('.tz-vinyl-arm-moving');
+/* Geometry calibrated on the 600x400 SVG: pivot (483,90).
+   Instead of rotating the existing path (which leaves the stylus off the record),
+   translate the complete moving assembly so its tip starts on the outer groove.
+   Then sweep it inward horizontally as the song progresses. */
 let playback={songId:'',elapsed:0,duration:0,updatedAt:0};
 let lastTitle='';
 const setArm=()=>{
@@ -21,7 +25,15 @@ const setArm=()=>{
   if(playing&&playback.duration>0){
     fraction=Math.min(1,Math.max(0,(playback.elapsed+(Date.now()-playback.updatedAt)/1000)/playback.duration));
   }
-  arm.style.setProperty('--tz-vinyl-arm-angle',playing?(-12+fraction*25).toFixed(2)+'deg':'-42deg');
+  if(playing){
+    arm.style.setProperty('--tz-arm-x',(22-fraction*54).toFixed(2)+'px');
+    arm.style.setProperty('--tz-arm-y',(-5+fraction*7).toFixed(2)+'px');
+    arm.style.setProperty('--tz-arm-r',(-1-fraction*7).toFixed(2)+'deg');
+  }else{
+    arm.style.setProperty('--tz-arm-x','82px');
+    arm.style.setProperty('--tz-arm-y','-24px');
+    arm.style.setProperty('--tz-arm-r','-20deg');
+  }
 };
 const refreshProgress=async()=>{
   try{
