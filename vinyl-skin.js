@@ -21,7 +21,7 @@ const setArm=()=>{
   if(playing&&playback.duration>0){
     fraction=Math.min(1,Math.max(0,(playback.elapsed+(Date.now()-playback.updatedAt)/1000)/playback.duration));
   }
-  arm.style.setProperty('--tz-vinyl-arm-angle',playing?(fraction*22).toFixed(2)+'deg':'-42deg');
+  arm.style.setProperty('--tz-vinyl-arm-angle',playing?(-12+fraction*25).toFixed(2)+'deg':'-42deg');
 };
 const refreshProgress=async()=>{
   try{
