@@ -127,3 +127,7 @@ html[data-tz-theme="vinyl"] .v2-contact-gold:before,html[data-tz-theme="vinyl"] 
 /* 2026-10-10 correction: lead-in starts at outer groove, then sweeps inward with track progress. */
 .tz-vinyl-arm-moving{transform-origin:483px 90px!important;transform:rotate(var(--tz-vinyl-arm-angle,-42deg))!important}
 .tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm-moving{transform:rotate(var(--tz-vinyl-arm-angle,-12deg))!important}
+
+/* 2026-10-10 v13: calibrated stylus path. Tip lands on the outer groove, then travels toward label. */
+.tz-vinyl-arm-moving{transform-box:view-box!important;transform-origin:483px 90px!important;transform:translate(var(--tz-arm-x,82px),var(--tz-arm-y,-24px)) rotate(var(--tz-arm-r,-20deg))!important;transition:transform .85s linear!important}
+.tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm-moving{transform:translate(var(--tz-arm-x,22px),var(--tz-arm-y,-5px)) rotate(var(--tz-arm-r,-1deg))!important}
