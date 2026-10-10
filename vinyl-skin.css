@@ -118,3 +118,8 @@ html[data-tz-theme="vinyl"] .v2-contact-gold:before,html[data-tz-theme="vinyl"] 
 /* Fine alignment of front-panel lettering and start switch. */
 .tz-skin-host[data-skin="vinyl"] .tz-vinyl-start{bottom:6.5%!important}
 .tz-skin-host[data-skin="vinyl"] .tz-vinyl-body:after{bottom:15%!important;left:69%!important;right:auto!important;width:26%!important;text-align:center!important}
+
+/* 2026-10-10: tonearm pivot closer to the platter; stylus tracks the song. */
+.tz-vinyl-arm-moving{transform-origin:483px 90px!important;transform:rotate(var(--tz-vinyl-arm-angle,-42deg))!important;transition:transform .9s linear!important}
+.tz-skin-host[data-skin="vinyl"].is-playing .tz-vinyl-arm-moving{transform:rotate(var(--tz-vinyl-arm-angle,0deg))!important}
+@media(prefers-reduced-motion:reduce){.tz-vinyl-arm-moving{transition:none!important}}
