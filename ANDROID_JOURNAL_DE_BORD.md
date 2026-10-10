@@ -36,3 +36,9 @@
 - **Interprétation :** premium décrit la qualité de l'expérience, sans remettre en cause la gratuité pour les auditeurs.
 - **Statut :** exigence produit validée et consignée ; aucune modification de l'application ni de la production.
 - **Prochaine étape :** décliner ce niveau d'exigence en critères de conception et de recette vérifiables.
+
+### 2026-10-10 — Engagement et fonctionnalités différenciantes
+- **Décision utilisateur :** prévoir des options originales, attractives et donnant envie de revenir régulièrement dans l'application Android Technorizon.
+- **Orientation :** engagement positif et volontaire, sans lecture automatique ni notifications envahissantes.
+- **Pistes à étudier (non validées individuellement) :** découverte musicale et historique d'écoute, favoris, alertes d'émissions choisies, animations de skins, interactions Jaya, défis Game Zone et personnalisation.
+- **Statut :** orientation validée ; fonctionnalités spécifiques à arbitrer ultérieurement. Aucune modification de production.
