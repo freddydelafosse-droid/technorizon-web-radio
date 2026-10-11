@@ -1212,6 +1212,21 @@ async function handler(req,res){
      console.warn("JAYA_H24_EMERGENCY_FALLBACK_FILTERED",slot);
    }
   }
+  // H24 only: keep a natural spoken minimum (~7 seconds at normal pace).
+  // Short AI or fallback lines get a small, varied, conversational extension.
+  if(!isEditorial){
+   const count=String(safeText||"").trim().split(/\\s+/).filter(Boolean).length;
+   if(count<19){
+    const extensions=[
+     "Et je suis ravie de partager ce petit moment avec vous, ici sur Technorizon.",
+     "Profitez bien de cet instant, je suis toujours heureuse de vous retrouver à l'antenne.",
+     "Où que vous soyez, merci de faire partie de cette belle aventure musicale.",
+     "Je vous retrouve très bientôt, avec toujours cette même envie de vous surprendre."
+    ];
+    safeText=String(safeText||"").trim()+" "+extensions[hash(String(slot)+"|duration")%extensions.length];
+    console.log("JAYA_H24_MIN_DURATION_EXTENDED",{slot,originalWords:count});
+   }
+  }
   const text=radioPause(enforceDaypart(safeText,lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
   // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
   if(!text||text.trim().length<12){
