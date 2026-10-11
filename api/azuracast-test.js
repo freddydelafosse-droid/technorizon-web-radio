@@ -14,7 +14,7 @@ const JAYA_BANNED_GENERIC=[
   "je ne vais pas casser le rythme avec un grand discours",
   "pas besoin d un grand discours",
   "on repart","pas de long discours","la matinee appartient a la musique","jaya par ici",
- "petit passage de jaya","jaya passe au micro","je rends deja la place","je vous laisse reprendre","retour a la musique","place au son",
+ "petit passage de jaya","jaya passe au micro","jaya passe quelques secondes au micro","je rends deja la place","je vous laisse reprendre","retour a la musique","place au son",
  "petit coucou","petit signe","grain de sel","je passe je vous fais","je repars","parfois je sais etre raisonnable",
  "d abord","ensuite","et enfin","technorizone",
  "avant de poursuivre la programmation","avant de poursuivre le programme","avant de continuer la programmation",
