@@ -781,7 +781,7 @@ async function handler(req,res){
        (h>=6&&h<13&&h24Minute) ||
        (h>=13&&h<17&&[10,15].includes(m)) ||
        (h>=17&&h<23&&h24Minute);
-    }else if(dow===7) h24=h>=9&&h<21&&h24Minute;
+    }else if(dow===7) h24=h24Minute; // Dimanche : 3 passages H24/heure sur 24h, hors réservations éditoriales.
    }
 
    if(!action&&!h24){
