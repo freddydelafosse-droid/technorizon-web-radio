@@ -29,9 +29,12 @@ function normJaya(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u03
 function repeatedJayaPhrase(text){
  const n=normJaya(text);
  if(!n)return false;
- const recent=jayaRecent.slice(-12).map(normJaya).filter(Boolean);
- // Exact repetitions are never acceptable; shared radio vocabulary is normal.
- if(recent.includes(n))return true;
+ const allRecent=jayaRecent.slice(-JAYA_RECENT_MAX).map(normJaya).filter(Boolean);
+ // Une répétition mot pour mot reste interdite sur toute la mémoire persistante.
+ if(allRecent.includes(n))return true;
+ // La comparaison sémantique plus souple reste limitée aux passages les plus
+ // récents afin de ne pas bloquer durablement le vocabulaire naturel de la radio.
+ const recent=allRecent.slice(-12);
  const words=n.split(" ").filter(Boolean);
  if(words.length<9)return false;
  const stop=new Set(["alors","avec","comme","dans","depuis","encore","entre","faire","ici","jaya","mais","meme","nous","pour","quand","radio","sont","technorizon","tous","tout","toute","vous"]);
@@ -1222,7 +1225,7 @@ async function handler(req,res){
   // H24 only: keep a natural spoken minimum (~7 seconds at normal pace).
   // Short AI or fallback lines get a small, varied, conversational extension.
   if(!isEditorial){
-   const count=String(safeText||"").trim().split(/\\s+/).filter(Boolean).length;
+   const count=String(safeText||"").trim().split(/\s+/).filter(Boolean).length;
    if(count<19){
     const extensions=[
      "Et je suis ravie de partager ce petit moment avec vous, ici sur Technorizon.",
@@ -1233,6 +1236,13 @@ async function handler(req,res){
     safeText=String(safeText||"").trim()+" "+extensions[hash(String(slot)+"|duration")%extensions.length];
     console.log("JAYA_H24_MIN_DURATION_EXTENDED",{slot,originalWords:count});
    }
+  }
+  // Dernier verrou anti-radotage après l'éventuelle extension de durée :
+  // si le texte final complet existe déjà, mieux vaut laisser le prochain
+  // contrôle H24 réessayer que diffuser mot pour mot la même intervention.
+  if(!isEditorial&&jayaRecent.slice(-JAYA_RECENT_MAX).map(normJaya).includes(normJaya(safeText))){
+   console.warn("JAYA_H24_EXACT_REPEAT_BLOCKED",{slot});
+   return skip(res,"h24-exact-repeat-blocked");
   }
   const text=radioPause(enforceDaypart(safeText,lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
   // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
