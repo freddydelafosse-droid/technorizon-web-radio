@@ -1213,13 +1213,35 @@ async function handler(req,res){
      "Je ne sais pas qui avait besoin d'entendre ça aujourd'hui, mais oui : vous avez parfaitement le droit de danser un peu, même si c'est seulement avec les épaules.",
      "Attention, information capitale : Jaya est de bonne humeur. Voilà. Pour une fois, une nouvelle dont je peux garantir la source."
     ];
-    const safeEmergency=fallbackPool.filter(candidate=>!jayaTooGeneric(candidate));
+    // Combine une accroche et une conclusion indépendantes : le filet local
+    // conserve la continuité H24 sans réutiliser mot pour mot un ancien passage.
+    const fallbackClosers=[
+     "On partage ça ensemble, simplement, et franchement ça me plaît bien.",
+     "Je trouve que ces petites secondes entre nous donnent une vraie couleur à l'antenne.",
+     "Gardez ce sourire, moi je veille à ce que l'ambiance reste bien vivante.",
+     "Ce genre de moment improvisé, c'est exactement ce que j'aime ici.",
+     "Merci d'être de l'autre côté, ça donne tout son sens à ce petit passage.",
+     "Je vous envoie une dose de bonne humeur depuis le studio.",
+     "J'espère que ce petit passage vous aura donné envie de bouger un peu.",
+     "Pendant quelques secondes, on vient de partager le même studio.",
+     "Ça me fait toujours plaisir de venir vous surprendre comme ça.",
+     "Finalement, les meilleurs passages sont parfois ceux qu'on n'avait pas annoncés."
+    ];
+    const startBase=hash(String(slot)+"|emergency-base")%fallbackPool.length;
+    const startCloser=hash(String(slot)+"|emergency-closer")%fallbackClosers.length;
+    const safeEmergency=[];
+    for(let i=0;i<fallbackPool.length;i++){
+     for(let j=0;j<fallbackClosers.length;j++){
+      const candidate=fallbackPool[(startBase+i)%fallbackPool.length]+" "+fallbackClosers[(startCloser+j)%fallbackClosers.length];
+      if(!jayaTooGeneric(candidate))safeEmergency.push(candidate);
+     }
+    }
      if(!safeEmergency.length){
       console.error("JAYA_H24_NO_UNREPEATED_TEXT",{slot});
       return skip(res,"h24-no-unrepeated-text");
      }
-     safeText=safeEmergency[hash(String(slot)+"|emergency-h24")%safeEmergency.length];
-     console.warn("JAYA_H24_EMERGENCY_FALLBACK_FILTERED",slot);
+     safeText=safeEmergency[0];
+     console.warn("JAYA_H24_EMERGENCY_COMPOSED",slot);
    }
   }
   // H24 only: keep a natural spoken minimum (~7 seconds at normal pace).
