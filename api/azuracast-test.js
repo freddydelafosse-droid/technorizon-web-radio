@@ -775,13 +775,9 @@ async function handler(req,res){
     (h===18&&m>=15&&m<=35);                            // 18:30 flash
    if(!action&&!editorialReserved){
     const h24Minute=[10,15,30,35,50,55].includes(m);
-    if(dow>=1&&dow<=5) h24=h>=7&&h<23&&h24Minute;
-    else if(dow===6){
-     h24=(h===5&&[10,15].includes(m)) ||
-       (h>=6&&h<13&&h24Minute) ||
-       (h>=13&&h<17&&[10,15].includes(m)) ||
-       (h>=17&&h<23&&h24Minute);
-    }else if(dow===7) h24=h24Minute; // Dimanche : 3 passages H24/heure sur 24h, hors réservations éditoriales.
+    // H24 réel : trois passages par heure, tous les jours et toute la nuit.
+    // Les réservations éditoriales ci-dessus restent prioritaires et excluent tout chevauchement.
+    h24=h24Minute;
    }
 
    if(!action&&!h24){
