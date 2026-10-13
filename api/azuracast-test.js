@@ -1232,7 +1232,15 @@ async function handler(req,res){
     const safeEmergency=[];
     for(let i=0;i<fallbackPool.length;i++){
      for(let j=0;j<fallbackClosers.length;j++){
-      const candidate=fallbackPool[(startBase+i)%fallbackPool.length]+" "+fallbackClosers[(startCloser+j)%fallbackClosers.length];
+      const base=fallbackPool[(startBase+i)%fallbackPool.length];
+      const closer=fallbackClosers[(startCloser+j)%fallbackClosers.length];
+      // Écarte les assemblages qui répètent la même idée dans une seule
+      // intervention (ex. deux formulations successives autour de la bonne humeur).
+      const baseWords=new Set(normJaya(base).split(" ").filter(w=>w.length>=5));
+      const closerWords=normJaya(closer).split(" ").filter(w=>w.length>=5);
+      const sharedWords=closerWords.filter(w=>baseWords.has(w));
+      if(sharedWords.length>=3)continue;
+      const candidate=base+" "+closer;
       if(!jayaTooGeneric(candidate))safeEmergency.push(candidate);
      }
     }
