@@ -1230,10 +1230,15 @@ async function handler(req,res){
     const startBase=hash(String(slot)+"|emergency-base")%fallbackPool.length;
     const startCloser=hash(String(slot)+"|emergency-closer")%fallbackClosers.length;
     const safeEmergency=[];
+    const recentEmergency=jayaRecent.slice(-12).map(normJaya).filter(Boolean);
     for(let i=0;i<fallbackPool.length;i++){
      for(let j=0;j<fallbackClosers.length;j++){
       const base=fallbackPool[(startBase+i)%fallbackPool.length];
       const closer=fallbackClosers[(startCloser+j)%fallbackClosers.length];
+      // Une nouvelle conclusion ne suffit pas à rendre une longue accroche neuve :
+      // refuse aussi les composants déjà entendus dans les passages récents.
+      if(recentEmergency.some(old=>old.includes(normJaya(base))))continue;
+      if(recentEmergency.slice(-6).some(old=>old.includes(normJaya(closer))))continue;
       // Écarte les assemblages qui répètent la même idée dans une seule
       // intervention (ex. deux formulations successives autour de la bonne humeur).
       const baseWords=new Set(normJaya(base).split(" ").filter(w=>w.length>=5));
