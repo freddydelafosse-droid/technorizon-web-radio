@@ -32,13 +32,25 @@ function repeatedJayaPhrase(text){
  const allRecent=jayaRecent.slice(-JAYA_RECENT_MAX).map(normJaya).filter(Boolean);
  // Une répétition mot pour mot reste interdite sur toute la mémoire persistante.
  if(allRecent.includes(n))return true;
- // La comparaison sémantique plus souple reste limitée aux passages les plus
- // récents afin de ne pas bloquer durablement le vocabulaire naturel de la radio.
+ // La comparaison plus souple reste limitée aux passages les plus récents afin
+ // de ne pas bloquer durablement le vocabulaire naturel de la radio.
  const recent=allRecent.slice(-12);
  const words=n.split(" ").filter(Boolean);
  if(words.length<9)return false;
  const stop=new Set(["alors","avec","comme","dans","depuis","encore","entre","faire","ici","jaya","mais","meme","nous","pour","quand","radio","sont","technorizon","tous","tout","toute","vous"]);
  const content=words.filter(w=>w.length>=5&&!stop.has(w));
+ // Refuse aussi une accroche, une chute ou une formule interne recopiée :
+ // changer seulement le reste du texte ne suffit pas à rendre le passage neuf.
+ const phraseSize=7,phrases=new Set();
+ for(let i=0;i<=words.length-phraseSize;i++){
+  const gram=words.slice(i,i+phraseSize);
+  if(gram.filter(w=>w.length>=5&&!stop.has(w)).length>=2)phrases.add(gram.join(" "));
+ }
+ if(recent.some(old=>{
+  const ow=old.split(" ").filter(Boolean);
+  for(let i=0;i<=ow.length-phraseSize;i++)if(phrases.has(ow.slice(i,i+phraseSize).join(" ")))return true;
+  return false;
+ }))return true;
  return recent.slice(-6).some(old=>{
   const ow=old.split(" ").filter(Boolean);
   const oc=ow.filter(w=>w.length>=5&&!stop.has(w));
