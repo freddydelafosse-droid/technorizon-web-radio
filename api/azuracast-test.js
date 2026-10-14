@@ -1195,10 +1195,10 @@ async function handler(req,res){
   let generatedText=isEditorial?editorialText:await smartAnnouncement({song:null,slot,hour:lh,minute:lm});
   // Anti-radotage sans toucher à la personnalité de Jaya : si une excellente
   // génération est refusée uniquement par les contrôles de répétition, on lui
-  // donne jusqu'à deux nouvelles chances avec un angle/style différent avant
-  // d'utiliser les phrases locales de secours. Le créneau antenne reste inchangé.
+  // donne jusqu'à cinq nouvelles chances avec un angle/style différent. Aucun
+  // texte local répétitif n'est réactivé et le créneau antenne reste inchangé.
   if(!isEditorial&&(!generatedText||String(generatedText).trim().length<12||jayaTooGeneric(generatedText))){
-   for(let retry=1;retry<=2;retry++){
+   for(let retry=1;retry<=5;retry++){
     const retryText=await smartAnnouncement({song:null,slot:slot+retry*1009,hour:lh,minute:lm});
     if(retryText&&String(retryText).trim().length>=12&&!jayaTooGeneric(retryText)){
      generatedText=retryText;
