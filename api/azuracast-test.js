@@ -789,9 +789,10 @@ async function handler(req,res){
     (h===18&&m>=15&&m<=35);                            // 18:30 flash
    if(!action&&!editorialReserved){
     const h24Minute=[10,15,30,35,50,55].includes(m);
-    // H24 réel : trois passages par heure, tous les jours et toute la nuit.
+    // H24 : trois opportunités par heure uniquement de 06:00 à 23:00.
+    // Silence antenne Jaya absolu de 23:00 à 06:00, heure de Paris.
     // Les réservations éditoriales ci-dessus restent prioritaires et excluent tout chevauchement.
-    h24=h24Minute;
+    h24=h24Minute&&h>=6&&h<23;
    }
 
    if(!action&&!h24){
@@ -1100,6 +1101,13 @@ async function handler(req,res){
   // même s'il arrive près d'une heure de rendez-vous.
   const isWeather=forceWeather;
   const isNews=forceNews;
+  // Barrière d'exécution indépendante du planificateur : aucun passage H24
+  // automatique ne peut être généré, uploadé ou placé entre 23:00 et 06:00
+  // (heure de Paris), même en cas de retry QStash ou d'ancien cron GitHub.
+  if(!isWeather&&!isNews&&(lh>=23||lh<6)){
+   console.log("JAYA_H24_NIGHT_SILENCE",{hour:lh,minute:lm,window:"23:00-06:00"});
+   return skip(res,"h24-night-silence",{window:"23:00-06:00",paris_hour:lh,paris_minute:lm});
+  }
   if(isNews||isWeather){
    const date=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
    const period=lh<9?"07":lh<13?"11":lh<17?"13":"17";
