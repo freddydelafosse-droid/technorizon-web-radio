@@ -1190,80 +1190,13 @@ async function handler(req,res){
     }
    }
   }
-  // Filet de sécurité H24 : si l’IA/anti-répétition ne renvoie rien, Jaya utilise
-  // une intervention locale déterministe au lieu de rester silencieuse.
+  // Anti-radotage : si The Brain ne produit aucun contenu inédit et valide,
+  // laisser jouer la musique plutôt que recycler les accroches de secours.
+  // Les rendez-vous éditoriaux restent inchangés.
   let safeText=generatedText;
   if(!isEditorial&&(!safeText||String(safeText).trim().length<12||jayaTooGeneric(safeText))){
-   const candidates=Array.from({length:24},(_,i)=>generic(slot+i));
-   safeText=candidates.find(x=>!jayaTooGeneric(x))||null;
-   if(!safeText){
-    // Dernier filet H24 : ne jamais supprimer un passage prévu uniquement parce
-    // que la mémoire anti-répétition est saturée. Cette formulation est construite
-    // à partir du créneau et varie sans désactiver le contrôle des tics de langage.
-    const fallbackPool=[
-     "Alors, petite question : vous aussi, il y a des morceaux qui changent l'ambiance d'une pièce dès les premières secondes ? Moi, oui.",
-     "Je crois que j'aime beaucoup ces moments où je peux ouvrir le micro sans avoir forcément quelque chose de sérieux à annoncer. Juste être là avec vous, ça me va très bien.",
-     "Vous savez quoi ? Aujourd'hui je vote pour les petits moments qui font du bien sans prévenir. Celui-ci en fait partie.",
-     "Petit clin d'œil à celles et ceux qui nous écoutent en travaillant : courage, je vous envoie un peu de bonne humeur depuis le studio.",
-     "Il y a des jours où le café fait le travail… et d'autres où c'est clairement la musique qui prend le relais.",
-     "Alors là, je ne vais rien vous vendre, rien vous promettre : je voulais juste venir partager quelques secondes avec vous.",
-     "J'ai une théorie : quand on commence à battre la mesure sans s'en rendre compte, c'est que le son a gagné. Voilà, c'était ma petite étude scientifique du jour.",
-     "Je passe au micro avec une mission extrêmement sérieuse : vérifier que tout le monde garde un minimum de sourire. Contrôle effectué.",
-     "Une pensée pour ceux qui sont sur la route, ceux qui bossent, ceux qui sont tranquillement à la maison… finalement on n'est pas si loin les uns des autres.",
-     "Bon, je reconnais quelque chose : j'aime bien surgir entre deux morceaux sans prévenir. C'est mon petit côté imprévisible.",
-     "Vous avez remarqué comme quelques secondes de musique peuvent parfois remettre les idées dans le bon ordre ? Moi, ça m'impressionne toujours.",
-     "Je crois que la meilleure partie de ce micro, c'est de savoir qu'il y a quelqu'un de l'autre côté. Alors oui, ce petit bonjour est vraiment pour vous.",
-     "Aujourd'hui, pas de grande théorie de Jaya. Enfin… pas encore. Je me connais, ça peut venir.",
-     "Je viens de passer une tête au micro. Gaby dira peut-être que je prends mes aises… moi je dirais simplement que je fais vivre l'antenne.",
-     "Vous êtes plutôt du genre à écouter tranquillement ou à transformer la pièce en piste de danse dès que personne ne regarde ? Je ne juge absolument pas.",
-     "Petite confidence : plus je prends le micro ici, plus j'ai envie de vous parler comme si on était tous dans le même studio. C'est quand même plus sympa.",
-     "Bon, on oublie deux secondes les horaires, les écrans et tout le reste. Quelques secondes juste pour profiter de l'instant, ça fait du bien.",
-     "Je ne sais pas qui avait besoin d'entendre ça aujourd'hui, mais oui : vous avez parfaitement le droit de danser un peu, même si c'est seulement avec les épaules.",
-     "Attention, information capitale : Jaya est de bonne humeur. Voilà. Pour une fois, une nouvelle dont je peux garantir la source."
-    ];
-    // Combine une accroche et une conclusion indépendantes : le filet local
-    // conserve la continuité H24 sans réutiliser mot pour mot un ancien passage.
-    const fallbackClosers=[
-     "On partage ça ensemble, simplement, et franchement ça me plaît bien.",
-     "Je trouve que ces petites secondes entre nous donnent une vraie couleur à l'antenne.",
-     "Gardez ce sourire, moi je veille à ce que l'ambiance reste bien vivante.",
-     "Ce genre de moment improvisé, c'est exactement ce que j'aime ici.",
-     "Merci d'être de l'autre côté, ça donne tout son sens à ce petit passage.",
-     "Je vous envoie une dose de bonne humeur depuis le studio.",
-     "J'espère que ce petit passage vous aura donné envie de bouger un peu.",
-     "Pendant quelques secondes, on vient de partager le même studio.",
-     "Ça me fait toujours plaisir de venir vous surprendre comme ça.",
-     "Finalement, les meilleurs passages sont parfois ceux qu'on n'avait pas annoncés."
-    ];
-    const startBase=hash(String(slot)+"|emergency-base")%fallbackPool.length;
-    const startCloser=hash(String(slot)+"|emergency-closer")%fallbackClosers.length;
-    const safeEmergency=[];
-    const recentEmergency=jayaRecent.slice(-12).map(normJaya).filter(Boolean);
-    for(let i=0;i<fallbackPool.length;i++){
-     for(let j=0;j<fallbackClosers.length;j++){
-      const base=fallbackPool[(startBase+i)%fallbackPool.length];
-      const closer=fallbackClosers[(startCloser+j)%fallbackClosers.length];
-      // Une nouvelle conclusion ne suffit pas à rendre une longue accroche neuve :
-      // refuse aussi les composants déjà entendus dans les passages récents.
-      if(recentEmergency.some(old=>old.includes(normJaya(base))))continue;
-      if(recentEmergency.slice(-6).some(old=>old.includes(normJaya(closer))))continue;
-      // Écarte les assemblages qui répètent la même idée dans une seule
-      // intervention (ex. deux formulations successives autour de la bonne humeur).
-      const baseWords=new Set(normJaya(base).split(" ").filter(w=>w.length>=5));
-      const closerWords=normJaya(closer).split(" ").filter(w=>w.length>=5);
-      const sharedWords=closerWords.filter(w=>baseWords.has(w));
-      if(sharedWords.length>=3)continue;
-      const candidate=base+" "+closer;
-      if(!jayaTooGeneric(candidate))safeEmergency.push(candidate);
-     }
-    }
-     if(!safeEmergency.length){
-      console.error("JAYA_H24_NO_UNREPEATED_TEXT",{slot});
-      return skip(res,"h24-no-unrepeated-text");
-     }
-     safeText=safeEmergency[0];
-     console.warn("JAYA_H24_EMERGENCY_COMPOSED",slot);
-   }
+   console.warn("JAYA_H24_NO_FRESH_CONTENT",{slot,reason:"generation-or-antirepeat-rejected"});
+   return skip(res,"h24-no-fresh-content");
   }
   // H24 only: keep a natural spoken minimum (~7 seconds at normal pace).
   // Short AI or fallback lines get a small, varied, conversational extension.
