@@ -1260,7 +1260,12 @@ async function handler(req,res){
      .map(match=>match.index+1).filter(end=>wordCountAt(end)>=minWords);
     if(hard.length)safeText=sourceText.slice(0,hard[hard.length-1]).trim();
     else if(soft.length)safeText=sourceText.slice(0,soft[soft.length-1]).replace(/[,;:–—\s]+$/,"").trim()+".";
-    else safeText=capped.replace(/[,;:–—\s]+$/,"").trim()+"…";
+    else{
+     // Never broadcast a sentence cut mid-idea. The five-minute catch-up tick
+     // will generate a fresh candidate while queue/history locks prevent duplicates.
+     console.warn("JAYA_H24_DURATION_REJECTED",{slot,economyWindow,reason:"no-complete-clause-within-limit",maxWords});
+     return skip(res,"h24-no-complete-short-clause");
+    }
     console.log("JAYA_H24_MAX_DURATION_CAPPED",{slot,economyWindow,originalWords:wordMarks.length,finalWords:safeText.split(/\s+/).length});
    }
    const count=String(safeText||"").trim().split(/\s+/).filter(Boolean).length;
