@@ -811,8 +811,8 @@ async function handler(req,res){
     else if(h===18&&m===35){action="flash-replay";period="17";}
    }
 
-   // H24: three opportunities/hour. A second 5-minute opportunity provides a
-   // catch-up; the API's 12-minute history lock prevents a duplicate.
+   // H24 opportunities use a second 5-minute catch-up tick; the API's
+   // 12-minute history lock prevents the catch-up from creating a duplicate.
    let h24=false;
    // Hard editorial reservation: H24 can never compete with an editorial slot.
    // These buffers cover preparation, QStash retry and the announced on-air time.
@@ -826,11 +826,17 @@ async function handler(req,res){
     (h===17&&m>=15&&m<=35) ||                          // 17:30 flash
     (h===18&&m>=15&&m<=35);                            // 18:30 flash
    if(!action&&!editorialReserved){
-    const h24Minute=[10,15,30,35,50,55].includes(m);
-    // H24 : trois opportunités par heure uniquement de 06:00 à 23:00.
+    const parisDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+    // Temporary ElevenLabs economy window, automatically ending after 22 October.
+    const economyWindow=parisDay>="2026-10-15"&&parisDay<="2026-10-22";
+    const economyThreePerHour=(h>=6&&h<10)||(h>=17&&h<21);
+    const economyTwoPerHour=(h>=10&&h<17)||(h>=21&&h<23);
+    const h24Minutes=economyWindow
+     ? (economyThreePerHour?[10,15,30,35,50,55]:economyTwoPerHour?[10,15,40,45]:[])
+     : [10,15,30,35,50,55];
     // Silence antenne Jaya absolu de 23:00 à 06:00, heure de Paris.
     // Les réservations éditoriales ci-dessus restent prioritaires et excluent tout chevauchement.
-    h24=h24Minute&&h>=6&&h<23;
+    h24=h24Minutes.includes(m)&&h>=6&&h<23;
    }
 
    if(!action&&!h24){
@@ -1236,32 +1242,40 @@ async function handler(req,res){
    console.warn("JAYA_H24_NO_FRESH_CONTENT",{slot,reason:"generation-or-antirepeat-rejected"});
    return skip(res,"h24-no-fresh-content");
   }
-  // H24 only: target 7–18 seconds (~18–40 spoken words); editorial remains untouched.
+  // H24 only: temporary 7–12 second target during the economy window,
+  // then automatic return to the normal 7–18 second target. Editorial is untouched.
   if(!isEditorial){
+   const parisDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+   const economyWindow=parisDay>="2026-10-15"&&parisDay<="2026-10-22";
+   const minWords=economyWindow?16:18,maxWords=economyWindow?28:40;
    const sourceText=String(safeText||"").trim();
    const wordMarks=[...sourceText.matchAll(/\S+/g)];
-   if(wordMarks.length>40){
-    const maxEnd=wordMarks[39].index+wordMarks[39][0].length;
+   if(wordMarks.length>maxWords){
+    const maxEnd=wordMarks[maxWords-1].index+wordMarks[maxWords-1][0].length;
     const capped=sourceText.slice(0,maxEnd).trim();
     const wordCountAt=end=>sourceText.slice(0,end).trim().split(/\s+/).filter(Boolean).length;
     const hard=[...capped.matchAll(/[.!?](?=\s|$)/g)]
-     .map(match=>match.index+1).filter(end=>wordCountAt(end)>=18);
+     .map(match=>match.index+1).filter(end=>wordCountAt(end)>=minWords);
     const soft=[...capped.matchAll(/[,;:–—](?=\s|$)/g)]
-     .map(match=>match.index+1).filter(end=>wordCountAt(end)>=18);
+     .map(match=>match.index+1).filter(end=>wordCountAt(end)>=minWords);
     if(hard.length)safeText=sourceText.slice(0,hard[hard.length-1]).trim();
     else if(soft.length)safeText=sourceText.slice(0,soft[soft.length-1]).replace(/[,;:–—\s]+$/,"").trim()+".";
     else safeText=capped.replace(/[,;:–—\s]+$/,"").trim()+"…";
-    console.log("JAYA_H24_MAX_DURATION_CAPPED",{slot,originalWords:wordMarks.length,finalWords:safeText.split(/\s+/).length});
+    console.log("JAYA_H24_MAX_DURATION_CAPPED",{slot,economyWindow,originalWords:wordMarks.length,finalWords:safeText.split(/\s+/).length});
    }
    const count=String(safeText||"").trim().split(/\s+/).filter(Boolean).length;
-   if(count<18){
-    const extensions=[
+   if(count<minWords){
+    const extensions=economyWindow?[
+     "Toujours avec vous sur Technorizon.",
+     "Merci d’être avec nous sur Technorizon.",
+     "On partage ce moment sur Technorizon."
+    ]:[
      "Je suis ravie de vous retrouver sur Technorizon.",
      "On partage encore un beau moment ensemble sur Technorizon.",
      "Merci de faire partie de cette aventure musicale."
     ];
     safeText=String(safeText||"").trim()+" "+extensions[hash(String(slot)+"|duration")%extensions.length];
-    console.log("JAYA_H24_MIN_DURATION_EXTENDED",{slot,originalWords:count});
+    console.log("JAYA_H24_MIN_DURATION_EXTENDED",{slot,economyWindow,originalWords:count});
    }
   }
   // Dernier verrou anti-radotage après l'éventuelle extension de durée :
