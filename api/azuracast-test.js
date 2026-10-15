@@ -42,6 +42,7 @@ function repeatedJayaPhrase(text){
   /\\b(?:sourir\\w*|clin d oeil)\\b/,
   /\\b(?:respir\\w*|boug\\w*|mouvement\\w*|hochement\\w*|epaule\\w*|pied\\w*|geste\\w*|nuque|machoire)\\b/,
   /\\b(?:petit defi|mini defi|petit pari|phrase courte|truc simple)\\b/,
+  /\\b(?:petite?s? victoire?s?|mini victoire?s?|trois petites victoires)\\b/,
   /\\b(?:paris|lyon|montreal|berlin|rome|nice|toulouse|marseille|bordeaux|lille|sydney|sidney|bruxelles|londres|nantes|rouen|strasbourg|varsovie|toronto|tokyo|new york)\\b/
  ];
  const motifHits=value=>new Set(motifRules.map((rule,index)=>rule.test(value)?index:-1).filter(index=>index>=0));
