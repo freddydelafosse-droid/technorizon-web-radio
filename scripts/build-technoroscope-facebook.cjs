@@ -22,19 +22,20 @@ const signs = [['belier','♈'],['taureau','♉'],['gemeaux','♊'],['cancer','�
   const html=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>
    *{box-sizing:border-box}body{margin:0;background:#020817;color:white;font-family:Arial,sans-serif}
    .poster{width:1250px;height:1650px;padding:35px 30px;background:radial-gradient(ellipse at 80% 5%,#741258 0%,transparent 35%),radial-gradient(ellipse at 15% 70%,#053e7d 0%,transparent 48%),#020817;overflow:hidden}
-   .brand{text-align:center;font-weight:900;font-size:78px;letter-spacing:1px;color:#e9faff;text-shadow:0 0 14px #00cafa}.brand span{color:#ff2ec2}.slogan{text-align:center;letter-spacing:9px;font-size:19px;margin-top:0;color:#c9deed}
-   h1{text-align:center;font-size:68px;margin:24px 0 0;background:linear-gradient(90deg,#00f2ff,#fff,#ff36c7);background-clip:text;color:transparent;letter-spacing:2px}
-   .sub{text-align:center;font-size:24px;letter-spacing:6px;font-weight:700;margin:0 0 18px}
-   .date{margin:0 auto 22px;width:max-content;padding:14px 30px;border:3px solid #fc2dce;border-radius:15px;box-shadow:0 0 16px #ff2cc9;font-size:29px;font-weight:bold}
-   .grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:12px;height:1080px}
+   .brand{text-align:left;position:relative;z-index:2;font-weight:900;font-size:78px;letter-spacing:1px;color:#e9faff;text-shadow:0 0 14px #00cafa}.brand span{color:#ff2ec2}.slogan{text-align:left;position:relative;z-index:2;letter-spacing:9px;font-size:19px;margin-top:0;color:#c9deed}
+   h1{text-align:left;position:relative;z-index:2;font-size:68px;margin:24px 0 0;background:linear-gradient(90deg,#00f2ff,#fff,#ff36c7);background-clip:text;color:transparent;letter-spacing:2px}
+   .sub{text-align:left;position:relative;z-index:2;font-size:24px;letter-spacing:6px;font-weight:700;margin:0 0 18px}
+   .date{margin:0 0 22px 170px;position:relative;z-index:2;width:max-content;padding:14px 30px;border:3px solid #fc2dce;border-radius:15px;box-shadow:0 0 16px #ff2cc9;font-size:29px;font-weight:bold}
+   .jaya{position:absolute;right:32px;top:20px;width:320px;height:265px;object-fit:cover;object-position:center top;border-radius:24px;border:2px solid #f12dc8;box-shadow:0 0 20px #f12dc888;opacity:.95}.poster{position:relative}.grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:12px;height:1080px}
    .cell{border:2px solid #03e9ff;border-radius:17px;padding:15px 13px;box-shadow:0 0 12px #00dafa66,inset 0 0 14px #e221a933;background:#040c22bb;overflow:hidden}
    .cell:nth-child(2n){border-color:#fa29c9;box-shadow:0 0 12px #e51aab77,inset 0 0 12px #0cefff33}
    .name{color:#10edff;font-weight:900;font-size:27px}.cell:nth-child(2n) .name{color:#ff64d4}
    .symbol{font-size:35px;vertical-align:middle;color:#fff;margin-right:8px}
    .text{font-size:17px;line-height:1.35;margin-top:11px;overflow-wrap:break-word}
    footer{text-align:center;margin-top:23px;font-size:23px;font-weight:bold;color:#e4faff}footer b{color:#00eaff}
-   </style></head><body><div class="poster"><div class="brand">TECHN<span>O</span>RIZON.FR</div><div class="slogan">LA MUSIQUE SANS FRONTIÈRES</div><h1>TECHNOROSCOPE</h1><div class="sub">VOTRE HOROSCOPE DU JOUR</div><div class="date">${esc(label)}</div><div class="grid">${rows.map(r=>`<div class="cell"><div class="name"><span class="symbol">${r.symbol}</span>${esc(r.name.toUpperCase())}</div><div class="text">${esc(r.text)}</div></div>`).join('')}</div><footer>VOTRE HOROSCOPE COMPLET SUR <b>TECHNORIZON.FR</b></footer></div></body></html>`;
+   </style></head><body><div class="poster"><img class="jaya" src="https://raw.githubusercontent.com/freddydelafosse-droid/technorizon-web-radio/main/JayaV2.jpg"><div class="brand">TECHN<span>O</span>RIZON.FR</div><div class="slogan">LA MUSIQUE SANS FRONTIÈRES</div><h1>TECHNOROSCOPE</h1><div class="sub">VOTRE HOROSCOPE DU JOUR</div><div class="date">${esc(label)}</div><div class="grid">${rows.map(r=>`<div class="cell"><div class="name"><span class="symbol">${r.symbol}</span>${esc(r.name.toUpperCase())}</div><div class="text">${esc(r.text)}</div></div>`).join('')}</div><footer>VOTRE HOROSCOPE COMPLET SUR <b>TECHNORIZON.FR</b></footer></div></body></html>`;
   const preview=await context.newPage();await preview.setContent(html);
+  await preview.locator('.jaya').evaluate(img=>img.decode());
   const overflowing=await preview.locator('.cell').evaluateAll(els=>els.some(e=>e.scrollHeight>e.clientHeight+2));
   if(overflowing)throw new Error('Affiche tronquée : prévisions trop longues');
   await preview.locator('.poster').screenshot({path:'technoroscope-facebook.png'});
