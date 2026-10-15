@@ -1233,13 +1233,20 @@ async function handler(req,res){
   }
   // H24 only: target 7–18 seconds (~18–40 spoken words); editorial remains untouched.
   if(!isEditorial){
-   const words=String(safeText||"").trim().split(/\s+/).filter(Boolean);
-   if(words.length>40){
-    const capped=words.slice(0,40).join(" ");
-    const sentences=[...capped.matchAll(/[.!?](?=\s|$)/g)];
-    const last=sentences.length?sentences[sentences.length-1].index+1:0;
-    safeText=last>=Math.floor(capped.length*0.55)?capped.slice(0,last).trim():capped.replace(/[,;:–—\s]+$/,"").trim()+".";
-    console.log("JAYA_H24_MAX_DURATION_CAPPED",{slot,originalWords:words.length,finalWords:safeText.split(/\s+/).length});
+   const sourceText=String(safeText||"").trim();
+   const wordMarks=[...sourceText.matchAll(/\S+/g)];
+   if(wordMarks.length>40){
+    const maxEnd=wordMarks[39].index+wordMarks[39][0].length;
+    const capped=sourceText.slice(0,maxEnd).trim();
+    const wordCountAt=end=>sourceText.slice(0,end).trim().split(/\s+/).filter(Boolean).length;
+    const hard=[...capped.matchAll(/[.!?](?=\s|$)/g)]
+     .map(match=>match.index+1).filter(end=>wordCountAt(end)>=18);
+    const soft=[...capped.matchAll(/[,;:–—](?=\s|$)/g)]
+     .map(match=>match.index+1).filter(end=>wordCountAt(end)>=18);
+    if(hard.length)safeText=sourceText.slice(0,hard[hard.length-1]).trim();
+    else if(soft.length)safeText=sourceText.slice(0,soft[soft.length-1]).replace(/[,;:–—\s]+$/,"").trim()+".";
+    else safeText=capped.replace(/[,;:–—\s]+$/,"").trim()+"…";
+    console.log("JAYA_H24_MAX_DURATION_CAPPED",{slot,originalWords:wordMarks.length,finalWords:safeText.split(/\s+/).length});
    }
    const count=String(safeText||"").trim().split(/\s+/).filter(Boolean).length;
    if(count<18){
