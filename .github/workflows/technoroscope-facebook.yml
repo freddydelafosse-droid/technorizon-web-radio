@@ -1,0 +1,48 @@
+name: Generate Technoroscope Facebook poster
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '35 4 * * *'
+    - cron: '35 5 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: technoroscope-facebook-image
+  cancel-in-progress: false
+jobs:
+  poster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check French local time
+        id: clock
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          HOUR=$(TZ=Europe/Paris date +%H)
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$HOUR" = "06" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.clock.outputs.run == 'true'
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        if: steps.clock.outputs.run == 'true'
+        with:
+          node-version: '22'
+      - name: Install browser
+        if: steps.clock.outputs.run == 'true'
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Build verified poster from live Technoroscope
+        if: steps.clock.outputs.run == 'true'
+        run: node scripts/build-technoroscope-facebook.cjs
+      - name: Publish public image in repository
+        if: steps.clock.outputs.run == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add technoroscope-facebook.png technoroscope-facebook.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Update Technoroscope Facebook poster"
+          git pull --rebase origin main
+          git push origin HEAD:main
