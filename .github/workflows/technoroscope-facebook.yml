@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/technoroscope-facebook.yml'
+      - 'scripts/build-technoroscope-facebook.cjs'
   schedule:
     - cron: '35 4 * * *'
     - cron: '35 5 * * *'
