@@ -1,6 +1,9 @@
 name: Generate Technoroscope Facebook poster
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/technoroscope-facebook.yml'
   schedule:
     - cron: '35 4 * * *'
     - cron: '35 5 * * *'
@@ -19,7 +22,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
         run: |
           HOUR=$(TZ=Europe/Paris date +%H)
-          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$HOUR" = "06" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; fi
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$EVENT_NAME" = "push" ] || [ "$HOUR" = "06" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; fi
       - uses: actions/checkout@v4
         if: steps.clock.outputs.run == 'true'
         with:
