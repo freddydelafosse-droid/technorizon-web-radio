@@ -35,6 +35,24 @@ function repeatedJayaPhrase(text){
  // La comparaison plus souple reste limitée aux passages les plus récents afin
  // de ne pas bloquer durablement le vocabulaire naturel de la radio.
  const recent=allRecent.slice(-12);
+ // Bloque aussi le "même passage déguisé" quand plusieurs motifs éditoriaux
+ // reviennent ensemble (café + sourire, mini-défi + mouvement, listes de villes...).
+ // Un seul motif reste autorisé afin de ne pas bannir un vocabulaire naturel.
+ const motifRules=[
+  /\\b(?:cafe|tasse|espresso|cafeine)\\b/,
+  /\\b(?:sourire|souri|clin d oeil)\\b/,
+  /\\b(?:boug\\w*|mouvement|hochement|epaule|pied|geste)\\b/,
+  /\\b(?:petit defi|mini defi|petit pari|phrase courte|truc simple)\\b/,
+  /\\b(?:paris|lyon|montreal|berlin|rome|nice|toulouse|marseille|bordeaux|lille|sydney|sidney)\\b/
+ ];
+ const motifHits=value=>new Set(motifRules.map((rule,index)=>rule.test(value)?index:-1).filter(index=>index>=0));
+ const currentMotifs=motifHits(n);
+ if(currentMotifs.size>=2&&recent.slice(-8).some(old=>{
+  const oldMotifs=motifHits(old);
+  let shared=0;
+  for(const motif of currentMotifs)if(oldMotifs.has(motif))shared++;
+  return shared>=2;
+ }))return true;
  const words=n.split(" ").filter(Boolean);
  if(words.length<9)return false;
  const stop=new Set(["alors","avec","comme","dans","depuis","encore","entre","faire","ici","jaya","mais","meme","nous","pour","quand","radio","sont","technorizon","tous","tout","toute","vous"]);
