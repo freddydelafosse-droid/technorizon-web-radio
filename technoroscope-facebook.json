@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-15",
+  "rows": [
+    {
+      "key": "belier",
+      "symbol": "♈",
+      "name": "Bélier",
+      "text": "Votre énergie est en mode BPM élevé. Profitez de cet élan pour avancer sur ce qui vous tient vraiment à cœur. Le rythme du jour favorise une évolution positive. Le bon tempo sera plus utile que la précipitation. Restez fidèle à votre rythme naturel."
+    },
+    {
+      "key": "taureau",
+      "symbol": "♉",
+      "name": "Taureau",
+      "text": "Gardez votre tempo. Inutile d’accélérer aujourd’hui : les meilleures choses arrivent au bon rythme. Une énergie constructive accompagne vos décisions. Votre intuition repérera ce que les autres ne voient pas. Laissez la journée vous surprendre agréablement."
+    },
+    {
+      "key": "gemeaux",
+      "symbol": "♊",
+      "name": "Gémeaux",
+      "text": "Une rencontre ou un message pourrait changer la tonalité de votre journée. Restez attentif aux signaux. Les influences du moment invitent à avancer avec confiance. Un détail discret pourrait prendre toute son importance. Faites confiance à votre première impression."
+    },
+    {
+      "key": "cancer",
+      "symbol": "♋",
+      "name": "Cancer",
+      "text": "Écoutez votre intuition : aujourd’hui, elle semble parfaitement calée sur la bonne fréquence. Une dynamique nouvelle se met doucement en place. La constance donnera aujourd’hui de meilleurs résultats. Faites confiance à votre première impression."
+    },
+    {
+      "key": "lion",
+      "symbol": "♌",
+      "name": "Lion",
+      "text": "Les projecteurs sont sur vous. Assumez votre énergie et faites entendre votre différence. Le rythme du jour favorise une évolution positive. Une petite initiative peut produire un bel effet. Gardez une marge pour l’imprévu."
+    },
+    {
+      "key": "vierge",
+      "symbol": "♍",
+      "name": "Vierge",
+      "text": "Quelques réglages suffiront à remettre votre journée dans le tempo. Ne cherchez pas à tout contrôler. Une énergie constructive accompagne vos décisions. Une décision ancienne pourrait enfin porter ses fruits. Avancez sans chercher à tout maîtriser."
+    },
+    {
+      "key": "balance",
+      "symbol": "♎",
+      "name": "Balance",
+      "text": "Cherchez l’harmonie sans oublier votre propre mélodie. Un compromis pourrait débloquer une situation. Les influences du moment invitent à avancer avec confiance. Une occasion inattendue mérite votre attention. Choisissez la simplicité et restez à l’écoute."
+    },
+    {
+      "key": "scorpion",
+      "symbol": "♏",
+      "name": "Scorpion",
+      "text": "L’intensité monte aujourd’hui. Utilisez cette énergie pour avancer sans pousser le volume trop loin. Une dynamique nouvelle se met doucement en place. Une information reçue au bon moment fera la différence. Choisissez la simplicité et restez à l’écoute."
+    },
+    {
+      "key": "sagittaire",
+      "symbol": "♐",
+      "name": "Sagittaire",
+      "text": "Besoin d’air et de nouveauté ? Changez de route, de playlist ou simplement de perspective. Le rythme du jour favorise une évolution positive. Un changement de perspective ouvrira une possibilité. Préservez votre énergie pour ce qui compte vraiment."
+    },
+    {
+      "key": "capricorne",
+      "symbol": "♑",
+      "name": "Capricorne",
+      "text": "Votre constance commence à payer. Continuez d’avancer piste après piste : le résultat se rapproche. Une énergie constructive accompagne vos décisions. Le bon tempo sera plus utile que la précipitation. Accueillez les signes sans forcer les événements."
+    },
+    {
+      "key": "verseau",
+      "symbol": "♒",
+      "name": "Verseau",
+      "text": "Une idée originale pourrait faire toute la différence. Aujourd’hui, osez sortir du format. Les influences du moment invitent à avancer avec confiance. Un échange apportera un éclairage utile. Exprimez clairement ce que vous souhaitez."
+    },
+    {
+      "key": "poissons",
+      "symbol": "♓",
+      "name": "Poissons",
+      "text": "Laissez parler votre sensibilité. Certaines émotions méritent simplement d’être écoutées. Une dynamique nouvelle se met doucement en place. Un détail discret pourrait prendre toute son importance. Prenez le temps d’observer avant d’agir."
+    }
+  ]
+}
