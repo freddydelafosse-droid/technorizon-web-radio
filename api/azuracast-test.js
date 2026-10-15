@@ -78,7 +78,11 @@ function repeatedJayaPhrase(text){
  });
 }
 function jayaTooGeneric(text){
- const n=normJaya(text);
+ const raw=String(text||"").trim();
+ // A standalone intervention must never sound like the continuation of a
+ // sentence the listener did not hear.
+ if(/^(?:(?:[—–-]\s*)?(?:…|\.\.\.)|[—–-]\s+)/.test(raw))return true;
+ const n=normJaya(raw);
  if(!n||n.split(" ").length<5)return true;
  if(JAYA_BANNED_GENERIC.some(x=>n.includes(x)))return true;
  if(/\\b(?:[01]?\\d|2[0-3])\\s*(?:h|heures?)\\s*(?:[0-5]\\d)?\\b/i.test(String(text||""))&&!programTimeAllowed(String(text||"")))return true;
@@ -1283,12 +1287,11 @@ async function handler(req,res){
     console.log("JAYA_H24_MIN_DURATION_EXTENDED",{slot,economyWindow,originalWords:count});
    }
   }
-  // Dernier verrou anti-radotage après l'éventuelle extension de durée :
-  // si le texte final complet existe déjà, mieux vaut laisser le prochain
-  // contrôle H24 réessayer que diffuser mot pour mot la même intervention.
-  if(!isEditorial&&jayaRecent.slice(-JAYA_RECENT_MAX).map(normJaya).includes(normJaya(safeText))){
-   console.warn("JAYA_H24_EXACT_REPEAT_BLOCKED",{slot});
-   return skip(res,"h24-exact-repeat-blocked");
+  // Dernier verrou après la coupe/extension : le texte réellement prononcé
+  // doit encore respecter l'anti-radotage et rester autonome à l'écoute.
+  if(!isEditorial&&jayaTooGeneric(safeText)){
+   console.warn("JAYA_H24_FINAL_TEXT_BLOCKED",{slot,reason:"post-cap-repeat-or-leading-fragment"});
+   return skip(res,"h24-final-text-blocked");
   }
   const text=radioPause(enforceDaypart(safeText,lh)),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
   // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
