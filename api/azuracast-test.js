@@ -93,6 +93,9 @@ async function loadJayaMemory(){
  try{
   const u=new URL(cfg.url+"/rest/v1/jaya_antenna_memory");
   u.searchParams.set("select","text");
+  // La rotation anti-radotage H24 doit compter huit vrais passages spontanés,
+  // sans être raccourcie artificiellement par les flashs, horoscopes ou verrous.
+  u.searchParams.set("kind","in.(h24,manual)");
   u.searchParams.set("order","created_at.desc");
   u.searchParams.set("limit",String(JAYA_RECENT_MAX));
   const r=await fetch(u,{headers:{apikey:cfg.key,Authorization:"Bearer "+cfg.key,Accept:"application/json"}});
