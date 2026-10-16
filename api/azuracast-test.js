@@ -749,7 +749,12 @@ Ce qu'il faut apprendre de ces exemples : réaction spontanée au morceau, adres
    max_output_tokens:2400
   })});
   if(!r.ok){console.error("JAYA_SMART_HTTP",r.status);return null}
-  const j=await r.json(),out=String(j.output_text||((j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" "))).trim();
+  const j=await r.json();
+  let out=String(j.output_text||((j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" "))).trim();
+  // Le modèle peut conserver une salutation matinale malgré la règle horaire.
+  // Normalise-la avant validation plutôt que de gaspiller six essais et perdre le passage H24.
+  if(hour>=10)out=out.replace(/^\s*bonjour\s+bon\s+réveil\s*!?\s*/i,"Bonjour ! ");
+  if(hour>=12)out=out.replace(/\bce matin\b/gi,"aujourd’hui").replace(/\bbonne matinée\b/gi,"bon après-midi");
   if(!out){console.error("JAYA_SMART_EMPTY_OUTPUT",{status:j.status||null,incomplete_reason:j.incomplete_details?.reason||null,output_items:Array.isArray(j.output)?j.output.length:0,reasoning_tokens:j.usage?.output_tokens_details?.reasoning_tokens??null});return null}
   // Garde-fou technique : la consigne H24 impose déjà 16–28 mots pendant
   // la fenêtre d'économie, puis 18–40 mots. Cette limite protège seulement
