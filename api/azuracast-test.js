@@ -1287,10 +1287,10 @@ async function handler(req,res){
     const wordCountAt=end=>sourceText.slice(0,end).trim().split(/\s+/).filter(Boolean).length;
     const hard=[...capped.matchAll(/[.!?](?=\s|$)/g)]
      .map(match=>match.index+1).filter(end=>wordCountAt(end)>=minWords);
-    const soft=[...capped.matchAll(/[,;:–—](?=\s|$)/g)]
-     .map(match=>match.index+1).filter(end=>wordCountAt(end)>=minWords);
+    // A comma, colon, semicolon or dash may introduce an unfinished idea
+    // (for example "la musique, pour moi, c'est..."). Only a real sentence
+    // boundary is safe enough to send to TTS.
     if(hard.length)safeText=sourceText.slice(0,hard[hard.length-1]).trim();
-    else if(soft.length)safeText=sourceText.slice(0,soft[soft.length-1]).replace(/[,;:–—\s]+$/,"").trim()+".";
     else{
      // Never broadcast a sentence cut mid-idea. The five-minute catch-up tick
      // will generate a fresh candidate while queue/history locks prevent duplicates.
