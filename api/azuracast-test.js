@@ -755,6 +755,9 @@ Ce qu'il faut apprendre de ces exemples : réaction spontanée au morceau, adres
   // Normalise-la avant validation plutôt que de gaspiller six essais et perdre le passage H24.
   if(hour>=10)out=out.replace(/^\s*bonjour\s+bon\s+réveil\s*!?\s*/i,"Bonjour ! ");
   if(hour>=12)out=out.replace(/\bce matin\b/gi,"aujourd’hui").replace(/\bbonne matinée\b/gi,"bon après-midi");
+  if(programPromo&&upcomingProgram.start>=18*60){
+   out=out.replace(/\b(?:ce matin|cet après-midi|dans la matinée)\b/gi,"ce soir");
+  }
   if(!out){console.error("JAYA_SMART_EMPTY_OUTPUT",{status:j.status||null,incomplete_reason:j.incomplete_details?.reason||null,output_items:Array.isArray(j.output)?j.output.length:0,reasoning_tokens:j.usage?.output_tokens_details?.reasoning_tokens??null});return null}
   // Garde-fou technique : la consigne H24 impose déjà 16–28 mots pendant
   // la fenêtre d'économie, puis 18–40 mots. Cette limite protège seulement
