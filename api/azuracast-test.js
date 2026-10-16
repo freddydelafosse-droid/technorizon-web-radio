@@ -41,7 +41,7 @@ function repeatedJayaPhrase(text){
  // reconnaissables doit respirer pendant huit passages avant de revenir.
  const motifRules=[
   /\\b(?:cafe|tasse|espresso|cafeine)\\b/,
-  /\\b(?:sourir\\w*|clin d oeil)\\b/,
+  /\\b(?:souri\\w*|clin d oeil)\\b/,
   /\\b(?:respir\\w*|boug\\w*|mouvement\\w*|hochement\\w*|epaule\\w*|pied\\w*|geste\\w*|nuque|machoire)\\b/,
   /\\b(?:petit defi|mini defi|petit pari|phrase courte|truc simple)\\b/,
   /\\b(?:petite?s? victoire?s?|mini victoire?s?|trois petites victoires)\\b/,
