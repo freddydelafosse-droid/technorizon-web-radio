@@ -632,7 +632,7 @@ async function smartAnnouncement({song,slot,hour,minute}){
  const parisDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
  const economyWindow=parisDay>="2026-10-15"&&parisDay<="2026-10-22";
  const h24DurationRule=economyWindow
-  ?"LONGUEUR ABSOLUE TEMPORAIRE: écris une seule intervention autonome de 16 à 28 mots, entièrement terminée. Chaque phrase ou proposition doit pouvoir être diffusée telle quelle dans cette limite. Pas de préambule, pas de suite implicite."
+  ?"LONGUEUR ABSOLUE TEMPORAIRE: écris une seule intervention autonome de 24 à 28 mots, entièrement terminée. Chaque phrase ou proposition doit pouvoir être diffusée telle quelle dans cette limite. Pas de préambule, pas de suite implicite."
   :"LONGUEUR ABSOLUE: écris une seule intervention autonome de 18 à 40 mots, entièrement terminée. Une seule idée, sans introduction longue ni conclusion répétitive.";
  const artist=song?.artist?speechMeta(song.artist):"",title=song?.title?speechMeta(song.title):"";
  const styles=["très courte et pétillante","courte et complice","naturelle et très souriante","motivée et entraînante","joyeuse et lumineuse","enthousiaste avec du coffre","dynamique et rythmée","malicieuse et joueuse","conversationnelle et chaleureuse","réaction à chaud très vivante","douce mais heureuse","spontanée avec un vrai sourire","positive et fédératrice","tonique sans crier","curieuse et émerveillée","imprévisible mais naturelle"];
@@ -1278,7 +1278,7 @@ async function handler(req,res){
   if(!isEditorial){
    const parisDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
    const economyWindow=parisDay>="2026-10-15"&&parisDay<="2026-10-22";
-   const minWords=economyWindow?16:18,maxWords=economyWindow?28:40;
+   const minWords=economyWindow?24:18,maxWords=economyWindow?28:40;
    const sourceText=String(safeText||"").trim();
    const wordMarks=[...sourceText.matchAll(/\S+/g)];
    if(wordMarks.length>maxWords){
