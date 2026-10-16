@@ -3,6 +3,7 @@ const VOICE="bkBb0X46TbX2PU8PC5vY",SID=1;
 const JAYA_RECENT_MAX=500;
 let jayaRecent=[];
 const JAYA_BANNED_GENERIC=[
+ "restez curieux",
  "bon j avais prevu d etre sage au micro","voila c est rate on garde le sourire",
  "tres bonne ecoute","on garde l energie","je vous accompagne encore un moment",
  "j espere que votre soiree se passe bien","la musique continue","on continue",
@@ -355,7 +356,7 @@ function speechMeta(v){
 }
 function radioPause(s){return String(s).replace(/\.\.\./g,"…").replace(/([.!?])\s+/g,"$1 ").replace(/,\s+/g,", ").replace(/\s*…\s*/g," … ").trim()}
 function enforceDaypart(text,hour){
- let s=String(text||"");
+ let s=String(text||"").replace(/\bpetite aveu\b/gi,"petit aveu");
  if(hour>=5&&hour<12){
   s=s.replace(/\bbonsoir\b/gi,"bonjour").replace(/\bbonne soirée\b/gi,"bonne matinée").replace(/\bbonne nuit\b/gi,"bonne matinée").replace(/\bce soir\b/gi,"ce matin").replace(/\bcet après-midi\b/gi,"ce matin").replace(/\bvotre soirée\b/gi,"votre matinée").replace(/\bvotre après-midi\b/gi,"votre matinée").replace(/\bla soirée\b/gi,"la matinée").replace(/\bl'après-midi\b/gi,"la matinée");
  }else if(hour>=12&&hour<18){
