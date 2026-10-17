@@ -43,6 +43,7 @@ function repeatedJayaPhrase(text){
  const motifRules=[
   /\\b(?:cafe|tasse|espresso|cafeine)\\b/,
   /\\b(?:souri\\w*|clin d oeil)\\b/,
+  /\\bchaussette\\w*\\b/,
   /\\b(?:respir\\w*|boug\\w*|mouvement\\w*|hochement\\w*|epaule\\w*|pied\\w*|geste\\w*|nuque|machoire)\\b/,
   /\\b(?:petit defi|mini defi|petit pari|phrase courte|truc simple)\\b/,
   /\\b(?:petite?s? victoire?s?|mini victoire?s?|trois petites victoires)\\b/,
@@ -632,7 +633,7 @@ async function smartAnnouncement({song,slot,hour,minute}){
  const parisDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
  const economyWindow=parisDay>="2026-10-15"&&parisDay<="2026-10-22";
  const h24DurationRule=economyWindow
-  ?"LONGUEUR ABSOLUE TEMPORAIRE: écris une seule intervention autonome de 36 à 42 mots, entièrement terminée. Chaque phrase ou proposition doit pouvoir être diffusée telle quelle dans cette limite. Pas de préambule, pas de suite implicite."
+  ?"LONGUEUR ABSOLUE TEMPORAIRE: écris une seule intervention autonome de 36 à 40 mots, entièrement terminée. Chaque phrase ou proposition doit pouvoir être diffusée telle quelle dans cette limite. Pas de préambule, pas de suite implicite."
   :"LONGUEUR ABSOLUE: écris une seule intervention autonome de 18 à 40 mots, entièrement terminée. Une seule idée, sans introduction longue ni conclusion répétitive.";
  const artist=song?.artist?speechMeta(song.artist):"",title=song?.title?speechMeta(song.title):"";
  const styles=["très courte et pétillante","courte et complice","naturelle et très souriante","motivée et entraînante","joyeuse et lumineuse","enthousiaste avec du coffre","dynamique et rythmée","malicieuse et joueuse","conversationnelle et chaleureuse","réaction à chaud très vivante","douce mais heureuse","spontanée avec un vrai sourire","positive et fédératrice","tonique sans crier","curieuse et émerveillée","imprévisible mais naturelle"];
@@ -1278,7 +1279,7 @@ async function handler(req,res){
   if(!isEditorial){
    const parisDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
    const economyWindow=parisDay>="2026-10-15"&&parisDay<="2026-10-22";
-   const minWords=economyWindow?36:18,maxWords=economyWindow?42:40;
+   const minWords=economyWindow?36:18,maxWords=40;
    // If a valid idea cannot be cut on a real sentence boundary, regenerate it
    // immediately in this same antenna request. The scheduler does not run H24 on
    // every five-minute tick, so returning here would silently lose the passage.
