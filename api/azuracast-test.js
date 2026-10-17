@@ -89,6 +89,9 @@ function jayaTooGeneric(text){
  // Refuse les didascalies que le modèle pourrait écrire malgré la consigne orale.
  if(/\([^)]*(?:sourire|rires?|rire|clin d[’' ]?oeil|voix|ton|pause|silence)[^)]*\)/i.test(raw))return true;
  const n=normJaya(raw);
+ // Refuse les salutations redondantes et les repères temporels répétés mot pour mot.
+ if(/^bonjour bon (?:apres midi|soir)\b/.test(n))return true;
+ if(/\b(cet apres midi|ce matin|ce soir|aujourd hui)\s+\1\b/.test(n))return true;
  if(!n||n.split(" ").length<5)return true;
  if(JAYA_BANNED_GENERIC.some(x=>n.includes(x)))return true;
  if(/\\b(?:[01]?\\d|2[0-3])\\s*(?:h|heures?)\\s*(?:[0-5]\\d)?\\b/i.test(String(text||""))&&!programTimeAllowed(String(text||"")))return true;
