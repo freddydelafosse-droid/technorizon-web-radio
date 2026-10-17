@@ -1254,14 +1254,17 @@ async function handler(req,res){
   }
   const editorialPeriod=isEditorial?(lh<9?"07":lh<13?"11":lh<17?"13":"17"):"";
   const editorialDay=isEditorial?new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now):"";
-  let generatedText=isEditorial?editorialText:await smartAnnouncement({song:null,slot,hour:lh,minute:lm});
+  // La minute du déclenchement fait varier la génération : un rattrapage à :45
+  // ne doit jamais reproduire les mêmes candidats refusés à :40.
+  const generationSeed=slot*10+(lm%10);
+  let generatedText=isEditorial?editorialText:await smartAnnouncement({song:null,slot:generationSeed,hour:lh,minute:lm});
   // Anti-radotage sans toucher à la personnalité de Jaya : si une excellente
   // génération est refusée uniquement par les contrôles de répétition, on lui
   // donne jusqu'à cinq nouvelles chances avec un angle/style différent. Aucun
   // texte local répétitif n'est réactivé et le créneau antenne reste inchangé.
   if(!isEditorial&&(!generatedText||String(generatedText).trim().length<12||jayaTooGeneric(generatedText))){
    for(let retry=1;retry<=5;retry++){
-    const retryText=await smartAnnouncement({song:null,slot:slot+retry*1009,hour:lh,minute:lm});
+    const retryText=await smartAnnouncement({song:null,slot:generationSeed+retry*1009,hour:lh,minute:lm});
     if(retryText&&String(retryText).trim().length>=12&&!jayaTooGeneric(retryText)){
      generatedText=retryText;
      console.log("JAYA_H24_ANTIREPEAT_RETRY_OK",{slot,retry});
@@ -1287,10 +1290,10 @@ async function handler(req,res){
    // immediately in this same antenna request. The scheduler does not run H24 on
    // every five-minute tick, so returning here would silently lose the passage.
    let durationAccepted=false;
-   for(let durationRetry=0;durationRetry<=3;durationRetry++){
+   for(let durationRetry=0;durationRetry<=5;durationRetry++){
     const sourceText=durationRetry===0
      ?String(safeText||"").trim()
-     :String(await smartAnnouncement({song:null,slot:slot+durationRetry*2017,hour:lh,minute:lm})||"").trim();
+     :String(await smartAnnouncement({song:null,slot:generationSeed+durationRetry*2017,hour:lh,minute:lm})||"").trim();
     if(!sourceText||sourceText.length<12||jayaTooGeneric(sourceText)){
      console.warn("JAYA_H24_DURATION_RETRY_REJECTED",{slot,durationRetry,reason:"invalid-or-repetitive"});
      continue;
