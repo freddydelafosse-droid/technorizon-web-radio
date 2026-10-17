@@ -638,7 +638,7 @@ async function smartAnnouncement({song,slot,hour,minute}){
  const parisDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
  const economyWindow=parisDay>="2026-10-15"&&parisDay<="2026-10-22";
  const h24DurationRule=economyWindow
-  ?"LONGUEUR ABSOLUE TEMPORAIRE: écris une seule intervention autonome de 36 à 40 mots, entièrement terminée. Chaque phrase ou proposition doit pouvoir être diffusée telle quelle dans cette limite. Pas de préambule, pas de suite implicite."
+  ?"LONGUEUR ABSOLUE TEMPORAIRE: écris une seule intervention autonome de 28 à 32 mots, entièrement terminée. Chaque phrase ou proposition doit pouvoir être diffusée telle quelle dans cette limite. Pas de préambule, pas de suite implicite."
   :"LONGUEUR ABSOLUE: écris une seule intervention autonome de 18 à 40 mots, entièrement terminée. Une seule idée, sans introduction longue ni conclusion répétitive.";
  const artist=song?.artist?speechMeta(song.artist):"",title=song?.title?speechMeta(song.title):"";
  const styles=["très courte et pétillante","courte et complice","naturelle et très souriante","motivée et entraînante","joyeuse et lumineuse","enthousiaste avec du coffre","dynamique et rythmée","malicieuse et joueuse","conversationnelle et chaleureuse","réaction à chaud très vivante","douce mais heureuse","spontanée avec un vrai sourire","positive et fédératrice","tonique sans crier","curieuse et émerveillée","imprévisible mais naturelle"];
@@ -768,7 +768,7 @@ Ce qu'il faut apprendre de ces exemples : réaction spontanée au morceau, adres
    out=out.replace(/\b(?:ce matin|cet après-midi|dans la matinée)\b/gi,"ce soir");
   }
   if(!out){console.error("JAYA_SMART_EMPTY_OUTPUT",{status:j.status||null,incomplete_reason:j.incomplete_details?.reason||null,output_items:Array.isArray(j.output)?j.output.length:0,reasoning_tokens:j.usage?.output_tokens_details?.reasoning_tokens??null});return null}
-  // Garde-fou technique : la consigne H24 impose déjà 36–42 mots pendant
+  // Garde-fou technique : la consigne H24 impose déjà 28–32 mots pendant
   // la fenêtre d'économie, puis 18–40 mots. Cette limite protège seulement
   // contre une réponse anormalement longue avant les contrôles de durée.
   if(out.length>1050){console.warn("JAYA_SMART_TOO_LONG",out.length);return null}
@@ -1287,7 +1287,7 @@ async function handler(req,res){
   if(!isEditorial){
    const parisDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
    const economyWindow=parisDay>="2026-10-15"&&parisDay<="2026-10-22";
-   const minWords=economyWindow?36:18,maxWords=40;
+   const minWords=economyWindow?28:18,maxWords=economyWindow?32:40;
    // If a valid idea cannot be cut on a real sentence boundary, regenerate it
    // immediately in this same antenna request. The scheduler does not run H24 on
    // every five-minute tick, so returning here would silently lose the passage.
