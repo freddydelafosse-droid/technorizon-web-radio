@@ -1279,9 +1279,25 @@ async function handler(req,res){
    const parisDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
    const economyWindow=parisDay>="2026-10-15"&&parisDay<="2026-10-22";
    const minWords=economyWindow?36:18,maxWords=economyWindow?42:40;
-   const sourceText=String(safeText||"").trim();
-   const wordMarks=[...sourceText.matchAll(/\S+/g)];
-   if(wordMarks.length>maxWords){
+   // If a valid idea cannot be cut on a real sentence boundary, regenerate it
+   // immediately in this same antenna request. The scheduler does not run H24 on
+   // every five-minute tick, so returning here would silently lose the passage.
+   let durationAccepted=false;
+   for(let durationRetry=0;durationRetry<=3;durationRetry++){
+    const sourceText=durationRetry===0
+     ?String(safeText||"").trim()
+     :String(await smartAnnouncement({song:null,slot:slot+durationRetry*2017,hour:lh,minute:lm})||"").trim();
+    if(!sourceText||sourceText.length<12||jayaTooGeneric(sourceText)){
+     console.warn("JAYA_H24_DURATION_RETRY_REJECTED",{slot,durationRetry,reason:"invalid-or-repetitive"});
+     continue;
+    }
+    const wordMarks=[...sourceText.matchAll(/\S+/g)];
+    if(wordMarks.length<=maxWords){
+     safeText=sourceText;
+     durationAccepted=true;
+     if(durationRetry>0)console.log("JAYA_H24_DURATION_RETRY_OK",{slot,durationRetry,words:wordMarks.length});
+     break;
+    }
     const maxEnd=wordMarks[maxWords-1].index+wordMarks[maxWords-1][0].length;
     const capped=sourceText.slice(0,maxEnd).trim();
     const wordCountAt=end=>sourceText.slice(0,end).trim().split(/\s+/).filter(Boolean).length;
@@ -1290,14 +1306,17 @@ async function handler(req,res){
     // A comma, colon, semicolon or dash may introduce an unfinished idea
     // (for example "la musique, pour moi, c'est..."). Only a real sentence
     // boundary is safe enough to send to TTS.
-    if(hard.length)safeText=sourceText.slice(0,hard[hard.length-1]).trim();
-    else{
-     // Never broadcast a sentence cut mid-idea. The five-minute catch-up tick
-     // will generate a fresh candidate while queue/history locks prevent duplicates.
-     console.warn("JAYA_H24_DURATION_REJECTED",{slot,economyWindow,reason:"no-complete-clause-within-limit",maxWords});
-     return skip(res,"h24-no-complete-short-clause");
+    if(hard.length){
+     safeText=sourceText.slice(0,hard[hard.length-1]).trim();
+     durationAccepted=true;
+     console.log("JAYA_H24_MAX_DURATION_CAPPED",{slot,economyWindow,durationRetry,originalWords:wordMarks.length,finalWords:safeText.split(/\s+/).length});
+     break;
     }
-    console.log("JAYA_H24_MAX_DURATION_CAPPED",{slot,economyWindow,originalWords:wordMarks.length,finalWords:safeText.split(/\s+/).length});
+    console.warn("JAYA_H24_DURATION_RETRY_REQUIRED",{slot,economyWindow,durationRetry,reason:"no-complete-clause-within-limit",maxWords});
+   }
+   if(!durationAccepted){
+    console.warn("JAYA_H24_DURATION_REJECTED",{slot,economyWindow,reason:"all-duration-candidates-rejected",maxWords});
+    return skip(res,"h24-no-complete-short-clause");
    }
    const count=String(safeText||"").trim().split(/\s+/).filter(Boolean).length;
    if(count<minWords){
