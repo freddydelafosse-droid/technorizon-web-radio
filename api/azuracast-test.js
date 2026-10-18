@@ -90,7 +90,7 @@ function jayaTooGeneric(text){
  if(/\([^)]*(?:sourire|rires?|rire|clin d[’' ]?oeil|voix|ton|pause|silence)[^)]*\)/i.test(raw))return true;
  const n=normJaya(raw);
  // Refuse les salutations redondantes et les repères temporels répétés mot pour mot.
- if(/^bonjour (?:bonjour|bon (?:apres midi|soir))\b/.test(n))return true;
+ if(/^bonjour (?:bonjour|bon(?:ne)? (?:apres midi|soir(?:ee)?))\b/.test(n))return true;
  if(/\b(cet apres midi|ce matin|ce soir|aujourd hui)\s+\1\b/.test(n))return true;
  // H24 ne dispose pas d’une météo locale vérifiée : aucune observation du ciel ne doit être inventée.
  if(/\b(?:ce soleil|cette pluie|ce beau temps|ce mauvais temps|il fait (?:beau|chaud|froid)|le ciel est)\b/.test(n))return true;
