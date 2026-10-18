@@ -87,7 +87,7 @@ function jayaTooGeneric(text){
  // sentence the listener did not hear.
  if(/^(?:(?:[—–-]\s*)?(?:…|\.\.\.)|[—–-]\s+)/.test(raw))return true;
  // Refuse les didascalies que le modèle pourrait écrire malgré la consigne orale.
- if(/\([^)]*(?:sourire|rires?|rire|clin d[’' ]?oeil|voix|ton|pause|silence)[^)]*\)/i.test(raw))return true;
+ if(/\([^)]*(?:sourire|rires?|rire|respir\w*|clin d[’' ]?oeil|voix|ton|pause|silence)[^)]*\)/i.test(raw))return true;
  const n=normJaya(raw);
  // Refuse les salutations redondantes et les repères temporels répétés mot pour mot.
  if(/^bonjour (?:bonjour|bon(?:ne)? (?:apres midi|soir(?:ee)?))\b/.test(n))return true;
