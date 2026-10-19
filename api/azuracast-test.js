@@ -366,7 +366,7 @@ function enforceDaypart(text,hour){
  if(hour>=5&&hour<12){
   s=s.replace(/\bbonsoir\b/gi,"bonjour").replace(/\bbonne soirée\b/gi,"bonne matinée").replace(/\bbonne nuit\b/gi,"bonne matinée").replace(/\bce soir\b/gi,"ce matin").replace(/\bcet après-midi\b/gi,"ce matin").replace(/\bvotre soirée\b/gi,"votre matinée").replace(/\bvotre après-midi\b/gi,"votre matinée").replace(/\bla soirée\b/gi,"la matinée").replace(/\bl'après-midi\b/gi,"la matinée");
  }else if(hour>=12&&hour<18){
-  s=s.replace(/\bbonsoir\b/gi,"bonjour").replace(/\bbonne soirée\b/gi,"bon après-midi").replace(/\bbonne matinée\b/gi,"bon après-midi").replace(/\bbonne nuit\b/gi,"bonne journée").replace(/\bce soir\b/gi,"cet après-midi").replace(/\bce matin\b/gi,"cet après-midi").replace(/\bvotre soirée\b/gi,"votre après-midi").replace(/\bvotre matinée\b/gi,"votre après-midi").replace(/\bla matinée\b/gi,"l'après-midi").replace(/\bdu matin\b/gi,"de l'après-midi").replace(/\bau réveil\b/gi,"cet après-midi").replace(/\bouvre la journée\b/gi,"éclaire l'après-midi").replace(/\bouvrir la journée\b/gi,"éclairer l'après-midi").replace(/\b(?:commence|démarre) la journée\b/gi,"anime l'après-midi").replace(/\b(?:commencer|démarrer) la journée\b/gi,"profiter de l'après-midi").replace(/\bpour la journée\b/gi,"pour cet après-midi");
+  s=s.replace(/\bbonsoir\b/gi,"bonjour").replace(/\bbonne soirée\b/gi,"bon après-midi").replace(/\bbonne matinée\b/gi,"bon après-midi").replace(/\bbonne nuit\b/gi,"bonne journée").replace(/\bce matin\b/gi,"cet après-midi").replace(/\bvotre soirée\b/gi,"votre après-midi").replace(/\bvotre matinée\b/gi,"votre après-midi").replace(/\bla matinée\b/gi,"l'après-midi").replace(/\bdu matin\b/gi,"de l'après-midi").replace(/\bau réveil\b/gi,"cet après-midi").replace(/\bouvre la journée\b/gi,"éclaire l'après-midi").replace(/\bouvrir la journée\b/gi,"éclairer l'après-midi").replace(/\b(?:commence|démarre) la journée\b/gi,"anime l'après-midi").replace(/\b(?:commencer|démarrer) la journée\b/gi,"profiter de l'après-midi").replace(/\bpour la journée\b/gi,"pour cet après-midi");
  }else if(hour>=18&&hour<23){
   s=s.replace(/\bbonjour\b/gi,"bonsoir").replace(/\bbonne matinée\b/gi,"bonne soirée").replace(/\bbon après-midi\b/gi,"bonne soirée").replace(/\bbon réveil\b/gi,"bonne soirée").replace(/\bce matin\b/gi,"ce soir").replace(/\bcet après-midi\b/gi,"ce soir").replace(/\bvotre matinée\b/gi,"votre soirée").replace(/\bvotre après-midi\b/gi,"votre soirée");
  }else{
@@ -1349,7 +1349,6 @@ async function handler(req,res){
    return skip(res,"h24-final-text-blocked");
   }
   let spokenText=enforceDaypart(safeText,lh);
-  if(!isEditorial&&programPromo&&upcomingProgram?.start>=18*60)spokenText=spokenText.replace(/\bcet après-midi\b/gi,"ce soir");
   const text=radioPause(spokenText),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
   // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
   if(!text||text.trim().length<12){
