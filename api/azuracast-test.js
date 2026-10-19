@@ -763,7 +763,7 @@ Ce qu'il faut apprendre de ces exemples : réaction spontanée au morceau, adres
   // Le modèle peut conserver une salutation matinale malgré la règle horaire.
   // Normalise-la avant validation plutôt que de gaspiller six essais et perdre le passage H24.
   if(hour>=10)out=out.replace(/^\s*bonjour\s+bon\s+réveil\s*!?\s*/i,"Bonjour ! ");
-  if(hour>=12)out=out.replace(/^\s*bonjour\s*[,!—–-]*\s*bon(?:ne)? après-midi\b/i,"Bon après-midi").replace(/\bce matin\b/gi,"aujourd’hui").replace(/\bbonne matinée\b/gi,"bon après-midi");
+  if(hour>=12)out=out.replace(/^\s*bonjour\s*[,!\u2010-\u2015-]*\s*bon(?:ne)?\s+apr[eè]s[\s\u2010-\u2015-]*midi\b/i,"Bon après-midi").replace(/\bce matin\b/gi,"aujourd’hui").replace(/\bbonne matinée\b/gi,"bon après-midi");
   if(programPromo&&upcomingProgram.start>=18*60){
    out=out.replace(/\b(?:ce matin|cet après-midi|dans la matinée)\b/gi,"ce soir");
   }
