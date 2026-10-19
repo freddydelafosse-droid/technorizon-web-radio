@@ -1348,7 +1348,9 @@ async function handler(req,res){
    console.warn("JAYA_H24_FINAL_TEXT_BLOCKED",{slot,reason:"post-cap-repeat-or-leading-fragment"});
    return skip(res,"h24-final-text-blocked");
   }
-  let spokenText=enforceDaypart(safeText,lh);\n  if(!isEditorial&&programPromo&&upcomingProgram?.start>=18*60)spokenText=spokenText.replace(/\\bcet après-midi\\b/gi,"ce soir");\n  const text=radioPause(spokenText),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
+  let spokenText=enforceDaypart(safeText,lh);
+  if(!isEditorial&&programPromo&&upcomingProgram?.start>=18*60)spokenText=spokenText.replace(/\bcet après-midi\b/gi,"ce soir");
+  const text=radioPause(spokenText),file=isEditorial?("jaya-flash-"+editorialDay+"-"+editorialPeriod+".mp3"):("jaya-auto-"+slot+".mp3");
   // Sécurité antenne : ne jamais demander/générer/mettre en file un passage vide.
   if(!text||text.trim().length<12){
    console.error("JAYA_EMPTY_TEXT_BLOCKED",{isEditorial,mode,slot,nextSong:!!nextSong});
