@@ -90,7 +90,7 @@ function jayaTooGeneric(text){
  if(/\([^)]*(?:sourire|rires?|rire|respir\w*|clin d[’' ]?oeil|voix|ton|pause|silence)[^)]*\)/i.test(raw))return true;
  const n=normJaya(raw);
  // Refuse les salutations redondantes et les repères temporels répétés mot pour mot.
- if(/\bbonjour bonne matinee\b/.test(n)||/^bonjour (?:bonjour|bon(?:ne)? (?:apres midi|soir(?:ee)?))\b/.test(n))return true;
+ if(/\bbonjour bonne matinee\b/.test(n))return true;
  if(/\b(cet apres midi|ce matin|ce soir|aujourd hui)\s+\1\b/.test(n))return true;
  // H24 ne dispose pas d’une météo locale vérifiée : aucune observation du ciel ne doit être inventée.
  if(/\b(?:ce soleil|cette pluie|ce beau temps|ce mauvais temps|il fait (?:beau|chaud|froid)|le ciel est)\b/.test(n))return true;
@@ -372,7 +372,7 @@ function enforceDaypart(text,hour){
  }else{
   s=s.replace(/\bbonjour\b/gi,"bonsoir").replace(/\bbonne matinée\b/gi,"bonne nuit").replace(/\bbon après-midi\b/gi,"bonne nuit").replace(/\bce matin\b/gi,"cette nuit").replace(/\bcet après-midi\b/gi,"cette nuit").replace(/\bce soir\b/gi,"cette nuit");
  }
- return s.replace(/^\s*bonjour\s*[,!—–-]*\s*bon(?:ne)? après-midi\b/i,"Bon après-midi");
+ return s.replace(/^\s*bonjour\b[\s\S]{0,8}?\bbon(?:ne)?\b[\s\S]{0,4}?\bapr[eè]s\b[\s\S]{0,3}?\bmidi\b/i,"Bon après-midi");
 }
 // Persistent pronunciation alias, scoped to the station name only.
 // Keep Technorizons in the vocal script; apply the alias at synthesis time.
@@ -763,7 +763,7 @@ Ce qu'il faut apprendre de ces exemples : réaction spontanée au morceau, adres
   // Le modèle peut conserver une salutation matinale malgré la règle horaire.
   // Normalise-la avant validation plutôt que de gaspiller six essais et perdre le passage H24.
   if(hour>=10)out=out.replace(/^\s*bonjour\s+bon\s+réveil\s*!?\s*/i,"Bonjour ! ");
-  if(hour>=12)out=out.replace(/^\s*bonjour\s*[,!\u2010-\u2015-]*\s*bon(?:ne)?\s+apr[eè]s[\s\u2010-\u2015-]*midi\b/i,"Bon après-midi").replace(/\bce matin\b/gi,"aujourd’hui").replace(/\bbonne matinée\b/gi,"bon après-midi");
+  if(hour>=12)out=out.replace(/^\s*bonjour\b[\s\S]{0,8}?\bbon(?:ne)?\b[\s\S]{0,4}?\bapr[eè]s\b[\s\S]{0,3}?\bmidi\b/i,"Bon après-midi").replace(/\bce matin\b/gi,"aujourd’hui").replace(/\bbonne matinée\b/gi,"bon après-midi");
   if(programPromo&&upcomingProgram.start>=18*60){
    out=out.replace(/\b(?:ce matin|cet après-midi|dans la matinée)\b/gi,"ce soir");
   }
