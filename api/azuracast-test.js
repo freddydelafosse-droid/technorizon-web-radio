@@ -984,7 +984,7 @@ async function handler(req,res){
   }
   const forceWeather=req.method==="POST"&&req.body?.action==="weather-now";
   const forceNews=req.method==="POST"&&req.body?.action==="news-now";
-  const horoscopeGenerate=req.method==="POST"&&req.body?.action==="horoscope-generate";
+  let horoscopeGenerate=req.method==="POST"&&req.body?.action==="horoscope-generate";
   const horoscopeReplay=req.method==="POST"&&req.body?.action==="horoscope-replay";
   const flashReplay=req.method==="POST"&&req.body?.action==="flash-replay";
   const flashEmergency=req.method==="POST"&&req.body?.action==="flash-emergency";
@@ -1103,7 +1103,27 @@ async function handler(req,res){
    console.log("JAYA_FLASH_REPLAY_QUEUED",path,"index",q.index);
    return res.status(200).json({ok:true,state:q.verified===false?"ACCEPTED_PRELOADED":"QUEUED",action:"flash-replay",file:path,tts_generated:false,queued:true,priority:true,queue_verified:q.verified!==false,queue_accepted:true,queue_index:q.index,period});
   }
+  // At 08:15 the first edition may not exist after an upstream 429.
+  // Reuse the guarded generation path only when the daily file is genuinely absent.
+  // No backfill outside the replay appointment and no duplicate if AzuraCast preloaded it.
   if(horoscopeReplay){
+   const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+   const daily="jaya-horoscope-"+today;
+   const dirCheck=await az(base,key,"/files/list?currentDirectory="+encodeURIComponent("Jaya/Horoscope")+"&rowCount=100&current=1&searchPhrase="+encodeURIComponent(daily));
+   if(!dirCheck.ok)return res.status(502).json({ok:false,error:"Horoscope replay source check failed",status:dirCheck.status});
+   const rows=queueRows(await dirCheck.json());
+   const exists=rows.some(x=>JSON.stringify(x).toLowerCase().includes(daily.toLowerCase()));
+   if(!exists){
+    if(await alreadyBroadcast(base,key,daily,7*60+10,9*60+5))return already(res,"horoscope-already-broadcast");
+    if(await editorialSlotRecorded("horoscope_replay",today+"-08:15"))return already(res,"horoscope-already-queued");
+    const q=await az(base,key,"/queue");
+    if(!q.ok)return res.status(502).json({ok:false,error:"Horoscope replay queue check failed",status:q.status});
+    if(queueRows(await q.json()).some(x=>JSON.stringify(x).toLowerCase().includes(daily.toLowerCase())))return already(res,"horoscope-already-queued");
+    console.warn("JAYA_HOROSCOPE_REPLAY_SOURCE_MISSING_GENERATE_ONCE",daily);
+    horoscopeGenerate=true;
+   }
+  }
+  if(horoscopeReplay&&!horoscopeGenerate){
    const day=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
    const path="Jaya/Horoscope/jaya-horoscope-"+day+".mp3";
    if(await alreadyBroadcast(base,key,"jaya-horoscope-"+day,8*60+10,8*60+50))return already(res,"horoscope-second-slot-already-broadcast");
