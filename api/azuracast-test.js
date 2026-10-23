@@ -524,6 +524,27 @@ async function newsBulletin(){
  return out;
 }
 
+// Secours editorial local, sans requete IA supplementaire : une seule edition quotidienne.
+function horoscopeFallback(signs,themes,day){
+ const openings=["Aujourd'hui, un petit pas peut changer l'ambiance","Ce vendredi, prenez le temps de remarquer les bonnes occasions","Aujourd'hui, avancez à votre rythme","Ce matin, gardez l'esprit ouvert"];
+ const suggestions=[
+  "une conversation sincère pourrait vous faire du bien",
+  "une initiative simple peut débloquer votre journée",
+  "un peu d'ordre rendra vos projets plus légers",
+  "laissez une place à une idée originale",
+  "accordez-vous une vraie pause entre deux activités",
+  "un échange amical peut éclaircir une question",
+  "reprenez tranquillement un projet qui vous plaît",
+  "la patience vous aidera à faire le bon choix",
+  "une découverte inattendue pourrait vous inspirer",
+  "cherchez un équilibre entre vos envies et vos obligations",
+  "accueillez les surprises avec souplesse",
+  "réservez-vous un moment pour ce qui vous fait sourire"
+ ];
+ const rotation=Array.from(day).reduce((a,c)=>a+c.charCodeAt(0),0)%4;
+ return "Bonjour, c'est Jaya avec votre Technoroscope sur Technorizon. "+signs.map((sign,i)=>sign+" : "+(i%3===0?openings[(rotation+i)%openings.length]+", ":"")+suggestions[(i+rotation)%suggestions.length]+".").join(" ")+" Retrouvez le Technoroscope chaque matin à sept heures quinze et huit heures quinze sur Technorizon, et votre horoscope complet sur Technorizon.fr.";
+}
+
 async function horoscopeBulletin(){
  const frenchReview=await frenchAntennaInstructions("accord adjectif impératif futur conditionnel");
  const key=process.env.OPENAI_API_KEY;if(!key)throw new Error("Horoscope AI configuration missing");
@@ -549,7 +570,13 @@ async function horoscopeBulletin(){
    input:"Date éditoriale : "+dayKey+". Signes à traiter aujourd'hui : "+signs.join(", ")+". Le texte doit contenir les 12 signes, de Bélier à Poissons, puis l'annonce finale. Compare chaque signe aux 14 éditions précédentes et produis un contenu nettement différent, pas une simple reformulation. Archives à ne pas recycler : "+JSON.stringify(recent),
    max_output_tokens:3000
   })});
-  if(!r.ok)throw new Error("Horoscope AI "+r.status);
+  if(!r.ok){
+   let detail={};try{const body=await r.json();detail={type:body?.error?.type||null,code:body?.error?.code||null,message:String(body?.error?.message||"").slice(0,180)}}catch{}
+   const retryAfter=r.headers.get("retry-after");
+   console.error("JAYA_HOROSCOPE_AI_REJECTED",{status:r.status,...detail,retryAfter});
+   if(r.status===429||r.status>=500)return horoscopeFallback(signs,todayThemes,dayKey);
+   throw new Error("Horoscope AI "+r.status);
+  }
   const j=await r.json(),out=(j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" ").trim();
   const normalized=(out||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
   const complete=!!out&&signs.every(sign=>normalized.includes(sign.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()))&&(normalized.includes("sept heures quinze")||normalized.includes("7h15"))&&(normalized.includes("huit heures quinze")||normalized.includes("8h15"))&&normalized.includes("technorizon.fr")&&!normalized.includes("prochain horoscope a 08h15");
