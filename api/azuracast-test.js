@@ -788,7 +788,7 @@ Ce qu'il faut apprendre de ces exemples : réaction spontanée au morceau, adres
    input:(programPromo?`CONTEXTE PROGRAMME OFFICIEL: prochain rendez-vous=${upcomingProgram.name}; horaire=${upcomingProgram.spoken}; délai=${upcomingProgram.minutesUntil} minutes. Tu peux annoncer ce rendez-vous et cet horaire. `:"")+`Aucun titre ou artiste musical ne doit être annoncé ni désannoncé.`,
    max_output_tokens:2400
   })});
-  if(!r.ok){if(r.status===429){globalThis.__jayaSmartRateLimited=true;console.error("JAYA_SMART_RATE_LIMITED_STOP_RETRIES");}else console.error("JAYA_SMART_HTTP",r.status);return null}
+  if(!r.ok){if(r.status===429){globalThis.__jayaSmartRateLimited=true;let kind="unknown";try{const e=await r.json();kind=String(e?.error?.code||e?.error?.type||"unknown").slice(0,64)}catch{}console.error("JAYA_SMART_RATE_LIMITED_STOP_RETRIES",{kind});}else console.error("JAYA_SMART_HTTP",r.status);return null}
   const j=await r.json();
   let out=String(j.output_text||((j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" "))).trim();
   // Le modèle peut conserver une salutation matinale malgré la règle horaire.
