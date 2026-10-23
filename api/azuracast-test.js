@@ -656,6 +656,8 @@ function announcement(song,slot){
  return pool[seed%pool.length];
 }
 async function smartAnnouncement({song,slot,hour,minute}){
+ // Stop cascading retries within one request when the upstream AI quota is exhausted.
+ if(globalThis.__jayaSmartRateLimited)return null;
  const upcomingProgram=jayaUpcomingProgram(new Date());
  // H24 : ne jamais dépendre des métadonnées musicales. Une partie de la médiathèque
  // AzuraCast n'est pas normalisée ; Jaya anime donc le direct sans citer titre/artiste.
@@ -786,7 +788,7 @@ Ce qu'il faut apprendre de ces exemples : réaction spontanée au morceau, adres
    input:(programPromo?`CONTEXTE PROGRAMME OFFICIEL: prochain rendez-vous=${upcomingProgram.name}; horaire=${upcomingProgram.spoken}; délai=${upcomingProgram.minutesUntil} minutes. Tu peux annoncer ce rendez-vous et cet horaire. `:"")+`Aucun titre ou artiste musical ne doit être annoncé ni désannoncé.`,
    max_output_tokens:2400
   })});
-  if(!r.ok){console.error("JAYA_SMART_HTTP",r.status);return null}
+  if(!r.ok){if(r.status===429){globalThis.__jayaSmartRateLimited=true;console.error("JAYA_SMART_RATE_LIMITED_STOP_RETRIES");}else console.error("JAYA_SMART_HTTP",r.status);return null}
   const j=await r.json();
   let out=String(j.output_text||((j.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text).join(" "))).trim();
   // Le modèle peut conserver une salutation matinale malgré la règle horaire.
@@ -1314,7 +1316,7 @@ async function handler(req,res){
   // donne jusqu'à huit nouvelles chances avec un angle/style différent. Aucun
   // texte local répétitif n'est réactivé et le créneau antenne reste inchangé.
   if(!isEditorial&&(!generatedText||String(generatedText).trim().length<12||jayaTooGeneric(generatedText))){
-   for(let retry=1;retry<=8;retry++){
+   for(let retry=1;retry<=8&&!globalThis.__jayaSmartRateLimited;retry++){
     const retryText=await smartAnnouncement({song:null,slot:generationSeed+retry*1009,hour:lh,minute:lm});
     if(retryText&&String(retryText).trim().length>=12&&!jayaTooGeneric(retryText)){
      generatedText=retryText;
@@ -1341,7 +1343,7 @@ async function handler(req,res){
    // immediately in this same antenna request. The scheduler does not run H24 on
    // every five-minute tick, so returning here would silently lose the passage.
    let durationAccepted=false;
-   for(let durationRetry=0;durationRetry<=5;durationRetry++){
+   for(let durationRetry=0;durationRetry<=5&&!globalThis.__jayaSmartRateLimited;durationRetry++){
     const sourceText=durationRetry===0
      ?String(safeText||"").trim()
      :String(await smartAnnouncement({song:null,slot:generationSeed+durationRetry*2017,hour:lh,minute:lm})||"").trim();
