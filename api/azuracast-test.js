@@ -215,15 +215,17 @@ function parisClock(date=new Date()){
 // Grille officielle Infos+Météo : 07:00, 09:00, 11:00, 12:30, 13:30, 15:30, 17:30, 18:30.
 // Nouvelles éditions : 07:00, 11:00, 13:30, 17:30. Rediffusions : 09:00, 12:30, 15:30, 18:30.
 // Technoroscope 07:15/08:15 reste indépendant.
+// Strict broadcast-time admission: expired editorial slots are never replayed after recovery.
+// Only the current appointment and its +5 minute guarded retry are eligible.
 const EDITORIAL_WINDOWS={
- "horoscope-generate":[[6*60+50,8*60+28]],
- "horoscope-replay":[[7*60+50,8*60+28]],
- "news-now":[[6*60+40,7*60+5],[10*60+40,11*60+5],[13*60+10,14*60],[17*60+10,17*60+35]],
- "weather-now":[[6*60+40,7*60+5],[10*60+40,11*60+5],[13*60+10,14*60],[17*60+10,17*60+35]]
+ "horoscope-generate":[[7*60+15,7*60+20]],
+ "horoscope-replay":[[8*60+15,8*60+20]],
+ "news-now":[[7*60,7*60+5],[11*60,11*60+5],[13*60+30,13*60+35],[17*60+30,17*60+35]],
+ "weather-now":[[7*60,7*60+5],[11*60,11*60+5],[13*60+30,13*60+35],[17*60+30,17*60+35]]
 };
 function editorialWindows(action,period){
  if(action==="flash-replay"){
-  const replayWindows={"07":[[8*60+40,9*60+20]],"11":[[12*60+10,12*60+50]],"13":[[15*60+10,15*60+50]],"17":[[18*60+10,18*60+50]]};
+  const replayWindows={"07":[[9*60,9*60+5]],"11":[[12*60+30,12*60+35]],"13":[[15*60+30,15*60+35]],"17":[[18*60+30,18*60+35]]};
   return replayWindows[period]||[];
  }
  return EDITORIAL_WINDOWS[action]||[];
