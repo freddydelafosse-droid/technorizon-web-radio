@@ -897,33 +897,10 @@ async function handler(req,res){
     else if(h===18&&m===35){action="flash-replay";period="17";}
    }
 
-   // H24 opportunities use a second 5-minute catch-up tick; the API's
-   // 12-minute history lock prevents the catch-up from creating a duplicate.
-   let h24=false;
-   // Hard editorial reservation: H24 can never compete with an editorial slot.
-   // These buffers cover preparation, QStash retry and the announced on-air time.
-   const editorialReserved =
-    (h===6&&m>=45) || (h===7&&m<=20) ||                 // 07:00 + horoscope 07:15
-    (h===8&&m>=5&&m<=20) || (h===9&&m<=5) ||                  // horoscope 08:15 + 09:00 flash
-    (h===10&&m>=45) || (h===11&&m<=5) ||               // 11:00 flash
-    (h===12&&m>=15&&m<=35) ||                          // 12:30 flash
-    (h===13&&m>=15&&m<=35) ||                          // 13:30 flash
-    (h===15&&m>=15&&m<=35) ||                          // 15:30 flash
-    (h===17&&m>=15&&m<=35) ||                          // 17:30 flash
-    (h===18&&m>=15&&m<=35);                            // 18:30 flash
-   if(!action&&!editorialReserved){
-    const parisDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
-    // Temporary ElevenLabs economy window, automatically ending after 22 October.
-    const economyWindow=parisDay>="2026-10-15"&&parisDay<="2026-10-22";
-    const economyThreePerHour=(h>=6&&h<10)||(h>=17&&h<21);
-    const economyTwoPerHour=(h>=10&&h<17)||(h>=21&&h<23);
-    const h24Minutes=economyWindow
-     ? (economyThreePerHour?[10,15,30,35,50,55]:economyTwoPerHour?[10,15,40,45]:[])
-     : [10,15,30,35,50,55];
-    // Silence antenne Jaya absolu de 23:00 à 06:00, heure de Paris.
-    // Les réservations éditoriales ci-dessus restent prioritaires et excluent tout chevauchement.
-    h24=h24Minutes.includes(m)&&h>=6&&h<23;
-   }
+   // One autonomous intervention per hour, at :40 Europe/Paris.
+   // Editorial actions above keep their own schedules and protected retries.
+   // :40 avoids all official Infos/Meteo and Technoroscope slots.
+   const h24=!action&&m===40&&h>=6&&h<23;
 
    if(!action&&!h24){
     console.log("JAYA_QSTASH_IDLE",{minute,h,m,dow,at:now.toISOString()});
@@ -1257,6 +1234,11 @@ async function handler(req,res){
   if(!isWeather&&!isNews&&(lh>=23||lh<6)){
    console.log("JAYA_H24_NIGHT_SILENCE",{hour:lh,minute:lm,window:"23:00-06:00"});
    return skip(res,"h24-night-silence",{window:"23:00-06:00",paris_hour:lh,paris_minute:lm});
+  }
+  // Apply the hourly schedule to every autonomous caller, including old clocks.
+  // Editorial actions and AutoDJ liners are independent of this guard.
+  if(!isWeather&&!isNews&&lm!==40){
+   return skip(res,"h24-hourly-schedule",{paris_hour:lh,paris_minute:lm,scheduled_minute:40});
   }
   if(isNews||isWeather){
    const date=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
