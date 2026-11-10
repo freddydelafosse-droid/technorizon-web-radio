@@ -900,7 +900,7 @@ async function handler(req,res){
    // One autonomous intervention per hour, at :40 Europe/Paris.
    // Editorial actions above keep their own schedules and protected retries.
    // :40 avoids all official Infos/Meteo and Technoroscope slots.
-   const h24=!action&&m===40&&h>=6&&h<23;
+   const h24=!action&&dow!==7&&m===40&&h>=6&&h<23;
 
    if(!action&&!h24){
     console.log("JAYA_QSTASH_IDLE",{minute,h,m,dow,at:now.toISOString()});
@@ -1237,6 +1237,9 @@ async function handler(req,res){
   }
   // Apply the hourly schedule to every autonomous caller, including old clocks.
   // Editorial actions and AutoDJ liners are independent of this guard.
+  if(!isWeather&&!isNews&&parisDow(now)===7){
+   return skip(res,"h24-sunday-silence",{paris_weekday:7});
+  }
   if(!isWeather&&!isNews&&lm!==40){
    return skip(res,"h24-hourly-schedule",{paris_hour:lh,paris_minute:lm,scheduled_minute:40});
   }
